@@ -23,20 +23,80 @@ body > div {
 <script>'use strict';
 /*
  * code_util.js
- * Utility codes
+ * Utility codes, including initial detection of browser feature and no script.
  */
-</script><script>'use strict';
+
+// Main namespace
+var oddi = {};
+ 
+// Simple check for browser features
+if ( ! document.querySelectorAll || !window.Storage ) {
+   alert('Please upgrade browser.');
+}
+ 
+function _( cssSelector ) {
+   return document.querySelectorAll( cssSelector );
+}
+
+</script><noscript>
+   <h1> Please enable JavaScript </h1>
+   <h1> 請啓用 JavaScript </h1>
+</noscript><script>'use strict';
 /*
  * code_gui.js
  * GUI-related codes, but activity-specific codes are coded with activities.
  */
+ 
+// Switch to index action on domready
+window.addEventListener('DOMContentLoaded',function(){ oddi.gui.switch_action( oddi.action.index ); },false);
+
+// Action object. Would be populated by individual actions
+oddi.action = {};
+
+// 
+oddi.gui = {
+   /** Current action */
+   action: null,
+   
+   switch_action :
+      /**
+       * Switch between actions. Would call action object's cleanup method for current action and setup method for next action.
+       */
+      function gui_switch_action( action ) {
+         var currentAction = oddi.gui.action;
+         if ( !action || action == currentAction ) return;
+
+         // Pre-switch validation & cleanup
+         if ( currentAction && currentAction.cleanup && currentAction.cleanup( action ) === false ) return false;
+
+         Array.prototype.forEach.call(_("body > div[id]"), function(e){ e.style.display = ''; });
+         _( "#"+action.id )[0].style.display = 'block';
+
+         // Post-switch setup
+         if ( action.setup ) action.setup( action );
+
+         oddi.gui.action = action;
+      }
+}
+
 </script><!--
   - action_index.html
   - Shows introduction and instrructions
   -->
 <div id='action_index'>
+   <h1>Offline Compendium</h1>
+   <p>
+      This browser script allows you to download and save compendium entries, then search and browse them offline.
+      <b>Requires an active DDI subscription to download any data.</b>
+   </p>
 </div>
-<!--
+<script>'use strict';
+
+oddi.action.index = {
+   id: 'action_index'
+};
+
+</script><!--
   - action_download.html
   - Opens an iframe to compendium and shows overlaid buttons
   -->
