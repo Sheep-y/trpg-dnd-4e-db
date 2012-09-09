@@ -1,6 +1,33 @@
 <!--
   - action_download.html
-  - Opens an iframe to compendium and shows overlaid buttons
+  - Query online compendium and shows what can be downloaded / updated.
   -->
 <div id='action_download'>
+   <h1>Offline Compendium</h1>
+   <p>
+      This browser script allows you to download and save compendium entries,
+      then search it offline using advanced Google-like syntax.
+   </p>
+   <p>
+      <b>Requires an active DDI subscription to download any data.</b>
+   </p>
+   <p>
+      <label> <input type='search' class='right' placeholder='Search' autofocus>
+      <a class='button' onclick='oddi.action.index.event.refresh()'> Refresh list </a>
+      <label> <input type='checkbox'> Auto refresh </label>
+   </p>
+   <p> Click 'Refresh' to update listing </p>
 </div>
+<script>'use strict';
+
+oddi.action.download = {
+   id: 'action_download',
+   setup: null,
+   cleanup: null,
+   event: {
+      refresh: function download_refresh() {
+      }
+   }
+};
+
+</script>

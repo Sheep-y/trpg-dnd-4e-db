@@ -9,11 +9,37 @@
  * style.css
  */
 
+* {
+   box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   -webkit-box-sizing: border-box;
+}
+
 html, body, div, th, td { margin: 0; padding: 0; }
 
-body > div {
+html, body {
+   width: 100%;
+   background-color: #DDD;
 }
-/*
+
+
+.right { float: right; }
+.left { float: left; }
+.hide { display: none; }
+
+/** Action divs */
+body > div[id^="action_"] {
+   display: none;
+   width: 100%;
+   padding: 1em;
+}
+
+.button {
+   display: inline-block;
+   padding: 0.5ex 1ex;
+   border-radius: 1ex;
+   border: 1px outset #888;
+}/*
  * html_header.html
  * Title, link, etc.
  */
@@ -47,8 +73,8 @@ function _( cssSelector ) {
  * GUI-related codes, but activity-specific codes are coded with activities.
  */
  
-// Switch to index action on domready
-window.addEventListener('DOMContentLoaded',function(){ oddi.gui.switch_action( oddi.action.index ); },false);
+// Switch to download action on domready
+window.addEventListener('DOMContentLoaded',function(){ oddi.gui.switch_action( oddi.action.download ); },false);
 
 // Action object. Would be populated by individual actions
 oddi.action = {};
@@ -79,42 +105,7 @@ oddi.gui = {
       }
 }
 
-</script><!--
-  - action_index.html
-  - Shows introduction and instrructions
-  -->
-<div id='action_index'>
-   <h1>Offline Compendium</h1>
-   <p>
-      This browser script allows you to download and save compendium entries, then search and browse them offline.
-      <b>Requires an active DDI subscription to download any data.</b>
-   </p>
-</div>
-<script>'use strict';
-
-oddi.action.index = {
-   id: 'action_index'
-};
-
-</script><!--
-  - action_download.html
-  - Opens an iframe to compendium and shows overlaid buttons
-  -->
-<div id='action_download'>
-</div>
-<!--
-  - action_list.html
-  - List and search downloaded entries
-  -->
-<div id='action_list'>
-</div>
-<!--
-  - action_view.html
-  - View entries details
-  -->
-<div id='action_view'>
-</div>
-<script>'use strict';
+</script><script>'use strict';
 /*
  * data_model.js
  * Create data model in memory
@@ -123,11 +114,6 @@ oddi.action.index = {
 /*
  * data_read.js
  * Read data from persistent storage
- */
-</script><script>'use strict';
-/*
- * data_download.js
- * Download and extract data from Internet to data model
  */
 </script><script>'use strict';
 /*
@@ -140,12 +126,51 @@ oddi.action.index = {
  * Write data model to persistent storage.
  * This part needs file permission and currently only works with Firefox
  */
-</script><script>'use strict';
-/*
- * data_search.js
- * Search in data model.
- */
 </script><!--
+  - action_download.html
+  - Query online compendium and shows what can be downloaded / updated.
+  -->
+<div id='action_download'>
+   <h1>Offline Compendium</h1>
+   <p>
+      This browser script allows you to download and save compendium entries,
+      then search it offline using advanced Google-like syntax.
+   </p>
+   <p>
+      <b>Requires an active DDI subscription to download any data.</b>
+   </p>
+   <p>
+      <label> <input type='search' class='right' placeholder='Search' autofocus>
+      <a class='button' onclick='oddi.action.index.event.refresh()'> Refresh list </a>
+      <label> <input type='checkbox'> Auto refresh </label>
+   </p>
+   <p> Click 'Refresh' to update listing </p>
+</div>
+<script>'use strict';
+
+oddi.action.download = {
+   id: 'action_download',
+   setup: null,
+   cleanup: null,
+   event: {
+      refresh: function download_refresh() {
+      }
+   }
+};
+
+</script><!--
+  - action_list.html
+  - List and search downloaded entries
+  -->
+<div id='action_list'>
+</div>
+<!--
+  - action_view.html
+  - View entries details
+  -->
+<div id='action_view'>
+</div>
+<!--
   - html_footer.html
   - The footer
   -->

@@ -2,7 +2,34 @@
  * style.css
  */
 
+* {
+   box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   -webkit-box-sizing: border-box;
+}
+
 html, body, div, th, td { margin: 0; padding: 0; }
 
-body > div {
+html, body {
+   width: 100%;
+   background-color: #DDD;
+}
+
+
+.right { float: right; }
+.left { float: left; }
+.hide { display: none; }
+
+/** Action divs */
+body > div[id^="action_"] {
+   display: none;
+   width: 100%;
+   padding: 1em;
+}
+
+.button {
+   display: inline-block;
+   padding: 0.5ex 1ex;
+   border-radius: 1ex;
+   border: 1px outset #888;
 }

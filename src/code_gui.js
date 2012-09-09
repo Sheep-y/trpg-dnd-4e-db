@@ -4,8 +4,8 @@
  * GUI-related codes, but activity-specific codes are coded with activities.
  */
  
-// Switch to index action on domready
-window.addEventListener('DOMContentLoaded',function(){ oddi.gui.switch_action( oddi.action.index ); },false);
+// Switch to download action on domready
+window.addEventListener('DOMContentLoaded',function(){ oddi.gui.switch_action( oddi.action.download ); },false);
 
 // Action object. Would be populated by individual actions
 oddi.action = {};
