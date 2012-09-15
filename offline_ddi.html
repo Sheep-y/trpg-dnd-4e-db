@@ -64,6 +64,31 @@ function _( cssSelector ) {
    return document.querySelectorAll( cssSelector );
 }
 
+_.ajax = function _ajax( url, data, onsuccess, onfail, ondone ) {
+   var xhr = new XMLHttpRequest();
+   xhr.open( url, 'POST' );
+   //xhr.mozBackgroundRequest = true;
+   xhr.onreadystatechange = function _ajax_onreadystatechange() {
+      if ( xhr.readyState == 4 ) {
+         if ( [200,302].indexOf( xhr.status ) >= 0 ) {
+            if ( onsuccess ) onsuccess(xhr);
+         } else {
+            if ( onfail ) onfail(xhr);
+         }
+         if ( ondone ) ondone(xhr);
+      }
+   }
+   xhr.send();
+   return xhr;
+}
+
+_.js = function _js( url ) {
+   var e = document.createElement( 'script' );
+   e.classNAme = 'temp';
+   e.src = url;
+   document.body.appendChild( e );
+}
+
 </script><noscript>
    <h1> Please enable JavaScript </h1>
    <h1> 請啓用 JavaScript </h1>
@@ -110,11 +135,72 @@ oddi.gui = {
  * data_model.js
  * Create data model in memory
  */
+
+oddi.data = {
+   category : { "Sample": 2 },
+   data : {
+      "Sample" : {
+         columns: [ "Id", "Name", "Category", "Source" ],
+         listing: [ [ "sampleId001", "Sample Data 1", "Sample1", "Git" ],
+                    [ "sampleId003", "Sample Data 2", "Sample2", "Git" ], ],
+         index: {"this":[0,1],"sample":[0],"data":[0,1],"sampleId001":[0],"another":[1],"that":[1],"example":[1]},
+         data: [ "<p>This is sample data id sampleId001</p>" ], // Data at index 2 not loaded yet
+      }
+   },
+   /** Clear all loaded data or a category of data */
+   clear: function data_reset( category ) {
+      if ( category ) {
+         var pos = this.category.indexOf( category );
+         if ( pos ) {
+            this.category.splice( pos, 1 );
+            delete this.data[category];
+         } else {
+            if ( console ) console.log("Warning: Cannot reset category "+category);
+         }
+      } else {
+         this.category = [];
+         this.data = {};
+      }
+   }
+}
+
+
+/*
+oddi.data = {
+   data: { "cat": {
+      "count": entry_count,
+   },
+}
+*/
+
 </script><script>'use strict';
 /*
  * data_read.js
  * Read data from persistent storage
  */
+
+ oddi.reader = {
+    read_index: function reader_read_index( version, data ) {
+       oddi.data.category = data;
+    },
+    read_data_listing: function reader_read_data_listing( version, category, columns, data ) {
+       oddi.data.data[category] = {
+          columns: columns,
+          listing: data,
+          index: {},
+          data: [],
+       }
+    },
+    read_data_index: function reader_read_data_index( version, category, data ) {
+       oddi.data.data[category].index = data;
+    },
+    read_data: function reader_read_data( version, category, startIndex, data ) {
+       var ary = oddi.data.data[category].data;
+       for ( var i = 0 ; i <= 99 ; i++ ) {
+          ary[startIndex+i] = data[i];
+       }
+    }
+ }
 </script><script>'use strict';
 /*
  * data_index.js
@@ -140,8 +226,8 @@ oddi.gui = {
       <b>Requires an active DDI subscription to download any data.</b>
    </p>
    <p>
-      <label> <input type='search' class='right' placeholder='Search' autofocus>
-      <a class='button' onclick='oddi.action.index.event.refresh()'> Refresh list </a>
+      <input type='search' class='right' placeholder='Search' autofocus>
+      <a class='button' onclick='oddi.action.download.event.refresh()'> Refresh list </a>
       <label> <input type='checkbox'> Auto refresh </label>
    </p>
    <p> Click 'Refresh' to update listing </p>
@@ -154,6 +240,8 @@ oddi.action.download = {
    cleanup: null,
    event: {
       refresh: function download_refresh() {
+         oddi.data.clear();
+         _.js('data/index.jsonp');
       }
    }
 };
