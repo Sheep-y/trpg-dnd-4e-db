@@ -2,5 +2,5 @@
  * Main index. Contains data version and number of rows for each category of data.
  */
 oddi.reader.read_index(20120915,{
-   "Sample": 1,
+   "Sample": 2,
 });

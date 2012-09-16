@@ -85,7 +85,9 @@ _.ajax = function _ajax( url, data, onsuccess, onfail, ondone ) {
 _.js = function _js( url, onload ) {
    var e = document.createElement( 'script' );
    e.src = url;
+   // Optional callback
    if ( onload ) e.addEventListener('load', onload);
+   // Cleanup - remove script node so that saved html wouldn't be polluted
    e.addEventListener('load', function(){ document.body.removeChild(e) });
    document.body.appendChild( e );
 }
@@ -107,25 +109,24 @@ oddi.gui = {
    /** Current action */
    action: null,
    
-   switch_action :
-      /**
+   /**
        * Switch between actions. Would call action object's cleanup method for current action and setup method for next action.
        */
-      function gui_switch_action( action ) {
-         var currentAction = oddi.gui.action;
-         if ( !action || action == currentAction ) return;
+   switch_action : function gui_switch_action( action ) {
+      var currentAction = oddi.gui.action;
+      if ( !action || action == currentAction ) return;
 
-         // Pre-switch validation & cleanup
-         if ( currentAction && currentAction.cleanup && currentAction.cleanup( action ) === false ) return false;
+      // Pre-switch validation & cleanup
+      if ( currentAction && currentAction.cleanup && currentAction.cleanup( action ) === false ) return false;
 
-         Array.prototype.forEach.call(_("body > div[id]"), function(e){ e.style.display = ''; });
-         _( "#"+action.id )[0].style.display = 'block';
+      Array.prototype.forEach.call(_("body > div[id]"), function(e){ e.style.display = ''; });
+      _( "#"+action.id )[0].style.display = 'block';
 
-         // Post-switch setup
-         if ( action.setup ) action.setup( action );
+      // Post-switch setup
+      if ( action.setup ) action.setup( action );
 
-         oddi.gui.action = action;
-      }
+      oddi.gui.action = action;
+   }
 }
 
 </script><script>'use strict';
@@ -177,45 +178,70 @@ oddi.data = {
  * Read data from persistent storage
  */
 
- oddi.reader = {
-    _loaded: {},
-    _timeout: 1 * 1000,
+oddi.reader = {
+   _loaded: {},
+   _timeout: 1 * 1000,
 
-    read_index: function reader_read_index( version, data ) {
-       var src = 'data/index.jsonp';
-       if ( ! version ) {
+   /**
+      * Call _.js if onload is empty, or onread if it is not empty.
+      * Shows errmsg if anything happens.
+      */
+   _read: function reader_read( doload, src, onread, errmsg ) {
+      if ( ! doload ) {
           this._loaded[src] = setTimeout(function(){
-             // timeout
-             alert('timeout');
-          }, this._timeout);
-          _.js(src, function(a){ if ( oddi.reader._loaded[src] ) {
-             // error
-             alert('error');
-          }});
-       } else {
-          oddi.data.category = data;
-          clearTimeout( this._loaded[src] );
-          delete this._loaded[src];
-       }
-    },
-    read_data_listing: function reader_read_data_listing( version, category, columns, data ) {
-       oddi.data.data[category] = {
-          columns: columns,
-          listing: data,
-          index: {},
-          data: [],
-       }
-    },
-    read_data_index: function reader_read_data_index( version, category, data ) {
-       oddi.data.data[category].index = data;
-    },
-    read_data: function reader_read_data( version, category, startIndex, data ) {
-       var ary = oddi.data.data[category].data;
-       for ( var i = 0 ; i <= 99 ; i++ ) {
-          ary[startIndex+i] = data[i];
-       }
-    }
- }
+            // timeout
+            this._read_cleanup( src, errmsg );
+         }, this._timeout);
+         _.js(src, function(a){ if ( oddi.reader._loaded[src] ) {
+            // error
+            this._read_cleanup( src, errmsg );
+         }});
+      } else {
+         if ( onread ) onread();
+         this._read_cleanup( src );
+      }
+   },
+
+   _read_cleanup: function reader_read_cleanup( src, errmsg ) {
+      clearTimeout( this._loaded[src] );
+      this._loaded[src] = 0;
+      if ( errmsg ) alert( errmsg );
+   },
+
+   read_index: function reader_read_index( version, data ) {
+      oddi.reader._read( version, 'data/index.jsonp', function(){
+         oddi.data.category = data;
+      });
+   },
+
+   read_data_listing: function reader_read_data_listing( category, version, columns, data ) {
+      oddi.reader._read( version, 'data/'+category+'/listing.jsonp', function(){
+         oddi.data.data[category] = {
+            columns: columns,
+            listing: data,
+            index: {},
+            data: [],
+         }
+      });
+   },
+
+   read_data_index: function reader_read_data_index( category, version, data ) {
+      oddi.reader._read( version, 'data/'+category+'/index.jsonp', function(){
+         oddi.data.data[category].index = data;
+      });
+   },
+
+   read_data: function reader_read_data( category, index, version, data ) {
+      startIndex = Math.floor( index / 100 );
+      endIndex = startIndex + 99;
+      oddi.reader._read( version, 'data/'+category+'/data'+startIndex+'-'+endIndex+'.jsonp', function(){
+         var ary = oddi.data.data[category].data;
+         for ( var i = 0 ; i <= 99 ; i++ ) {
+            ary[startIndex+i] = data[i];
+         }
+      });
+   }
+}
 </script><script>'use strict';
 /*
  * data_index.js
