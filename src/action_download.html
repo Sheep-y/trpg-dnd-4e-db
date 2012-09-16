@@ -12,8 +12,8 @@
       <b>Requires an active DDI subscription to download any data.</b>
    </p>
    <p>
-      <label> <input type='search' class='right' placeholder='Search' autofocus>
-      <a class='button' onclick='oddi.action.index.event.refresh()'> Refresh list </a>
+      <input type='search' class='right' placeholder='Search' autofocus>
+      <a class='button' onclick='oddi.action.download.event.refresh()'> Refresh list </a>
       <label> <input type='checkbox'> Auto refresh </label>
    </p>
    <p> Click 'Refresh' to update listing </p>
@@ -26,6 +26,8 @@ oddi.action.download = {
    cleanup: null,
    event: {
       refresh: function download_refresh() {
+         oddi.data.clear();
+         oddi.reader.read_index();
       }
    }
 };
