@@ -82,25 +82,23 @@ _.ajax = function _ajax( url, data, onsuccess, onfail, ondone ) {
    return xhr;
 }
 
-_.js = function _js( url ) {
+_.js = function _js( url, onload ) {
    var e = document.createElement( 'script' );
-   e.classNAme = 'temp';
    e.src = url;
+   if ( onload ) e.addEventListener('load', onload);
+   e.addEventListener('load', function(){ document.body.removeChild(e) });
    document.body.appendChild( e );
 }
 
 </script><noscript>
    <h1> Please enable JavaScript </h1>
-   <h1> 請啓用 JavaScript </h1>
+   <h1> 請啟用 JavaScript </h1>
 </noscript><script>'use strict';
 /*
  * code_gui.js
  * GUI-related codes, but activity-specific codes are coded with activities.
  */
  
-// Switch to download action on domready
-window.addEventListener('DOMContentLoaded',function(){ oddi.gui.switch_action( oddi.action.download ); },false);
-
 // Action object. Would be populated by individual actions
 oddi.action = {};
 
@@ -180,8 +178,25 @@ oddi.data = {
  */
 
  oddi.reader = {
+    _loaded: {},
+    _timeout: 1 * 1000,
+
     read_index: function reader_read_index( version, data ) {
-       oddi.data.category = data;
+       var src = 'data/index.jsonp';
+       if ( ! version ) {
+          this._loaded[src] = setTimeout(function(){
+             // timeout
+             alert('timeout');
+          }, this._timeout);
+          _.js(src, function(a){ if ( oddi.reader._loaded[src] ) {
+             // error
+             alert('error');
+          }});
+       } else {
+          oddi.data.category = data;
+          clearTimeout( this._loaded[src] );
+          delete this._loaded[src];
+       }
     },
     read_data_listing: function reader_read_data_listing( version, category, columns, data ) {
        oddi.data.data[category] = {
@@ -241,7 +256,7 @@ oddi.action.download = {
    event: {
       refresh: function download_refresh() {
          oddi.data.clear();
-         _.js('data/index.jsonp');
+         oddi.reader.read_index();
       }
    }
 };
@@ -260,6 +275,10 @@ oddi.action.download = {
 </div>
 <!--
   - html_footer.html
-  - The footer
+  - Initialisation code and httml footer
   -->
+<script>'use strict';
+    // Switch to download action on domready
+    window.addEventListener('DOMContentLoaded',function(){ oddi.gui.switch_action( oddi.action.download ); },false);
+</script>
 </body></html>
