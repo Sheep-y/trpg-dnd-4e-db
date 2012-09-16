@@ -34,14 +34,17 @@ _.ajax = function _ajax( url, data, onsuccess, onfail, ondone ) {
    return xhr;
 }
 
-_.js = function _js( url ) {
+_.js = function _js( url, onload ) {
    var e = document.createElement( 'script' );
-   e.classNAme = 'temp';
    e.src = url;
+   // Optional callback
+   if ( onload ) e.addEventListener('load', onload);
+   // Cleanup - remove script node so that saved html wouldn't be polluted
+   e.addEventListener('load', function(){ document.body.removeChild(e) });
    document.body.appendChild( e );
 }
 
 </script><noscript>
    <h1> Please enable JavaScript </h1>
-   <h1> 請啓用 JavaScript </h1>
+   <h1> 請啟用 JavaScript </h1>
 </noscript>
