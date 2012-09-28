@@ -35,8 +35,8 @@ _.l.localise = function _l_localise( root ) {
    var el = root.getElementsByClassName( "i18n" );
    for ( var i = 0 ; i < el.length ; i++ ) {
       var e = el[i];
-      var key = e.dataset["i18n"];
-      if ( !key ) e.dataset["i18n"] = key = e.textContent.trim();
+      var key = e.getAttribute("data-i18n");
+      if ( !key ) e.setAttribute("dataset-i18n", key = e.textContent.trim() );
       e.innerHTML = _.l( key );
    }
 }
