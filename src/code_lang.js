@@ -4,7 +4,7 @@
  * Localization code
  */
 
-_.l = function( path, data ) {
+_.l = function _l( path, data ) {
    var p = path.split(/\./);
    var last = p.pop();
    p.unshift( _.l.currentLocale );

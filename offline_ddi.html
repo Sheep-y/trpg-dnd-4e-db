@@ -46,36 +46,46 @@ body > div[id^="action_"] {
   </style>
   <title> Offline Compendium </title>
 </head><body>
+  <script>"use strict";
+// Main namespace
+var oddi = {
+   // Action object. Would be populated by individual actions
+   action: {},
+};
+  </script>
+
+
 <script>'use strict';
 /*
  * code_util.js
  * Utility codes, including initial detection of browser feature and no script.
  */
 
-// Main namespace
-var oddi = {};
- 
 // Simple check for browser features
 if ( ! document.querySelectorAll || !window.Storage ) {
    alert('Please upgrade browser.');
 }
- 
+
 function _( cssSelector ) {
    return document.querySelectorAll( cssSelector );
 }
 
-_.ajax = function _ajax( url, data, onsuccess, onfail, ondone ) {
-   var xhr = new XMLHttpRequest();
-   xhr.open( url, 'POST' );
+/**
+ * Ajax function
+ */
+_.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
+   if ( xhr === undefined ) xhr = new XMLHttpRequest();
+   xhr.open( 'POST', url );
    //xhr.mozBackgroundRequest = true;
    xhr.onreadystatechange = function _ajax_onreadystatechange() {
       if ( xhr.readyState == 4 ) {
-         if ( [200,302].indexOf( xhr.status ) >= 0 ) {
-            if ( onsuccess ) onsuccess(xhr);
+         // 0 is a possible response code for local file access under IE 9 ActiveX
+         if ( [0,200,302].indexOf( xhr.status ) >= 0 && xhr.responseText ) {
+            if ( onsuccess ) onsuccess.call( xhr, xhr.responseText );
          } else {
-            if ( onfail ) onfail(xhr);
+            if ( onfail ) onfail.call( xhr, xhr );
          }
-         if ( ondone ) ondone(xhr);
+         if ( ondone ) ondone.call( xhr, xhr );
       }
    }
    xhr.send();
@@ -92,19 +102,95 @@ _.js = function _js( url, onload ) {
    document.body.appendChild( e );
 }
 
+/**
+ * Cross Origin Request function
+ */
+_.cor = function _cor( url, onsuccess, onfail, ondone ) {
+   if ( window.ActiveXObject ) {
+      return _.ajax( url, onsuccess, onfail, ondone );//new ActiveXObject("Microsoft.XMLHttp") );
+   } else {
+      //return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
+   }
+}
+
 </script><noscript>
    <h1> Please enable JavaScript </h1>
    <h1> 請啟用 JavaScript </h1>
 </noscript><script>'use strict';
 /*
+ * code_lang.js
+ * Localization code
+ */
+
+_.l = function _l( path, data ) {
+   var p = path.split(/\./);
+   var last = p.pop();
+   p.unshift( _.l.currentLocale );
+   var base = _.l.data;
+   var len = p.length;
+   // Explore path
+   p.forEach(function(node){
+      if ( base[node] === undefined ) base[node] = {};
+      base = base[node];
+   });
+   if ( data === undefined ) {
+      var result = base[last];
+      return result !== undefined ? result : path;
+   }
+   // Set data
+   base[last] = data;
+   return _;
+};
+
+_.l.currentLocale = 'en';
+_.l.data = {};
+
+_.l.setLocale = function _l_setLocale( l ) {
+   _.l.currentLocale = l;
+}
+
+_.l.localise = function _l_localise( root ) {
+   var el = root.getElementsByClassName( "i18n" );
+   for ( var i = 0 ; i < el.length ; i++ ) {
+      var e = el[i];
+      var key = e.getAttribute("data-i18n");
+      if ( !key ) e.setAttribute("dataset-i18n", key = e.textContent.trim() );
+      e.innerHTML = _.l( key );
+   }
+}
+
+</script><script>'use strict';
+/*
+ * lang_en.js
+ * English localization resources
+ */
+
+_.l.currentLocale = 'en';
+
+_.l( 'action.download', {
+   title: "Offline Compendium",
+   paragraph: [
+      "This browser script allows you to download and save compendium entries, then search it offline using advanced Google-like syntax.",
+      "<b>Requires an active DDI subscription to download any data.</b>",
+      "Click 'Refresh' to update listing",
+   ],
+   btn_refresh: "Refresh list",
+   chk_refresh: "Auto refresh",
+});
+
+</script><script>'use strict';
+/*
+ * lang_zh.js
+ * Chinese localization resources
+ */
+
+</script><script>'use strict';
+/*
  * code_gui.js
  * GUI-related codes, but activity-specific codes are coded with activities.
  */
- 
-// Action object. Would be populated by individual actions
-oddi.action = {};
 
-// 
+// GUI namespace
 oddi.gui = {
    /** Current action */
    action: null,
@@ -208,13 +294,13 @@ oddi.reader = {
       if ( errmsg ) alert( errmsg );
    },
 
-   read_index: function reader_read_index( version, data ) {
+   read_index: function reader_read_index( version, data, errmsg ) {
       oddi.reader._read( version, 'data/index.jsonp', function(){
          oddi.data.category = data;
-      });
+      }, errmsg);
    },
 
-   read_data_listing: function reader_read_data_listing( category, version, columns, data ) {
+   read_data_listing: function reader_read_data_listing( category, version, columns, data, errmsg ) {
       oddi.reader._read( version, 'data/'+category+'/listing.jsonp', function(){
          oddi.data.data[category] = {
             columns: columns,
@@ -222,16 +308,16 @@ oddi.reader = {
             index: {},
             data: [],
          }
-      });
+      }, errmsg );
    },
 
-   read_data_index: function reader_read_data_index( category, version, data ) {
+   read_data_index: function reader_read_data_index( category, version, data, errmsg ) {
       oddi.reader._read( version, 'data/'+category+'/index.jsonp', function(){
          oddi.data.data[category].index = data;
-      });
+      }, errmsg );
    },
 
-   read_data: function reader_read_data( category, index, version, data ) {
+   read_data: function reader_read_data( category, index, version, data, errmsg ) {
       startIndex = Math.floor( index / 100 );
       endIndex = startIndex + 99;
       oddi.reader._read( version, 'data/'+category+'/data'+startIndex+'-'+endIndex+'.jsonp', function(){
@@ -239,7 +325,7 @@ oddi.reader = {
          for ( var i = 0 ; i <= 99 ; i++ ) {
             ary[startIndex+i] = data[i];
          }
-      });
+      }, errmsg );
    }
 }
 </script><script>'use strict';
@@ -258,20 +344,15 @@ oddi.reader = {
   - Query online compendium and shows what can be downloaded / updated.
   -->
 <div id='action_download'>
-   <h1>Offline Compendium</h1>
+   <h1 class="i18n">action.download.title</h1>
+   <p class="i18n"> action.download.paragraph.0 </p>
+   <p class="i18n"> action.download.paragraph.1 </p>
    <p>
-      This browser script allows you to download and save compendium entries,
-      then search it offline using advanced Google-like syntax.
+      <!--input type='search' class='right' placeholder='Search' autofocus-->
+      <a class='button i18n' onclick='oddi.action.download.event.refresh()'> action.download.btn_refresh </a>
+      <label> <input type='checkbox'> <span class='i18n'>action.download.chk_refresh</span> </label>
    </p>
-   <p>
-      <b>Requires an active DDI subscription to download any data.</b>
-   </p>
-   <p>
-      <input type='search' class='right' placeholder='Search' autofocus>
-      <a class='button' onclick='oddi.action.download.event.refresh()'> Refresh list </a>
-      <label> <input type='checkbox'> Auto refresh </label>
-   </p>
-   <p> Click 'Refresh' to update listing </p>
+   <p class='i18n'> action.download.paragraph.2 </p>
 </div>
 <script>'use strict';
 
@@ -283,6 +364,15 @@ oddi.action.download = {
       refresh: function download_refresh() {
          oddi.data.clear();
          oddi.reader.read_index();
+         //_.cor( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&tab=Glossary&nameOnly=false',
+         _.cor( 'data/test-search.xml',
+             function( data ){ alert( data ); });
+         // enablePrivilege is disabled since Firefox 15
+         //try {
+         //   netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
+         //} catch ( e ) {
+         //   alert(e);
+         //}
       }
    }
 };
@@ -304,7 +394,12 @@ oddi.action.download = {
   - Initialisation code and httml footer
   -->
 <script>'use strict';
-    // Switch to download action on domready
-    window.addEventListener('DOMContentLoaded',function(){ oddi.gui.switch_action( oddi.action.download ); },false);
+    // Program initialisation
+    window.addEventListener('DOMContentLoaded',function(){
+       _.l.localise( document.body );
+
+       // Switch to download action
+       oddi.gui.switch_action( oddi.action.download );
+    },false);
 </script>
-</body></html>
+</body></html>

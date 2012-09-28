@@ -3,20 +3,15 @@
   - Query online compendium and shows what can be downloaded / updated.
   -->
 <div id='action_download'>
-   <h1>Offline Compendium</h1>
+   <h1 class="i18n">action.download.title</h1>
+   <p class="i18n"> action.download.paragraph.0 </p>
+   <p class="i18n"> action.download.paragraph.1 </p>
    <p>
-      This browser script allows you to download and save compendium entries,
-      then search it offline using advanced Google-like syntax.
+      <!--input type='search' class='right' placeholder='Search' autofocus-->
+      <a class='button i18n' onclick='oddi.action.download.event.refresh()'> action.download.btn_refresh </a>
+      <label> <input type='checkbox'> <span class='i18n'>action.download.chk_refresh</span> </label>
    </p>
-   <p>
-      <b>Requires an active DDI subscription to download any data.</b>
-   </p>
-   <p>
-      <input type='search' class='right' placeholder='Search' autofocus>
-      <a class='button' onclick='oddi.action.download.event.refresh()'> Refresh list </a>
-      <label> <input type='checkbox'> Auto refresh </label>
-   </p>
-   <p> Click 'Refresh' to update listing </p>
+   <p class='i18n'> action.download.paragraph.2 </p>
 </div>
 <script>'use strict';
 
@@ -28,6 +23,15 @@ oddi.action.download = {
       refresh: function download_refresh() {
          oddi.data.clear();
          oddi.reader.read_index();
+         //_.cor( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&tab=Glossary&nameOnly=false',
+         _.cor( 'data/test-search.xml',
+             function( data ){ alert( data ); });
+         // enablePrivilege is disabled since Firefox 15
+         //try {
+         //   netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
+         //} catch ( e ) {
+         //   alert(e);
+         //}
       }
    }
 };
