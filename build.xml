@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="oddi" default="make" basedir=".">
+  <target name="make" description="Compile final html">
+    <concat destfile="offline_ddi.html">
+      <fileset file="src/html_doctype.html" />
+      <fileset file="src/style.css" />
+      <fileset file="src/html_header.html" />
+      <fileset file="src/code_util.js" />
+      <fileset file="src/code_lang.js" />
+      <fileset file="src/lang_en.js" />
+      <fileset file="src/lang_zh.js" />
+      <fileset file="src/code_gui.js" />
+      <fileset file="src/data_model.js" />
+      <fileset file="src/data_read.js" />
+      <fileset file="src/data_index.js" />
+      <fileset file="src/data_write.js" />
+      <fileset file="src/action_download.html" />
+      <fileset file="src/action_list.html" />
+      <fileset file="src/action_view.html" />
+      <fileset file="src/html_footer.html" />
+    </concat>
+  </target>
+</project>
