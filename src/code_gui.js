@@ -3,11 +3,8 @@
  * code_gui.js
  * GUI-related codes, but activity-specific codes are coded with activities.
  */
- 
-// Action object. Would be populated by individual actions
-oddi.action = {};
 
-// 
+// GUI namespace
 oddi.gui = {
    /** Current action */
    action: null,

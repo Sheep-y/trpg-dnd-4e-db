@@ -3,7 +3,12 @@
   - Initialisation code and httml footer
   -->
 <script>'use strict';
-    // Switch to download action on domready
-    window.addEventListener('DOMContentLoaded',function(){ oddi.gui.switch_action( oddi.action.download ); },false);
+    // Program initialisation
+    window.addEventListener('DOMContentLoaded',function(){
+       _.l.localise( document.body );
+
+       // Switch to download action
+       oddi.gui.switch_action( oddi.action.download );
+    },false);
 </script>
 </body></html>
