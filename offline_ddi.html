@@ -51,6 +51,7 @@ body > div[id^="action_"] {
 var oddi = {
    // Action object. Would be populated by individual actions
    action: {},
+   debug: true, // Debug mode would use local files instead of remote files
 };
   </script>
 
@@ -81,7 +82,7 @@ _.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
       if ( xhr.readyState == 4 ) {
          // 0 is a possible response code for local file access under IE 9 ActiveX
          if ( [0,200,302].indexOf( xhr.status ) >= 0 && xhr.responseText ) {
-            if ( onsuccess ) onsuccess.call( xhr, xhr.responseText );
+            if ( onsuccess ) onsuccess.call( xhr, xhr.responseText, xhr );
          } else {
             if ( onfail ) onfail.call( xhr, xhr );
          }
@@ -106,10 +107,30 @@ _.js = function _js( url, onload ) {
  * Cross Origin Request function
  */
 _.cor = function _cor( url, onsuccess, onfail, ondone ) {
-   if ( window.ActiveXObject ) {
-      return _.ajax( url, onsuccess, onfail, ondone );//new ActiveXObject("Microsoft.XMLHttp") );
+   if ( window.ActiveXObject !== undefined ) {
+      return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
    } else {
+      alert('Please override Cross Origin Request control');
+      // enablePrivilege is disabled since Firefox 15
+      //try {
+      //   netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
+      //} catch ( e ) {
+      //   alert(e);
+      //}
       //return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
+   }
+}
+
+/**
+ * parse xml
+  */
+_.xml = function _xml( txt ) {
+   if ( window.DOMParser !== undefined ) {
+      return new DOMParser().parseFromString( txt, 'text/xml' );
+   } else if ( window.ActiveXObject !== undefined )  {
+      // TODO: implement activex
+   } else {
+      alert('XML Parser not supported');
    }
 }
 
@@ -354,7 +375,7 @@ oddi.reader = {
    </p>
    <p class='i18n'> action.download.paragraph.2 </p>
 </div>
-<script>'use strict';
+<script>'use strict';(function action_download_init(){
 
 oddi.action.download = {
    id: 'action_download',
@@ -364,20 +385,28 @@ oddi.action.download = {
       refresh: function download_refresh() {
          oddi.data.clear();
          oddi.reader.read_index();
-         //_.cor( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&tab=Glossary&nameOnly=false',
-         _.cor( 'data/test-search.xml',
-             function( data ){ alert( data ); });
-         // enablePrivilege is disabled since Firefox 15
-         //try {
-         //   netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
-         //} catch ( e ) {
-         //   alert(e);
-         //}
-      }
+         oddi.action.download.read_index();
+      },
+   },
+   remote: {
+      // Sample: { columns: [ "Id", "Name", "Category", "Source" ], listing: [ [,,,], [,,,] ] }
+   },
+   read_index: function download_read_index() {
+      var address = oddi.debug ? 'data/debug/test-search.xml' : 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&tab=Glossary&nameOnly=false';
+      _.cor( address,
+         function( data, xhr ){
+            var remote = oddi.action.download.remote = {};
+            var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
+            for ( var i = 0 ; i < tabs.length ; i++ ) {
+               var category = tabs[i].getElementsByTagName('Table')[0].textContent;
+               remote[ category ] = {};
+            }
+         }
+      );
    }
 };
 
-</script><!--
+})()</script><!--
   - action_list.html
   - List and search downloaded entries
   -->

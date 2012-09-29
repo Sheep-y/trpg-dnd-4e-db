@@ -13,7 +13,7 @@
    </p>
    <p class='i18n'> action.download.paragraph.2 </p>
 </div>
-<script>'use strict';
+<script>'use strict';(function action_download_init(){
 
 oddi.action.download = {
    id: 'action_download',
@@ -23,17 +23,25 @@ oddi.action.download = {
       refresh: function download_refresh() {
          oddi.data.clear();
          oddi.reader.read_index();
-         //_.cor( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&tab=Glossary&nameOnly=false',
-         _.cor( 'data/test-search.xml',
-             function( data ){ alert( data ); });
-         // enablePrivilege is disabled since Firefox 15
-         //try {
-         //   netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
-         //} catch ( e ) {
-         //   alert(e);
-         //}
-      }
+         oddi.action.download.get_index();
+      },
+   },
+   remote: {
+      // Sample: { columns: [ "Id", "Name", "Category", "Source" ], listing: [ [,,,], [,,,] ] }
+   },
+   get_index: function download_read_index() {
+      var address = oddi.debug ? 'data/debug/test-search.xml' : 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&tab=Glossary&nameOnly=false';
+      _.cor( address,
+         function( data, xhr ){
+            var remote = oddi.action.download.remote = {};
+            var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
+            for ( var i = 0 ; i < tabs.length ; i++ ) {
+               var category = tabs[i].getElementsByTagName('Table')[0].textContent;
+               remote[ category ] = {};
+            }
+         }
+      );
    }
 };
 
-</script>
+})()</script>
