@@ -385,21 +385,49 @@ oddi.action.download = {
       refresh: function download_refresh() {
          oddi.data.clear();
          oddi.reader.read_index();
-         oddi.action.download.read_index();
+         oddi.action.download.get_index();
       },
    },
    remote: {
       // Sample: { columns: [ "Id", "Name", "Category", "Source" ], listing: [ [,,,], [,,,] ] }
    },
-   read_index: function download_read_index() {
-      var address = oddi.debug ? 'data/debug/test-search.xml' : 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&tab=Glossary&nameOnly=false';
+   get_index: function download_get_index() {
+      var address = oddi.debug ? 'data/debug/test-search.xml' : 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&nameOnly=false&tab=Glossary';
       _.cor( address,
          function( data, xhr ){
             var remote = oddi.action.download.remote = {};
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
             for ( var i = 0 ; i < tabs.length ; i++ ) {
                var category = tabs[i].getElementsByTagName('Table')[0].textContent;
-               remote[ category ] = {};
+               oddi.action.download.get_category( category );
+            }
+         }
+      );
+   },
+   get_category: function download_get_category( cat ) {
+      var address = oddi.debug ? ( 'data/debug/search-'+cat+'.xml' ) : ( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=&nameOnly=false&tab='+cat );
+      _.cor( address,
+         function( data, xhr ){
+            var result = _.xml(xhr.responseText).getElementsByTagName("Results")[0];
+            var current = result.firstElementChild;
+            if ( current !== null ) {
+               var remote = oddi.action.download.remote;
+               var category = remote[ cat ] = {};
+               // Get columns
+               var prop = current.getElementsByTagName('*');
+               var info = [];
+               var col = prop.length;
+               for ( var i = 0 ; i < col ; i++ ) info.push( prop[i].tagName );
+               category.columns = info;
+               // Get listing
+               var list = category.listing = [];
+               while ( current !== null ) {
+                  prop = current.getElementsByTagName('*');
+                  info = new Array( col );
+                  for ( var i = 0 ; i < col ; i++ ) info[i] = prop[i].textContent;
+                  list.push( info );
+                  current = current.nextElementSibling;
+               }
             }
          }
       );
