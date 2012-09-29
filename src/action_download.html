@@ -29,6 +29,7 @@ oddi.action.download = {
    remote: {
       // Sample: { columns: [ "Id", "Name", "Category", "Source" ], listing: [ [,,,], [,,,] ] }
    },
+   /** Get category listing. Call get_category for each category. */
    get_index: function download_get_index() {
       var address = oddi.debug ? 'data/debug/test-search.xml' : 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&nameOnly=false&tab=Glossary';
       _.cor( address,
@@ -42,6 +43,7 @@ oddi.action.download = {
          }
       );
    },
+   /** Get entry listing of a category */
    get_category: function download_get_category( cat ) {
       var address = oddi.debug ? ( 'data/debug/search-'+cat+'.xml' ) : ( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=&nameOnly=false&tab='+cat );
       _.cor( address,
