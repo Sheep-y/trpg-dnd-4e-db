@@ -49,9 +49,10 @@ _.js = function _js( url, onload ) {
  * Cross Origin Request function
  */
 _.cor = function _cor( url, onsuccess, onfail, ondone ) {
-   if ( window.ActiveXObject ) {
+   if ( window.ActiveXObject !== undefined ) {
       return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
    } else {
+      alert('Please override Cross Origin Request control');
       // enablePrivilege is disabled since Firefox 15
       //try {
       //   netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
@@ -59,6 +60,19 @@ _.cor = function _cor( url, onsuccess, onfail, ondone ) {
       //   alert(e);
       //}
       //return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
+   }
+}
+
+/**
+ * parse xml
+  */
+_.xml = function _xml( txt ) {
+   if ( window.DOMParser !== undefined ) {
+      return new DOMParser().parseFromString( txt, 'text/xml' );
+   } else if ( window.ActiveXObject !== undefined )  {
+      // TODO: implement activex
+   } else {
+      alert('XML Parser not supported');
    }
 }
 
