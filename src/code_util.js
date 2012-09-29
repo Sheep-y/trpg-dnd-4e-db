@@ -24,7 +24,7 @@ _.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
       if ( xhr.readyState == 4 ) {
          // 0 is a possible response code for local file access under IE 9 ActiveX
          if ( [0,200,302].indexOf( xhr.status ) >= 0 && xhr.responseText ) {
-            if ( onsuccess ) onsuccess.call( xhr, xhr.responseText );
+            if ( onsuccess ) onsuccess.call( xhr, xhr.responseText, xhr );
          } else {
             if ( onfail ) onfail.call( xhr, xhr );
          }
@@ -52,6 +52,12 @@ _.cor = function _cor( url, onsuccess, onfail, ondone ) {
    if ( window.ActiveXObject ) {
       return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
    } else {
+      // enablePrivilege is disabled since Firefox 15
+      //try {
+      //   netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
+      //} catch ( e ) {
+      //   alert(e);
+      //}
       //return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
    }
 }
