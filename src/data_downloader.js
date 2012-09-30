@@ -68,7 +68,7 @@ oddi.downloader = {
       var deletedItem = [];
       var itemCount = 0;
 
-      var data = oddi.data;
+      var data = oddi.data.data;
       var remote = oddi.downloader.remote;
       var find = oddi.data.find_in_list;
 
@@ -90,7 +90,9 @@ oddi.downloader = {
                // Scan for changes in column
                var list = category.listing;
                rlist.forEach( function dfc_ec(e){
-                  if ( find( list, e[0] ).toString() !== e.toString() ) changedItem.push( [cat, e[0]] );
+                  var local = find( list, e[0] );
+                  if ( !local ) newItem.push( [cat, e[0]] );
+                  else if ( local.toString() !== e.toString() ) changedItem.push( [cat, e[0]] );
                } );
             }
          }
@@ -103,7 +105,7 @@ oddi.downloader = {
          } else {
             var rlist = remote[cat].listing
             list.forEach( function dfc_ecd(e){
-               if ( find( rlist, e[0] ).toString() !== e.toString() ) deleteItem.push( [cat, e[0]] );
+               if ( find( rlist, e[0] ) === null ) deletedItem.push( [cat, e[0]] );
             } );
          }
       }

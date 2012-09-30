@@ -8,7 +8,7 @@ oddi.data = {
    category : { "Sample": 2 },
    data : {
       "Sample" : {
-         columns: [ "Id", "Name", "Category", "Source" ],
+         columns: [ "ID", "Name", "Category", "SourceBook" ],
          listing: [ [ "sampleId001", "Sample Data 1", "Sample1", "Git" ],
                     [ "sampleId003", "Sample Data 2", "Sample2", "Git" ], ],
          index: {"this":[0,1],"sample":[0],"data":[0,1],"sampleId001":[0],"another":[1],"that":[1],"example":[1]},
@@ -16,7 +16,7 @@ oddi.data = {
       }
    },
 
-   find_in_cat : function data_find_in_list( list, id ) {
+   find_in_list : function data_find_in_list( list, id ) {
       for ( var i = 0, len = list.length ; i < len ; i++ )
          if ( list[i][0] === id )
             return list[i];

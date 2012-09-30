@@ -128,7 +128,9 @@ _.xml = function _xml( txt ) {
    if ( window.DOMParser !== undefined ) {
       return new DOMParser().parseFromString( txt, 'text/xml' );
    } else if ( window.ActiveXObject !== undefined )  {
-      // TODO: implement activex
+      var xml = new ActiveXObject('Msxml2.DOMDocument.3.0');
+      xml.loadXML( txt );
+      return xml;
    } else {
       alert('XML Parser not supported');
    }
@@ -269,7 +271,7 @@ oddi.data = {
    category : { "Sample": 2 },
    data : {
       "Sample" : {
-         columns: [ "Id", "Name", "Category", "Source" ],
+         columns: [ "ID", "Name", "Category", "SourceBook" ],
          listing: [ [ "sampleId001", "Sample Data 1", "Sample1", "Git" ],
                     [ "sampleId003", "Sample Data 2", "Sample2", "Git" ], ],
          index: {"this":[0,1],"sample":[0],"data":[0,1],"sampleId001":[0],"another":[1],"that":[1],"example":[1]},
@@ -277,7 +279,7 @@ oddi.data = {
       }
    },
 
-   find_in_cat : function data_find_in_list( list, id ) {
+   find_in_list : function data_find_in_list( list, id ) {
       for ( var i = 0, len = list.length ; i < len ; i++ )
          if ( list[i][0] === id )
             return list[i];
@@ -380,7 +382,7 @@ oddi.downloader = {
       var deletedItem = [];
       var itemCount = 0;
 
-      var data = oddi.data;
+      var data = oddi.data.data;
       var remote = oddi.downloader.remote;
       var find = oddi.data.find_in_list;
 
@@ -402,7 +404,9 @@ oddi.downloader = {
                // Scan for changes in column
                var list = category.listing;
                rlist.forEach( function dfc_ec(e){
-                  if ( find( list, e[0] ).toString() !== e.toString() ) changedItem.push( [cat, e[0]] );
+                  var local = find( list, e[0] );
+                  if ( !local ) newItem.push( [cat, e[0]] );
+                  else if ( local.toString() !== e.toString() ) changedItem.push( [cat, e[0]] );
                } );
             }
          }
@@ -415,7 +419,7 @@ oddi.downloader = {
          } else {
             var rlist = remote[cat].listing
             list.forEach( function dfc_ecd(e){
-               if ( find( rlist, e[0] ).toString() !== e.toString() ) deleteItem.push( [cat, e[0]] );
+               if ( find( rlist, e[0] ) === null ) deletedItem.push( [cat, e[0]] );
             } );
          }
       }
