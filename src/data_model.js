@@ -15,6 +15,15 @@ oddi.data = {
          data: [ "<p>This is sample data id sampleId001</p>" ], // Data at index 2 not loaded yet
       }
    },
+
+   find_in_cat : function data_find_in_cat( cat, id ) {
+      var list = cat.listing;
+      for ( var i = 0, len = list.length ; i < len ; i++ ) {
+         if ( list[i][0] === id ) return list[i];
+      }
+      return null;
+   },
+
    /** Clear all loaded data or a category of data */
    clear: function data_reset( category ) {
       if ( category ) {

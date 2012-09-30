@@ -11,23 +11,27 @@ oddi.downloader = {
       // Sample: { columns: [ "Id", "Name", "Category", "Source" ], listing: [ [,,,], [,,,] ] }
    },
 
+   updateCountdown : 0,
+   newItem : [ /* ['Sample','sample001'],['Sample','sample02']*/ ],
+   changedItem : [],
+
    /** Get category listing. Call get_category for each category. */
-   get_index: function download_get_index() {
+   get_index: function downloader_get_index() {
       var address = oddi.debug ? 'data/debug/test-search.xml' : 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&nameOnly=false&tab=Glossary';
       _.cor( address,
          function( data, xhr ){
             var remote = oddi.downloader.remote = {};
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
+            oddi.downloader.updateCountdown = tabs.length;
             for ( var i = 0 ; i < tabs.length ; i++ ) {
                var category = tabs[i].getElementsByTagName('Table')[0].textContent;
                oddi.downloader.get_category( category );
             }
-         }
-      );
+         } );
    },
 
    /** Get entry listing of a category */
-   get_category: function download_get_category( cat ) {
+   get_category: function downloader_get_category( cat ) {
       var address = oddi.debug ? ( 'data/debug/search-'+cat+'.xml' ) : ( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=&nameOnly=false&tab='+cat );
       _.cor( address,
          function( data, xhr ){
@@ -52,9 +56,44 @@ oddi.downloader = {
                   current = current.nextElementSibling;
                }
             }
-         }
-      );
+            if ( --oddi.downloader.updateCountdown == 0 ) oddi.downloader.find_changed();
+         } );
    },
+
+   find_changed : function downloader_find_changed() {
+      var newItem = [];
+      var changedItem = [];
+
+      var allItem = 0;
+      var data = oddi.data;
+      var remote = oddi.downloader.remote;
+
+      for ( var cat in remote ) {
+         var rlist = remote[cat].listing;
+         allItem += rlist.length;
+         if ( data[cat] === undefined ) {
+            // New category
+            rlist.forEach( function dfc_nc(e){ newItem.push( [cat, e[0]] ); } );
+         } else {
+            // Existing category
+            var category = data[cat];
+            var rcategory = remote[cat];
+            if ( rcategory.columns.toString() !== category.columns.toString() ) {
+               // Category column changed
+               rlist.forEach( function dfc_cc(e){ changedItem.push( [cat, e[0]] ); } );
+            } else {
+               // Scan for changes in column
+               var find = oddi.data.find_in_cat;
+               rlist.forEach( function dfc_ec(e){
+                  if ( find( category, e[0] ).toString() !== e.toString() ) changedItem.push( [cat, e[0]] );
+               } );
+            }
+         }
+      }
+      oddi.downloader.newItem = newItem;
+      oddi.downloader.changedItem = changedItem;
+      oddi.action.download.show_update_buttons( newItem.length, changedItem.length, allItem );
+   }
 }
 
 </script>
