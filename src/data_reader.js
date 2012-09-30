@@ -1,6 +1,6 @@
 <script>'use strict';
 /*
- * data_read.js
+ * data_reader.js
  * Read data from persistent storage
  */
 

@@ -8,10 +8,10 @@
 oddi.gui = {
    /** Current action */
    action: null,
-   
+
    /**
-       * Switch between actions. Would call action object's cleanup method for current action and setup method for next action.
-       */
+    * Switch between actions. Would call action object's cleanup method for current action and setup method for next action.
+    */
    switch_action : function gui_switch_action( action ) {
       var currentAction = oddi.gui.action;
       if ( !action || action == currentAction ) return;

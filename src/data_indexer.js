@@ -1,6 +1,6 @@
 <script>'use strict';
 /*
- * data_index.js
+ * data_indexer.js
  * Build index from data model.
  */
 </script>

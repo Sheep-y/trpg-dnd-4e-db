@@ -11,9 +11,10 @@
       <fileset file="src/lang_zh.js" />
       <fileset file="src/code_gui.js" />
       <fileset file="src/data_model.js" />
-      <fileset file="src/data_read.js" />
-      <fileset file="src/data_index.js" />
-      <fileset file="src/data_write.js" />
+       <fileset file="src/data_downloader.js" />
+       <fileset file="src/data_indexer.js" />
+      <fileset file="src/data_reader.js" />
+      <fileset file="src/data_writer.js" />
       <fileset file="src/action_download.html" />
       <fileset file="src/action_list.html" />
       <fileset file="src/action_view.html" />
