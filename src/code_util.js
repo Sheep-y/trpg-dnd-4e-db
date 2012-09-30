@@ -70,7 +70,9 @@ _.xml = function _xml( txt ) {
    if ( window.DOMParser !== undefined ) {
       return new DOMParser().parseFromString( txt, 'text/xml' );
    } else if ( window.ActiveXObject !== undefined )  {
-      // TODO: implement activex
+      var xml = new ActiveXObject('Msxml2.DOMDocument.3.0');
+      xml.loadXML( txt );
+      return xml;
    } else {
       alert('XML Parser not supported');
    }
