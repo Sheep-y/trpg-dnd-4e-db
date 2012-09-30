@@ -3,12 +3,13 @@
   - Initialisation code and httml footer
   -->
 <script type='text/javascript'>'use strict';
-    // Program initialisation
-    window.addEventListener('DOMContentLoaded',function(){
-       _.l.localise( document.body );
-
-       // Switch to download action
-       oddi.gui.switch_action( oddi.action.download );
-    },false);
+   // Program initialisation
+   window.addEventListener('DOMContentLoaded',function(){
+      _.l.localise( document.body );
+      // Read loaded data
+      oddi.reader.read_index();
+      // Switch to download action
+      oddi.gui.switch_action( oddi.action.download );
+   },false);
 </script>
 </body></html>
