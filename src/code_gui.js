@@ -29,20 +29,24 @@ oddi.gui = {
    },
 
    /** Show and set message / hide if message is empty */
-   set : function gui_set( id, message, param ) {
+   set : function gui_set( id, message ) {
       var e = _('#'+id)[0];
       if ( !message ) {
+         // Hide element
          e.style.display = 'none';
 
       } else {
+         // Replace message parameters
          if ( arguments.length > 2 )
             for ( var i = 2 ; i < arguments.length ; i++ )
                message = message.replace( '%'+(i-1), arguments[i] );
+         // Set message and shows
          e.innerHTML = message;
          e.style.display = '';
       }
+   },
 
-   }
+
 }
 
 </script>
