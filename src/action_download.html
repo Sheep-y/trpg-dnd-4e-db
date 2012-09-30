@@ -27,7 +27,11 @@ oddi.action.download = {
       },
    cleanup: null,
 
-   show_update_buttons: function download_show_update_buttons( newCount, changedCount, allCount ) {
+   show_update_buttons: function download_show_update_buttons( ) {
+      var newCount = oddi.downloader.newItem.length;
+      var changedCount = oddi.downloader.changedItem.length;
+      var deletedCount = oddi.downloader.deletedItem.length;
+      var allCount = oddi.downloader.itemCount;
       oddi.gui.set( 'act_download_btn_updateChanged', ( newCount || changedCount ) ? _.l( 'action.download.btn_updateChanged' ) : '', newCount, changedCount  );
       oddi.gui.set( 'act_download_btn_updateAll', allCount ? _.l( 'action.download.btn_updateAll' ) : '', allCount );
    }

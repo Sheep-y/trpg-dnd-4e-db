@@ -14,6 +14,8 @@ oddi.downloader = {
    updateCountdown : 0,
    newItem : [ /* ['Sample','sample001'],['Sample','sample02']*/ ],
    changedItem : [],
+   deleteItem : [],
+   itemCount : 0,
 
    /** Get category listing. Call get_category for each category. */
    get_index: function downloader_get_index() {
@@ -63,14 +65,17 @@ oddi.downloader = {
    find_changed : function downloader_find_changed() {
       var newItem = [];
       var changedItem = [];
+      var deletedItem = [];
+      var itemCount = 0;
 
-      var allItem = 0;
       var data = oddi.data;
       var remote = oddi.downloader.remote;
+      var find = oddi.data.find_in_list;
 
+      // Scan for new / changed items
       for ( var cat in remote ) {
          var rlist = remote[cat].listing;
-         allItem += rlist.length;
+         itemCount += rlist.length;
          if ( data[cat] === undefined ) {
             // New category
             rlist.forEach( function dfc_nc(e){ newItem.push( [cat, e[0]] ); } );
@@ -83,16 +88,30 @@ oddi.downloader = {
                rlist.forEach( function dfc_cc(e){ changedItem.push( [cat, e[0]] ); } );
             } else {
                // Scan for changes in column
-               var find = oddi.data.find_in_cat;
+               var list = category.listing;
                rlist.forEach( function dfc_ec(e){
-                  if ( find( category, e[0] ).toString() !== e.toString() ) changedItem.push( [cat, e[0]] );
+                  if ( find( list, e[0] ).toString() !== e.toString() ) changedItem.push( [cat, e[0]] );
                } );
             }
          }
       }
+      // Scan for removed items
+      for ( var cat in data ) {
+         var list = data[cat].listing;
+         if ( remote[cat] === undefined ) {
+            deletedItem.push( [cat, null] );
+         } else {
+            var rlist = remote[cat].listing
+            list.forEach( function dfc_ecd(e){
+               if ( find( rlist, e[0] ).toString() !== e.toString() ) deleteItem.push( [cat, e[0]] );
+            } );
+         }
+      }
       oddi.downloader.newItem = newItem;
       oddi.downloader.changedItem = changedItem;
-      oddi.action.download.show_update_buttons( newItem.length, changedItem.length, allItem );
+      oddi.downloader.deletedItem = deletedItem;
+      oddi.downloader.itemCount = itemCount;
+      oddi.action.download.show_update_buttons();
    }
 }
 
