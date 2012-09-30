@@ -1,4 +1,4 @@
-<script>'use strict';
+<script type='text/javascript'>'use strict';
 /*
  * lang_en.js
  * English localization resources

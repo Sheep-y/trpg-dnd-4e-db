@@ -1,4 +1,4 @@
-<script>'use strict';
+<script type='text/javascript'>'use strict';
 /*
  * data_model.js
  * Create data model in memory

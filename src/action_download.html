@@ -13,7 +13,7 @@
    </p>
    <p class='i18n'> action.download.paragraph.2 </p>
 </div>
-<script>'use strict';(function action_download_init(){
+<script type='text/javascript'>'use strict';(function action_download_init(){
 
 oddi.action.download = {
    id: 'action_download',
@@ -25,6 +25,8 @@ oddi.action.download = {
          oddi.reader.read_index();
          oddi.downloader.get_index();
       },
+      show_update_buttons: function download_show_update_buttons() {
+      }
    },
 };
 

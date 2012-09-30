@@ -1,4 +1,4 @@
-<script>'use strict';
+<script type='text/javascript'>'use strict';
 /*
  * code_gui.js
  * GUI-related codes, but activity-specific codes are coded with activities.

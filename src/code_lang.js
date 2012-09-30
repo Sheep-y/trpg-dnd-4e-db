@@ -1,4 +1,4 @@
-<script>'use strict';
+<script type='text/javascript'>'use strict';
 /*
  * code_lang.js
  * Localization code

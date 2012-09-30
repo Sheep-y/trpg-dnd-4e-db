@@ -46,7 +46,7 @@ body > div[id^="action_"] {
   </style>
   <title> Offline Compendium </title>
 </head><body>
-  <script>"use strict";
+<script type='text/javascript'>'use strict';
 // Main namespace
 var oddi = {
    // Action object. Would be populated by individual actions
@@ -56,7 +56,7 @@ var oddi = {
   </script>
 
 
-<script>'use strict';
+<script type='text/javascript'>'use strict';
 /*
  * code_util.js
  * Utility codes, including initial detection of browser feature and no script.
@@ -137,7 +137,7 @@ _.xml = function _xml( txt ) {
 </script><noscript>
    <h1> Please enable JavaScript </h1>
    <h1> 請啟用 JavaScript </h1>
-</noscript><script>'use strict';
+</noscript><script type='text/javascript'>'use strict';
 /*
  * code_lang.js
  * Localization code
@@ -180,7 +180,7 @@ _.l.localise = function _l_localise( root ) {
    }
 }
 
-</script><script>'use strict';
+</script><script type='text/javascript'>'use strict';
 /*
  * lang_en.js
  * English localization resources
@@ -199,13 +199,13 @@ _.l( 'action.download', {
    chk_refresh: "Auto refresh",
 });
 
-</script><script>'use strict';
+</script><script type='text/javascript'>'use strict';
 /*
  * lang_zh.js
  * Chinese localization resources
  */
 
-</script><script>'use strict';
+</script><script type='text/javascript'>'use strict';
 /*
  * code_gui.js
  * GUI-related codes, but activity-specific codes are coded with activities.
@@ -236,7 +236,7 @@ oddi.gui = {
    }
 }
 
-</script><script>'use strict';
+</script><script type='text/javascript'>'use strict';
 /*
  * data_model.js
  * Create data model in memory
@@ -279,7 +279,7 @@ oddi.data = {
 }
 */
 
-</script><script>'use strict';
+</script><script type='text/javascript'>'use strict';
 /*
  * data_downloader.js
  * Core (non-ui) logic of entry downloading
@@ -338,12 +338,12 @@ oddi.downloader = {
    },
 }
 
-</script><script>'use strict';
+</script><script type='text/javascript'>'use strict';
 /*
  * data_indexer.js
  * Build index from data model.
  */
-</script><script>'use strict';
+</script><script type='text/javascript'>'use strict';
 /*
  * data_reader.js
  * Read data from persistent storage
@@ -413,7 +413,7 @@ oddi.reader = {
       }, errmsg );
    }
 }
-</script><script>'use strict';
+</script><script type='text/javascript'>'use strict';
 /*
  * data_writer.js
  * Write data model to persistent storage.
@@ -434,7 +434,7 @@ oddi.reader = {
    </p>
    <p class='i18n'> action.download.paragraph.2 </p>
 </div>
-<script>'use strict';(function action_download_init(){
+<script type='text/javascript'>'use strict';(function action_download_init(){
 
 oddi.action.download = {
    id: 'action_download',
@@ -446,6 +446,8 @@ oddi.action.download = {
          oddi.reader.read_index();
          oddi.downloader.get_index();
       },
+      show_update_buttons: function download_show_update_buttons() {
+      }
    },
 };
 
@@ -465,7 +467,7 @@ oddi.action.download = {
   - html_footer.html
   - Initialisation code and httml footer
   -->
-<script>'use strict';
+<script type='text/javascript'>'use strict';
     // Program initialisation
     window.addEventListener('DOMContentLoaded',function(){
        _.l.localise( document.body );

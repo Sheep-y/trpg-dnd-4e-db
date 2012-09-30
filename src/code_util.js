@@ -1,4 +1,4 @@
-<script>'use strict';
+<script type='text/javascript'>'use strict';
 /*
  * code_util.js
  * Utility codes, including initial detection of browser feature and no script.

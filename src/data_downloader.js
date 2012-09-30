@@ -1,4 +1,4 @@
-<script>'use strict';
+<script type='text/javascript'>'use strict';
 /*
  * data_downloader.js
  * Core (non-ui) logic of entry downloading
