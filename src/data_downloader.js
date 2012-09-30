@@ -25,7 +25,7 @@ oddi.downloader = {
             var remote = oddi.downloader.remote = {};
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
             oddi.downloader.updateCountdown = tabs.length;
-            for ( var i = 0 ; i < tabs.length ; i++ ) {
+            for ( var i = 0, len = tabs.length ; i < len ; i++ ) {
                var category = tabs[i].getElementsByTagName('Table')[0].textContent;
                oddi.downloader.get_category( category );
             }
@@ -78,21 +78,21 @@ oddi.downloader = {
          itemCount += rlist.length;
          if ( data[cat] === undefined ) {
             // New category
-            rlist.forEach( function dfc_nc(e){ newItem.push( [cat, e[0]] ); } );
+            rlist.forEach( function dfc_nc(e){ newItem.push( [cat, e] ); } );
          } else {
             // Existing category
             var category = data[cat];
             var rcategory = remote[cat];
             if ( rcategory.columns.toString() !== category.columns.toString() ) {
                // Category column changed
-               rlist.forEach( function dfc_cc(e){ changedItem.push( [cat, e[0]] ); } );
+               rlist.forEach( function dfc_cc(e){ changedItem.push( [cat, e] ); } );
             } else {
                // Scan for changes in column
                var list = category.listing;
                rlist.forEach( function dfc_ec(e){
                   var local = find( list, e[0] );
-                  if ( !local ) newItem.push( [cat, e[0]] );
-                  else if ( local.toString() !== e.toString() ) changedItem.push( [cat, e[0]] );
+                  if ( !local ) newItem.push( [cat, e] );
+                  else if ( local.toString() !== e.toString() ) changedItem.push( [cat, e] );
                } );
             }
          }
@@ -105,7 +105,7 @@ oddi.downloader = {
          } else {
             var rlist = remote[cat].listing
             list.forEach( function dfc_ecd(e){
-               if ( find( rlist, e[0] ) === null ) deletedItem.push( [cat, e[0]] );
+               if ( find( rlist, e[0] ) === null ) deletedItem.push( [cat, e] );
             } );
          }
       }

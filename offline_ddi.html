@@ -198,10 +198,13 @@ _.l( 'action.download', {
       "Click 'Refresh' to update listing",
    ],
    btn_refresh: "Refresh list",
+   chk_refresh: "Auto refresh",
    btn_updateChanged: "Update %1 new and %2 changed",
    btn_updateAll: "Update all %1",
+   lbl_new_items: "New Entries",
+   lbl_changed_items: "Changed Entries",
+   lbl_deleted_items: "Removed Entries",
    msg_clearExisting: "Delete existing data?",
-   chk_refresh: "Auto refresh",
 });
 
 </script><script type='text/javascript'>'use strict';
@@ -272,8 +275,8 @@ oddi.data = {
    data : {
       "Sample" : {
          columns: [ "ID", "Name", "Category", "SourceBook" ],
-         listing: [ [ "sampleId001", "Sample Data 1", "Sample1", "Git" ],
-                    [ "sampleId003", "Sample Data 2", "Sample2", "Git" ], ],
+         listing: [ [ "sampleId001", "Sample Data", "Sample1", "Git" ],
+                    [ "sampleId003", "Sample Data 3", "Sample3", "Git" ], ],
          index: {"this":[0,1],"sample":[0],"data":[0,1],"sampleId001":[0],"another":[1],"that":[1],"example":[1]},
          data: [ "<p>This is sample data id sampleId001</p>" ], // Data at index 2 not loaded yet
       }
@@ -339,7 +342,7 @@ oddi.downloader = {
             var remote = oddi.downloader.remote = {};
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
             oddi.downloader.updateCountdown = tabs.length;
-            for ( var i = 0 ; i < tabs.length ; i++ ) {
+            for ( var i = 0, len = tabs.length ; i < len ; i++ ) {
                var category = tabs[i].getElementsByTagName('Table')[0].textContent;
                oddi.downloader.get_category( category );
             }
@@ -392,21 +395,21 @@ oddi.downloader = {
          itemCount += rlist.length;
          if ( data[cat] === undefined ) {
             // New category
-            rlist.forEach( function dfc_nc(e){ newItem.push( [cat, e[0]] ); } );
+            rlist.forEach( function dfc_nc(e){ newItem.push( [cat, e] ); } );
          } else {
             // Existing category
             var category = data[cat];
             var rcategory = remote[cat];
             if ( rcategory.columns.toString() !== category.columns.toString() ) {
                // Category column changed
-               rlist.forEach( function dfc_cc(e){ changedItem.push( [cat, e[0]] ); } );
+               rlist.forEach( function dfc_cc(e){ changedItem.push( [cat, e] ); } );
             } else {
                // Scan for changes in column
                var list = category.listing;
                rlist.forEach( function dfc_ec(e){
                   var local = find( list, e[0] );
-                  if ( !local ) newItem.push( [cat, e[0]] );
-                  else if ( local.toString() !== e.toString() ) changedItem.push( [cat, e[0]] );
+                  if ( !local ) newItem.push( [cat, e] );
+                  else if ( local.toString() !== e.toString() ) changedItem.push( [cat, e] );
                } );
             }
          }
@@ -419,7 +422,7 @@ oddi.downloader = {
          } else {
             var rlist = remote[cat].listing
             list.forEach( function dfc_ecd(e){
-               if ( find( rlist, e[0] ) === null ) deletedItem.push( [cat, e[0]] );
+               if ( find( rlist, e[0] ) === null ) deletedItem.push( [cat, e] );
             } );
          }
       }
@@ -529,6 +532,9 @@ oddi.reader = {
    <p>
       <a class='button' id="act_download_btn_updateChanged" onclick='oddi.action.download.event.updateChanged()'></a><br>
       <a class='button' id="act_download_btn_updateAll" onclick='oddi.action.download.event.updateAll()'></a>
+      <fieldset id="act_download_lst_new"></fieldset>
+      <fieldset id="act_download_lst_changed"></fieldset>
+      <fieldset id="act_download_lst_deleted"></fieldset>
    </p>
 </div>
 <script type='text/javascript'>'use strict';(function action_download_init(){
@@ -538,7 +544,10 @@ oddi.action.download = {
    setup: function() {
          oddi.gui.set( 'act_download_btn_updateChanged', '' );
          oddi.gui.set( 'act_download_btn_updateAll', '' );
-      },
+         oddi.gui.set( 'act_download_lst_new', '' );
+         oddi.gui.set( 'act_download_lst_changed', '' );
+         oddi.gui.set( 'act_download_lst_deleted', '' );
+   },
    cleanup: null,
 
    show_update_buttons: function download_show_update_buttons( ) {
@@ -546,8 +555,21 @@ oddi.action.download = {
       var changedCount = oddi.downloader.changedItem.length;
       var deletedCount = oddi.downloader.deletedItem.length;
       var allCount = oddi.downloader.itemCount;
-      oddi.gui.set( 'act_download_btn_updateChanged', ( newCount || changedCount ) ? _.l( 'action.download.btn_updateChanged' ) : '', newCount, changedCount  );
-      oddi.gui.set( 'act_download_btn_updateAll', allCount ? _.l( 'action.download.btn_updateAll' ) : '', allCount );
+      var set = oddi.gui.set;
+      set( 'act_download_btn_updateChanged', ( newCount || changedCount ) ? _.l( 'action.download.btn_updateChanged' ) : '', newCount, changedCount  );
+      set( 'act_download_btn_updateAll', allCount ? _.l( 'action.download.btn_updateAll' ) : '', allCount );
+      function gen_item_list( legend, list ) {
+         function esc( t ) { return t.replace(/</g,'&lt;'); };
+            var html = '<legend>'+_.l( legend )+'</legend>';
+            for ( var i = 0, len = list.length ; i < len ; i++ ) {
+            var item = [list[i][0]].concat( list[i][1] );
+            html += esc(item[0])+': <b>'+esc(item[2])+'</b> ('+esc(item[item.length-1])+')<br>';
+         }
+         return html;
+      }
+      set( 'act_download_lst_new', newCount ? gen_item_list( 'action.download.lbl_new_items', oddi.downloader.newItem ) : '' );
+      set( 'act_download_lst_changed', newCount ? gen_item_list( 'action.download.lbl_changed_items', oddi.downloader.changedItem ) : '' );
+      set( 'act_download_lst_deleted', newCount ? gen_item_list( 'action.download.lbl_deleted_items', oddi.downloader.deletedItem ) : '' );
    }
 };
 

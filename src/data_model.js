@@ -9,8 +9,8 @@ oddi.data = {
    data : {
       "Sample" : {
          columns: [ "ID", "Name", "Category", "SourceBook" ],
-         listing: [ [ "sampleId001", "Sample Data 1", "Sample1", "Git" ],
-                    [ "sampleId003", "Sample Data 2", "Sample2", "Git" ], ],
+         listing: [ [ "sampleId001", "Sample Data", "Sample1", "Git" ],
+                    [ "sampleId003", "Sample Data 3", "Sample3", "Git" ], ],
          index: {"this":[0,1],"sample":[0],"data":[0,1],"sampleId001":[0],"another":[1],"that":[1],"example":[1]},
          data: [ "<p>This is sample data id sampleId001</p>" ], // Data at index 2 not loaded yet
       }
