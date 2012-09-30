@@ -196,6 +196,9 @@ _.l( 'action.download', {
       "Click 'Refresh' to update listing",
    ],
    btn_refresh: "Refresh list",
+   btn_updateChanged: "Update %1 new and %2 changed",
+   btn_updateAll: "Update all %1",
+   msg_clearExisting: "Delete existing data?",
    chk_refresh: "Auto refresh",
 });
 
@@ -233,6 +236,22 @@ oddi.gui = {
       if ( action.setup ) action.setup( action );
 
       oddi.gui.action = action;
+   },
+
+   /** Show and set message / hide if message is empty */
+   set : function gui_set( id, message, param ) {
+      var e = _('#'+id)[0];
+      if ( !message ) {
+         e.style.display = 'none';
+
+      } else {
+         if ( arguments.length > 2 )
+            for ( var i = 2 ; i < arguments.length ; i++ )
+               message = message.replace( '%'+(i-1), arguments[i] );
+         e.innerHTML = message;
+         e.style.display = '';
+      }
+
    }
 }
 
@@ -433,12 +452,19 @@ oddi.reader = {
       <label> <input type='checkbox'> <span class='i18n'>action.download.chk_refresh</span> </label>
    </p>
    <p class='i18n'> action.download.paragraph.2 </p>
+   <p>
+      <a class='button' id="act_download_btn_updateChanged" onclick='oddi.action.download.event.updateChanged()'></a><br>
+      <a class='button' id="act_download_btn_updateAll" onclick='oddi.action.download.event.updateAll()'></a>
+   </p>
 </div>
 <script type='text/javascript'>'use strict';(function action_download_init(){
 
 oddi.action.download = {
    id: 'action_download',
-   setup: null,
+   setup: function() {
+         oddi.gui.set( 'act_download_btn_updateChanged', '' );
+         oddi.gui.set( 'act_download_btn_updateAll', '' );
+      },
    cleanup: null,
    event: {
       refresh: function download_refresh() {
@@ -446,7 +472,9 @@ oddi.action.download = {
          oddi.reader.read_index();
          oddi.downloader.get_index();
       },
-      show_update_buttons: function download_show_update_buttons() {
+      show_update_buttons: function download_show_update_buttons( newCount, changedCount, allCount ) {
+         oddi.gui.set( 'act_download_btn_updateChanged', ( newCount || changedCount ) ? _.l( 'action.download.btn_updateChanged' ) : '', newCount, changedCount  );
+         oddi.gui.set( 'act_download_btn_updateAll', allCount ? _.l( 'action.download.btn_updateAll' ) : '', allCount );
       }
    },
 };

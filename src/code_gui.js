@@ -26,6 +26,22 @@ oddi.gui = {
       if ( action.setup ) action.setup( action );
 
       oddi.gui.action = action;
+   },
+
+   /** Show and set message / hide if message is empty */
+   set : function gui_set( id, message, param ) {
+      var e = _('#'+id)[0];
+      if ( !message ) {
+         e.style.display = 'none';
+
+      } else {
+         if ( arguments.length > 2 )
+            for ( var i = 2 ; i < arguments.length ; i++ )
+               message = message.replace( '%'+(i-1), arguments[i] );
+         e.innerHTML = message;
+         e.style.display = '';
+      }
+
    }
 }
 
