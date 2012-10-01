@@ -30,10 +30,11 @@ oddi.gui = {
 
    /** Show and set message / hide if message is empty */
    set : function gui_set( id, message ) {
-      var e = _('#'+id)[0];
       if ( !message ) {
          // Hide element
-         e.style.display = 'none';
+         Array.prototype.forEach.call( _(id), function(e){
+            e.style.display = 'none';
+         } );
 
       } else {
          // Replace message parameters
@@ -41,8 +42,10 @@ oddi.gui = {
             for ( var i = 2 ; i < arguments.length ; i++ )
                message = message.replace( '%'+(i-1), arguments[i] );
          // Set message and shows
-         e.innerHTML = message;
-         e.style.display = '';
+         Array.prototype.forEach.call( _(id), function(e){
+            e.innerHTML = message;
+            e.style.display = '';
+         } );
       }
    },
 
