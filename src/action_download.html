@@ -15,10 +15,10 @@
    <p>
       <a class='button' id="act_download_btn_updateChanged" onclick='oddi.action.download.event.updateChanged()'></a><br>
       <a class='button' id="act_download_btn_updateAll" onclick='oddi.action.download.event.updateAll()'></a>
-      <fieldset id="act_download_lst_new"></fieldset>
-      <fieldset id="act_download_lst_changed"></fieldset>
-      <fieldset id="act_download_lst_deleted"></fieldset>
    </p>
+   <fieldset id="act_download_lst_new"></fieldset>
+   <fieldset id="act_download_lst_changed"></fieldset>
+   <fieldset id="act_download_lst_deleted"></fieldset>
 </div>
 <script type='text/javascript'>'use strict';(function action_download_init(){
 
@@ -42,7 +42,7 @@ oddi.action.download = {
             var html = '<legend>'+_.l( legend )+'</legend>';
             for ( var i = 0, len = list.length ; i < len ; i++ ) {
             var item = [list[i][0]].concat( list[i][1] );
-            html += esc(item[0])+': <b>'+esc(item[2])+'</b> ('+esc(item[item.length-1])+')<br>';
+            html += esc(item[0])+': <b>'+esc(item[2])+'</b> ('+esc(item[item.length-1])+')<br/>';
          }
          return html;
       }
