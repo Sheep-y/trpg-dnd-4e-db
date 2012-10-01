@@ -8,12 +8,14 @@
 oddi.gui = {
    /** Current action */
    action: null,
+   initialized: [],
 
    /**
     * Switch between actions. Would call action object's cleanup method for current action and setup method for next action.
     */
    switch_action : function gui_switch_action( action ) {
-      var currentAction = oddi.gui.action;
+      var gui = oddi.gui;
+      var currentAction = gui.action;
       if ( !action || action == currentAction ) return;
 
       // Pre-switch validation & cleanup
@@ -23,9 +25,13 @@ oddi.gui = {
       _( "#"+action.id )[0].style.display = 'block';
 
       // Post-switch setup
+      if ( gui.initialized.indexOf( action ) < 0 ) {
+         gui.initialized.push( action );
+         if ( action.initialize != null ) action.initialize();
+      }
       if ( action.setup ) action.setup( action );
 
-      oddi.gui.action = action;
+      gui.action = action;
    },
 
    /** Show and set message / hide if message is empty */

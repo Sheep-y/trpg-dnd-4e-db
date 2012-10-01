@@ -24,9 +24,11 @@
 
 oddi.action.download = {
    id: 'action_download',
-   setup: function() {
-         oddi.gui.set( '#act_download_btn_updateChanged, #act_download_btn_updateAll, #act_download_lst_new, #act_download_lst_changed, #act_download_lst_deleted', '' );
-   },
+
+   initialize: function() {
+            oddi.gui.set( '#act_download_btn_updateChanged, #act_download_btn_updateAll, #act_download_lst_new, #act_download_lst_changed, #act_download_lst_deleted', '' );
+      },
+   setup: null,
    cleanup: null,
 
    show_update_buttons: function download_show_update_buttons( ) {

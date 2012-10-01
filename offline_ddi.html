@@ -223,12 +223,14 @@ _.l( 'action.download', {
 oddi.gui = {
    /** Current action */
    action: null,
+   initialized: [],
 
    /**
     * Switch between actions. Would call action object's cleanup method for current action and setup method for next action.
     */
    switch_action : function gui_switch_action( action ) {
-      var currentAction = oddi.gui.action;
+      var gui = oddi.gui;
+      var currentAction = gui.action;
       if ( !action || action == currentAction ) return;
 
       // Pre-switch validation & cleanup
@@ -238,9 +240,13 @@ oddi.gui = {
       _( "#"+action.id )[0].style.display = 'block';
 
       // Post-switch setup
+      if ( gui.initialized.indexOf( action ) < 0 ) {
+         gui.initialized.push( action );
+         if ( action.initialize != null ) action.initialize();
+      }
       if ( action.setup ) action.setup( action );
 
-      oddi.gui.action = action;
+      gui.action = action;
    },
 
    /** Show and set message / hide if message is empty */
@@ -544,9 +550,11 @@ oddi.reader = {
 
 oddi.action.download = {
    id: 'action_download',
-   setup: function() {
-         oddi.gui.set( '#act_download_btn_updateChanged, #act_download_btn_updateAll, #act_download_lst_new, #act_download_lst_changed, #act_download_lst_deleted', '' );
-   },
+
+   initialize: function() {
+            oddi.gui.set( '#act_download_btn_updateChanged, #act_download_btn_updateAll, #act_download_lst_new, #act_download_lst_changed, #act_download_lst_deleted', '' );
+      },
+   setup: null,
    cleanup: null,
 
    show_update_buttons: function download_show_update_buttons( ) {
