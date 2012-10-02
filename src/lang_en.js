@@ -6,7 +6,12 @@
 
 _.l.currentLocale = 'en';
 
-_.l( 'action.download', {
+_.l.set( 'error', {
+   // 'no_cross_origin' : 'Cross Origin' // TODO: implement proper cross origin alert
+   'ajax_error' : 'Cannot load %1 (%2) from %3.',
+});
+
+_.l.set( 'action.download', {
    title: "Offline Compendium",
    paragraph: [
       "This browser script allows you to download and save compendium entries, then search and list them offline using advanced Google-like syntax.",

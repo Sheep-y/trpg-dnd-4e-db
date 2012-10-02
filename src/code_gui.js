@@ -43,10 +43,6 @@ oddi.gui = {
          } );
 
       } else {
-         // Replace message parameters
-         if ( arguments.length > 2 )
-            for ( var i = 2 ; i < arguments.length ; i++ )
-               message = message.replace( '%'+(i-1), arguments[i] );
          // Set message and shows
          Array.prototype.forEach.call( _(id), function(e){
             e.innerHTML = message;

@@ -26,7 +26,7 @@ oddi.action.download = {
    id: 'action_download',
 
    initialize: function() {
-            oddi.gui.set( '#act_download_btn_updateChanged, #act_download_btn_updateAll, #act_download_lst_new, #act_download_lst_changed, #act_download_lst_deleted', '' );
+         oddi.gui.set( '#act_download_btn_updateChanged, #act_download_btn_updateAll, #act_download_lst_new, #act_download_lst_changed, #act_download_lst_deleted', '' );
       },
    setup: null,
    cleanup: null,
@@ -37,8 +37,8 @@ oddi.action.download = {
       var deletedCount = oddi.downloader.deletedItem.length;
       var allCount = oddi.downloader.itemCount;
       var set = oddi.gui.set;
-      set( '#act_download_btn_updateChanged', ( newCount || changedCount ) ? _.l( 'action.download.btn_updateChanged' ) : '', newCount, changedCount  );
-      set( '#act_download_btn_updateAll', allCount ? _.l( 'action.download.btn_updateAll' ) : '', allCount );
+      set( '#act_download_btn_updateChanged', ( newCount || changedCount ) ? _.l( 'action.download.btn_updateChanged', newCount, changedCount ) : '' );
+      set( '#act_download_btn_updateAll', allCount ? _.l( 'action.download.btn_updateAll', allCount ) : '' );
       function gen_item_list( legend, list ) {
          function esc( t ) { return t.replace(/</g,'&lt;'); };
             var html = '<legend>'+_.l( legend )+'</legend>';
