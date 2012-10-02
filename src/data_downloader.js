@@ -17,8 +17,10 @@ oddi.downloader = {
    deleteItem : [],
    itemCount : 0,
 
-   /** Get category listing. Call get_category for each category. */
-   get_index: function downloader_get_index() {
+   /**
+    * Get category listing. Call get_category for each category.
+    */
+   get_index: function downloader_get_index( ) {
       var address = oddi.debug ? 'data/debug/test-search.xml' : 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&nameOnly=false&tab=Glossary';
       _.cor( address,
          function( data, xhr ){
@@ -29,7 +31,7 @@ oddi.downloader = {
                var category = tabs[i].getElementsByTagName('Table')[0].textContent;
                oddi.downloader.get_category( category );
             }
-         } );
+         }, oddi.gui.ajax_error( address ) );
    },
 
    /** Get entry listing of a category */
@@ -60,7 +62,7 @@ oddi.downloader = {
                }
             }
             if ( --oddi.downloader.updateCountdown == 0 ) oddi.downloader.find_changed();
-         } );
+         }, oddi.gui.ajax_error( address ) );
    },
 
    /** Get entry listing */
@@ -109,6 +111,10 @@ oddi.downloader = {
       }
    },
 
+   /**
+    * Find new, changed, and removed entries.
+    * Results are stored in downloader object.
+    */
    find_changed : function downloader_find_changed() {
       var newItem = [];
       var changedItem = [];

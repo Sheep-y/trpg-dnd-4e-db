@@ -4,11 +4,11 @@
  * English localization resources
  */
 
-_.l.currentLocale = 'en';
+_.l.setLocale( 'en' );
 
 _.l.set( 'error', {
    // 'no_cross_origin' : 'Cross Origin' // TODO: implement proper cross origin alert
-   'ajax_error' : 'Cannot load %1 (%2) from %3.',
+   'ajax_error' : 'Cannot load content (%1) from %2.',
 });
 
 _.l.set( 'action.download', {

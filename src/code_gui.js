@@ -34,6 +34,14 @@ oddi.gui = {
       gui.action = action;
    },
 
+   /** Handle ajax errors by showing message */
+   ajax_error : function gui_ajax_error( address, onfail ) {
+      return function gui_ajax_error_handler( xhr ) {
+         var msg = _.l( 'error.ajax_error', xhr.statusText, address );
+         if ( onfail ) onfail( msg ); else alert( msg );
+       };
+   },
+
    /** Show and set message / hide if message is empty */
    set : function gui_set( id, message ) {
       if ( !message ) {

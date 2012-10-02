@@ -55,9 +55,7 @@ oddi.action.download = {
       set( '#act_download_lst_deleted', newCount ? gen_item_list( 'action.download.lbl_deleted_items', oddi.downloader.deletedItem ) : '' );
    },
 
-   update_list : function() {
-      oddi.downloader.get_index();
-   },
+   update_list : function() { oddi.downloader.get_index(); },
 
    update_changed : function() {
    },
