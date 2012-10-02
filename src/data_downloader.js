@@ -34,11 +34,12 @@ oddi.downloader = {
 
    /** Get entry listing of a category */
    get_category: function downloader_get_category( cat ) {
-      var address = oddi.debug ? ( 'data/debug/search-'+cat+'.xml' ) : ( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=&nameOnly=false&tab='+cat );
+      var address = oddi.debug ? ( 'data/debug/search-'+cat+'.xml' ) : ( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/ViewAll?tab='+cat );
       _.cor( address,
          function( data, xhr ){
             var result = _.xml(xhr.responseText).getElementsByTagName("Results")[0];
             var current = result.firstElementChild;
+            // If we have a result
             if ( current !== null ) {
                var remote = oddi.downloader.remote;
                var category = remote[ cat ] = {};
@@ -60,6 +61,52 @@ oddi.downloader = {
             }
             if ( --oddi.downloader.updateCountdown == 0 ) oddi.downloader.find_changed();
          } );
+   },
+
+   /** Get entry listing */
+   get : function downloader_get( cat, id ) {
+      var lcat = cat.toLowerCase();
+      var identifier = lcat+'-'+id;
+      var status = oddi.downloader.get;
+
+      function download_get_reschedule( time ){ setTimeout( function(){ downloader_get( cat, id ); }, time ) };
+
+      if ( status.paused && status.checker != identifier ) {
+         // Paused and we are not the checking instance, sleep for a while
+         return setTimeout( function(){ downloader_get( cat, id ); }, 500+Math.random()*1500 );
+      } else {
+         if ( status.paused && status.loginWindow != null ) {
+            // If login window is not closed, and address is still at login, wait a bit longer
+            if ( ! status.loginWindow.closed && status.loginWindow.location.href.indexOf('login') >= 0 )
+               return download_get_reschedule( 500+Math.random()*500 );
+         }
+         var address = oddi.debug ? ( 'data/debug/'+lcat+'-'+id+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+id );
+         console.log(address);
+         _.cor( address,
+            function( data, xhr ){
+               // Success, check result
+               if ( data.indexOf(/\bsubscribe\b/) >= 0 && data.indexOf(/\bpassword\b/) >= 0 ) {
+                  status.paused = true;
+                  status.checker = identifier;
+                  status.loginWindow = window.open( address, 'loginPopup' );
+                  download_get_reschedule( 1000 );
+                  return;
+               }
+               console.log(data);
+               // Reset paused status
+               if ( status.paused ) {
+                  status.paused = true;
+                  status.checker = status.loginWindow = null;
+               }
+            }, function( data, xhr ){
+               // Failed, set pause and schedule for timeout retry
+               if ( !status.paused ) {
+                  status.paused = true;
+                  status.checker = identifier;
+               }
+               download_get_reschedule( 5000+Math.random()*5000 );
+            } );
+      }
    },
 
    find_changed : function downloader_find_changed() {
@@ -116,5 +163,9 @@ oddi.downloader = {
       oddi.action.download.show_update_buttons();
    }
 }
+
+oddi.downloader.get.paused = false;
+oddi.downloader.get.checker = null;
+oddi.downloader.get.loginWindow = null;
 
 </script>

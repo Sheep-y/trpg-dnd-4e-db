@@ -8,12 +8,12 @@
    <p class="i18n"> action.download.paragraph.1 </p>
    <p>
       <!--input type='search' class='right' placeholder='Search' autofocus-->
-      <a class='button i18n' onclick='oddi.downloader.get_index()'> action.download.btn_refresh </a>
+      <a class='button i18n' onclick='oddi.action.download.update_list()'> action.download.btn_refresh </a>
       <label> <input type='checkbox'> <span class='i18n'>action.download.chk_refresh</span> </label>
    </p>
    <p>
-      <a class='button' id="act_download_btn_updateChanged" onclick='oddi.action.download.event.updateChanged()'></a><br>
-      <a class='button' id="act_download_btn_updateAll" onclick='oddi.action.download.event.updateAll()'></a>
+      <a class='button' id="act_download_btn_updateChanged" onclick='oddi.action.download.update_changed()'></a><br>
+      <a class='button' id="act_download_btn_updateAll" onclick='oddi.action.download.update_all()'></a>
    </p>
    <fieldset id="act_download_lst_new"></fieldset>
    <fieldset id="act_download_lst_changed"></fieldset>
@@ -31,7 +31,7 @@ oddi.action.download = {
    setup: null,
    cleanup: null,
 
-   show_update_buttons: function download_show_update_buttons( ) {
+   show_update_buttons : function download_show_update_buttons( ) {
       var newCount = oddi.downloader.newItem.length;
       var changedCount = oddi.downloader.changedItem.length;
       var deletedCount = oddi.downloader.deletedItem.length;
@@ -53,7 +53,17 @@ oddi.action.download = {
       set( '#act_download_lst_new', newCount ? gen_item_list( 'action.download.lbl_new_items', oddi.downloader.newItem ) : '' );
       set( '#act_download_lst_changed', newCount ? gen_item_list( 'action.download.lbl_changed_items', oddi.downloader.changedItem ) : '' );
       set( '#act_download_lst_deleted', newCount ? gen_item_list( 'action.download.lbl_deleted_items', oddi.downloader.deletedItem ) : '' );
-   }
+   },
+
+   update_list : function() {
+      oddi.downloader.get_index();
+   },
+
+   update_changed : function() {
+   },
+
+   update_all : function() {
+   },
 };
 
 })()</script>
