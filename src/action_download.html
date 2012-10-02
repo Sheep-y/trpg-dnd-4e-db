@@ -11,7 +11,6 @@
       <a class='button i18n' onclick='oddi.downloader.get_index()'> action.download.btn_refresh </a>
       <label> <input type='checkbox'> <span class='i18n'>action.download.chk_refresh</span> </label>
    </p>
-   <p class='i18n'> action.download.paragraph.2 </p>
    <p>
       <a class='button' id="act_download_btn_updateChanged" onclick='oddi.action.download.event.updateChanged()'></a><br>
       <a class='button' id="act_download_btn_updateAll" onclick='oddi.action.download.event.updateAll()'></a>
@@ -19,6 +18,7 @@
    <fieldset id="act_download_lst_new"></fieldset>
    <fieldset id="act_download_lst_changed"></fieldset>
    <fieldset id="act_download_lst_deleted"></fieldset>
+   <!-- TODO: Show current entries on click -->
 </div>
 <script type='text/javascript'>'use strict';(function action_download_init(){
 
@@ -48,6 +48,8 @@ oddi.action.download = {
          }
          return html;
       }
+      // TODO: Show popup links
+      // TODO: Add buttons for finer update control
       set( '#act_download_lst_new', newCount ? gen_item_list( 'action.download.lbl_new_items', oddi.downloader.newItem ) : '' );
       set( '#act_download_lst_changed', newCount ? gen_item_list( 'action.download.lbl_changed_items', oddi.downloader.changedItem ) : '' );
       set( '#act_download_lst_deleted', newCount ? gen_item_list( 'action.download.lbl_deleted_items', oddi.downloader.deletedItem ) : '' );

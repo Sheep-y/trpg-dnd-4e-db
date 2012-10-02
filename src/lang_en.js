@@ -9,9 +9,8 @@ _.l.currentLocale = 'en';
 _.l( 'action.download', {
    title: "Offline Compendium",
    paragraph: [
-      "This browser script allows you to download and save compendium entries, then search it offline using advanced Google-like syntax.",
-      "<b>Requires an active DDI subscription to download any data.</b>",
-      "Click 'Refresh' to update listing",
+      "This browser script allows you to download and save compendium entries, then search and list them offline using advanced Google-like syntax.",
+      "<b>Requires an active DDI subscription to download any data.</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates' target='_blank'>Official Rules Updates</a>"
    ],
    btn_refresh: "Refresh list",
    chk_refresh: "Auto refresh",
