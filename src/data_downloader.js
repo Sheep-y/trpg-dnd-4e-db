@@ -65,49 +65,70 @@ oddi.downloader = {
          }, oddi.gui.ajax_error( address ) );
    },
 
+   /** Content retrival stack info */
+   stack : {
+      running : 0,
+      paused : false,
+      checker : null,
+      loginWindow : null,
+      stack : [],
+   },
+
    /** Get entry listing */
-   get : function downloader_get( cat, id ) {
-      var lcat = cat.toLowerCase();
-      var identifier = lcat+'-'+id;
-      var status = oddi.downloader.get;
+   get : function downloader_get( id ) {
+      var status = oddi.downloader.stack;
 
-      function download_get_reschedule( time ){ setTimeout( function(){ downloader_get( cat, id ); }, time ) };
+      function download_get_reschedule( time ){ setTimeout( function(){ downloader_get( id ); }, time ) };
 
-      if ( status.paused && status.checker != identifier ) {
+      if ( status.paused && status.checker != id ) {
          // Paused and we are not the checking instance, sleep for a while
-         return setTimeout( function(){ downloader_get( cat, id ); }, 500+Math.random()*1500 );
+         return download_get_reschedule( 500+Math.random()*1500 );
       } else {
          if ( status.paused && status.loginWindow != null ) {
             // If login window is not closed, and address is still at login, wait a bit longer
             if ( ! status.loginWindow.closed && status.loginWindow.location.href.indexOf('login') >= 0 )
                return download_get_reschedule( 500+Math.random()*500 );
          }
-         var address = oddi.debug ? ( 'data/debug/'+lcat+'-'+id+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+id );
-         console.log(address);
-         _.cor( address,
-            function( data, xhr ){
-               // Success, check result
-               if ( data.indexOf(/\bsubscribe\b/) >= 0 && data.indexOf(/\bpassword\b/) >= 0 ) {
-                  status.paused = true;
-                  status.checker = identifier;
-                  status.loginWindow = window.open( address, 'loginPopup' );
-                  download_get_reschedule( 1000 );
-                  return;
-               }
-               console.log(data);
-               // Reset paused status
-               if ( status.paused ) {
-                  status.paused = true;
-                  status.checker = status.loginWindow = null;
-               }
-            }, function( data, xhr ){
-               // Failed, set pause and schedule for timeout retry
-               if ( !status.paused ) {
-                  status.paused = true;
-                  status.checker = identifier;
-               }
-               download_get_reschedule( 5000+Math.random()*5000 );
-            } );
+         var cat = status.stack[ id ];
+         if ( cat ) {
+            var itemId = cat[1][0];
+            cat = cat[0].toLowerCase();
+            var address = oddi.debug ? ( 'data/debug/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
+            console.log(address);
+            _.cor( address,
+               function( data, xhr ){
+                  // Success, check result
+                  if ( data.indexOf(/\bsubscribe\b/) >= 0 && data.indexOf(/\bpassword\b/) >= 0 ) {
+                     status.paused = true;
+                     status.checker = id;
+                     status.loginWindow = window.open( address, 'loginPopup' );
+                     download_get_reschedule( 1000 );
+                     return;
+                  }
+                  console.log(data);
+                  if ( status.stack.length > statuss.running ) {
+                     status.stack[ id ] = status.stack.splice( running, 1 );
+                     download_get_reschedule( 0 );
+                  } else {
+                     status.stack[ id ] = null;
+                  }
+                  // Reset paused status
+                  if ( status.paused ) {
+                     status.paused = false;
+                     status.checker = status.loginWindow = null;
+                  }
+               }, function( data, xhr ){
+                  // Failed, set pause and schedule for timeout retry
+                  if ( !status.paused ) {
+                     status.paused = true;
+                     status.checker = identifier;
+                  }
+                  download_get_reschedule( 5000+Math.random()*5000 );
+               } );
+         } else {
+               status.paused = false;
+               status.checker = status.loginWindow = null;
+         }
       }
    },
 
@@ -169,9 +190,5 @@ oddi.downloader = {
       oddi.action.download.show_update_buttons();
    }
 }
-
-oddi.downloader.get.paused = false;
-oddi.downloader.get.checker = null;
-oddi.downloader.get.loginWindow = null;
 
 </script>
