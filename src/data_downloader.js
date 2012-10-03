@@ -74,25 +74,36 @@ oddi.downloader = {
       stack : [],
    },
 
+   /** Get everything in stack  */
+   get : function downloader_run() {
+      var max = Math.min( oddi.downloader.stack.stack.length, 2 );
+      oddi.downloader.stack.running = max;
+      for ( var i = 0 ; i < max ; i++ ) {
+         setTimeout( (function(i){
+            return function(){ oddi.downloader.run_stack(i); };
+         })(i), i*1000 );
+      }
+   },
+
    /** Get entry listing */
-   get : function downloader_get( id ) {
+   run_stack : function downloader_run_stack( id ) {
       var status = oddi.downloader.stack;
 
-      function download_get_reschedule( time ){ setTimeout( function(){ downloader_get( id ); }, time ) };
+      function reschedule( time ){ setTimeout( function(){ downloader_run_stack( id ); }, time ) };
 
       if ( status.paused && status.checker != id ) {
          // Paused and we are not the checking instance, sleep for a while
-         return download_get_reschedule( 500+Math.random()*1500 );
+         return reschedule( 500+Math.random()*1500 );
       } else {
          if ( status.paused && status.loginWindow != null ) {
             // If login window is not closed, and address is still at login, wait a bit longer
             if ( ! status.loginWindow.closed && status.loginWindow.location.href.indexOf('login') >= 0 )
-               return download_get_reschedule( 500+Math.random()*500 );
+               return reschedule( 500+Math.random()*500 );
          }
          var cat = status.stack[ id ];
          if ( cat ) {
             var itemId = cat[1][0];
-            cat = cat[0].toLowerCase();
+            var lcat = cat[0].toLowerCase();
             var address = oddi.debug ? ( 'data/debug/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
             console.log(address);
             _.cor( address,
@@ -102,13 +113,13 @@ oddi.downloader = {
                      status.paused = true;
                      status.checker = id;
                      status.loginWindow = window.open( address, 'loginPopup' );
-                     download_get_reschedule( 1000 );
+                     reschedule( 500 );
                      return;
                   }
-                  console.log(data);
-                  if ( status.stack.length > statuss.running ) {
-                     status.stack[ id ] = status.stack.splice( running, 1 );
-                     download_get_reschedule( 0 );
+                  //console.log(data);
+                  if ( status.stack.length > status.running ) {
+                     status.stack[ id ] = status.stack.splice( status.running, 1 )[0];
+                     reschedule( 0 );
                   } else {
                      status.stack[ id ] = null;
                   }
@@ -123,11 +134,13 @@ oddi.downloader = {
                      status.paused = true;
                      status.checker = identifier;
                   }
-                  download_get_reschedule( 5000+Math.random()*5000 );
+                  reschedule( 5000+Math.random()*5000 );
                } );
          } else {
+            if ( status.paused ) {
                status.paused = false;
                status.checker = status.loginWindow = null;
+            }
          }
       }
    },

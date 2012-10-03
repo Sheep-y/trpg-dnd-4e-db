@@ -58,6 +58,8 @@ oddi.action.download = {
    update_list : function() { oddi.downloader.get_index(); },
 
    update_changed : function() {
+      oddi.downloader.stack.stack = oddi.downloader.newItem.concat(oddi.downloader.changedItem);
+      oddi.downloader.get();
    },
 
    update_all : function() {
