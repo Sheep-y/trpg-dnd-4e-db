@@ -57,11 +57,13 @@ oddi.action.download = {
 
    update_list : function() { oddi.downloader.get_index(); },
 
+   /** Get new and changed items */
    update_changed : function() {
       oddi.downloader.stack.stack = oddi.downloader.newItem.concat(oddi.downloader.changedItem);
       oddi.downloader.get();
    },
 
+   /** Get all items */
    update_all : function() {
       var stack = [];
       var remote = oddi.downloader.remote;
