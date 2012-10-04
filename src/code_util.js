@@ -78,6 +78,12 @@ _.xml = function _xml( txt ) {
    }
 }
 
+/** Get current time in H:M:S.MS format */
+function getShortTime() {
+   var t = new Date();
+   return t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds();
+}
+
 </script><noscript>
    <h1> Please enable JavaScript </h1>
    <h1> 請啟用 JavaScript </h1>

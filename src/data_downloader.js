@@ -68,10 +68,11 @@ oddi.downloader = {
    /** Content retrival stack info */
    stack : {
       running : 0,
-      paused : false,
+      paused : null,
       checker : null,
       loginWindow : null,
       stack : [],
+      thread : [],
    },
 
    /** Get everything in stack  */
@@ -88,10 +89,11 @@ oddi.downloader = {
    /** Get entry listing */
    run_stack : function downloader_run_stack( id ) {
       var status = oddi.downloader.stack;
+      status.thread[id] = 0;
 
-      function reschedule( time ){ setTimeout( function(){ downloader_run_stack( id ); }, time ) };
+      function reschedule( time ){ status.thread[id] = setTimeout( function(){ downloader_run_stack( id ); }, time ) };
 
-      if ( status.paused && status.checker != id ) {
+      if ( status.paused && status.checker !== id ) {
          // Paused and we are not the checking instance, sleep for a while
          return reschedule( 500+Math.random()*1500 );
       } else {
@@ -105,7 +107,7 @@ oddi.downloader = {
             var itemId = cat[1][0];
             var lcat = cat[0].toLowerCase();
             var address = oddi.debug ? ( 'data/debug/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
-            console.log(address);
+            if ( window.console && console.info ) console.info("[" + getShortTime() + "] Thread "+id+": "+address);
             _.cor( address,
                function( data, xhr ){
                   // Success, check result
@@ -113,8 +115,7 @@ oddi.downloader = {
                      status.paused = true;
                      status.checker = id;
                      status.loginWindow = window.open( address, 'loginPopup' );
-                     reschedule( 500 );
-                     return;
+                     return reschedule( 500 );
                   }
                   //console.log(data);
                   if ( status.stack.length > status.running ) {
@@ -123,23 +124,23 @@ oddi.downloader = {
                   } else {
                      status.stack[ id ] = null;
                   }
-                  // Reset paused status
-                  if ( status.paused ) {
-                     status.paused = false;
-                     status.checker = status.loginWindow = null;
+                  // Reset paused status, if we are checker
+                  if ( status.paused && status.checker === id ) {
+                     status.paused = status.checker = status.loginWindow = null;
                   }
                }, function( data, xhr ){
                   // Failed, set pause and schedule for timeout retry
                   if ( !status.paused ) {
                      status.paused = true;
-                     status.checker = identifier;
+                     status.checker = id;
                   }
                   reschedule( 5000+Math.random()*5000 );
                } );
          } else {
-            if ( status.paused ) {
-               status.paused = false;
-               status.checker = status.loginWindow = null;
+            // Nothing to get. This is usually not right. If we are checker, reset pause status.
+            if ( window.console && console.warn ) console.warn("[" + getShortTime() + "] Reterival thread "+id+" has nothing to get.");
+            if ( status.paused && status.checker === id ) {
+               status.paused = status.checker = status.loginWindow = null;
             }
          }
       }
