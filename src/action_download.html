@@ -63,6 +63,15 @@ oddi.action.download = {
    },
 
    update_all : function() {
+      var stack = [];
+      var remote = oddi.downloader.remote;
+      for ( var cat in remote ) {
+         var category = remote[cat];
+         for ( var i = 0 ; i < category.listing.length ; i++ )
+            stack.push( [ cat, category.listing[i] ] );
+      }
+      oddi.downloader.stack.stack = stack;
+      oddi.downloader.get();
    },
 };
 
