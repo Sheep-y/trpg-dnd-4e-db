@@ -67,6 +67,7 @@ oddi.downloader = {
 
    /** Content retrival stack info */
    stack : {
+      threadCount : 0,
       running : 0,
       paused : null,
       checker : null,
@@ -79,7 +80,7 @@ oddi.downloader = {
    get : function downloader_run() {
       var stack = oddi.downloader.stack;
       var max = Math.min( stack.stack.length, 2 );
-      stack.running = max;
+      stack.running = stack.threadCount = max;
       stack.thread = [];
       for ( var i = 0 ; i < max ; i++ ) {
          setTimeout( (function(i){
@@ -112,7 +113,7 @@ oddi.downloader = {
                var itemId = cat[1][0];
                var lcat = cat[0].toLowerCase();
                var address = oddi.debug ? ( 'data/debug/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
-               if ( window.console && console.info ) console.info( timeToStr() + " Thread "+id+": "+address);
+               _.info( "Thread "+id+": "+address);
                _.cor( address,
                   function( data, xhr ){
                      // Success, check result
@@ -124,12 +125,15 @@ oddi.downloader = {
                      }
                      var remote = oddi.downloader.remote;
                      oddi.data.update( cat[0], itemId, remote[cat[0]].columns, cat[1], data );
-                     //console.log(data);
-                     if ( status.stack.length > status.running ) {
-                        status.stack[ id ] = status.stack.splice( status.running, 1 )[0];
+                     if ( status.stack.length > status.threadCount ) {
+                        var next = status.stack.splice( status.threadCount, 1 )[0]
+                        status.stack[ id ] = next;
                         reschedule( 0 );
                      } else {
                         status.stack[ id ] = null;
+                        --status.running;
+                        if ( status.running == 0 )
+                           oddi.downloader.find_changed();
                      }
                      // Reset paused status, if we are checker
                      if ( status.paused && status.checker === id ) {
@@ -146,7 +150,7 @@ oddi.downloader = {
             }
          } else {
             // Nothing to get. This is usually not right. If we are checker, reset pause status.
-            if ( window.console && console.warn ) console.warn( timeToStr + " Reterival thread "+id+" has nothing to get.");
+            _.warn( "Reterival thread "+id+" has nothing to get.");
             if ( status.paused && status.checker === id ) {
                status.paused = status.checker = status.loginWindow = null;
             }
