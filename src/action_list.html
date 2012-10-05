@@ -3,4 +3,16 @@
   - List and search downloaded entries
   -->
 <div id='action_list'>
+   <h1 class="left i18n">action.list.title</h1>
+   <a class='right i18n button' onclick='oddi.gui.switch_action( oddi.action.download );'> action.list.btn_update </a>
 </div>
+<script type='text/javascript'>'use strict';(function action_download_init(){
+
+oddi.action.list = {
+   id: 'action_list',
+   initialize: null,    
+   setup: null,
+   cleanup: null,
+};
+
+})()</script>

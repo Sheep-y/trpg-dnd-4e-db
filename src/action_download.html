@@ -9,12 +9,15 @@
    <p>
       <!--input type='search' class='right' placeholder='Search' autofocus-->
       <a class='button i18n' onclick='oddi.action.download.update_list()'> action.download.btn_refresh </a>
-      <label> <input type='checkbox'> <!--span class='i18n'>action.download.chk_refresh</span--> </label>
+      <!--label> <input type='checkbox'> <span class='i18n'>action.download.chk_refresh</span> </label-->
    </p>
    <p>
-      <a class='button i18n' id="act_download_btn_clearAll" onclick='oddi.action.download.clear_all()'>action.download.btn_clear_existing</a><br/>
-      <a class='button' id="act_download_btn_updateChanged" onclick='oddi.action.download.update_changed()'></a><br/>
+      <!--a class='button i18n' id="act_download_btn_clearAll" onclick='oddi.action.download.clear_all()'>action.download.btn_clear_existing</a><br/-->
+      <a class='button' id="act_download_btn_updateChanged" onclick='oddi.action.download.update_changed()'></a>
       <a class='button' id="act_download_btn_updateAll" onclick='oddi.action.download.update_all()'></a>
+   </p>
+   <p>
+      <a class='button i18n' onclick='oddi.gui.switch_action( oddi.action.list );'>action.download.btn_done</a>
    </p>
    <fieldset id="act_download_lst_new"></fieldset>
    <fieldset id="act_download_lst_changed"></fieldset>
@@ -38,6 +41,7 @@ oddi.action.download = {
       var deletedCount = oddi.downloader.deletedItem.length;
       var allCount = oddi.downloader.itemCount;
       var set = oddi.gui.set;
+
       set( '#act_download_btn_updateChanged', ( newCount || changedCount ) ? _.l( 'action.download.btn_update_changed', newCount, changedCount ) : '' );
       set( '#act_download_btn_updateAll', allCount ? _.l( 'action.download.btn_update_all', allCount ) : '' );
 
@@ -76,6 +80,7 @@ oddi.action.download = {
 
    /** Get all items */
    update_all : function act_download_update_all () {
+      oddi.data.clear();
       var stack = [];
       var remote = oddi.downloader.remote;
       for ( var cat in remote ) {
