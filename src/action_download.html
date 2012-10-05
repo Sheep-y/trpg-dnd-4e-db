@@ -41,8 +41,9 @@ oddi.action.download = {
       set( '#act_download_btn_updateChanged', ( newCount || changedCount ) ? _.l( 'action.download.btn_update_changed', newCount, changedCount ) : '' );
       set( '#act_download_btn_updateAll', allCount ? _.l( 'action.download.btn_update_all', allCount ) : '' );
 
+      /** Build a list of updated/changed/delete items. Empty if list is empty. */
       function gen_item_list( legend, list ) {
-    	 if ( list.length == 0 ) return '';
+        if ( list.length == 0 ) return '';
          function esc( t ) { return t.replace(/</g,'&lt;'); };
          var html = '<legend>'+_.l( legend )+'</legend>';
          list.forEach( function( item ) {
@@ -63,8 +64,8 @@ oddi.action.download = {
    update_list : function act_download_update_list () { oddi.downloader.get_index(); },
    
    clear_all : function act_download_clear_all () { 
-	   oddi.data.clear();
-	   oddi.downloader.find_changed();
+      oddi.data.clear();
+      oddi.downloader.find_changed();
    },
 
    /** Get new and changed items */
