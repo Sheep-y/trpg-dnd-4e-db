@@ -23,6 +23,7 @@
       <replaceregexp match="&lt;!--(.|\n)*?-->" replace="" flags="g" file="offline_ddi.html" />
       <replaceregexp match="/\*(.|\n)*?\*/" replace="" flags="g" file="offline_ddi.html" />
       <replaceregexp match="// .*?\n" replace="" flags="g" file="offline_ddi.html" />
+      <replaceregexp match="&lt;/script>&lt;script type='text/javascript'>'use strict';" replace="" flags="g" file="offline_ddi.html" />
    </target>
 	
    <target name="deploy" description="Compress browsable" depends="make">

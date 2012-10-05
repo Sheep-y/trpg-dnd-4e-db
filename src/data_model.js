@@ -98,15 +98,6 @@ oddi.data = {
          data: data
       }
    }
-}
-
-
-/*
-oddi.data = {
-   data: { "cat": {
-      "count": entry_count,
-   },
-}
-*/
+};
 
 </script>

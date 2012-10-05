@@ -219,6 +219,6 @@ oddi.downloader = {
       oddi.downloader.itemCount = itemCount;
       oddi.action.download.show_update_buttons();
    }
-}
+};
 
 </script>

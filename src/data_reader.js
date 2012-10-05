@@ -78,5 +78,6 @@ oddi.reader = {
          }
       }, 'Cannot read data of '+category );
    }
-}
+};
+
 </script>

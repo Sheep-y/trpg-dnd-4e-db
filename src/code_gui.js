@@ -60,6 +60,6 @@ oddi.gui = {
    },
 
 
-}
+};
 
 </script>
