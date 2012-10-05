@@ -9,6 +9,9 @@ _.l.setLocale( 'en' );
 _.l.set( 'error', {
    // 'no_cross_origin' : 'Cross Origin' // TODO: implement proper cross origin alert
    'ajax_error' : 'Cannot load content (%1) from %2.',
+   
+   'file_no_api' : 'Only support saving in IE, because JavaScript has no standard for file writing.',
+   'file_cannot_delete' : 'Cannot overwrite %1',
 });
 
 _.l.set( 'action.download', {
