@@ -79,9 +79,9 @@ _.xml = function _xml( txt ) {
 }
 
 /** Get current time in H:M:S.MS format */
-function getShortTime() {
+function timeToStr() {
    var t = new Date();
-   return t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds();
+   return "["+t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds()+"]";
 }
 
 </script><noscript>

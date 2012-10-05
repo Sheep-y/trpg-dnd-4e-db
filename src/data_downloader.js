@@ -77,8 +77,10 @@ oddi.downloader = {
 
    /** Get everything in stack  */
    get : function downloader_run() {
-      var max = Math.min( oddi.downloader.stack.stack.length, 2 );
-      oddi.downloader.stack.running = max;
+      var stack = oddi.downloader.stack;
+      var max = Math.min( stack.stack.length, 2 );
+      stack.running = max;
+      stack.thread = [];
       for ( var i = 0 ; i < max ; i++ ) {
          setTimeout( (function(i){
             return function(){ oddi.downloader.run_stack(i); };
@@ -104,41 +106,47 @@ oddi.downloader = {
          }
          var cat = status.stack[ id ];
          if ( cat ) {
-            var itemId = cat[1][0];
-            var lcat = cat[0].toLowerCase();
-            var address = oddi.debug ? ( 'data/debug/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
-            if ( window.console && console.info ) console.info("[" + getShortTime() + "] Thread "+id+": "+address);
-            _.cor( address,
-               function( data, xhr ){
-                  // Success, check result
-                  if ( data.indexOf(/\bsubscribe\b/) >= 0 && data.indexOf(/\bpassword\b/) >= 0 ) {
-                     status.paused = true;
-                     status.checker = id;
-                     status.loginWindow = window.open( address, 'loginPopup' );
-                     return reschedule( 500 );
-                  }
-                  //console.log(data);
-                  if ( status.stack.length > status.running ) {
-                     status.stack[ id ] = status.stack.splice( status.running, 1 )[0];
-                     reschedule( 0 );
-                  } else {
-                     status.stack[ id ] = null;
-                  }
-                  // Reset paused status, if we are checker
-                  if ( status.paused && status.checker === id ) {
-                     status.paused = status.checker = status.loginWindow = null;
-                  }
-               }, function( data, xhr ){
-                  // Failed, set pause and schedule for timeout retry
-                  if ( !status.paused ) {
-                     status.paused = true;
-                     status.checker = id;
-                  }
-                  reschedule( 5000+Math.random()*5000 );
-               } );
+            if ( !cat[1] ) {
+               oddi.data.create_category( cat[0], oddi.downloader.remote[cat[0]].columns );
+            } else {
+               var itemId = cat[1][0];
+               var lcat = cat[0].toLowerCase();
+               var address = oddi.debug ? ( 'data/debug/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
+               if ( window.console && console.info ) console.info( timeToStr() + " Thread "+id+": "+address);
+               _.cor( address,
+                  function( data, xhr ){
+                     // Success, check result
+                     if ( data.indexOf(/\bsubscribe\b/) >= 0 && data.indexOf(/\bpassword\b/) >= 0 ) {
+                        status.paused = true;
+                        status.checker = id;
+                        status.loginWindow = window.open( address, 'loginPopup' );
+                        return reschedule( 500 );
+                     }
+                     var remote = oddi.downloader.remote;
+                     oddi.data.update( cat[0], itemId, remote[cat[0]].columns, cat[1], data );
+                     //console.log(data);
+                     if ( status.stack.length > status.running ) {
+                        status.stack[ id ] = status.stack.splice( status.running, 1 )[0];
+                        reschedule( 0 );
+                     } else {
+                        status.stack[ id ] = null;
+                     }
+                     // Reset paused status, if we are checker
+                     if ( status.paused && status.checker === id ) {
+                        status.paused = status.checker = status.loginWindow = null;
+                     }
+                  }, function( data, xhr ){
+                     // Failed, set pause and schedule for timeout retry
+                     if ( !status.paused ) {
+                        status.paused = true;
+                        status.checker = id;
+                     }
+                     reschedule( 5000+Math.random()*5000 );
+                  } );
+            }
          } else {
             // Nothing to get. This is usually not right. If we are checker, reset pause status.
-            if ( window.console && console.warn ) console.warn("[" + getShortTime() + "] Reterival thread "+id+" has nothing to get.");
+            if ( window.console && console.warn ) console.warn( timeToStr + " Reterival thread "+id+" has nothing to get.");
             if ( status.paused && status.checker === id ) {
                status.paused = status.checker = status.loginWindow = null;
             }
@@ -173,14 +181,18 @@ oddi.downloader = {
             var rcategory = remote[cat];
             if ( rcategory.columns.toString() !== category.columns.toString() ) {
                // Category column changed
+               changedItem.push( [cat, null ] );
                rlist.forEach( function dfc_cc(e){ changedItem.push( [cat, e] ); } );
             } else {
                // Scan for changes in column
                var list = category.listing;
                rlist.forEach( function dfc_ec(e){
                   var local = find( list, e[0] );
-                  if ( !local ) newItem.push( [cat, e] );
-                  else if ( local.toString() !== e.toString() ) changedItem.push( [cat, e] );
+                  if ( local < 0 ) newItem.push( [cat, e] );
+                  else {
+                     local = list[local];
+                     if ( local.toString() !== e.toString() ) changedItem.push( [cat, e] );
+                  }
                } );
             }
          }
@@ -193,7 +205,7 @@ oddi.downloader = {
          } else {
             var rlist = remote[cat].listing
             list.forEach( function dfc_ecd(e){
-               if ( find( rlist, e[0] ) === null ) deletedItem.push( [cat, e] );
+               if ( find( rlist, e[0] ) < 0 ) deletedItem.push( [cat, e] );
             } );
          }
       }
