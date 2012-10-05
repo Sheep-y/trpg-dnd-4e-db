@@ -30,10 +30,10 @@ _.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
          }
          if ( ondone ) ondone.call( xhr, xhr );
       }
-   }
+   };
    xhr.send();
    return xhr;
-}
+};
 
 _.js = function _js( url, onload ) {
    var e = document.createElement( 'script' );
@@ -43,7 +43,7 @@ _.js = function _js( url, onload ) {
    // Cleanup - remove script node so that saved html wouldn't be polluted
    e.addEventListener('load', function(){ document.body.removeChild(e) });
    document.body.appendChild( e );
-}
+};
 
 /**
  * Cross Origin Request function
@@ -61,7 +61,7 @@ _.cor = function _cor( url, onsuccess, onfail, ondone ) {
       //}
       //return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
    }
-}
+};
 
 _.log = function _info( type, msg ) {
    if ( msg === undefined ) {
@@ -71,10 +71,10 @@ _.log = function _info( type, msg ) {
    msg = timeToStr() + " " + msg;
    if ( window.console && console[type] ) console[type]( msg );
    return msg;
-}
-_.info = function _info( msg ) { _.log( 'info', msg ); }
-_.warn = function _info( msg ) { _.log( 'warn', msg ); }
-_.error = function _info( msg ) { alert( _.log( 'error', msg ) ); }
+};
+_.info = function _info( msg ) { _.log( 'info', msg ); };
+_.warn = function _info( msg ) { _.log( 'warn', msg ); };
+_.error = function _info( msg ) { alert( _.log( 'error', msg ) ); };
 
 
 /**
@@ -90,7 +90,7 @@ _.xml = function _xml( txt ) {
    } else {
       alert('XML Parser not supported');
    }
-}
+};
 
 /** Get current time in H:M:S.MS format */
 function timeToStr() {

@@ -20,7 +20,7 @@ _.l.currentLocale = 'en';
 _.l.data = {};
 
 /** Set current locale. */
-_.l.setLocale = function _l_setLocale( l ) { _.l.currentLocale = l; }
+_.l.setLocale = function _l_setLocale( l ) { _.l.currentLocale = l; };
 
 /** Get/set l10n resource on given poth */
 _.l.getset = function _l_getset( path, set ) {
@@ -36,13 +36,13 @@ _.l.getset = function _l_getset( path, set ) {
    // Set data
    if ( set !== undefined ) base[last] = set;
    return base[last];
-}
+};
 
 /** Set l10n resource on given poth */
 _.l.set = function _l_set( path, data ) {
    _.l.getset( path, data );
    return _;
-}
+};
 
 /** Localise all child elements with a class name of 'i18n' using its initial textContent as path */
 _.l.localise = function _l_localise( root ) {
@@ -53,6 +53,6 @@ _.l.localise = function _l_localise( root ) {
       if ( !key ) e.setAttribute("dataset-i18n", key = e.textContent.trim() );
       e.innerHTML = _.l( key );
    }
-}
+};
 
 </script>
