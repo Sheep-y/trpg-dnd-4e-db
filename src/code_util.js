@@ -63,6 +63,20 @@ _.cor = function _cor( url, onsuccess, onfail, ondone ) {
    }
 }
 
+_.log = function _info( type, msg ) {
+   if ( msg === undefined ) {
+      msg = type;
+      type = 'log';
+   }
+   msg = timeToStr() + " " + msg;
+   if ( window.console && console[type] ) console[type]( msg );
+   return msg;
+}
+_.info = function _info( msg ) { _.log( 'info', msg ); }
+_.warn = function _info( msg ) { _.log( 'warn', msg ); }
+_.error = function _info( msg ) { alert( _.log( 'error', msg ) ); }
+
+
 /**
  * parse xml
   */
