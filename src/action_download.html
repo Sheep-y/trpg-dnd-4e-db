@@ -9,10 +9,11 @@
    <p>
       <!--input type='search' class='right' placeholder='Search' autofocus-->
       <a class='button i18n' onclick='oddi.action.download.update_list()'> action.download.btn_refresh </a>
-      <label> <input type='checkbox'> <span class='i18n'>action.download.chk_refresh</span> </label>
+      <label> <input type='checkbox'> <!--span class='i18n'>action.download.chk_refresh</span--> </label>
    </p>
    <p>
-      <a class='button' id="act_download_btn_updateChanged" onclick='oddi.action.download.update_changed()'></a><br>
+      <a class='button i18n' id="act_download_btn_clearAll" onclick='oddi.action.download.clear_all()'>action.download.btn_clear_existing</a><br/>
+      <a class='button' id="act_download_btn_updateChanged" onclick='oddi.action.download.update_changed()'></a><br/>
       <a class='button' id="act_download_btn_updateAll" onclick='oddi.action.download.update_all()'></a>
    </p>
    <fieldset id="act_download_lst_new"></fieldset>
@@ -37,10 +38,11 @@ oddi.action.download = {
       var deletedCount = oddi.downloader.deletedItem.length;
       var allCount = oddi.downloader.itemCount;
       var set = oddi.gui.set;
-      set( '#act_download_btn_updateChanged', ( newCount || changedCount ) ? _.l( 'action.download.btn_updateChanged', newCount, changedCount ) : '' );
-      set( '#act_download_btn_updateAll', allCount ? _.l( 'action.download.btn_updateAll', allCount ) : '' );
+      set( '#act_download_btn_updateChanged', ( newCount || changedCount ) ? _.l( 'action.download.btn_update_changed', newCount, changedCount ) : '' );
+      set( '#act_download_btn_updateAll', allCount ? _.l( 'action.download.btn_update_all', allCount ) : '' );
 
       function gen_item_list( legend, list ) {
+    	 if ( list.length == 0 ) return '';
          function esc( t ) { return t.replace(/</g,'&lt;'); };
          var html = '<legend>'+_.l( legend )+'</legend>';
          list.forEach( function( item ) {
@@ -58,16 +60,21 @@ oddi.action.download = {
       set( '#act_download_lst_deleted', newCount ? gen_item_list( 'action.download.lbl_deleted_items', oddi.downloader.deletedItem ) : '' );
    },
 
-   update_list : function() { oddi.downloader.get_index(); },
+   update_list : function act_download_update_list () { oddi.downloader.get_index(); },
+   
+   clear_all : function act_download_clear_all () { 
+	   oddi.data.clear();
+	   oddi.downloader.find_changed();
+   },
 
    /** Get new and changed items */
-   update_changed : function() {
+   update_changed : function act_download_update_changed () {
       oddi.downloader.stack.stack = oddi.downloader.newItem.concat(oddi.downloader.changedItem);
       oddi.downloader.get();
    },
 
    /** Get all items */
-   update_all : function() {
+   update_all : function act_download_update_all () {
       var stack = [];
       var remote = oddi.downloader.remote;
       for ( var cat in remote ) {
@@ -77,7 +84,7 @@ oddi.action.download = {
       }
       oddi.downloader.stack.stack = stack;
       oddi.downloader.get();
-   },
+   }, 
 };
 
 })()</script>
