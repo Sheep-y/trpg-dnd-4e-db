@@ -20,13 +20,14 @@
          <fileset file="src/action_view.html" />
          <fileset file="src/html_footer.html" />
       </concat>
-      <replaceregexp match="&lt;!--(.|\n)*?-->" replace="" flags="g" file="offline_ddi.html" />
-      <replaceregexp match="/\*(.|\n)*?\*/" replace="" flags="g" file="offline_ddi.html" />
-      <replaceregexp match="// .*?\n" replace="" flags="g" file="offline_ddi.html" />
+      <replaceregexp match=" *&lt;!--(.|\n)*?--> *\n?" replace="" flags="g" file="offline_ddi.html" />
+      <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="offline_ddi.html" />
+      <replaceregexp match=" *// .*?\n" replace="" flags="g" file="offline_ddi.html" />
       <replaceregexp match="&lt;/script>&lt;script type='text/javascript'>'use strict';" replace="" flags="g" file="offline_ddi.html" />
    </target>
-	
+
    <target name="deploy" description="Compress browsable" depends="make">
-      <replaceregexp match="(\n)[\n\s]+" replace="\1" flags="g" file="offline_ddi.html" />
+      <replaceregexp match="   " replace="" flags="g" file="offline_ddi.html" />
+      <replaceregexp match="(\n)[\n ]+" replace="\1" flags="g" file="offline_ddi.html" />
    </target>
 </project>
