@@ -78,7 +78,7 @@ _.error = function _info( msg ) { alert( _.log( 'error', msg ) ); };
 
 
 /**
- * parse xml
+ * parse xml and return an xml document
   */
 _.xml = function _xml( txt ) {
    if ( window.DOMParser !== undefined ) {
@@ -91,6 +91,21 @@ _.xml = function _xml( txt ) {
       alert('XML Parser not supported');
    }
 };
+
+/**
+ * parse html and return the containing dom node
+ */
+_.html = function _html( txt ) {
+   var e = _.html.node;
+   if ( !e ) {
+      e = _.html.node = document.createElement('div');
+      e.id = '_temp_html';
+      e.style.display = 'none';
+      document.body.appendChild(e);
+   }
+   e.innerHTML = txt;
+   return e;
+}
 
 /** Get current time in H:M:S.MS format */
 function timeToStr() {

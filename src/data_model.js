@@ -85,6 +85,8 @@ oddi.data = {
    },
 
    parse : function data_parse( data ) {
+      // Normalise input
+      data = data.trim().replace( /\r\n?/g, '\n' );
       // Extract body
       data = data.match( /<body[^>]*>((?:.|\n)*)<\/body\s*>/ );
       if ( !data ) return null;
