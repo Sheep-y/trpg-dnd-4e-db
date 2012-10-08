@@ -10,7 +10,7 @@ oddi.data = {
       "Sample" : {
          "columns": [ "ID", "Name", "Category", "SourceBook" ],
          "listing": [ [ "sampleId001", "Sample Data", "Sample1", "Git" ],
-                    [ "sampleId003", "Sample Data 3", "Sample3", "Git" ], ],
+                    [ "sampleId003", "Sample Data 3", "Sample3", "Git" ] ],
          "index": [ "This is sample data id sampleId001", "This is another data that is an example." ],
          "data": [ "<p>This is sample data id sampleId001</p>" ], // Data at index 2 not loaded yet
       }
@@ -75,12 +75,10 @@ oddi.data = {
          if ( i >= 0 ) {
             data.remove_index( cat, i );
             cat.listing[i] = listing;
-            cat.data[i] = content;
-            data.update_index( cat, i );
          } else {
             i = cat.listing.push( listing )-1;
-            cat.data.push( content );
          }
+         cat.data[i] = content;
          data.update_index( cat, i );
       } else {
          if ( window.console && console.warn ) console.warn( timeToStr() + " No data or cannot parse data for "+category+"."+id );
