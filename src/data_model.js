@@ -57,27 +57,31 @@ oddi.data = {
    /** Insert or update an entry */
    update : function data_update( category, id, columns, listing, content ) {
       if ( content ) {
-         var cat = oddi.data.data[category];
+         var data = oddi.data;
+         var cat = data.data[category];
          var i;
          if ( cat === undefined ) {
             // New category
-            cat = oddi.data.set_columns( category, columns );
+            cat = data.set_columns( category, columns );
             i = -1;
          } else {
             // Existing category, check columns
             if ( cat.columns.toString() !== columns.toString() ) {
                alert("Columns mismatch for "+listing[1]+" in "+category);
-               oddi.data.set_columns( columns );
+               data.set_columns( columns );
             }
-            var i = oddi.data.find_in_list( cat.listing, id );
+            var i = data.find_in_list( cat.listing, id );
          }
          if ( i >= 0 ) {
+            data.remove_index( cat, i );
             cat.listing[i] = listing;
             cat.data[i] = content;
+            data.update_index( cat, i );
          } else {
-            cat.listing.push( listing );
+            i = cat.listing.push( listing )-1;
             cat.data.push( content );
          }
+         data.update_index( cat, i );
       } else {
          if ( window.console && console.warn ) console.warn( timeToStr() + " No data or cannot parse data for "+category+"."+id );
       }
@@ -100,7 +104,17 @@ oddi.data = {
       data = data.replace( /<div[^>]*>\s*<\/div\s*>/g, '' );
       // TODO: convert ' and links
       return data;
-   }
+   },
+
+   /** Remove the index of an existing entry. For internal use. */
+   remove_index : function data_remove_index( cat, index ) {
+      // Currently unused
+   },
+
+   /** Update the index of an existing entry. For internal use. */
+   update_index : function data_update_index( cat, index ) {
+      cat.index[index] = cat.data[index].replace( /<[^>]+>/g, '' ).replace( /\s+/g, ' ' );
+   },
 };
 
 </script>

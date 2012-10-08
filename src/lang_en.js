@@ -7,6 +7,8 @@
 _.l.setLocale( 'en' );
 
 _.l.set( 'error', {
+   'updating_data' : 'Error when updating %1 of %2 (%3)',
+
    // 'no_cross_origin' : 'Cross Origin' // TODO: implement proper cross origin alert
    'ajax_error' : 'Cannot load content (%1) from %2.',
 

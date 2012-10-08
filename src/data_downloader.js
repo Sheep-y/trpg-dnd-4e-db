@@ -106,10 +106,10 @@ oddi.downloader = {
                return reschedule( 500+Math.random()*500 );
          }
          var cat = status.stack[ id ];
-         var data = oddi.data;
+         var model = oddi.data;
          if ( cat ) {
             if ( !cat[1] ) {
-               data.create_category( cat[0], oddi.downloader.remote[cat[0]].columns );
+               model.create_category( cat[0], oddi.downloader.remote[cat[0]].columns );
             } else {
                var itemId = cat[1][0];
                var lcat = cat[0].toLowerCase();
@@ -125,7 +125,11 @@ oddi.downloader = {
                         return reschedule( 500 );
                      }
                      var remote = oddi.downloader.remote;
-                     data.update( cat[0], itemId, remote[cat[0]].columns, cat[1], data.preprocess( data ) );
+                     try {
+                        model.update( cat[0], itemId, remote[cat[0]].columns, cat[1], model.preprocess( data ) );
+                     } catch ( e ) {
+                        _.error( _.l( 'error.updating_data', cat[1][1], cat[0], e ) );
+                     }
                      if ( status.stack.length > status.threadCount ) {
                         var next = status.stack.splice( status.threadCount, 1 )[0]
                         status.stack[ id ] = next;
