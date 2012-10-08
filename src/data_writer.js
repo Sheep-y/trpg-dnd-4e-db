@@ -6,13 +6,12 @@
  */
 
 oddi.writer = {
-   basePath : location.href.replace( /file:\/\/\/|[^\\\/]+.html?(\?.*)?$/g, '' ),
    _fs : null,
 
    _write : function writer_write( file, content ) {
       if ( window.ActiveXObject ) {
          // IE ActiveX writer. Write file in UTF-16 and windows linebreak, not much choice here.
-         file = oddi.writer.basePath + file;
+         file = oddi.cofnig.data_full_path + file;
          try {
             var fso = oddi.writer._fs;
             if ( oddi.writer._fs === null ) {

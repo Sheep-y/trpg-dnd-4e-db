@@ -21,7 +21,7 @@ oddi.downloader = {
     * Get category listing. Call get_category for each category.
     */
    get_index: function downloader_get_index( ) {
-      var address = oddi.config.debug ? 'data/debug/test-search.xml' : 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&nameOnly=false&tab=Glossary';
+      var address = oddi.config.debug ? oddi.config.debug_url+'/test-search.xml' : 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&nameOnly=false&tab=Glossary';
       _.cor( address,
          function( data, xhr ){
             var remote = oddi.downloader.remote = {};
@@ -36,7 +36,7 @@ oddi.downloader = {
 
    /** Get entry listing of a category */
    get_category: function downloader_get_category( cat ) {
-      var address = oddi.config.debug ? ( 'data/debug/search-'+cat+'.xml' ) : ( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/ViewAll?tab='+cat );
+      var address = oddi.config.debug ? ( oddi.config.debug_url+'/search-'+cat+'.xml' ) : ( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/ViewAll?tab='+cat );
       _.cor( address,
          function( data, xhr ){
             var result = _.xml(xhr.responseText).getElementsByTagName("Results")[0];
@@ -112,7 +112,7 @@ oddi.downloader = {
             } else {
                var itemId = cat[1][0];
                var lcat = cat[0].toLowerCase();
-               var address = oddi.config.debug ? ( 'data/debug/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
+               var address = oddi.config.debug ? ( oddi.config.debug_url+'/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
                _.info( "Thread "+id+": "+address);
                _.cor( address,
                   function( data, xhr ){
