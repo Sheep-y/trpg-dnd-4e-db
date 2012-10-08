@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="oddi" default="make" basedir=".">
+   <property name="deliverable" value="offline_conpemdium.html" />
+
    <target name="make" description="Compile browsable html">
-      <concat destfile="offline_ddi.html">
+      <concat destfile="${deliverable}">
          <fileset file="src/html_doctype.html" />
          <fileset file="src/style.css" />
          <fileset file="src/html_header.html" />
@@ -20,14 +22,14 @@
          <fileset file="src/action_view.html" />
          <fileset file="src/html_footer.html" />
       </concat>
-      <replaceregexp match=" *&lt;!--(.|\n)*?--> *\n?" replace="" flags="g" file="offline_ddi.html" />
-      <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="offline_ddi.html" />
-      <replaceregexp match=" *// .*?\n" replace="" flags="g" file="offline_ddi.html" />
-      <replaceregexp match="&lt;/script>&lt;script type='text/javascript'>'use strict';" replace="" flags="g" file="offline_ddi.html" />
+      <replaceregexp match=" *&lt;!--(.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" />
+      <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="${deliverable}" />
+      <replaceregexp match=" *// .*?\n" replace="" flags="g" file="${deliverable}" />
+      <replaceregexp match="&lt;/script>&lt;script type='text/javascript'>'use strict';" replace="" flags="g" file="${deliverable}" />
    </target>
 
    <target name="deploy" description="Compress browsable" depends="make">
-      <replaceregexp match="   " replace="" flags="g" file="offline_ddi.html" />
-      <replaceregexp match="(\n)[\n ]+" replace="\1" flags="g" file="offline_ddi.html" />
+      <replaceregexp match="   " replace="" flags="g" file="${deliverable}" />
+      <replaceregexp match="(\n)[\n ]+" replace="\1" flags="g" file="${deliverable}" />
    </target>
 </project>
