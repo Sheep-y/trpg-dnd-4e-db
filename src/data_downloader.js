@@ -114,7 +114,6 @@ oddi.downloader = {
                var itemId = cat[1][0];
                var lcat = cat[0].toLowerCase();
                var address = oddi.config.debug ? ( oddi.config.debug_url+'/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
-               _.info( "Thread "+id+": "+address);
                _.cor( address,
                   function( data, xhr ){
                      // Success, check result

@@ -10,73 +10,81 @@ oddi.reader = {
 
    /**
      * Call _.js if onload is empty, or onread if it is not empty.
-     * 
-     * Workflow:
-     *  > reader.read_XXX()
-     *  >> reader._read( undefined, src );
-     *  >>> setTimeout
-     *  >>> _.js( src )
-     *  > reader.read_XXX( version, data ) // Callback from js
-     *  >> reader._read( version, src, onread );
-     *  >>> onread
-     *  >>> cleanup
      */
-   _read: function reader_read( doload, src, onread, errmsg ) {
-      var reader = oddi.reader;
-
-      function cleanup( errmsg ) {
-         reader._loaded[src] = clearTimeout( reader._loaded[src] );
-         if ( errmsg ) _.error( errmsg );
-      }
-
-      if ( ! doload ) {
-        // Straight call, load file
-
-        // Timeout detection
-        reader._loaded[src] = setTimeout( function(){ cleanup( errmsg ); }, reader._timeout);
-         _.js(src, function(a){
-            // Onload. Normally callback below should clear the timer, if not then we have error.
-            if ( oddi.reader._loaded[src] ) cleanup( errmsg );
-        });
-      } else {
-         // Callback from file
-         if ( onread ) onread();
-         cleanup( );
+   _clear : function cleanup( src, onerror ) {
+      clearTimeout( this._loaded[src] );
+      delete this._loaded[src];
+      if ( onerror ) {
+         if ( typeof( onerror ) == 'function' ) onerror( src );
+         else _.error( onerror );
       }
    },
 
-   read_index: function reader_read_index( version, data ) {
-      oddi.reader._read( version, oddi.config.data_url+'/index.jsonp', function(){
-         oddi.data.category = data;
-      }, 'Cannot read data' );
+   /**
+      * Add jsonp call and timeout detection
+      */
+   _read: function reader_read( src, onerror ) {
+      function clear(){ oddi.reader._clear( src, onerror ); }
+      this._loaded[src] = setTimeout( clear, this._timeout );
+      _.js(src, function(a){
+         // Onload. Normally callback should clear the timer, if not then we have error.
+         if ( oddi.reader._loaded[src] ) clear();
+      });
    },
 
-   read_data_listing: function reader_read_data_listing( category, version, columns, data ) {
-      oddi.reader._read( version, oddi.config.data_url+'/'+category+'/listing.jsonp', function(){
-         oddi.data.data[category] = {
-            columns: columns,
-            listing: data,
-            index: {},
-            data: [],
-         }
-      }, 'Cannot read listing of '+category );
+   url : {
+      index : function index() { return oddi.config.data_url+'/index.jsonp' },
+      category_listing : function cat_listing( category ) { return oddi.config.data_url+'/'+category+'/listing.jsonp' },
+      category_index : function cat_listing( category ) { return oddi.config.data_url+'/'+category+'/index.jsonp' },
+      data : function data_url( category, index ) {
+         startIndex = Math.floor( index / 100 );
+         endIndex = startIndex + 99;
+         return oddi.config.data_url+'/'+category+'/data'+startIndex+'-'+endIndex+'.jsonp';
+      },
    },
 
-   read_data_index: function reader_read_data_index( category, version, data ) {
-      oddi.reader._read( version, oddi.config.data_url+'/'+category+'/index.jsonp', function(){
-         oddi.data.data[category].index = data;
-      }, 'Cannot read index of '+category );
+   read_index: function reader_read_index() {
+      this._read( this.url.index(), 'Cannot read data' );
    },
 
-   read_data: function reader_read_data( category, index, version, data ) {
-      startIndex = Math.floor( index / 100 );
-      endIndex = startIndex + 99;
-      oddi.reader._read( version, oddi.config.data_url+'/'+category+'/data'+startIndex+'-'+endIndex+'.jsonp', function(){
-         var ary = oddi.data.data[category].data;
-         for ( var i = 0 ; i <= 99 ; i++ ) {
-            ary[startIndex+i] = data[i];
-         }
-      }, 'Cannot read data of '+category );
+   jsonp_index: function reader_jsonp_index( version, data ) {
+      oddi.data.category = data;
+      this._clear( this.url.index() );
+   },
+
+   read_data_listing: function reader_read_data_listing( category ) {
+      this._read( this.url.category_listing( category ), 'Cannot read listing of '+category );
+   },
+
+   jsonp_data_listing: function reader_jsonp_data_listing( version, category, columns, data ) {
+      oddi.data.data[category] = {
+         columns: columns,
+         listing: data,
+         index: {},
+         data: [],
+      }
+      this._clear( this.url.category_listing( category ) );
+   },
+
+   read_data_index: function reader_read_data_index( category ) {
+      this._read( this.url.category_index( category ), 'Cannot read index of '+category );
+   },
+
+   jsonp_data_index: function reader_jsonp_data_index( version, category, data ) {
+      oddi.data.data[category].index = data;
+      this._clear( this.url.category_index( category ) );
+   },
+
+   read_data: function reader_read_data( category, index ) {
+      this._read( this.url.data( category, index ), 'Cannot read data #' + index + ' of ' + category );
+   },
+
+   jsonp_data: function reader_jsonp_data( version, category, index, data ) {
+      var ary = oddi.data.data[category].data;
+      for ( var i = 0 ; i <= 99 ; i++ ) {
+         ary[startIndex+i] = data[i];
+      }
+      this._clear( this.url.data( category, index ) );
    }
 };
 

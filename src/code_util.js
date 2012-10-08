@@ -18,6 +18,7 @@ function _( cssSelector ) {
  */
 _.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
    if ( xhr === undefined ) xhr = new XMLHttpRequest();
+   _.info( "Ajax: "+url);
    xhr.open( 'POST', url );
    //xhr.mozBackgroundRequest = true;
    xhr.onreadystatechange = function _ajax_onreadystatechange() {
@@ -38,8 +39,9 @@ _.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
 _.js = function _js( url, onload ) {
    var e = document.createElement( 'script' );
    e.src = url;
+   _.info( "Script: "+url);
    // Optional callback
-   if ( onload ) e.addEventListener('load', onload);
+   if ( onload ) e.addEventListener( 'load', onload );
    // Cleanup - remove script node so that saved html wouldn't be polluted
    e.addEventListener('load', function(){ document.body.removeChild(e) });
    document.body.appendChild( e );
@@ -52,6 +54,7 @@ _.cor = function _cor( url, onsuccess, onfail, ondone ) {
    if ( window.ActiveXObject !== undefined ) {
       return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
    } else {
+      _.info( "Cor: "+url);
       alert('Please override Cross Origin Request control');
       // enablePrivilege is disabled since Firefox 15
       //try {

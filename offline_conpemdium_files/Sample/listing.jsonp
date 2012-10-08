@@ -1,7 +1,7 @@
 /**
  * Data listing. Contains column names and data.
  */
-oddi.reader.read_data_listing(20120915, "Sample", [ "Id", "Name", "Category", "Source" ], [
+oddi.reader.jsonp_data_listing( 20120915, "Sample", [ "Id", "Name", "Category", "Source" ], [
   [ "sampleId001", "Sample Data 1", "Sample1", "Git" ],
   [ "sampleId003", "Sample Data 2", "Sample2", "Git" ],
 ]);

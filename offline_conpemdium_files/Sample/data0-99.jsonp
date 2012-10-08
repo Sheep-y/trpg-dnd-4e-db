@@ -1,7 +1,7 @@
 /**
  * Data index. Contains text and index of entry with the text.
  */
-oddi.reader.read_data(20120915, "Sample",0,[
+oddi.reader.jsonp_data(20120915, "Sample", 0, [
    "<p>This is sample data id sampleId001</p>", // Index 0
    "<p>This is another data that is an example.</p>",  // Index 1
 ]);
