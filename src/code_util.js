@@ -106,6 +106,7 @@ _.html = function _html( txt ) {
    e.innerHTML = txt;
    return e;
 }
+_.html.node = null;
 
 /** Get current time in H:M:S.MS format */
 function timeToStr() {
