@@ -56,8 +56,7 @@ oddi.data = {
 
    /** Insert or update an entry */
    update : function data_update( category, id, columns, listing, content ) {
-      var data = oddi.data.parse( content );
-      if ( data ) {
+      if ( content ) {
          var cat = oddi.data.data[category];
          var i;
          if ( cat === undefined ) {
@@ -74,17 +73,20 @@ oddi.data = {
          }
          if ( i >= 0 ) {
             cat.listing[i] = listing;
-            cat.data[i] = data;
+            cat.data[i] = content;
          } else {
             cat.listing.push( listing );
-            cat.data.push( data );
+            cat.data.push( content );
          }
       } else {
          if ( window.console && console.warn ) console.warn( timeToStr() + " No data or cannot parse data for "+category+"."+id );
       }
    },
 
-   parse : function data_parse( data ) {
+   /**
+    * Pre-process data - extract content, remove scripts and forms, normalise symbols and links etc.
+    */
+   preprocess : function data_preprocess( data ) {
       // Normalise input
       data = data.trim().replace( /\r\n?/g, '\n' );
       // Extract body
@@ -96,6 +98,7 @@ oddi.data = {
       data = data.trim().replace( /<script\b.*?<\/script\s*>/g, '' ).replace( /<input[^>]*>/g, '').replace( /<form[^>]*>|<\/form\s*>/g, '' );
       // Remove empty contents
       data = data.replace( /<div[^>]*>\s*<\/div\s*>/g, '' );
+      // TODO: convert ' and links
       return data;
    }
 };

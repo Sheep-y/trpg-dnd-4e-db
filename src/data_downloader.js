@@ -14,7 +14,7 @@ oddi.downloader = {
    updateCountdown : 0,
    newItem : [ /* ['Sample','sample001'],['Sample','sample02']*/ ],
    changedItem : [],
-   deleteItem : [],
+   deletedItem : [],
    itemCount : 0,
 
    /**
@@ -106,9 +106,10 @@ oddi.downloader = {
                return reschedule( 500+Math.random()*500 );
          }
          var cat = status.stack[ id ];
+         var data = oddi.data;
          if ( cat ) {
             if ( !cat[1] ) {
-               oddi.data.create_category( cat[0], oddi.downloader.remote[cat[0]].columns );
+               data.create_category( cat[0], oddi.downloader.remote[cat[0]].columns );
             } else {
                var itemId = cat[1][0];
                var lcat = cat[0].toLowerCase();
@@ -124,7 +125,7 @@ oddi.downloader = {
                         return reschedule( 500 );
                      }
                      var remote = oddi.downloader.remote;
-                     oddi.data.update( cat[0], itemId, remote[cat[0]].columns, cat[1], data );
+                     data.update( cat[0], itemId, remote[cat[0]].columns, cat[1], data.preprocess( data ) );
                      if ( status.stack.length > status.threadCount ) {
                         var next = status.stack.splice( status.threadCount, 1 )[0]
                         status.stack[ id ] = next;
