@@ -23,12 +23,13 @@ oddi.reader = {
    /**
       * Add jsonp call and timeout detection
       */
-   _read: function reader_read( src, onerror ) {
+   _read: function reader_read( src, onload, onerror ) {
       function clear(){ oddi.reader._clear( src, onerror ); }
       this._loaded[src] = setTimeout( clear, this._timeout );
       _.js(src, function(a){
          // Onload. Normally callback should clear the timer, if not then we have error.
          if ( oddi.reader._loaded[src] ) clear();
+         if ( onload ) onload();
       });
    },
 
@@ -43,8 +44,8 @@ oddi.reader = {
       },
    },
 
-   read_index: function reader_read_index() {
-      this._read( this.url.index(), 'Cannot read data' );
+   read_index: function reader_read_index( onload ) {
+      this._read( this.url.index(), onload, 'Cannot read data' );
    },
 
    jsonp_index: function reader_jsonp_index( version, data ) {
@@ -52,8 +53,8 @@ oddi.reader = {
       this._clear( this.url.index() );
    },
 
-   read_data_listing: function reader_read_data_listing( category ) {
-      this._read( this.url.category_listing( category ), 'Cannot read listing of '+category );
+   read_data_listing: function reader_read_data_listing( category, onload ) {
+      this._read( this.url.category_listing( category ), onload, 'Cannot read listing of '+category );
    },
 
    jsonp_data_listing: function reader_jsonp_data_listing( version, category, columns, data ) {
@@ -66,8 +67,8 @@ oddi.reader = {
       this._clear( this.url.category_listing( category ) );
    },
 
-   read_data_index: function reader_read_data_index( category ) {
-      this._read( this.url.category_index( category ), 'Cannot read index of '+category );
+   read_data_index: function reader_read_data_index( category, onload ) {
+      this._read( this.url.category_index( category ), onload, 'Cannot read index of '+category );
    },
 
    jsonp_data_index: function reader_jsonp_data_index( version, category, data ) {
@@ -75,8 +76,8 @@ oddi.reader = {
       this._clear( this.url.category_index( category ) );
    },
 
-   read_data: function reader_read_data( category, index ) {
-      this._read( this.url.data( category, index ), 'Cannot read data #' + index + ' of ' + category );
+   read_data: function reader_read_data( category, index, onload ) {
+      this._read( this.url.data( category, index ), onload, 'Cannot read data #' + index + ' of ' + category );
    },
 
    jsonp_data: function reader_jsonp_data( version, category, index, data ) {

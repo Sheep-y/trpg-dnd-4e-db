@@ -180,7 +180,7 @@ oddi.downloader = {
       for ( var cat in remote ) {
          var rlist = remote[cat].listing;
          itemCount += rlist.length;
-         if ( data[cat] === undefined ) {
+         if ( !data || data[cat] === undefined ) {
             // New category
             rlist.forEach( function dfc_nc(e){ newItem.push( [cat, e] ); } );
          } else {
