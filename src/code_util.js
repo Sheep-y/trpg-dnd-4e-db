@@ -71,13 +71,24 @@ _.log = function _info( type, msg ) {
       msg = type;
       type = 'log';
    }
-   msg = timeToStr() + " " + msg;
-   if ( window.console && console[type] ) console[type]( msg );
+   if ( window.console && console[type] ) console[type]( timeToStr() + " " + msg );
    return msg;
 };
 _.info = function _info( msg ) { _.log( 'info', msg ); };
 _.warn = function _info( msg ) { _.log( 'warn', msg ); };
-_.error = function _info( msg ) { alert( _.log( 'error', msg ) ); };
+_.error = function _info( msg ) {
+   if ( ! _.error.timeout ) {
+      _.error.timeout = setTimeout( function(){
+         _.error.timeout = 0;
+         var err = _.error.log;
+         _.error.log = ""
+         alert( err );
+      }, 50 );
+   }
+   _.error.log += _.log( 'error', msg ) + "\n";
+};
+_.error.timeout = 0;
+_.error.log = "";
 
 
 /**
