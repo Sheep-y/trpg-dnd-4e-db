@@ -4,17 +4,9 @@
  * Create data model in memory
  */
 
+
 oddi.data = {
-   category : { "Sample": 2 },
-   data : {
-      "Sample" : {
-         "columns": [ "ID", "Name", "Category", "SourceBook" ],
-         "listing": [ [ "sampleId001", "Sample Data", "Sample1", "Git" ],
-                    [ "sampleId003", "Sample Data 3", "Sample3", "Git" ] ],
-         "index": [ "This is sample data id sampleId001", "This is another data that is an example." ],
-         "data": [ "<p>This is sample data id sampleId001</p>" ], // Data at index 2 not loaded yet
-      }
-   },
+   category : { },
 
    find_in_list : function data_find_in_list( list, id ) {
       for ( var i = 0, len = list.length ; i < len ; i++ )
@@ -24,64 +16,38 @@ oddi.data = {
    },
 
    /** Clear all loaded data or a category of data */
-   clear : function data_reset( category ) {
+   clear : function data_clear( category ) {
       if ( category ) {
-         var pos = this.category.indexOf( category );
-         if ( pos ) {
-            this.category.splice( pos, 1 );
-            delete this.data[category];
+         if ( this.category[category] ) {
+            delete this.category[category];
          } else {
             if ( console ) console.log("Warning: Cannot reset category "+category);
          }
       } else {
-         this.category = [];
-         this.data = {};
+         this.category = {};
       }
    },
 
-   create_category : function data_creaete_category( category ) {
-      return oddi.data.data[category] = {
-         "columns" : [],
-         "listing" : [],
-         "index" : [],
-         "data" : [],
-      }
+   create_category : function data_creaete_category( category, count ) {
+      if ( this.category[category] ) return this.category[category];
+      return this.category[category] = new oddi.data.Category( category, count );
    },
 
-   set_columns : function data_set_columns( category, columns ) {
-      var cat = oddi.data.create_category( category );
-      oddi.data.data[category].columns = columns;
-      return cat;
-   },
-
-   /** Insert or update an entry */
-   update : function data_update( category, id, columns, listing, content ) {
-      if ( content ) {
-         var data = oddi.data;
-         var cat = data.data[category];
-         var i;
-         if ( cat === undefined ) {
-            // New category
-            cat = data.set_columns( category, columns );
-            i = -1;
-         } else {
-            // Existing category, check columns
-            if ( cat.columns.toString() !== columns.toString() ) {
-               alert("Columns mismatch for "+listing[1]+" in "+category);
-               data.set_columns( columns );
-            }
-            var i = data.find_in_list( cat.listing, id );
-         }
-         if ( i >= 0 ) {
-            data.remove_index( cat, i );
-            cat.listing[i] = listing;
-         } else {
-            i = cat.listing.push( listing )-1;
-         }
-         cat.data[i] = content;
-         data.update_index( cat, i );
-      } else {
-         if ( window.console && console.warn ) console.warn( timeToStr() + " No data or cannot parse data for "+category+"."+id );
+   /**
+    * Load listing and index of all categories
+    */
+   load_all_index : function data_load_all_index( onload ) {
+      var data = oddi.data.category;
+      var loadCount = 0;
+      for ( var cat in data ) {
+         loadCount++;
+         data[cat].load_listing( function( cat ){
+            cat.load_index( function() {
+               if ( --loadCount === 0 && onload ) {
+                  onload();
+               }
+            });
+         })
       }
    },
 
@@ -103,16 +69,121 @@ oddi.data = {
       // TODO: convert ' and links
       return data;
    },
+}
+
+oddi.data.Category = function( name, count ) {
+   this.name = name;
+   this.title = this.name.replace( /([A-Z])/g, ' $1' );
+   if ( count === undefined ) count = 0;
+   this.columns = new Array(count);
+   this.listing = new Array(count);
+   this.listing.loaded = false;
+   this.index = new Array(count);
+   this.index.loaded = false;
+   this.data = new Array(count);
+}
+oddi.data.Category.prototype = {
+   name: "",
+   title: "",
+   columns: [],
+   listing: [],
+   index: [],
+   data: [],
+   dirty: [],
+
+   count : function data_cat_count(){
+      return this.listing.length;
+   },
+
+   /** Load listing, if it has not been loaded */
+   load_listing: function data_cat_load_listing( onload ){
+      if ( ! this.listing.loaded ) this.reload_listing( onload );
+      else onload( this );
+   },
+
+   /** Force reload listing, if it has not been loaded */
+   reload_listing: function data_cat_reload_listing( onload ){
+      var cat = this;
+      oddi.reader.read_data_listing( this.name, function() {
+         cat.listing.loaded = true;
+         cat.dirty.listing = false;
+         if ( onload ) onload( cat );
+      });
+   },
+
+   /** Load index, if it has not been loaded */
+   load_index: function data_cat_load_index( onload ){
+      if ( ! this.index.loaded ) this.reload_index( onload );
+      else onload( this );
+   },
+
+   reload_index: function data_cat_reload_index( onload ){
+      var cat = this;
+      oddi.reader.read_data_index( this.name, function() {
+         cat.index.loaded = true;
+         cat.dirty.index = false;
+         if ( onload ) onload( cat );
+      });
+   },
+   
+   find: function data_cat_find( id ){
+      return oddi.data.find_in_list( this.listing, id );
+   },
+
+   clear: function data_cat_clear() {
+      if ( this.listing.length == 0 ) return;
+      this.columns = [];
+      this.listing = [];
+      this.listing.loaded = false;
+      this.index = [];
+      this.index.loaded = false;
+      this.data = [];
+      this.dirty = [];
+      this.dirty.listing = true;
+      this.dirty.index = true;
+   },
+
+   /** Insert or update an entry */
+   update : function data_cat_update( id, columns, listing, content ) {
+      if ( content ) {
+         var data = oddi.data;
+         var i;
+         // Existing category, check columns
+         if ( this.columns.toString() !== columns.toString() ) {
+            this.clear();
+            this.columns = columns;
+         }
+         var i = this.find( id );
+         if ( i < 0 ) i = this.listing.length;
+         var cat = this;
+         this.load_data( i, function data_cat_update_onload(){
+            if ( cat.index[i] ) cat.remove_index( i );
+            cat.listing[i] = listing;
+            cat.data[i] = content;
+            cat.dirty[i] = true;
+            cat.dirty.listing = true;
+            cat.update_index( i );
+         });
+      } else {
+         _.warn( timeToStr() + " No data or cannot parse data for "+this.name+"."+id ); //  TODO: i18n
+      }
+   },
+
+   load_data : function data_cat_load_data( index, onload ) {
+      // TODO: Implement
+      if ( onload ) onload();
+   },
 
    /** Remove the index of an existing entry. For internal use. */
-   remove_index : function data_remove_index( cat, index ) {
+   remove_index : function data_cat_remove_index( cat, index ) {
       // Currently unused
    },
 
    /** Update the index of an existing entry. For internal use. */
-   update_index : function data_update_index( cat, index ) {
-      cat.index[index] = cat.data[index].replace( /<[^>]+>/g, '' ).replace( /\s+/g, ' ' );
+   update_index : function data_cat_update_index( index ) {
+      this.index[index] = this.data[index].replace( /<[^>]+>/g, '' ).replace( /\s+/g, ' ' ).trim();
+      this.dirty.index = true;
    },
-};
+}
 
 </script>

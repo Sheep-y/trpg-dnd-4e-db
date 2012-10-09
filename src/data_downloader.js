@@ -61,7 +61,9 @@ oddi.downloader = {
                   current = current.nextElementSibling;
                }
             }
-            if ( --oddi.downloader.updateCountdown == 0 ) oddi.downloader.find_changed();
+            if ( --oddi.downloader.updateCountdown == 0 ) {
+               oddi.data.load_all_index( oddi.downloader.find_changed );
+            }
          }, oddi.gui.ajax_error( address ) );
    },
 
@@ -125,7 +127,7 @@ oddi.downloader = {
                      }
                      var remote = oddi.downloader.remote;
                      try {
-                        model.update( cat[0], itemId, remote[cat[0]].columns, cat[1], model.preprocess( data ) );
+                        model.create_category( cat[0] ).update( itemId, remote[cat[0]].columns, cat[1], model.preprocess( data ) );
                      } catch ( e ) {
                         _.error( _.l( 'error.updating_data', cat[1][1], cat[0], e ) );
                      }
@@ -167,14 +169,13 @@ oddi.downloader = {
     * Results are stored in downloader object.
     */
    find_changed : function downloader_find_changed() {
+      var data = oddi.data.category;
+      var remote = oddi.downloader.remote;
+      var find = oddi.data.find_in_list;
       var newItem = [];
       var changedItem = [];
       var deletedItem = [];
       var itemCount = 0;
-
-      var data = oddi.data.data;
-      var remote = oddi.downloader.remote;
-      var find = oddi.data.find_in_list;
 
       // Scan for new / changed items
       for ( var cat in remote ) {

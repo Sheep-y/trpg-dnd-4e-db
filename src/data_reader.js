@@ -24,11 +24,11 @@ oddi.reader = {
       * Add jsonp call and timeout detection
       */
    _read: function reader_read( src, onload, onerror ) {
-      function clear(){ oddi.reader._clear( src, onerror ); }
-      this._loaded[src] = setTimeout( clear, this._timeout );
+      function clear_timeout(){ oddi.reader._clear( src, onerror ); }
+      this._loaded[src] = setTimeout( clear_timeout, this._timeout );
       _.js(src, function(a){
          // Onload. Normally callback should clear the timer, if not then we have error.
-         if ( oddi.reader._loaded[src] ) clear();
+         if ( oddi.reader._loaded[src] ) clear_timeout();
          if ( onload ) onload();
       });
    },
@@ -49,7 +49,7 @@ oddi.reader = {
    },
 
    jsonp_index: function reader_jsonp_index( version, data ) {
-      oddi.data.category = data;
+      for ( var cat in data) oddi.data.create_category( cat, data[cat] );
       this._clear( this.url.index() );
    },
 
@@ -58,12 +58,9 @@ oddi.reader = {
    },
 
    jsonp_data_listing: function reader_jsonp_data_listing( version, category, columns, data ) {
-      oddi.data.data[category] = {
-         columns: columns,
-         listing: data,
-         index: {},
-         data: [],
-      }
+      var cat = oddi.data.category[category];
+      cat.columns = columns;
+      cat.listing = data;
       this._clear( this.url.category_listing( category ) );
    },
 
@@ -72,7 +69,8 @@ oddi.reader = {
    },
 
    jsonp_data_index: function reader_jsonp_data_index( version, category, data ) {
-      oddi.data.data[category].index = data;
+      var cat = oddi.data.category[category];
+      cat.index = data;
       this._clear( this.url.category_index( category ) );
    },
 
