@@ -28,6 +28,7 @@ oddi.data = {
       }
    },
 
+   /** Make sure a category exists and return it */
    create_category : function data_creaete_category( category, count ) {
       if ( this.category[category] ) return this.category[category];
       return this.category[category] = new oddi.data.Category( category, count );
@@ -43,9 +44,7 @@ oddi.data = {
          loadCount++;
          data[cat].load_listing( function( cat ){
             cat.load_index( function() {
-               if ( --loadCount === 0 && onload ) {
-                  onload();
-               }
+               if ( --loadCount === 0 && onload ) onload();
             });
          })
       }
@@ -74,13 +73,8 @@ oddi.data = {
 oddi.data.Category = function( name, count ) {
    this.name = name;
    this.title = this.name.replace( /([A-Z])/g, ' $1' );
-   if ( count === undefined ) count = 0;
-   this.columns = new Array(count);
-   this.listing = new Array(count);
-   this.listing.loaded = false;
-   this.index = new Array(count);
-   this.index.loaded = false;
-   this.data = new Array(count);
+   this.clear(); // Re-create arrays to contain data.
+   if ( count ) this.listing.length = count;
 }
 oddi.data.Category.prototype = {
    name: "",
@@ -170,8 +164,11 @@ oddi.data.Category.prototype = {
    },
 
    load_data : function data_cat_load_data( index, onload ) {
-      // TODO: Implement
-      if ( onload ) onload();
+      var cat = this;
+      var range = oddi.reader.read_data( this.name, index, function() {
+         for ( var i = range[0] ; i <= range[1] ; i++ ) cat.dirty[i] = false;
+         if ( onload ) onload( cat );
+      });
    },
 
    /** Remove the index of an existing entry. For internal use. */

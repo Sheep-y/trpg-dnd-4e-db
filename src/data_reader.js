@@ -37,10 +37,13 @@ oddi.reader = {
       index : function index() { return oddi.config.data_url+'/index.jsonp' },
       category_listing : function cat_listing( category ) { return oddi.config.data_url+'/'+category+'/listing.jsonp' },
       category_index : function cat_listing( category ) { return oddi.config.data_url+'/'+category+'/index.jsonp' },
+      data_block : function data_url( index ) {
+         var startIndex = Math.floor( index / 100 ) * 100;
+         return [ startIndex, startIndex + 99 ];
+      },
       data : function data_url( category, index ) {
-         startIndex = Math.floor( index / 100 );
-         endIndex = startIndex + 99;
-         return oddi.config.data_url+'/'+category+'/data'+startIndex+'-'+endIndex+'.jsonp';
+         index = this.data_block( index );
+         return oddi.config.data_url+'/'+category+'/data'+index[0]+'-'+index[1]+'.jsonp';
       },
    },
 
@@ -76,12 +79,13 @@ oddi.reader = {
 
    read_data: function reader_read_data( category, index, onload ) {
       this._read( this.url.data( category, index ), onload, 'Cannot read data #' + index + ' of ' + category );
+      return this.url.data_block( index );
    },
 
    jsonp_data: function reader_jsonp_data( version, category, index, data ) {
-      var ary = oddi.data.data[category].data;
-      for ( var i = 0 ; i <= 99 ; i++ ) {
-         ary[startIndex+i] = data[i];
+      var ary = oddi.data.category[category].data;
+      for ( var i = 0 ; i < data.length ; i++ ) {
+         ary[index+i] = data[i];
       }
       this._clear( this.url.data( category, index ) );
    }
