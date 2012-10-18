@@ -36,9 +36,10 @@ _.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
    return xhr;
 };
 
-_.js = function _js( url, onload ) {
+_.js = function _js( url, onload, charset ) {
    var e = document.createElement( 'script' );
    e.src = url;
+   if ( charset ) e.setAttribute( 'charset', charset );
    _.info( "Script: "+url);
    // Optional callback
    if ( onload ) e.addEventListener( 'load', onload );

@@ -6,7 +6,7 @@
 
 oddi.reader = {
    _loaded: {},
-   _timeout: 1 * 1000,
+   _timeout: 20 * 1000,
 
    /**
      * Call _.js if onload is empty, or onread if it is not empty.
@@ -16,7 +16,7 @@ oddi.reader = {
       delete this._loaded[src];
       if ( onerror ) {
          if ( typeof( onerror ) == 'function' ) onerror( src );
-         else _.error( onerror );
+         else _.warn( onerror );
       }
    },
 

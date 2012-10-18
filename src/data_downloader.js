@@ -110,8 +110,25 @@ oddi.downloader = {
          var cat = status.stack[ id ];
          var model = oddi.data;
          if ( cat ) {
+            function runNextStack () {
+               if ( status.stack.length > status.threadCount ) {
+                  var next = status.stack.splice( status.threadCount, 1 )[0]
+                  status.stack[ id ] = next;
+                  reschedule( 0 );
+               } else {
+                  status.stack[ id ] = null;
+                  --status.running;
+                  if ( status.running == 0 )
+                     oddi.downloader.find_changed();
+               }
+               // Reset paused status, if we are checker
+               if ( status.paused && status.checker === id ) {
+                  status.paused = status.checker = status.loginWindow = null;
+               }
+            }
             if ( !cat[1] ) {
                model.create_category( cat[0], oddi.downloader.remote[cat[0]].columns );
+               runNextStack();
             } else {
                var itemId = cat[1][0];
                var lcat = cat[0].toLowerCase();
@@ -127,23 +144,11 @@ oddi.downloader = {
                      }
                      var remote = oddi.downloader.remote;
                      try {
-                        model.create_category( cat[0] ).update( itemId, remote[cat[0]].columns, cat[1], model.preprocess( data ) );
+                        var col = remote[cat[0]].columns;
+                        model.create_category( cat[0], col ).update( itemId, col, cat[1], model.preprocess( data ), runNextStack );
                      } catch ( e ) {
                         _.error( _.l( 'error.updating_data', cat[1][1], cat[0], e ) );
-                     }
-                     if ( status.stack.length > status.threadCount ) {
-                        var next = status.stack.splice( status.threadCount, 1 )[0]
-                        status.stack[ id ] = next;
-                        reschedule( 0 );
-                     } else {
-                        status.stack[ id ] = null;
-                        --status.running;
-                        if ( status.running == 0 )
-                           oddi.downloader.find_changed();
-                     }
-                     // Reset paused status, if we are checker
-                     if ( status.paused && status.checker === id ) {
-                        status.paused = status.checker = status.loginWindow = null;
+                        runNextStack();
                      }
                   }, function( data, xhr ){
                      // Failed, set pause and schedule for timeout retry
