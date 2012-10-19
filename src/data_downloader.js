@@ -126,39 +126,38 @@ oddi.downloader = {
                   status.paused = status.checker = status.loginWindow = null;
                }
             }
-            if ( !cat[1] ) {
+            /*if ( !cat[1] ) {
                model.create_category( cat[0], oddi.downloader.remote[cat[0]].columns );
                runNextStack();
-            } else {
-               var itemId = cat[1][0];
-               var lcat = cat[0].toLowerCase();
-               var address = oddi.config.debug ? ( oddi.config.debug_url+'/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
-               _.cor( address,
-                  function( data, xhr ){
-                     // Success, check result
-                     if ( data.indexOf(/\bsubscribe\b/) >= 0 && data.indexOf(/\bpassword\b/) >= 0 ) {
-                        status.paused = true;
-                        status.checker = id;
-                        status.loginWindow = window.open( address, 'loginPopup' );
-                        return reschedule( 500 );
-                     }
-                     var remote = oddi.downloader.remote;
-                     try {
-                        var col = remote[cat[0]].columns;
-                        model.create_category( cat[0], col ).update( itemId, col, cat[1], model.preprocess( data ), runNextStack );
-                     } catch ( e ) {
-                        _.error( _.l( 'error.updating_data', cat[1][1], cat[0], e ) );
-                        runNextStack();
-                     }
-                  }, function( data, xhr ){
-                     // Failed, set pause and schedule for timeout retry
-                     if ( !status.paused ) {
-                        status.paused = true;
-                        status.checker = id;
-                     }
-                     reschedule( 5000+Math.random()*5000 );
-                  } );
-            }
+            } else {    */
+            var itemId = cat[1][0];
+            var lcat = cat[0].toLowerCase();
+            var address = oddi.config.debug ? ( oddi.config.debug_url+'/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
+            _.cor( address,
+               function( data, xhr ){
+                  // Success, check result
+                  if ( data.indexOf(/\bsubscribe\b/) >= 0 && data.indexOf(/\bpassword\b/) >= 0 ) {
+                     status.paused = true;
+                     status.checker = id;
+                     status.loginWindow = window.open( address, 'loginPopup' );
+                     return reschedule( 500 );
+                  }
+                  var remote = oddi.downloader.remote;
+                  try {
+                     var col = remote[cat[0]].columns;
+                     model.create_category( cat[0], col ).update( itemId, col, cat[1], model.preprocess( data ), runNextStack );
+                  } catch ( e ) {
+                     _.error( _.l( 'error.updating_data', cat[1][1], cat[0], e ) );
+                     runNextStack();
+                  }
+               }, function( data, xhr ){
+                  // Failed, set pause and schedule for timeout retry
+                  if ( !status.paused ) {
+                     status.paused = true;
+                     status.checker = id;
+                  }
+                  reschedule( 5000+Math.random()*5000 );
+               } );
          } else {
             // Nothing to get. This is usually not right. If we are checker, reset pause status.
             _.warn( "Reterival thread "+id+" has nothing to get.");
@@ -195,7 +194,7 @@ oddi.downloader = {
             var rcategory = remote[cat];
             if ( rcategory.columns.toString() !== category.columns.toString() ) {
                // Category column changed
-               changedItem.push( [cat, null ] );
+               //changedItem.push( [cat, null ] );
                rlist.forEach( function dfc_cc(e){ changedItem.push( [cat, e] ); } );
             } else {
                // Scan for changes in column

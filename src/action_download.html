@@ -51,11 +51,11 @@ oddi.action.download = {
          function esc( t ) { return t.replace(/</g,'&lt;'); };
          var html = '<legend>'+_.l( legend )+'</legend>';
          list.forEach( function( item ) {
-            if ( item[1] ) {
+            //if ( item[1] ) {
                item = [ item[0] ].concat( item[1] );
                // TODO: Show popup links to entry details
                html += esc(item[0]) + ': <b>' + esc(item[2]) + '</b> (' + esc(item[item.length-1]) + ')<br/>';
-            }
+            //}
          });
          return html;
       }
