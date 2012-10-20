@@ -155,6 +155,7 @@ oddi.data.Category.prototype = {
          if ( i < 0 ) i = this.listing.length;
          var cat = this;
          function data_cat_update_onload(){
+            i = Math.abs( i );
             if ( cat.index[i] ) cat.remove_index( i );
             cat.listing[i] = listing;
             cat.data[i] = content;
@@ -163,20 +164,27 @@ oddi.data.Category.prototype = {
             cat.update_index( i );
             if ( onload ) onload();
          }
-         if ( i < this.listing.length ) {
-            this.load_data( i, data_cat_update_onload );
-         } else {
-            data_cat_update_onload();
-         }
+         this.load_data( i, data_cat_update_onload );
       } else {
          _.warn( timeToStr() + " No data or cannot parse data for "+this.name+"."+id ); //  TODO: i18n
       }
    },
 
+   data_block : function data_url( index ) {
+      var startIndex = Math.floor( index / 100 ) * 100;
+      return startIndex;
+   },
+
    load_data : function data_cat_load_data( index, onload ) {
+      var start = this.data_block( index );
+      // Requesting to load a non-existing new block, or an already loaded block, do nothing.
+      if ( ( index === this.listing.length && start === index ) || this.dirty[start] !== undefined ) {
+         if ( onload ) onload( cat );
+         return;
+      }
       var cat = this;
-      var range = oddi.reader.read_data( this.name, index, function() {
-         for ( var i = range[0] ; i <= range[1] ; i++ ) cat.dirty[i] = false;
+      oddi.reader.read_data( this.name, start, function( c, from, to ) {
+         for ( var i = from ; i <= to ; i++ ) cat.dirty[i] = false;
          if ( onload ) onload( cat );
       });
    },
@@ -190,6 +198,10 @@ oddi.data.Category.prototype = {
    update_index : function data_cat_update_index( index ) {
       this.index[index] = this.data[index].replace( /<[^>]+>/g, '' ).replace( /\s+/g, ' ' ).trim();
       this.dirty.index = true;
+   },
+
+   write : function data_cat_write() {
+
    },
 }
 
