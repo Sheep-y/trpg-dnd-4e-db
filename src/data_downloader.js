@@ -192,7 +192,7 @@ oddi.downloader = {
             // Existing category
             var category = data[cat];
             var rcategory = remote[cat];
-            if ( rcategory.columns.toString() !== category.columns.toString() ) {
+            if ( rcategory.columns.toString().toUpperCase() !== category.columns.toString().toUpperCase() ) {
                // Category column changed
                //changedItem.push( [cat, null ] );
                rlist.forEach( function dfc_cc(e){ changedItem.push( [cat, e] ); } );
