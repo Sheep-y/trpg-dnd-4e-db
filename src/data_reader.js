@@ -74,7 +74,6 @@ oddi.reader = {
 
    read_data: function reader_read_data( category, from, onload ) {
       this._read( this.url.data( category, from ), onload, 'Cannot read data #' + from + ' of ' + category );
-      return this.url.data_block( index );
    },
 
    jsonp_data: function reader_jsonp_data( version, category, startIndex, data ) {

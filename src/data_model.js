@@ -61,22 +61,22 @@ oddi.data = {
       // Normalise input
       data = data.trim().replace( /\r\n?/g, '\n' );
       // Extract body
-      data = data.match( /<body[^>]*>((?:.|\n)*)<\/body\s*>/ );
+      data = data.match( /<body[^>]*>\s*((?:.|\n)*?)\s*<\/body\s*>/ );
       if ( !data ) return null;
       // Normalise whitespace
-      data = data[1].trim().replace( /[\n\s]+/g, ' ' );
+      data = data[1].replace( /[\n\s]+/g, ' ' );
       // Remove script and form tags
       data = data.trim().replace( /<script\b.*?<\/script\s*>/g, '' ).replace( /<input[^>]*>/g, '').replace( /<form[^>]*>|<\/form\s*>/g, '' );
       // Remove empty contents
       data = data.replace( /<div[^>]*>\s*<\/div\s*>/g, '' );
       // TODO: convert ' and links
-      return data;
+      return data.trim();
    },
 }
 
 oddi.data.Category = function( name, count ) {
    this.name = name;
-   this.title = this.name.replace( /([A-Z])/g, ' $1' );
+   this.title = this.name.replace( /([A-Z])/g, ' $1' ).trim();
    this.clear(); // Re-create arrays to contain data.
    if ( count ) this.listing.length = count;
 }
@@ -129,7 +129,6 @@ oddi.data.Category.prototype = {
    },
 
    clear : function data_cat_clear() {
-      if ( this.listing.length == 0 ) return;
       this.columns = [];
       this.listing = [];
       this.listing.loaded = false;
@@ -147,7 +146,7 @@ oddi.data.Category.prototype = {
          var data = oddi.data;
          var i;
          // Existing category, check columns
-         if ( this.columns.toString() !== columns.toString() ) {
+         if ( this.columns.toString().toUpperCase() !== columns.toString().toUpperCase() ) {
             this.clear();
             this.columns = columns;
          }
@@ -196,7 +195,7 @@ oddi.data.Category.prototype = {
 
    /** Update the index of an existing entry. For internal use. */
    update_index : function data_cat_update_index( index ) {
-      this.index[index] = this.data[index].replace( /<[^>]+>/g, '' ).replace( /\s+/g, ' ' ).trim();
+      this.index[index] = this.data[index].replace( /<[^>]+>/g, ' ' ).replace( /\s+/g, ' ' ).trim();
       this.dirty.index = true;
    },
 

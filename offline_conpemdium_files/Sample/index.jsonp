@@ -2,12 +2,7 @@
  * Data index. Contains text and index of entry with the text. (case insensitive).
  * Text index is used for quick searching without needing to load every data.
  */
-oddi.reader.jsonp_data_index( 20120915, "Sample", {
-   "this": [0,1],
-   "sample": [0],
-   "data": [0,1],
-   "sampleId001": [0],
-   "another": [1],
-   "that": [1],
-   "example": [1],
-});
+oddi.reader.jsonp_data_index( 20121020, "Sample", [
+   "This is sample data id sampleId001",
+   "This is another data that is an example.",
+]);
