@@ -75,7 +75,14 @@ oddi.writer = {
    },
 
    // Writing is instantaneous, but let's use callback for future compatibility
-   write_data_listing: function writer_write_data_listing( category, onload ) {
+   write_index : function writer_write_category( onload ) {
+     // oddi.reader.jsonp_index( 20120915, {
+      this._write( oddi.file.index(),
+         'oddi.reader.jsonp_index( 20120915,'+ +JSON.stringify( this.category ) + ')' );
+      if ( onload ) onload();
+   },
+
+   write_data_listing : function writer_write_data_listing( category, onload ) {
      // oddi.reader.jsonp_data_listing( 20120915, "Sample", [ "Id", "Name", "Category", "SourceBook" ], [
       this._write( oddi.file.category_listing( category.name ),
          'oddi.reader.jsonp_data_listing( 20120915, "'+_.escJs(category.name)+'",'

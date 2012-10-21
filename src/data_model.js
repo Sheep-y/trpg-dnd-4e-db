@@ -57,10 +57,12 @@ oddi.data = {
     * Write changed data to file
     */
    write : function data_write( onload ) {
-      var data = oddi.data.category;
-      for ( var cat in data ) {
-         data[cat].write( onload );
-      }
+      oddi.writer.write_index( function data_write_index_done() {
+         var data = oddi.data.category;
+         var latch = new _.Latch( 1, onload );
+         for ( var cat in data ) data[cat].write( function(){ latch.count_down(); } );
+         latch.count_down();
+      })
    },
 
    /**
@@ -215,6 +217,14 @@ oddi.data.Category.prototype = {
          oddi.writer.write_data_index( this, function data_cat_write_index_done(){
             cat.dirty.index = false;
             if ( cat.dirty.listing ) oddi.writer.write_data_listing( cat, function data_cat_write_listing_done(){ cat.dirty.listing = false } );
+            for ( var i = 0 ; i < cat.data.length ; i++ ) {
+               if ( cat.dirty[i] ) {
+                  var from = cat.data_block( i );
+                  var to = Math.min( start+100, cat.data.length );
+                  oddi.writer.write_data( cat, from, to );
+                  for ( var j = start ; j < to ; j++ ) cat.dirty[j] = false;
+               }
+            }
          } );
       }
    },
