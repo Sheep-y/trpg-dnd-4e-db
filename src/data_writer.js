@@ -77,8 +77,10 @@ oddi.writer = {
    // Writing is instantaneous, but let's use callback for future compatibility
    write_index : function writer_write_category( onload ) {
      // oddi.reader.jsonp_index( 20120915, {
+      var object = {}, data = oddi.data.category;
+      for ( var cat in data ) object[cat] = data[cat].count();
       this._write( oddi.file.index(),
-         'oddi.reader.jsonp_index( 20120915,'+ +JSON.stringify( this.category ) + ')' );
+         'oddi.reader.jsonp_index( 20120915,' + JSON.stringify( object ) + ')' );
       if ( onload ) onload();
    },
 

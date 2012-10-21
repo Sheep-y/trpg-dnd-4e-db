@@ -220,9 +220,9 @@ oddi.data.Category.prototype = {
             for ( var i = 0 ; i < cat.data.length ; i++ ) {
                if ( cat.dirty[i] ) {
                   var from = cat.data_block( i );
-                  var to = Math.min( start+100, cat.data.length );
+                  var to = Math.min( from+100, cat.data.length );
                   oddi.writer.write_data( cat, from, to );
-                  for ( var j = start ; j < to ; j++ ) cat.dirty[j] = false;
+                  for ( var j = from ; j < to ; j++ ) cat.dirty[j] = false;
                }
             }
          } );
