@@ -18,6 +18,7 @@ oddi.writer = {
                alert( _.l( 'error.file_grant_permission' ) );
                fso = oddi.writer._fs = new ActiveXObject("Scripting.FileSystemObject");
             }
+            if ( ! fso.FolderExists( oddi.config.data_full_path ) ) fso.CreateFolder( oddi.config.data_full_path );
             folder = file.replace( /[\/\\][^\/\\:*?"<>|]+$/, '' );
             if ( ! fso.FolderExists( folder ) ) {
                fso.CreateFolder( folder );
