@@ -11,10 +11,18 @@ var oddi = {
    // Action object. Would be populated by individual actions
    action : {},
    config : {
-      debug: true, // Debug mode would use local files instead of remote files
+      debug: false, // Debug mode would use local files instead of remote files
       debug_url: 'debug_files', // Url to debug simulation data files, can be absolute or realive to current url
       data_url: 'offline_conpemdium_files', // Url to data files, can be absolute or realive to current url
       data_full_path : location.href.replace( /file:\/\/\/|[^\\\/]+.html?(\?.*)?$/g, '' )+'offline_conpemdium_files/', // Path to data files, must be absolute to current file
+   },
+   url : {
+      index : function index() { return oddi.config.data_url+'/index.jsonp' },
+      category_listing : function cat_listing( category ) { return oddi.config.data_url+'/'+category+'/listing.jsonp' },
+      category_index : function cat_listing( category ) { return oddi.config.data_url+'/'+category+'/index.jsonp' },
+      data : function data_url( category, from ) {
+         return oddi.config.data_url+'/'+category+'/data'+from+'.jsonp';
+      },
    },
 };
   </script>

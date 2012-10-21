@@ -200,7 +200,9 @@ oddi.data.Category.prototype = {
    },
 
    write : function data_cat_write() {
+      if ( this.dirty.index ) {
 
+      }
    },
 }
 

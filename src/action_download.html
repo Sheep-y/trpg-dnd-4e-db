@@ -48,14 +48,14 @@ oddi.action.download = {
       /** Build a list of updated/changed/delete items. Empty if list is empty. */
       function gen_item_list( legend, list ) {
         if ( list.length == 0 ) return '';
-         function esc( t ) { return t.replace(/</g,'&lt;'); };
          var html = '<legend>'+_.l( legend )+'</legend>';
-         list.forEach( function( item ) {
-            //if ( item[1] ) {
+         list.forEach( function gen_item_list_item( item ) {
+            html += _.escHtml(item[0]);
+            if ( item[1] ) {
                item = [ item[0] ].concat( item[1] );
                // TODO: Show popup links to entry details
-               html += esc(item[0]) + ': <b>' + esc(item[2]) + '</b> (' + esc(item[item.length-1]) + ')<br/>';
-            //}
+               html += ': <b>' + _.escHtml(item[2]) + '</b><br/>';
+            }
          });
          return html;
       }
@@ -66,8 +66,8 @@ oddi.action.download = {
    },
 
    update_list : function act_download_update_list () { oddi.downloader.get_index(); },
-   
-   clear_all : function act_download_clear_all () { 
+
+   clear_all : function act_download_clear_all () {
       oddi.data.clear();
       oddi.downloader.find_changed();
    },
@@ -90,7 +90,7 @@ oddi.action.download = {
       }
       oddi.downloader.stack.stack = stack;
       oddi.downloader.get();
-   }, 
+   },
 };
 
 })()</script>

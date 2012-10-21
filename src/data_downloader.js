@@ -21,7 +21,14 @@ oddi.downloader = {
     * Get category listing. Call get_category for each category.
     */
    get_index: function downloader_get_index( ) {
-      var address = oddi.config.debug ? oddi.config.debug_url+'/test-search.xml' : 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords=jump&nameOnly=false&tab=Glossary';
+      var address;
+      if ( oddi.config.debug ) {
+         address = oddi.config.debug_url+'/test-search.xml';
+      } else {
+         var keyword = ['jump','prone','dazed','knowledge','acrobatics','endurance','fly','vision','light','cover','concealment'];
+         keyword = keyword[Math.floor(Math.random()*keyword.length)];
+         address = 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords='+keyword+'&nameOnly=false&tab=Glossary';
+      }
       _.cor( address,
          function( data, xhr ){
             var remote = oddi.downloader.remote = {};

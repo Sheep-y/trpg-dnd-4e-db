@@ -33,47 +33,38 @@ oddi.reader = {
       });
    },
 
-   url : {
-      index : function index() { return oddi.config.data_url+'/index.jsonp' },
-      category_listing : function cat_listing( category ) { return oddi.config.data_url+'/'+category+'/listing.jsonp' },
-      category_index : function cat_listing( category ) { return oddi.config.data_url+'/'+category+'/index.jsonp' },
-      data : function data_url( category, from ) {
-         return oddi.config.data_url+'/'+category+'/data'+from+'.jsonp';
-      },
-   },
-
    read_index: function reader_read_index( onload ) {
-      this._read( this.url.index(), onload, 'Cannot read data' );
+      this._read( oddi.url.index(), onload, 'Cannot read data' );
    },
 
    jsonp_index: function reader_jsonp_index( version, data ) {
       for ( var cat in data) oddi.data.create_category( cat, data[cat] );
-      this._clear( this.url.index() );
+      this._clear( oddi.url.index() );
    },
 
    read_data_listing: function reader_read_data_listing( category, onload ) {
-      this._read( this.url.category_listing( category ), onload, 'Cannot read listing of '+category );
+      this._read( oddi.url.category_listing( category ), onload, 'Cannot read listing of '+category );
    },
 
    jsonp_data_listing: function reader_jsonp_data_listing( version, category, columns, data ) {
       var cat = oddi.data.category[category];
       cat.columns = columns;
       cat.listing = data;
-      this._clear( this.url.category_listing( category ) );
+      this._clear( oddi.url.category_listing( category ) );
    },
 
    read_data_index: function reader_read_data_index( category, onload ) {
-      this._read( this.url.category_index( category ), onload, 'Cannot read index of '+category );
+      this._read( oddi.url.category_index( category ), onload, 'Cannot read index of '+category );
    },
 
    jsonp_data_index: function reader_jsonp_data_index( version, category, data ) {
       var cat = oddi.data.category[category];
       cat.index = data;
-      this._clear( this.url.category_index( category ) );
+      this._clear( oddi.url.category_index( category ) );
    },
 
    read_data: function reader_read_data( category, from, onload ) {
-      this._read( this.url.data( category, from ), onload, 'Cannot read data #' + from + ' of ' + category );
+      this._read( oddi.url.data( category, from ), onload, 'Cannot read data #' + from + ' of ' + category );
    },
 
    jsonp_data: function reader_jsonp_data( version, category, startIndex, data ) {
@@ -81,7 +72,7 @@ oddi.reader = {
       for ( var i = 0 ; i < data.length ; i++ ) {
          ary[startIndex+i] = data[i];
       }
-      this._clear( this.url.data( category, startIndex, startIndex + data.length ) );
+      this._clear( oddi.url.data( category, startIndex, startIndex + data.length ) );
    }
 };
 

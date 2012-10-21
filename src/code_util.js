@@ -19,7 +19,7 @@ function _( cssSelector ) {
 _.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
    if ( xhr === undefined ) xhr = new XMLHttpRequest();
    _.info( "Ajax: "+url);
-   xhr.open( 'POST', url );
+   xhr.open( 'GET', url );
    //xhr.mozBackgroundRequest = true;
    xhr.onreadystatechange = function _ajax_onreadystatechange() {
       if ( xhr.readyState == 4 ) {
@@ -91,6 +91,9 @@ _.error = function _info( msg ) {
 _.error.timeout = 0;
 _.error.log = "";
 
+_.escHtml( t ) { return t.replace( _.escHtml.regxLt, '&lt;').replace( _.escHtml.regxAmp, '&amp;'); };
+_.escHtml.regxLt = /</g;
+_.escHtml.regxAmp = /&/g;
 
 /**
  * parse xml and return an xml document
