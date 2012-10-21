@@ -29,7 +29,7 @@ var oddi = {
       category_listing : function cat_listing( category ) { return oddi.config.data_full_path+'/'+category+'/listing.jsonp' },
       category_index : function cat_listing( category ) { return oddi.config.data_full_path+'/'+category+'/index.jsonp' },
       data : function data_url( category, from ) {
-         return oddi.config.data_full_path+'/'+category+'/data'+from+'.jsonp';
+         return oddi.config.data_full_path+category+'/data'+from+'.jsonp';
       },
    },
 };

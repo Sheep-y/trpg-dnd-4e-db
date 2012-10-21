@@ -18,8 +18,12 @@ oddi.writer = {
                alert( _.l( 'error.file_grant_permission' ) );
                fso = oddi.writer._fs = new ActiveXObject("Scripting.FileSystemObject");
             }
+            folder = file.replace( /[\/\\][^\/\\:*?"<>|]+$/, '' );
+            if ( ! fso.FolderExists( folder ) ) {
+               fso.CreateFolder( folder );
+            }
             /*// No need to delete, file will be overwritten
-            if ( fso.FileExists( file ) ) {
+            else if ( fso.FileExists( file ) ) {
                _.log( 'Delete '+file );
                fso.DeleteFile( file );
                if ( fso.FileExists( file ) ) {

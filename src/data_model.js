@@ -211,9 +211,10 @@ oddi.data.Category.prototype = {
    /** Write changed data back to file */
    write : function data_cat_write() {
       if ( this.dirty.index ) {
+         var cat = this;
          oddi.writer.write_data_index( this, function data_cat_write_index_done(){
-            this.dirty.index = false;
-            oddi.writer.write_data_listing( this, function data_cat_write_listing_done(){ this.dirty.listing = false } );
+            cat.dirty.index = false;
+            if ( cat.dirty.listing ) oddi.writer.write_data_listing( cat, function data_cat_write_listing_done(){ cat.dirty.listing = false } );
          } );
       }
    },
