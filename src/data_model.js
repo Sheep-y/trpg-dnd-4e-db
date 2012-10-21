@@ -43,14 +43,23 @@ oddi.data = {
     */
    load_all_index : function data_load_all_index( onload ) {
       var data = oddi.data.category;
-      var loadCount = 0;
+      var loadLatch = new _.Latch( 1, onload );
       for ( var cat in data ) {
-         loadCount++;
+         loadLatch.count_up();
          data[cat].load_listing( function( cat ){
-            cat.load_index( function() {
-               if ( --loadCount === 0 && onload ) onload();
-            });
+            cat.load_index( function() { loadLatch.count_down(); });
          })
+      }
+      loadLatch.count_down();
+   },
+
+   /**
+    * Write changed data to file
+    */
+   write : function data_write( onload ) {
+      var data = oddi.data.category;
+      for ( var cat in data ) {
+         data[cat].write( onload );
       }
    },
 
@@ -165,7 +174,7 @@ oddi.data.Category.prototype = {
          }
          this.load_data( i, data_cat_update_onload );
       } else {
-         _.warn( timeToStr() + " No data or cannot parse data for "+this.name+"."+id ); //  TODO: i18n
+         _.warn( "No data or cannot parse data for "+this.name+"."+id ); //  TODO: i18n
       }
    },
 
@@ -199,9 +208,13 @@ oddi.data.Category.prototype = {
       this.dirty.index = true;
    },
 
+   /** Write changed data back to file */
    write : function data_cat_write() {
       if ( this.dirty.index ) {
-
+         oddi.writer.write_data_index( this, function data_cat_write_index_done(){
+            this.dirty.index = false;
+            oddi.writer.write_data_listing( this, function data_cat_write_listing_done(){ this.dirty.listing = false } );
+         } );
       }
    },
 }

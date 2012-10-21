@@ -11,7 +11,7 @@ oddi.writer = {
    _write : function writer_write( file, content ) {
       if ( window.ActiveXObject ) {
          // IE ActiveX writer. Write file in UTF-16 and windows linebreak, not much choice here.
-         file = oddi.cofnig.data_full_path + file;
+         //file = oddi.config.data_full_path + file;
          try {
             var fso = oddi.writer._fs;
             if ( oddi.writer._fs === null ) {
@@ -61,14 +61,39 @@ oddi.writer = {
                }
             }
          } catch (e) {
-            if (e.number == -2146827859) alert('Unable to access local files due to browser security settings. Go to Tools->Internet Options->Security->Custom Level. Enable "Initialize and script ActiveX controls not marked as safe".');
+            if (e.number == -2146827859) alert( _.l('error.com_file_security'));
             else alert(e);
          }
       } else {
          alert( _.l( 'error.file_no_api' ) );
          return false;
       }
-   }
+   },
+
+   // Writing is instantaneous, but let's use callback for future compatibility
+   write_data_listing: function writer_write_data_listing( category, onload ) {
+     // oddi.reader.jsonp_data_listing( 20120915, "Sample", [ "Id", "Name", "Category", "SourceBook" ], [
+      this._write( oddi.file.category_listing( category.name ),
+         'oddi.reader.jsonp_data_listing( 20120915, "'+_.escJs(category.name)+'",'
+         +JSON.stringify( category.columns ) + ','
+         +JSON.stringify( category.listing ) + ')' );
+      if ( onload ) onload();
+   },
+
+   write_data_index : function writer_write_data_index( category, onload ) {
+      this._write( oddi.file.category_index( category.name ),
+       'oddi.reader.jsonp_data_index( 20121020, "'+_.escJs(category.name)+'",'
+       +JSON.stringify( category.index ) + ')' );
+      if ( onload ) onload();
+   },
+
+   write_data : function writer_write_data( category, from, to, onload ) {
+      this._write( oddi.file.category_index( category.name ),
+       'oddi.reader.jsonp_data(20120915, "'+_.escJs(category.name)+'",'+from+','+
+       JSON.stringify( category.data.slice( from, to ) ) + ')' );
+      if ( onload ) onload();
+   },
+
 };
 
 </script>

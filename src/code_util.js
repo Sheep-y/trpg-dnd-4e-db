@@ -72,7 +72,10 @@ _.log = function _info( type, msg ) {
       msg = type;
       type = 'log';
    }
-   if ( window.console && console[type] ) console[type]( timeToStr() + " " + msg );
+   if ( window.console && console[type] ) {
+      var t = new Date();
+      console[type]( "["+t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds()+"] " + msg );
+   }
    return msg;
 };
 _.info = function _info( msg ) { _.log( 'info', msg ); };
@@ -91,9 +94,13 @@ _.error = function _info( msg ) {
 _.error.timeout = 0;
 _.error.log = "";
 
-_.escHtml( t ) { return t.replace( _.escHtml.regxLt, '&lt;').replace( _.escHtml.regxAmp, '&amp;'); };
+_.escHtml = function( t ) { return t.replace( _.escHtml.regxLt, '&lt;').replace( _.escHtml.regxAmp, '&amp;'); };
 _.escHtml.regxLt = /</g;
 _.escHtml.regxAmp = /&/g;
+
+_.escJs = function( t ) { return t.replace( _.escJs.regxLf, '\\n').replace( _.escJs.regxEsc, '\\$0'); };
+_.escJs.regxLf = /\r?\n/g;
+_.escJs.regxEsc = /'"/g;
 
 /**
  * parse xml and return an xml document
@@ -126,10 +133,27 @@ _.html = function _html( txt ) {
 }
 _.html.node = null;
 
-/** Get current time in H:M:S.MS format */
-function timeToStr() {
-   var t = new Date();
-   return "["+t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds()+"]";
+
+/**
+ * Countdown Latch object
+ */
+_.Latch = function( countdown, ondone ) {
+   if ( typeof( countdown ) === 'function' ) {
+      ondone = countdown;
+      countdown = 0;
+   }
+   //if ( !ondone ) throw "IllegalParameterException: Latch callback must not be empty";
+   this.count = countdown;
+   this.ondone = ondone;
+}
+_.Latch.prototype = {
+   count : 0,
+   ondone : null,
+   count_up : function latch_countup(){ ++this.count; },
+   count_down : function latch_countdown(){
+      if ( --this.count < 0 ) throw "IllegalStateException: Latch count below zero";
+      if ( this.count == 0 ) if ( this.ondone ) this.ondone();
+   }
 }
 
 </script><noscript>

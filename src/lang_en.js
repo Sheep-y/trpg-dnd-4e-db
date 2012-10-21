@@ -10,8 +10,9 @@ _.l.set( 'error', {
    'updating_data' : 'Error when updating %1 of %2 (%3)',
 
    // 'no_cross_origin' : 'Cross Origin' // TODO: implement proper cross origin alert
-   'ajax_error' : 'Cannot load content (%1) from %2.',
+   'ajax_error' : 'Cannot load content (%1) from %2',
 
+   'com_file_security' : 'Cannot save data due to browser security settings. Go to Tools > Internet Options > Security > Custom Level. Enable "Initialize and script ActiveX controls not marked as safe".',
    'file_grant_permission' : 'You may see a prompt. Please grant us the permission update data files.',
    'file_no_api' : 'Only support saving in IE, because JavaScript has no standard for file writing.',
    'file_cannot_delete' : 'Cannot overwrite %1',

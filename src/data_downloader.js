@@ -11,7 +11,7 @@ oddi.downloader = {
       // Sample: { columns: [ "Id", "Name", "Category", "Source" ], listing: [ [,,,], [,,,] ] }
    },
 
-   updateCountdown : 0,
+   updateCountdown : null, // Latch object
    newItem : [ /* ['Sample','sample001'],['Sample','sample02']*/ ],
    changedItem : [],
    deletedItem : [],
@@ -33,7 +33,9 @@ oddi.downloader = {
          function( data, xhr ){
             var remote = oddi.downloader.remote = {};
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
-            oddi.downloader.updateCountdown = tabs.length;
+            oddi.downloader.updateCountdown = new _.Latch( tabs.length, function get_index_ondone() {
+               oddi.data.load_all_index( oddi.downloader.find_changed );
+            });
             for ( var i = 0, len = tabs.length ; i < len ; i++ ) {
                var category = tabs[i].getElementsByTagName('Table')[0].textContent;
                oddi.downloader.get_category( category );
@@ -68,19 +70,17 @@ oddi.downloader = {
                   current = current.nextElementSibling;
                }
             }
-            if ( --oddi.downloader.updateCountdown == 0 ) {
-               oddi.data.load_all_index( oddi.downloader.find_changed );
-            }
+            oddi.downloader.updateCountdown.count_down();
          }, oddi.gui.ajax_error( address ) );
    },
 
    /** Content retrival stack info */
    stack : {
       threadCount : 0,
-      running : 0,
-      paused : null,
-      checker : null,
-      loginWindow : null,
+      running : null, // Latch object
+      paused : null, // true or false
+      checker : null, // checker thread id
+      loginWindow : null, // popup login windows id
       stack : [],
       thread : [],
    },
@@ -89,7 +89,16 @@ oddi.downloader = {
    get : function downloader_run() {
       var stack = oddi.downloader.stack;
       var max = Math.min( stack.stack.length, 2 );
-      stack.running = stack.threadCount = max;
+      stack.running = new _.Latch( max, function downloader_stack_ondone(){
+         // Catch the errors so that parent error handler will not be triggered to call the latch count down again
+         try {
+            oddi.downloader.find_changed()
+            try {
+               oddi.data.write();
+            } catch ( e ) { _.error( e ); }
+         } catch ( e ) { _.warn( e ); }
+      });
+      stack.threadCount = max;
       stack.thread = [];
       for ( var i = 0 ; i < max ; i++ ) {
          setTimeout( (function(i){
@@ -124,9 +133,7 @@ oddi.downloader = {
                   reschedule( 0 );
                } else {
                   status.stack[ id ] = null;
-                  --status.running;
-                  if ( status.running == 0 )
-                     oddi.downloader.find_changed();
+                  status.running.count_down();
                }
                // Reset paused status, if we are checker
                if ( status.paused && status.checker === id ) {
