@@ -34,6 +34,7 @@ _.l.set( 'action.download', {
    lbl_changed_items : "Changed Entries",
    lbl_deleted_items : "Removed Entries",
    msg_clearExisting : "Delete existing data?",
+   msg_login  : "Please login and then click OK. Download will resume soon after."
 });
 
 _.l.set( 'action.list', {

@@ -38,6 +38,10 @@ oddi.downloader = {
             });
             for ( var i = 0, len = tabs.length ; i < len ; i++ ) {
                var category = tabs[i].getElementsByTagName('Table')[0].textContent;
+               if ( oddi.config.cat_filter && category != oddi.config.cat_filter ) {
+                  oddi.downloader.updateCountdown.count_down();
+                  continue;
+               }
                oddi.downloader.get_category( category );
             }
          }, oddi.gui.ajax_error( address ) );
@@ -88,7 +92,7 @@ oddi.downloader = {
    /** Get everything in stack  */
    get : function downloader_run() {
       var stack = oddi.downloader.stack;
-      var max = Math.min( stack.stack.length, 2 );
+      var max = Math.min( stack.stack.length, oddi.config.thread );
       stack.running = new _.Latch( max, function downloader_stack_ondone(){
          // Catch the errors so that parent error handler will not be triggered to call the latch count down again
          try {
@@ -108,21 +112,23 @@ oddi.downloader = {
    },
 
    /** Get entry listing */
-   run_stack : function downloader_run_stack( id ) {
+   run_stack : function downloader_run_stack( id, lastDelay ) {
       var status = oddi.downloader.stack;
       status.thread[id] = 0;
 
-      function reschedule( time ){ status.thread[id] = setTimeout( function(){ downloader_run_stack( id ); }, time ) };
+      function reschedule( time ){ status.thread[id] = setTimeout( function(){ downloader_run_stack( id, time ); }, time ) };
 
       if ( status.paused && status.checker !== id ) {
          // Paused and we are not the checking instance, sleep for a while
          return reschedule( 500+Math.random()*1500 );
       } else {
+         /** Cannot check cross origin window. Check with normal request instead.
          if ( status.paused && status.loginWindow != null ) {
             // If login window is not closed, and address is still at login, wait a bit longer
             if ( ! status.loginWindow.closed && status.loginWindow.location.href.indexOf('login') >= 0 )
                return reschedule( 500+Math.random()*500 );
          }
+         */
          var cat = status.stack[ id ];
          var model = oddi.data;
          if ( cat ) {
@@ -146,15 +152,17 @@ oddi.downloader = {
             } else {    */
             var itemId = cat[1][0];
             var lcat = cat[0].toLowerCase();
-            var address = oddi.config.debug ? ( oddi.config.debug_url+'/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx/id='+itemId );
+            var address = oddi.config.debug ? ( oddi.config.debug_url+'/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx?id='+itemId );
             _.cor( address,
                function( data, xhr ){
                   // Success, check result
-                  if ( data.indexOf(/\bsubscribe\b/) >= 0 && data.indexOf(/\bpassword\b/) >= 0 ) {
+                  if ( data.toLowerCase().indexOf( "subscrib" ) >= 0 && data.toLowerCase().indexOf( "password" ) >= 0 ) {
                      status.paused = true;
                      status.checker = id;
                      status.loginWindow = window.open( address, 'loginPopup' );
-                     return reschedule( 500 );
+                     alert( _.l( 'action.download.msg_login' ) );
+                     lastDelay = ! lastDelay ? 5000 : Math.min( 3*60*1000, lastDelay + 5000 );
+                     return reschedule( lastDelay );
                   }
                   var remote = oddi.downloader.remote;
                   try {
@@ -170,7 +178,13 @@ oddi.downloader = {
                      status.paused = true;
                      status.checker = id;
                   }
-                  reschedule( 5000+Math.random()*5000 );
+                  // Retry ... with a limit. Retry too much and we give up.
+                  lastDelay = ! lastDelay ? 10000 : ( lastDelay + 10000 );
+                  if ( lastDelay < 60*1000 ) {
+                     reschedule( lastDelay );
+                  } else {
+                     runNextStack();
+                  }
                } );
          } else {
             // Nothing to get. This is usually not right. If we are checker, reset pause status.
@@ -197,6 +211,7 @@ oddi.downloader = {
 
       // Scan for new / changed items
       for ( var cat in remote ) {
+         if ( oddi.config.cat_filter && cat != oddi.config.cat_filter ) continue;
          var rlist = remote[cat].listing;
          itemCount += rlist.length;
          if ( !data || data[cat] === undefined ) {
