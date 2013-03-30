@@ -36,6 +36,9 @@ _.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
    return xhr;
 };
 
+/**
+ * Load a javascript from an url
+ */
 _.js = function _js( url, onload, charset ) {
    var e = document.createElement( 'script' );
    e.src = url;
@@ -43,7 +46,8 @@ _.js = function _js( url, onload, charset ) {
    _.info( "Script: "+url);
    // Optional callback
    if ( onload ) e.addEventListener( 'load', onload );
-   // Cleanup - remove script node so that saved html wouldn't be polluted
+   // Cleanup - remove script node so that saved html wouldn't be polluted.
+   // Separate from onload so that we runs even if onload thrown error.
    e.addEventListener('load', function(){ document.body.removeChild(e) });
    document.body.appendChild( e );
 };
@@ -124,7 +128,6 @@ _.html = function _html( txt ) {
    var e = _.html.node;
    if ( !e ) {
       e = _.html.node = document.createElement('div');
-      e.id = '_temp_html';
       e.style.display = 'none';
       document.body.appendChild(e);
    }

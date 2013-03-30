@@ -30,6 +30,7 @@ _.l.set( 'action.download', {
    btn_update_changed : "Update %1 new and %2 changed",
    btn_update_all : "Update all %1",
    btn_done       : "Browse Data",
+   lst_thread      : "Threads",
    lbl_new_items  : "New Entries",
    lbl_changed_items : "Changed Entries",
    lbl_deleted_items : "Removed Entries",

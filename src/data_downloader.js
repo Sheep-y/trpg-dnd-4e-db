@@ -146,10 +146,6 @@ oddi.downloader = {
                   status.paused = status.checker = status.loginWindow = null;
                }
             }
-            /*if ( !cat[1] ) {
-               model.create_category( cat[0], oddi.downloader.remote[cat[0]].columns );
-               runNextStack();
-            } else {    */
             var itemId = cat[1][0];
             var lcat = cat[0].toLowerCase();
             var address = oddi.config.debug ? ( oddi.config.debug_url+'/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx?id='+itemId );
@@ -161,7 +157,8 @@ oddi.downloader = {
                      status.checker = id;
                      status.loginWindow = window.open( address, 'loginPopup' );
                      alert( _.l( 'action.download.msg_login' ) );
-                     lastDelay = ! lastDelay ? 5000 : Math.min( 3*60*1000, lastDelay + 5000 );
+                     //lastDelay = ! lastDelay ? 5000 : Math.min( 3*60*1000, lastDelay + 5000 );
+                     lastDelay = 3000;
                      return reschedule( lastDelay );
                   }
                   var remote = oddi.downloader.remote;

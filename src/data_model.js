@@ -80,6 +80,11 @@ oddi.data = {
       data = data.trim().replace( /<script\b.*?<\/script\s*>/g, '' ).replace( /<input[^>]*>/g, '').replace( /<form[^>]*>|<\/form\s*>/g, '' );
       // Remove empty contents
       data = data.replace( /<div[^>]*>\s*<\/div\s*>/g, '' );
+      // Compression - Removes quotes, links, nbsp etc.
+      data = data.replace( /(<\w+ \w+=)"([^" ]+)"/g, '$1$2' );
+      data = data.replace( /<br\s*\/>/g, '<br>' );
+      data = data.replace( /&nbsp;/g, '\u00A0' );
+      data = data.replace( /<\/?a(\s[^>]+)?>/g, '' );
       // TODO: convert ' and links
       return data.trim();
    },
