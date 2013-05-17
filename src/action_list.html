@@ -2,17 +2,175 @@
   - action_list.html
   - List and search downloaded entries
   -->
-<div id='action_list'>
-   <h1 class="left i18n">action.list.title</h1>
-   <a class='right i18n button' onclick='oddi.gui.switch_action( oddi.action.download );'> action.list.btn_update </a>
-</div>
-<script type='text/javascript'>'use strict';(function action_download_init(){
+<div id='action_list' data-role='page'>
 
-oddi.action.list = {
-   id: 'action_list',
-   initialize: null,    
-   setup: null,
-   cleanup: null,
+   <div data-role='header'>
+      <a class='i18n button' id='act_list_btn_update' onclick='od.gui.switch_action( od.action.download )'> action.download.link_text </a>
+      <h1 class='i18n'>action.list.title</h1>
+      <a class='i18n button' onclick='od.gui.switch_action( od.action.about )'> action.about.link_text </a>
+   </div>
+
+   <div id='act_list_pnl_search'>
+      <input type='search' id='act_list_txt_search' class='fullw' onkeydown='od.action.list.txt_search(event)' />
+      <br/>
+      <label><input type='checkbox' id='act_list_chk_search_body' checked /><span class='i18n'>action.list.chk_search_body</span></label>
+
+      <div id='act_list_pnl_category'>
+         <a onclick='od.action.list.a_category(event, null);'>All Category</a>
+      </div>
+
+      <div id='act_list_pnl_list'>
+         <table class='fullw'>
+            <thead></thead>
+            <tbody></tbody>
+         </table>
+      </div>
+   </div>
+</div>
+
+<script type='text/javascript'>'use strict';(function action_list_init(){
+od.action.list = {
+   'id': 'action_list',
+
+   'initialize' : function act_list_init() {
+      _('#act_list_txt_search')[0].setAttribute( 'placeholder', _.l( 'action.list.txt_search_placeholder' ) );
+      _.visible( '#act_list_btn_update', od.config.show_download );
+      this.show_category();
+   },
+
+   'setup': function act_list_setup () {
+      _( '#act_list_txt_search' )[0].focus();
+      if ( _('#act_list_pnl_category a').length <= 0 ) this.show_category();
+   },
+
+   'cleanup': null,
+
+   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   'search_timeout' : 0,
+
+   'category' : null,
+   'columns' : [],
+   'data' : [],
+   'highlights' : [],
+
+   'txt_search' : function act_list_txt_search ( evt, timeout ) {
+      if ( timeout === undefined ) timeout = 1000;
+      clearTimeout( od.action.list.search_timeout );
+      od.action.list.search_timeout = setTimeout( function act_list_txt_search_timeout() {
+         var cat = od.action.list.category;
+         od.search.search({
+            'category': cat ? od.data.get(cat) : null,
+            'term': od.action.list.get_search_term(),
+            'search_body': od.action.list.get_search_body(),
+            'onblank' : function() { _.hide( '#act_list_pnl_list' ); },
+            'ondone'  : od.action.list.show_list
+         });
+      }, timeout);
+   },
+
+   'get_search_term' : function act_list_get_search_term () {
+      return _( '#act_list_txt_search' )[0].value;
+   },
+
+   'get_search_body' : function act_list_get_search_body () {
+      return _( '#act_list_chk_search_body' )[0].checked;
+   },
+
+   'a_category' : function act_list_a_category ( evt, cat ) {
+      od.action.list.category = cat;
+      if ( od.action.list.get_search_term() !== '' ) {
+         od.action.list.txt_search( null, 0 );
+      } else {
+         od.search.list_category( cat ? od.data.get(cat) : null, this.show_list );
+      }
+   },
+
+   'reset' : function act_list_reset() {
+      _('#act_list_pnl_category')[0].innerHTML = '';
+   },
+           
+   'show_category' : function act_list_show_category() {
+      _.hide( '#act_list_pnl_list' );
+      od.action.list.category = null;
+      od.data.load_catalog( function act_list_show_category_load() {
+         _.show( '#act_list_pnl_category' );
+         var div = _('#act_list_pnl_category')[0];
+         var total = 0;
+         div.innerHTML = '<a id="act_list_a_all" onclick="od.action.list.a_category(event, null)"></a>';
+         var list = od.data.get();
+         list.sort( function (a,b){ return a.name > b.name ? 1 : ( a.name < b.name ? -1 : 0); } );
+         list.forEach(function(cat){
+            var a = document.createElement('a');
+            a.addEventListener( 'click', function( evt ){ od.action.list.a_category( evt, cat.name ); } );
+            a.innerHTML = _.l( 'action.list.a_category', null, cat.title, cat.count ) ;
+            div.appendChild( a );
+            total += cat.count;
+         });
+         _('#act_list_a_all')[0].innerHTML = _.l( 'action.list.a_category', null, _.l( 'action.list.a_all' ), total );
+      }, function act_list_show_category_error() {
+         od.gui.switch_action( od.action.download );
+      });
+   },
+
+   'show_list' : function act_list_show_list( data ) {
+      _.debug( 'Listing ' + data.data.length + ' results' );
+      var table = _( '#act_list_pnl_list table' )[0];
+      var action_list = od.action.list;
+      table.innerHTML = '';
+      var head = _.create( 'thead' );
+      var body = _.create( 'tbody' );
+      table.appendChild( head );
+      table.appendChild( body );
+      var col = action_list.columns = data.columns;
+      var cl = col.length;
+      for ( var i = 1, l = cl ; i < l ; i++ ) {
+         head.appendChild( _.create( 'th', {
+            'text': _.l( 'data.field.' + col[i], col[i] ),
+            'onclick': function(){ _.log('sorting unimplemented'); }
+         } ) );
+      }
+      var data = action_list.data = data.data;
+      for ( var i = 0, l = data.length ; i < l ; i++ ) {
+         var line = data[i];
+         // Create row.  Creating it ourself is about 18% faster then _.create.
+         var row = document.createElement( 'tr' );
+         row.addEventListener( 'click', action_list.row_click );
+         row.setAttribute( 'data-id', line[0] );
+         if ( action_list.category === null ) row.setAttribute( 'data-category', line._category.name );
+         var str = '';
+         for ( var j = 1 ; j < cl ; j++ ) {
+            var d = line[j];
+            var td = document.createElement('td');
+            if ( d ) {
+               if ( d && typeof(d) !== 'string' ) d = d.raw;
+               td.textContent = d;
+            }
+            row.appendChild( td );
+            /* Not supported by IE http://www.ericvasilik.com/2006/07/code-karma.html
+            if ( ! d ) {
+               str += '<td></td>';
+            } else {
+               if ( d && typeof(d) !== 'string' ) d = d.raw;               
+               str += '<td>' + _.escHtml( d ) + '</td>';
+            }
+            */
+         }
+         //row.innerHTML = str;
+         body.appendChild( row );
+      }
+      _.show( '#act_list_pnl_list' );
+    },
+
+   'row_click' : function() {
+       var list = od.action.list;
+       var cat = od.action.list.category;
+       if ( ! cat ) cat = this.getAttribute( 'data-category' );
+       var id = this.getAttribute('data-id');
+
+       // TODO: Loading screen
+       od.action.view.show_data( [[cat, id]] );
+   }
 };
 
-})()</script>
+})();</script>

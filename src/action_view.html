@@ -1,6 +1,46 @@
 <!--
   - action_view.html
-  - View entries details
+  - View content of an entry / multiple entries
   -->
 <div id='action_view'>
+   <div id="act_view_pnl_loading"></div>
+   <a class="i18n no-print" onclick="od.gui.switch_action(od.action.list)">action.view.a_back</a>
+   <div id="act_view_pnl_content"></div>
 </div>
+
+<script type='text/javascript'>'use strict';(function action_view_init(){
+od.action.view = {
+   "id": 'action_view',
+
+   "initialize" : null,
+
+   "setup": null,
+
+   "cleanup": null,
+
+   /////////////////////////////////////////////////////////////////////////////////////////////////
+
+   "clear" : function act_view_clear() { _( '#act_view_pnl_content')[0].innerHTML = ""; },
+
+   "loading" : function act_view_loading() { _( '#act_view_pnl_content')[0].innerHTML = ""; },
+
+   "show_data" : function act_view_show_data( data ) {
+      this.clear();
+      this.loading();
+      var latch = new _.Latch( data.length+1 );
+      data.forEach( function(e) {
+         od.data.get( e[0] ).load_data( e[1], latch.count_down_function() );
+      });
+      latch.ondone = function() {
+         data.forEach( function(e) {
+            _( '#act_view_pnl_content')[0].appendChild( _.create( 'div', {
+               html: od.data.get( e[0] ).data[ e[1] ]
+            } ) );
+            od.gui.switch_action( od.action.view );
+         } );
+      };
+      latch.count_down();
+   }
+};
+
+})();</script>

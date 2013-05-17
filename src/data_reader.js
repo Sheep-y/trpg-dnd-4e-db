@@ -1,79 +1,110 @@
-<script type='text/javascript'>'use strict';
 /*
  * data_reader.js
  * Read data from persistent storage
  */
 
-oddi.reader = {
-   _loaded: {},
-   _timeout: 20 * 1000,
+od.reader = {
 
    /**
-     * Call _.js if onload is empty, or onread if it is not empty.
+     * Internal routine; add jsonp call and timeout detection
      */
-   _clear : function cleanup( src, onerror ) {
-      clearTimeout( this._loaded[src] );
-      delete this._loaded[src];
-      if ( onerror ) {
-         if ( typeof( onerror ) == 'function' ) onerror( src );
-         else _.warn( onerror );
-      }
+   _read: function reader_read( src, validate, onload, onerror ) {
+      var errorHandler = onerror;
+      if ( onerror && typeof( onerror ) === 'string' ) errorHandler = function(){ _.error( onerror ); };
+      _.js( src, {
+         "validate": validate,
+         "onload"  : onload,
+         "onerror" : errorHandler });
    },
 
-   /**
-      * Add jsonp call and timeout detection
-      */
-   _read: function reader_read( src, onload, onerror ) {
-      function clear_timeout(){ oddi.reader._clear( src, onerror ); }
-      this._loaded[src] = setTimeout( clear_timeout, this._timeout );
-      _.js(src, function(a){
-         // Onload. Normally callback should clear the timer, if not then we have error.
-         if ( oddi.reader._loaded[src] ) clear_timeout();
-         if ( onload ) onload();
-      });
+   /////////////////////////////////////////////////////////
+
+   // Catalog is the main listing of saved data - a list of catagories and number of items
+
+   read_catalog: function reader_read_catalog( onload, onerror ) {
+      var path = od.config.url.catalog();
+      this._read(
+        path,
+        function(){ return od.data.list().length > 0; },
+        onload,
+        onerror ? onerror : 'Cannot read data catalog from ' + path );
    },
 
-   read_index: function reader_read_index( onload ) {
-      this._read( oddi.url.index(), onload, 'Cannot read data' );
+   jsonp_catalog: function reader_jsonp_catalog( version, data ) {
+      for ( var cat in data ) od.data.create( cat ).count = data[cat];
    },
 
-   jsonp_index: function reader_jsonp_index( version, data ) {
-      for ( var cat in data) oddi.data.create_category( cat, data[cat] );
-      this._clear( oddi.url.index() );
+   /////////////////////////////////////////////////////////
+
+   // Raw is the main listing of items in a category.
+
+   read_data_raw: function reader_read_data_raw( category, onload, onerror ) {
+      var path = od.config.url.raw( category );
+      this._read(
+         path,
+         function(){ return od.data.get(category).raw.length > 0 },
+         onload,
+         onerror ? onerror : 'Cannot read ' + category + ' listing from ' + path );
    },
 
-   read_data_listing: function reader_read_data_listing( category, onload ) {
-      this._read( oddi.url.category_listing( category ), onload, 'Cannot read listing of '+category );
+   jsonp_data_raw: function reader_jsonp_data_raw( version, category, columns, data ) {
+      var cat = od.data.get(category);
+      cat.raw_columns = columns;
+      cat.raw = data;
    },
 
-   jsonp_data_listing: function reader_jsonp_data_listing( version, category, columns, data ) {
-      var cat = oddi.data.category[category];
-      cat.columns = columns;
-      cat.listing = data;
-      this._clear( oddi.url.category_listing( category ) );
+   /////////////////////////////////////////////////////////
+
+   // Listing is a processed listing of items in a category.
+
+   read_data_extended: function reader_read_data_extended( category, onload, onerror ) {
+      var path = od.config.url.extended( category );
+      this._read(
+         path,
+         function(){ return od.data.get(category).extended.length > 0; },
+         onload,
+         onerror ? onerror : 'Cannot read extended ' + category + ' listing from ' + path );
    },
 
-   read_data_index: function reader_read_data_index( category, onload ) {
-      this._read( oddi.url.category_index( category ), onload, 'Cannot read index of '+category );
+   jsonp_data_extended: function reader_jsonp_data_extended( version, category, columns, data ) {
+      var cat = od.data.get(category);
+      cat.ext_columns = columns;
+      cat.extended = data;
+   },
+
+   /////////////////////////////////////////////////////////
+
+   // Index is processed full text search data of items in a category
+
+   read_data_index: function reader_read_data_index( category, onload, onerror ) {
+      var path = od.config.url.index( category );
+      this._read(
+         path,
+         function(){ return Object.keys( od.data.get(category).index ).length > 0; },
+         onload,
+         onerror ? onerror : 'Cannot read ' + category + ' index from ' + path );
    },
 
    jsonp_data_index: function reader_jsonp_data_index( version, category, data ) {
-      var cat = oddi.data.category[category];
+      var cat = od.data.get(category);
       cat.index = data;
-      this._clear( oddi.url.category_index( category ) );
    },
 
-   read_data: function reader_read_data( category, from, onload ) {
-      this._read( oddi.url.data( category, from ), onload, 'Cannot read data #' + from + ' of ' + category );
+   /////////////////////////////////////////////////////////
+
+   // Data is an individual data item.
+
+   read_data: function reader_read_data( category, id, onload, onerror ) {
+      var path = od.config.url.data( category, id );
+      this._read(
+         path,
+         function(){ return od.data.get(category).data[id] ? true : false; },
+         onload,
+         onerror ? onerror : 'Cannot read ' + category + '.' + id + ' from ' + path );
    },
 
-   jsonp_data: function reader_jsonp_data( version, category, startIndex, data ) {
-      var ary = oddi.data.category[category].data;
-      for ( var i = 0 ; i < data.length ; i++ ) {
-         ary[startIndex+i] = data[i];
-      }
-      this._clear( oddi.url.data( category, startIndex, startIndex + data.length ) );
+   jsonp_data: function reader_jsonp_data( version, category, id, data ) {
+      var cat = od.data.get(category);
+      cat.data[id] = data;
    }
 };
-
-</script>

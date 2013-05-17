@@ -8,6 +8,8 @@
    -webkit-box-sizing: border-box;
 }
 
+.i18n{ /* Dummy class to surpress warning, not actually styled */ }
+
 html, body, div, th, td { margin: 0; padding: 0; }
 
 html, body {
@@ -15,10 +17,16 @@ html, body {
    background-color: #DDD;
 }
 
-
+.fullw { width: 100%; }
 .right { float: right; }
 .left { float: left; }
 .hide { display: none; }
+
+@media print {
+   .no-print { display: none; }
+}
+
+th { text-align: left; }
 
 /** Action divs */
 body > div[id^="action_"] {

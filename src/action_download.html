@@ -2,96 +2,167 @@
   - action_download.html
   - Query online compendium and shows what can be downloaded / updated.
   -->
-<div id='action_download'>
-   <h1 class="i18n">action.download.title</h1>
-   <p class="i18n"> action.download.paragraph.0 </p>
-   <p class="i18n"> action.download.paragraph.1 </p>
+<div id='action_download' data-role='page'>
+
+   <div data-role='header'>
+      <a class='i18n button' onclick='od.gui.switch_action( od.action.list );'> action.list.link_text </a>
+      <h1 class='i18n'>action.download.title</h1>
+      <a class='i18n button' onclick='od.gui.switch_action( od.action.about )'> action.about.link_text </a>
+   </div>   
+   
+   <p class='i18n'> action.download.paragraph.0 </p>
+   <p class='i18n'> action.download.paragraph.1 </p>
    <p>
-      <!--input type='search' class='right' placeholder='Search' autofocus-->
-      <a class='button i18n' onclick='oddi.action.download.update_list()'> action.download.btn_refresh </a>
-      <!--label> <input type='checkbox'> <span class='i18n'>action.download.chk_refresh</span> </label-->
+      <a class='button i18n' id='act_download_btn_get_catalog' onclick='od.action.download.get_catalog()'> action.download.btn_get_catalog </a>
+      <a class='button i18n' id='act_download_btn_all_list' onclick='od.action.download.get_all_list()'> action.download.btn_all_list </a>
+      <a class='button i18n' id='act_download_btn_update' onclick='od.action.download.update_all()'> action.download.btn_update_changed </a>
+      <a class='button i18n' id='act_download_btn_save' onclick='od.action.download.save()'> action.download.btn_save </a>
    </p>
-   <p>
-      <!--a class='button i18n' id="act_download_btn_clearAll" onclick='oddi.action.download.clear_all()'>action.download.btn_clear_existing</a><br/-->
-      <a class='button' id="act_download_btn_updateChanged" onclick='oddi.action.download.update_changed()'></a>
-      <a class='button' id="act_download_btn_updateAll" onclick='oddi.action.download.update_all()'></a>
-   </p>
-   <fieldset id="act_download_lst_status"><legend class="i18n">action.download.lst_thread</legend></fieldset>
-   <p>
-      <a class='button i18n' onclick='oddi.gui.switch_action( oddi.action.list );'>action.download.btn_done</a>
-   </p>
-   <fieldset id="act_download_lst_new"></fieldset>
-   <fieldset id="act_download_lst_changed"></fieldset>
-   <fieldset id="act_download_lst_deleted"></fieldset>
-   <!-- TODO: Show current entries on click -->
+   <table id='act_download_tbl_list'>
+      <thead>
+         <tr>
+            <th class='i18n'> action.download.th_category </th>
+            <th class='i18n'> action.download.th_total </th>
+            <th class='i18n'> action.download.th_new </th>
+            <th class='i18n'> action.download.th_changed </th>
+            <th class='i18n'> action.download.th_action </th>
+         </tr>
+      </thead>
+      <tbody></tbody>
+   </table>
+   <!--fieldset id='act_download_lst_status'><legend class='i18n'>action.download.lst_thread</legend></fieldset-->
 </div>
 <script type='text/javascript'>'use strict';(function action_download_init(){
 
-oddi.action.download = {
-   id: 'action_download',
+od.action.download = {
+   'id': 'action_download',
 
-   initialize: function() {
-         oddi.gui.set( '#act_download_btn_updateChanged, #act_download_btn_updateAll, #act_download_lst_new, #act_download_lst_changed, #act_download_lst_deleted', '' );
-      },
-   setup: null,
-   cleanup: null,
+   'initialize': function act_download_init () {
+      _.hide( '#act_download_tbl_list, #act_download_btn_all_list, #act_download_btn_update, #act_download_btn_save');
+      if ( ! od.config.show_download ) {
+         _.hide( '#act_download_btn_get_catalog' );
+         alert( _.l( 'error.file_no_api' ) );
+      }
+      od.data.load_catalog( afterLoadCatalog, afterLoadCatalog );
+      function afterLoadCatalog() {
+         od.download.get_catalog( od.action.download.refresh );
+      }
+   },
 
-   show_update_buttons : function download_show_update_buttons( ) {
-      var newCount = oddi.downloader.newItem.length;
-      var changedCount = oddi.downloader.changedItem.length;
-      var deletedCount = oddi.downloader.deletedItem.length;
-      var allCount = oddi.downloader.itemCount;
-      var set = oddi.gui.set;
+   'setup': function act_download_setup () {
+   },
+   'cleanup': null,
 
-      set( '#act_download_btn_updateChanged', ( newCount || changedCount ) ? _.l( 'action.download.btn_update_changed', newCount, changedCount ) : '' );
-      set( '#act_download_btn_updateAll', allCount ? _.l( 'action.download.btn_update_all', allCount ) : '' );
+   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   
+   'tr': {},
 
-      /** Build a list of updated/changed/delete items. Empty if list is empty. */
-      function gen_item_list( legend, list ) {
-        if ( list.length == 0 ) return '';
-         var html = '<legend>'+_.l( legend )+'</legend>';
-         list.forEach( function gen_item_list_item( item ) {
-            html += _.escHtml(item[0]);
-            if ( item[1] ) {
-               item = [ item[0] ].concat( item[1] );
-               // TODO: Show popup links to entry details
-               html += ': <b>' + _.escHtml(item[2]) + '</b><br/>';
+   'get_catalog' : function act_download_get_catalog () {
+      od.download.get_catalog( od.action.download.refresh );
+   },
+
+   'get_all_list' : function act_download_all_list () {
+      od.download.get().forEach( function( c ) {
+         c.get_listing( od.action.download.refresh );
+      } );
+   },
+
+   'update_all' : function act_download_update_all () {
+      var action = od.action.download;
+      od.download.get().forEach( function( c ) {
+         var changeCount = c.added.length + c.changed.length;
+         if ( changeCount ) 
+            od.download.schedule_download( c, [].concat( c.added, c.changed ), action.progress_func( action.tr[ c.name ], changeCount ) );
+      } );
+      _.hide( '#act_download_btn_update' );
+   },
+           
+   'save' : function act_download_save () {
+      var remotes = od.download.get();
+      remotes.forEach( function act_download_save_cat(e) {
+         if ( e.dirty.length ) { // Has dirty
+            var local = od.data.get( e.name );
+            local.save_listing();
+            local.save_index();
+            e.dirty.forEach( function act_download_save_data(id) {
+               local.save_data(id);
+            });
+         }
+      });
+      od.data.save_catalog();
+      _.hide( '#act_download_btn_save' );
+   },
+
+   'progress_func' : function act_download_progress ( tr, total ) {
+      _( tr, 'td:last-child' )[0].innerHTML = '';
+      var count = 0;
+      return function act_download_progress_callback ( ) {
+         _( tr, 'td:last-child' )[0].innerHTML = _.l( 'action.download.lbl_progress', null, ++count, total );
+         if ( count >= total ) _.show( '#act_download_btn_save' );
+         od.action.list.reset();
+      };
+   },
+
+   'refresh' : function act_download_refresh () {
+      var action = od.action.download;
+      var tbody = _('#act_download_tbl_list tbody')[0];
+      tbody.innerHTML = '';
+      var unlisted = 0, changed = 0, dirty = 0;
+      od.download.get().forEach( function( remote ) {
+         var tr = _.create( 'tr' );
+         tr.appendChild( _.create( 'td', { 'text': remote.name } ) );
+         var td = _.create( 'td' );
+         if ( remote.count !== false ) {
+            if ( remote.count ) {
+               var changeCount = remote.added.length + remote.changed.length;
+               changed += changeCount;
+               tr.appendChild( _.create( 'td', { 'text': remote.count } ) );
+               tr.appendChild( _.create( 'td', { 'text': remote.added.length } ) );
+               tr.appendChild( _.create( 'td', { 'text': remote.changed.length } ) );
+               td.appendChild( _.create( 'input', {
+                  'type'  : 'button',
+                  'value' : _.l('action.download.btn_update_all' ),
+                  'onclick' : function act_download_category_list() {
+                     od.download.schedule_download( remote, _.col( remote.raw ), od.action.download.progress_func( tr, remote.raw.length ) );
+                  }
+               } ) );
+               if ( changeCount ) {
+                  td.appendChild( _.create( 'input', {
+                     'type'  : 'button',
+                     'value' : _.l('action.download.btn_update_changed', null, changeCount ),
+                     'onclick' : function act_download_category_list() {
+                        od.download.schedule_download( remote, [].concat( remote.added, remote.changed ), od.action.download.progress_func( tr, changeCount ) );
+                     }
+                  } ) );
+               }
+               dirty += remote.dirty.length;
             }
-         });
-         return html;
+         } else {
+            // Just a name; haven't got listing yet
+            unlisted++;
+            tr.appendChild( _.create( 'td', { 'text': '?' } ) );
+            tr.appendChild( _.create( 'td', { 'text': '?' } ) );
+            tr.appendChild( _.create( 'td', { 'text': '?' } ) );
+            td.appendChild( _.create( 'input', {
+               'type'  : 'button',
+               'value' : _.l('action.download.btn_list'),
+               'onclick' : function act_download_category_list() {
+                  remote.get_listing( od.action.download.refresh );
+               }
+            } ) );
+         }
+         tr.appendChild( td );
+         tbody.appendChild( tr );
+         action.tr[ remote.name ] = tr;
+      });
+      if ( changed ) {
+         _( '#act_download_btn_update' )[0].innerHTML = _.l( 'action.download.btn_update_changed', null, changed );
       }
-      // TODO: Add buttons for finer update control
-      set( '#act_download_lst_new', newCount ? gen_item_list( 'action.download.lbl_new_items', oddi.downloader.newItem ) : '' );
-      set( '#act_download_lst_changed', newCount ? gen_item_list( 'action.download.lbl_changed_items', oddi.downloader.changedItem ) : '' );
-      set( '#act_download_lst_deleted', newCount ? gen_item_list( 'action.download.lbl_deleted_items', oddi.downloader.deletedItem ) : '' );
-   },
-
-   update_list : function act_download_update_list () { oddi.downloader.get_index(); },
-
-   clear_all : function act_download_clear_all () {
-      oddi.data.clear();
-      oddi.downloader.find_changed();
-   },
-
-   /** Get new and changed items */
-   update_changed : function act_download_update_changed () {
-      oddi.downloader.stack.stack = oddi.downloader.newItem.concat(oddi.downloader.changedItem);
-      oddi.downloader.get();
-   },
-
-   /** Get all items */
-   update_all : function act_download_update_all () {
-      oddi.data.clear();
-      var stack = [];
-      var remote = oddi.downloader.remote;
-      for ( var cat in remote ) {
-         var category = remote[cat];
-         for ( var i = 0 ; i < category.listing.length ; i++ )
-            stack.push( [ cat, category.listing[i] ] );
-      }
-      oddi.downloader.stack.stack = stack;
-      oddi.downloader.get();
-   },
+      _.visible( '#act_download_btn_save', dirty );
+      _.visible( '#act_download_btn_all_list', unlisted );
+      _.visible( '#act_download_btn_update', changed );
+      _.show('#act_download_tbl_list');
+   }
 };
 
-})()</script>
+})();</script>
