@@ -1,34 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="oddi" default="make" basedir=".">
-   <property name="deliverable" value="offline_conpemdium.html" />
+   <property name="deliverable" value="../offline_database.html" />
+   <property name="srcdir" value="html/" />
 
    <target name="make" description="Compile browsable html">
-      <concat destfile="${deliverable}">
-         <fileset file="src/html_doctype.html" />
-         <fileset file="src/style.css" />
-         <fileset file="src/html_header.html" />
-         <fileset file="src/code_util.js" />
-         <fileset file="src/code_lang.js" />
-         <fileset file="src/lang_en.js" />
-         <fileset file="src/lang_zh.js" />
-         <fileset file="src/code_gui.js" />
-         <fileset file="src/data_model.js" />
-         <fileset file="src/data_downloader.js" />
-         <fileset file="src/data_reader.js" />
-         <fileset file="src/data_writer.js" />
-         <fileset file="src/action_download.html" />
-         <fileset file="src/action_list.html" />
-         <fileset file="src/action_view.html" />
-         <fileset file="src/html_footer.html" />
-      </concat>
-      <replaceregexp match=" *&lt;!--(.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" />
-      <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="${deliverable}" />
-      <replaceregexp match=" *// .*?\n" replace="" flags="g" file="${deliverable}" />
-      <replaceregexp match="&lt;/script>&lt;script type='text/javascript'>'use strict';" replace="" flags="g" file="${deliverable}" />
+      <loadfile property="style.css" srcfile="${srcdir}style.css" encoding="UTF-8" />
+      <loadfile property="config.js" srcfile="${srcdir}config.js" encoding="UTF-8" />
+      <loadfile property="sparrow.js" srcfile="${srcdir}sparrow.js" encoding="UTF-8" />
+      <loadfile property="lang_en.js" srcfile="${srcdir}lang_en.js" encoding="UTF-8" />
+      <loadfile property="lang_zh.js" srcfile="${srcdir}lang_zh.js" encoding="UTF-8" />
+      <loadfile property="code_gui.js" srcfile="${srcdir}code_gui.js" encoding="UTF-8" />
+      <loadfile property="data_model.js" srcfile="${srcdir}data_model.js" encoding="UTF-8" />
+      <loadfile property="data_search.js" srcfile="${srcdir}data_search.js" encoding="UTF-8" />
+      <loadfile property="data_download.js" srcfile="${srcdir}data_download.js" encoding="UTF-8" />
+      <loadfile property="data_reader.js" srcfile="${srcdir}data_reader.js" encoding="UTF-8" />
+      <loadfile property="data_writer.js" srcfile="${srcdir}data_writer.js" encoding="UTF-8" />
+      <loadfile property="action_download.html" srcfile="${srcdir}action_download.html" encoding="UTF-8" />
+      <loadfile property="action_list.html" srcfile="${srcdir}action_list.html" encoding="UTF-8" />
+      <loadfile property="action_view.html" srcfile="${srcdir}action_view.html" encoding="UTF-8" />
+      <loadfile property="action_about.html" srcfile="${srcdir}action_about.html" encoding="UTF-8" />
+
+      <delete file="${deliverable}" failonerror="false" />
+      <copy file="${srcdir}/html_template.html" tofile="${deliverable}" />
+
+      <replace file="${deliverable}" encoding="UTF-8">
+          <replacefilter token="&lt;!--#include file='style.css' --&gt;" value="${style.css}"/>
+          <replacefilter token="&lt;!--#include file='config.js' --&gt;" value="${config.js}"/>
+          <replacefilter token="&lt;!--#include file='sparrow.js' --&gt;" value="${sparrow.js}"/>
+          <replacefilter token="&lt;!--#include file='lang_en.js' --&gt;" value="${lang_en.js}"/>
+          <replacefilter token="&lt;!--#include file='lang_zh.js' --&gt;" value="${lang_zh.js}"/>
+          <replacefilter token="&lt;!--#include file='code_gui.js' --&gt;" value="${code_gui.js}"/>
+          <replacefilter token="&lt;!--#include file='data_model.js' --&gt;" value="${data_model.js}"/>
+          <replacefilter token="&lt;!--#include file='data_search.js' --&gt;" value="${data_search.js}"/>
+          <replacefilter token="&lt;!--#include file='data_download.js' --&gt;" value="${data_download.js}"/>
+          <replacefilter token="&lt;!--#include file='data_reader.js' --&gt;" value="${data_reader.js}"/>
+          <replacefilter token="&lt;!--#include file='data_writer.js' --&gt;" value="${data_writer.js}"/>
+          <replacefilter token="&lt;!--#include file='action_download.html' --&gt;" value="${action_download.html}"/>
+          <replacefilter token="&lt;!--#include file='action_list.html' --&gt;" value="${action_list.html}"/>
+          <replacefilter token="&lt;!--#include file='action_view.html' --&gt;" value="${action_view.html}"/>
+          <replacefilter token="&lt;!--#include file='action_about.html' --&gt;" value="${action_about.html}"/>
+      </replace>
+
    </target>
 
    <target name="deploy" description="Compress browsable" depends="make">
+      <replaceregexp match=" *&lt;!--(.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" />
+      <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="${deliverable}" />
+      <replaceregexp match=" *// .*?\n" replace="" flags="g" file="${deliverable}" />
       <replaceregexp match="   " replace="" flags="g" file="${deliverable}" />
       <replaceregexp match="(\n)[\n ]+" replace="\1" flags="g" file="${deliverable}" />
    </target>
+
+   <!-- Old make. Simple but component files make less sense.
+target name="make2" description="Compile browsable html">
+      <concat destfile="${deliverable}">
+         <fileset file="${srcdir}html_doctype.html" />
+         <fileset file="${srcdir}style.css" />
+         <fileset file="${srcdir}html_header.html" />
+         <string>&lt;script&gt;'use strict';</string>
+         <fileset file="${srcdir}sparrow.js" />
+         <fileset file="${srcdir}lang_en.js" />
+         <fileset file="${srcdir}lang_zh.js" />
+         <fileset file="${srcdir}code_gui.js" />
+         <fileset file="${srcdir}data_model.js" />
+         <fileset file="${srcdir}data_download.js" />
+         <fileset file="${srcdir}data_reader.js" />
+         <fileset file="${srcdir}data_writer.js" />
+         <string>&lt;/script&gt;</string>
+         <fileset file="${srcdir}action_download.html" />
+         <fileset file="${srcdir}action_list.html" />
+         <fileset file="${srcdir}action_view.html" />
+         <fileset file="${srcdir}html_footer.html" />
+      </concat>
+   </target-->
 </project>

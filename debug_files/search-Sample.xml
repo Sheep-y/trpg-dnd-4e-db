@@ -3,14 +3,14 @@
   <Results>
       <Sample>
           <ID>sampleId001</ID>
-          <Name>Sample Data 1</Name>
-          <Category>Sample1</Category>
-          <SourceBook>Git</SourceBook>
+          <Name>Samplé Data 1</Name>
+          <Category>Centralised</Category>
+          <SourceBook>Csv,Svn</SourceBook>
       </Sample>
       <Sample>
           <ID>sampleId002</ID>
           <Name>Sample Data 2</Name>
-          <Category>Sample1</Category>
+          <Category>Distributed</Category>
           <SourceBook>Git</SourceBook>
       </Sample>
   </Results>

@@ -1,259 +1,291 @@
-<script type='text/javascript'>'use strict';
 /*
- * data_downloader.js
+ * data_download.js
  * Core (non-ui) logic of entry downloading
  */
 
 // GUI namespace
-oddi.downloader = {
+od.download = {
    /** Remote listing. Just for finding out what needs to be updated, does not contain index or details. */
-   remote: {
-      // Sample: { columns: [ "Id", "Name", "Category", "Source" ], listing: [ [,,,], [,,,] ] }
+   "category": {
+      // Sample: {
+      //    name: "Sample",
+      //    count: 32,
+      //    columns: [ "Id", "Name", "Category", "Source" ],
+      //    listing: [ [,,,], [,,,] ],
+      //    dirty: [ "id1","id2" ]
+      // }
+   },
+   "get" : function download_get( name ) {
+      if ( name === undefined ) {
+         var result = [];
+         for ( var c in this.category ) result.push( this.category[c] );
+         return result;
+      }
+      return this.category[name];
    },
 
-   updateCountdown : null, // Latch object
-   newItem : [ /* ['Sample','sample001'],['Sample','sample02']*/ ],
-   changedItem : [],
-   deletedItem : [],
-   itemCount : 0,
-
    /**
-    * Get category listing. Call get_category for each category.
+    * Get category listing.
     */
-   get_index: function downloader_get_index( ) {
-      var address;
-      if ( oddi.config.debug ) {
-         address = oddi.config.debug_url+'/test-search.xml';
-      } else {
-         var keyword = ['jump','prone','dazed','knowledge','acrobatics','endurance','fly','vision','light','cover','concealment'];
-         keyword = keyword[Math.floor(Math.random()*keyword.length)];
-         address = 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords='+keyword+'&nameOnly=false&tab=Glossary';
-      }
+   "get_catalog": function download_get_catalog( onload, onerror ) {
+      var address = od.config.source.catalog();
       _.cor( address,
-         function( data, xhr ){
-            var remote = oddi.downloader.remote = {};
+         function download_get_catalog_callback( data, xhr ){
+            var category = od.download.category = {};
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
-            oddi.downloader.updateCountdown = new _.Latch( tabs.length, function get_index_ondone() {
-               oddi.data.load_all_index( oddi.downloader.find_changed );
-            });
             for ( var i = 0, len = tabs.length ; i < len ; i++ ) {
-               var category = tabs[i].getElementsByTagName('Table')[0].textContent;
-               if ( oddi.config.cat_filter && category != oddi.config.cat_filter ) {
-                  oddi.downloader.updateCountdown.count_down();
-                  continue;
-               }
-               oddi.downloader.get_category( category );
+               var cat = tabs[i].getElementsByTagName('Table')[0].textContent;
+               category[cat] = new od.download.Category( cat );
             }
-         }, oddi.gui.ajax_error( address ) );
+            _.call( onload );
+         },
+         onerror ? onerror : function(){ _.error( "Cannot download catalog from " + address ); }
+      );
    },
 
-   /** Get entry listing of a category */
-   get_category: function downloader_get_category( cat ) {
-      var address = oddi.config.debug ? ( oddi.config.debug_url+'/search-'+cat+'.xml' ) : ( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/ViewAll?tab='+cat );
-      _.cor( address,
-         function( data, xhr ){
-            var result = _.xml(xhr.responseText).getElementsByTagName("Results")[0];
-            var current = result.firstElementChild;
-            // If we have a result
-            if ( current !== null ) {
-               var remote = oddi.downloader.remote;
-               var category = remote[ cat ] = {};
-               // Get columns
-               var prop = current.getElementsByTagName('*');
-               var info = [];
-               var col = prop.length;
-               for ( var i = 0 ; i < col ; i++ ) info.push( prop[i].tagName );
-               category.columns = info;
-               // Get listing
-               var list = category.listing = [];
-               while ( current !== null ) {
-                  prop = current.getElementsByTagName('*');
-                  info = new Array( col );
-                  for ( var i = 0 ; i < col ; i++ ) info[i] = prop[i].textContent;
-                  list.push( info );
-                  current = current.nextElementSibling;
-               }
-            }
-            oddi.downloader.updateCountdown.count_down();
-         }, oddi.gui.ajax_error( address ) );
-   },
-
-   /** Content retrival stack info */
-   stack : {
-      threadCount : 0,
-      running : null, // Latch object
-      paused : null, // true or false
-      checker : null, // checker thread id
-      loginWindow : null, // popup login windows id
-      stack : [],
-      thread : [],
-   },
-
-   /** Get everything in stack  */
-   get : function downloader_run() {
-      var stack = oddi.downloader.stack;
-      var max = Math.min( stack.stack.length, oddi.config.thread );
-      stack.running = new _.Latch( max, function downloader_stack_ondone(){
-         // Catch the errors so that parent error handler will not be triggered to call the latch count down again
-         try {
-            oddi.downloader.find_changed()
-            try {
-               oddi.data.write();
-            } catch ( e ) { _.error( e ); }
-         } catch ( e ) { _.warn( e ); }
-      });
-      stack.threadCount = max;
-      stack.thread = [];
-      for ( var i = 0 ; i < max ; i++ ) {
-         setTimeout( (function(i){
-            return function(){ oddi.downloader.run_stack(i); };
-         })(i), i*1000 );
-      }
-   },
-
-   /** Get entry listing */
-   run_stack : function downloader_run_stack( id, lastDelay ) {
-      var status = oddi.downloader.stack;
-      status.thread[id] = 0;
-
-      function reschedule( time ){ status.thread[id] = setTimeout( function(){ downloader_run_stack( id, time ); }, time ) };
-
-      if ( status.paused && status.checker !== id ) {
-         // Paused and we are not the checking instance, sleep for a while
-         return reschedule( 500+Math.random()*1500 );
-      } else {
-         /** Cannot check cross origin window. Check with normal request instead.
-         if ( status.paused && status.loginWindow != null ) {
-            // If login window is not closed, and address is still at login, wait a bit longer
-            if ( ! status.loginWindow.closed && status.loginWindow.location.href.indexOf('login') >= 0 )
-               return reschedule( 500+Math.random()*500 );
-         }
-         */
-         var cat = status.stack[ id ];
-         var model = oddi.data;
-         if ( cat ) {
-            function runNextStack () {
-               if ( status.stack.length > status.threadCount ) {
-                  var next = status.stack.splice( status.threadCount, 1 )[0]
-                  status.stack[ id ] = next;
-                  reschedule( 0 );
-               } else {
-                  status.stack[ id ] = null;
-                  status.running.count_down();
-               }
-               // Reset paused status, if we are checker
-               if ( status.paused && status.checker === id ) {
-                  status.paused = status.checker = status.loginWindow = null;
-               }
-            }
-            var itemId = cat[1][0];
-            var lcat = cat[0].toLowerCase();
-            var address = oddi.config.debug ? ( oddi.config.debug_url+'/'+lcat+'-'+itemId+'.html' ) : ( 'http://www.wizards.com/dndinsider/compendium/'+lcat+'.aspx?id='+itemId );
-            _.cor( address,
-               function( data, xhr ){
-                  // Success, check result
-                  if ( data.toLowerCase().indexOf( "subscrib" ) >= 0 && data.toLowerCase().indexOf( "password" ) >= 0 ) {
-                     status.paused = true;
-                     status.checker = id;
-                     status.loginWindow = window.open( address, 'loginPopup' );
-                     alert( _.l( 'action.download.msg_login' ) );
-                     //lastDelay = ! lastDelay ? 5000 : Math.min( 3*60*1000, lastDelay + 5000 );
-                     lastDelay = 3000;
-                     return reschedule( lastDelay );
-                  }
-                  var remote = oddi.downloader.remote;
-                  try {
-                     var col = remote[cat[0]].columns;
-                     model.create_category( cat[0], col ).update( itemId, col, cat[1], model.preprocess( data ), runNextStack );
-                  } catch ( e ) {
-                     _.error( _.l( 'error.updating_data', cat[1][1], cat[0], e ) );
-                     runNextStack();
-                  }
-               }, function( data, xhr ){
-                  // Failed, set pause and schedule for timeout retry
-                  if ( !status.paused ) {
-                     status.paused = true;
-                     status.checker = id;
-                  }
-                  // Retry ... with a limit. Retry too much and we give up.
-                  lastDelay = ! lastDelay ? 10000 : ( lastDelay + 10000 );
-                  if ( lastDelay < 60*1000 ) {
-                     reschedule( lastDelay );
-                  } else {
-                     runNextStack();
-                  }
-               } );
-         } else {
-            // Nothing to get. This is usually not right. If we are checker, reset pause status.
-            _.warn( "Reterival thread "+id+" has nothing to get.");
-            if ( status.paused && status.checker === id ) {
-               status.paused = status.checker = status.loginWindow = null;
-            }
-         }
-      }
-   },
+   "executor" : new _.Executor( 1, od.config.down_interval ),
+   "login_check_id": -1,
 
    /**
-    * Find new, changed, and removed entries.
-    * Results are stored in downloader object.
+    * Schedule download of a list of items in same category.
+    * 
+    * @param {type} remote Remote category object
+    * @param {type} list Array of id to download
+    * @param {type} onprogress
+    * @returns {undefined}
     */
-   find_changed : function downloader_find_changed() {
-      var data = oddi.data.category;
-      var remote = oddi.downloader.remote;
-      var find = oddi.data.find_in_list;
-      var newItem = [];
-      var changedItem = [];
-      var deletedItem = [];
-      var itemCount = 0;
+   "schedule_download": function download_schedule_download( remote, list, onprogress ) {
+      var down = od.download;
+      var exec = down.executor;
+      var local = od.data.create( remote.name );
+      local.check_columns( remote.raw_columns );
+      if ( local.count ) {
+         local.load_index( download_schedule_download_run ); // Make sure index is loaded, since we may be doing an update.
+      } else {
+         download_schedule_download_run(); // New or resetted category, no need to load index.
+      }
+      function download_schedule_download_run() {
+         _.debug('Schedule '+ list.length);
+         list.forEach( function download_schedule_download_each( item ) {
+            //var retry = 0;
+            function download_schedule_download_task( threadid ) {
+               if ( ! item ) {
+                  _.call( onprogress, remote, id );
+                  return true;
+               }               
+               remote.get_data(
+                  item,
+                  function download_schedule_download_ondown( remote, id, data ){
+                     if ( data.toLowerCase().indexOf( "subscrib" ) >= 0 && data.toLowerCase().indexOf( "password" ) >= 0 ) {
+                        if ( down.login_check_id < 0 || down.login_check_id === threadid ) {
+                           // If need to login, and if we are first, show login dialog in model mode
+                           exec.pause();
+                           down.login_check_id = threadid;
+                           if ( confirm( _.l( 'action.download.msg_login' ) ) ) {
+                              window.showModalDialog( od.config.source.data( remote.name, item ) );                              
+                              download_schedule_download_task( threadid );
+                           } else {
+                              exec.clear();
+                              exec.finish( threadid );
+                           }
+                        } else {
+                           //--down.login_check_count;
+                           exec.asap( download_schedule_download_task );
+                           exec.finish( threadid );
+                        }
+                     } else {
+                        // Success download
+                        exec.thread = od.config.thread;
+                        if ( down.login_check_id >= 0 ) {
+                           down.login_check_id = -1;
+                           exec.resume();
+                        }
+                        var index = _.col( remote.raw, 0 ).indexOf( id );
+                        local.update( id, remote.raw[index], data  );
+                        if ( remote.dirty.indexOf( id ) < 0 ) remote.dirty.push( id );
+                        exec.finish( threadid );
+                        _.call( onprogress, remote, id );
+                     }
+                  },
+                  function download_schedule_download_onerror( cat, id, err ){
+                     /** Get data already include retry.
+                     if ( ++retry <= od.config.retry ) {
+                        setTimeout( function(){
+                           exec.asap( download_schedule_download_run );
+                        }, od.config.retry_interval  );
 
-      // Scan for new / changed items
-      for ( var cat in remote ) {
-         if ( oddi.config.cat_filter && cat != oddi.config.cat_filter ) continue;
-         var rlist = remote[cat].listing;
-         itemCount += rlist.length;
-         if ( !data || data[cat] === undefined ) {
-            // New category
-            rlist.forEach( function dfc_nc(e){ newItem.push( [cat, e] ); } );
-         } else {
-            // Existing category
-            var category = data[cat];
-            var rcategory = remote[cat];
-            if ( rcategory.columns.toString().toUpperCase() !== category.columns.toString().toUpperCase() ) {
-               // Category column changed
-               //changedItem.push( [cat, null ] );
-               rlist.forEach( function dfc_cc(e){ changedItem.push( [cat, e] ); } );
-            } else {
-               // Scan for changes in column
-               var list = category.listing;
-               rlist.forEach( function dfc_ec(e){
-                  var local = find( list, e[0] );
-                  if ( local < 0 ) newItem.push( [cat, e] );
-                  else {
-                     local = list[local];
-                     if ( local.toString() !== e.toString() ) changedItem.push( [cat, e] );
+                     } else { */
+                        var i = _.col( cat.raw ).indexOf( id );
+                        i = i ? ' (' + cat.raw[i][1] + ')' : '';
+                        _.error( _.l( 'error.updating_data', null, id + i , cat.name, err ) );
+                     //}
+                     exec.finish( threadid );
+                     _.call( onprogress, remote, id );
                   }
-               } );
-            }
-         }
+               );
+               // Return false make sure the thread pool knows we're not finished (if we are already finished, we have already notified it)
+               return false;
+            };
+            exec.add( download_schedule_download_task );
+         });
       }
-      // Scan for removed items
-      for ( var cat in data ) {
-         var list = data[cat].listing;
-         if ( remote[cat] === undefined ) {
-            deletedItem.push( [cat, null] );
-         } else {
-            var rlist = remote[cat].listing
-            list.forEach( function dfc_ecd(e){
-               if ( find( rlist, e[0] ) < 0 ) deletedItem.push( [cat, e] );
-            } );
-         }
-      }
-      oddi.downloader.newItem = newItem;
-      oddi.downloader.changedItem = changedItem;
-      oddi.downloader.deletedItem = deletedItem;
-      oddi.downloader.itemCount = itemCount;
-      oddi.action.download.show_update_buttons();
    }
 };
 
-</script>
+od.download.Category = function Category( name ) {
+   this.name = name;
+   this.title = _.l( 'data.category.' + name, name );
+   this.raw_columns = [];
+   this.raw = [];
+   this.dirty = [];
+   this.changed = [];
+   this.added = [];
+   //this.loading = [];
+};
+od.download.Category.prototype = {
+   "name": "",
+   "title": "",
+
+   /** Raw data used to compose list property */
+   "raw_columns": [],  // e.g. ["ID","Name","Category","SourceBook", ... ]
+   "raw": [],          // e.g. [ ["sampleId001","Sample Data 1","Sample1","Git"], ... ]
+
+   "dirty": [],        // e.g. [ "sampleId001", "sampleId002" ]
+
+   "count": false,
+   "changed": [],
+   "added": [],
+
+   //"loading": [],
+
+   /**
+    * Get entry listing of this category. Catalog must have been loaded.
+    * 
+    * @param {type} onload Success load callback.
+    * @param {type} onerror Failed load callback.
+    * @param {type} retry Retry countdown, first call should be undefined.  Will recursively download until negative.
+    * @returns {undefined}
+    */
+   "get_listing": function download_Cat_get_listing( onload, onerror ) {
+      var remote = this;
+      var data, xsl;
+      var latch = new _.Latch( 3 );
+      var err = _.callonce( onerror );
+      this.get_remote( od.config.source.list( this.name ), function(txt){ data = txt; latch.count_down(); }, err );
+      this.get_remote( od.config.source.xsl ( this.name ), function(txt){ xsl  = txt; latch.count_down(); }, err );
+      latch.ondone = function download_Cat_get_listing_done() {
+         remote.added = [];
+         remote.changed = [];
+         remote.count = 0;
+         var list = remote.raw = [];
+         var done = true;
+         
+         if ( ! data || ! xsl ) return err('No Data');
+
+         data = data.replace( /’/g, "'" );
+         xsl = xsl.replace( /\n\s+/g, '\n' );
+         xsl = xsl.replace( /<script(.*\r?\n)+?<\/script>/g, '' ); // Remove scripts so that xsl can run
+         xsl = xsl.replace( /<xsl:sort[^>]+>/g, '' ); // Undo sort so that transformed id match result
+         xsl = xsl.replace( /Multiple Sources/g, '<xsl:apply-templates select="SourceBook"/>' ); // Undo multiple source replacement
+         xsl = xsl.replace( /\bselect="'20'"\s*\/>/, 'select="\'99999\'"/>' ); // Undo paging so that we get all result
+         var results = _.xml( data ).querySelectorAll('Results > *');
+         var transformed = _.xsl( data, xsl );
+         var idList = [];
+         
+         if ( results.length > 0 && transformed !== null ) {
+            remote.raw_columns = _.col( results[0].getElementsByTagName('*'), 'tagName' );
+            
+            var ids = _.ary( _.xpath( transformed.documentElement, '//div//td[1]/a' ) ).map( function(e){ return e.getAttribute('href'); } );
+            if ( ids.length !== results.length ) _.error('Error getting listing for ' + remote.title + ': xsl transform rows mismatch' );
+            for ( var i = 0, l = ids.length ; i < l ; i++ ) {
+               var rowId = ids[i].trim();
+               if ( rowId ) { // Skip empty and duplicate id - which is download link
+                  var row = _.col( results[i].getElementsByTagName('*'), 'textContent' );
+                  if ( idList.indexOf( rowId ) >= 0 ) {
+                     _.error( "Duplicate result: " + rowId + " (" + row[1] + ")" );
+                     continue;
+                  }
+                  row[0] = rowId;
+                  for ( var j = 1, rl = row.length ; j < rl ; j++ ) row[j] = row[j].trim(); // Remove unnecessary whitespaces
+                  list.push( row );
+                  idList.push( rowId );
+               }
+            }
+            // Check local exist and columns match, if ok then pass to find_changed()
+            remote.count = list.length;
+            var local = od.data.get( remote.name );
+            if ( local !== null ) {
+               // Load local index and find differences
+               local.load_listing( function() {
+                  remote.find_changed();
+                  _.call( onload, remote, remote );
+               } );
+               done = false;
+            } else {
+               remote.added = _.col( list );
+            }
+         }
+         if ( done ) _.call( onload, remote, remote );
+      };
+      latch.count_down();
+   },
+   
+   
+   "get_remote": function download_Cat_get_remote( url, onload, onerror, retry ) {
+      var remote = this;
+      if ( retry === undefined ) retry = od.config.retry;
+      if ( onerror && typeof( onerror ) === 'string' ) onerror = function() { _.error( _.l.format( onerror, remote.name, url ) ); };
+      _.cor( url, onload, function download_Cat_get_remote_error(){
+            --retry;
+            if ( retry <= 0 ) {
+               _.call( onerror, remote, remote );
+            } else setTimeout( function download_Cat_get_remote_retry(){ remote.get_remote( url, onload, onerror, retry ); }, od.config.retry_interval );
+         }
+      );
+   },
+
+   "find_changed": function download_Cat_find_changed( ) {
+      var local = od.data.get( this.name );
+      this.added = [];
+      this.changed = [];
+      if ( local === null )
+         return this.added = _.col( this.raw );
+      if ( JSON.stringify( this.raw_columns ) !== JSON.stringify( local.raw_columns ) )
+         return this.changed = _.col( raw );
+      for ( var i = 0, l = this.raw.length ; i < l ; i++ ) {
+         var row = this.raw[i], id = row[0];
+         var localrow;
+         local.raw.some( function(e){ if ( e[0] === id ) return localrow = e; return false;  } );
+         if ( !localrow ) {
+            this.added.push( id );
+         } else {
+            if ( JSON.stringify( row ) !== JSON.stringify( localrow ) ) this.changed.push( id );
+         }
+      }
+   },
+
+   /**
+    * Get entry content
+    */
+   "get_data": function download_Cat_get_data( id, onload, onerror, retry ) {
+      var address = od.config.source.data( this.name, id );
+      var remote = this;
+      if ( retry === undefined ) retry = od.config.retry;
+      _.cor( address,
+         function download_Cat_get_data_callback( data, xhr ){
+            if ( ! data ) return downloar_Cat_get_data_retry( xhr, 'No Data' );
+            _.call( onload, remote, remote, id, xhr.responseText );
+         },
+         downloar_Cat_get_data_retry
+      );
+      function downloar_Cat_get_data_retry( xhr, err ){
+         _.warn( 'downloar_Cat_get_data_retry: ' + retry );
+         --retry;
+         if ( retry <= 0 ) {
+            onerror ? _.call( onerror, remote, remote, id, err ) : _.error("Cannot download " + cat.name + " listing from " + address + ": " + err );
+         } else remote.get_data( id, onload, onerror, retry );
+      }
+   }
+
+};
+_.seal( od.data.Category.prototype );
