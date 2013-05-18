@@ -42,6 +42,7 @@ var od = { action : {} };
    for ( var i in od ) _.seal( Object.preventExtensions( od[i] ) );
    //window.addEventListener('DOMContentLoaded',function(){
    //   _.time('DOM loaded.'); // Don't need to wait until dom ready.
+      _.l.detectLocale( 'en' );
       _.l.localise();
       od.gui.switch_action( od.action.list );
       _.time('Switched to initial page.');

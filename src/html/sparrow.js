@@ -621,11 +621,12 @@ _.EventManager.prototype = {
 
 /** Get language string and, if additional parameters are provided, format the parameters */
 _.l = function _l( path, defaultValue, param /*...*/ ) {
-   var result = _.l.getset( path, null, _.l.currentLocale );
+   var l = _.l;
+   var result = l.getset( path, null, l.currentLocale );
    if ( !result ) result = ( defaultValue !== undefined || defaultValue === null ) ? defaultValue : path;
    if ( arguments.length > 2 ) {
-      if ( arguments.length === 3 ) return _.l.format( result, param );
-      else return _.l.format.apply( this, [result].concat( _.ary(arguments, 2) ) );
+      if ( arguments.length === 3 ) return l.format( result, param );
+      else return l.format.apply( this, [result].concat( _.ary(arguments, 2) ) );
    }
    return result;
 };
@@ -648,10 +649,30 @@ _.l.data = {};
 /**
  * Set current locale. 
  * 
- * @param {type} lang Locale to use
+ * @param {String} lang  Locale to use
  * @returns {undefined}
  */
 _.l.setLocale = function _l_setLocale( lang ) { _.l.currentLocale = lang; };
+
+/**
+ * Detect user locale.  First check local session then check language setting.
+ *
+ * @param {String} defaultLocale  Default locale to use 
+ * @returns {undefined}
+ */
+_.l.detectLocale = function _l_detectLocale( defaultLocale ) {
+    var l = _.l;
+    var list = Object.keys( l.data );
+    if ( defaultLocale ) l.fallbackLocale = defaultLocale;
+    var pref = navigator.language;
+    if ( window.Storage ) {
+        pref = localStorage['_.l.locale'] || pref;
+    }
+    if ( list.indexOf( pref ) >= 0 ) return l.setLocale( pref );
+    if ( pref.indexOf('-') < 0 ) return;
+    pref = pref.split( '-' )[0];
+    if ( list.indexOf( pref ) >= 0 ) l.setLocale( pref );
+};
 
 /** 
  * Get/set l10n resource on given path 
@@ -665,7 +686,7 @@ _.l.getset = function _l_getset( path, set, locale ) {
    var p = path.split( '.' );
    var last = p.pop();
    p.unshift( locale );
-   var base = _.l.data;
+   var base = this.data;
    // Explore path
    for ( var i = 0, l = p.length ; i < l ; i++ ) {
       var node = p[i];
@@ -676,7 +697,7 @@ _.l.getset = function _l_getset( path, set, locale ) {
    if ( set !== null ) {
       base[last] = set;
    } else {
-      if ( locale !== this.fallbackLocale ) return _.l.getset( path, null, _.l.fallbackLocale );
+      if ( locale !== this.fallbackLocale ) return this.getset( path, null, this.fallbackLocale );
       return base[last];
    }
 };
@@ -699,6 +720,7 @@ _.l.set = function _l_set( path, data ) { _.l.getset( path, data, _.l.currentLoc
  */
 _.l.localise = function _l_localise( root ) {
    if ( root === undefined ) root = document.documentElement;
+   var _l = _.l;
    var el = root.getElementsByClassName( "i18n" );
    for ( var i = 0, l = el.length ; i < l ; i++ ) {
       var e = el[i];
@@ -710,7 +732,7 @@ _.l.localise = function _l_localise( root ) {
             e.setAttribute("data-i18n", key = e.textContent.trim() );
          }
       }
-      e.innerHTML = _.l( key, key.split('.').pop() );
+      e.innerHTML = _l( key, key.split('.').pop() );
    }
 };
 
