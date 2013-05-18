@@ -15,6 +15,7 @@ html, body, div, th, td { margin: 0; padding: 0; }
 html, body {
    width: 100%;
    background-color: #DDD;
+   font: 14px sans-serif;
 }
 
 .fullw { width: 100%; }
@@ -28,16 +29,52 @@ html, body {
 
 th { text-align: left; }
 
-/** Action divs */
-body > div[id^="action_"] {
-   display: none;
-   width: 100%;
-   padding: 1em;
-}
-
 .button {
    display: inline-block;
    padding: 0.5ex 1ex;
    border-radius: 1ex;
    border: 1px outset #888;
+}
+
+/** Action divs */
+div[data-role="page"] {
+   display: none;
+   width: 100%;
+}
+
+div[data-role="page"] > * {
+   padding: 1em;
+}
+
+/*********************** Page styles *************************/
+
+div[data-role="header"] {
+   background-color: black;
+   padding: 0.5em 1ex;
+   text-align: center;
+}
+
+div[data-role="header"] h1 {
+   display: inline-block;
+   padding: 0;
+   margin: 0;
+   color: white;
+   font-size: 1.5em;
+   font-weight: bold;
+}
+
+div[data-role="header"] a {
+   float: left;
+   display: inline-block;
+   padding: 0.25em 1ex;
+   border-radius: 2ex;
+   border: 1px outset #888;
+   font-weight: bold;
+   text-decoration: none;
+   background: gold;
+   cursor: pointer;
+}
+
+div[data-role="header"] h1 + a {
+   float: right;
 }

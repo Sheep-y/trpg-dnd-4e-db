@@ -3,11 +3,18 @@
   - Program information and language select
   -->
 <div id='action_about' data-role="page">
+   <style scopted>
+      #action_about img:hover { width: 700px; }
+      #action_about > h1, #action_about > h2 { clear: both; }
+      #action_about > p > img { width: 350px; transition: width 1.5s, height 1.5s; }
+      #action_about > p > img.right { margin-left: 1em; }
+      #action_about > p > img.left  { margin-right: 1em; }
+   </style>
 
    <div data-role="header">
-      <a class='i18n button' onclick='od.gui.switch_action( od.action.list )'> action.list.link_text </a>
+      <a class='i18n' onclick='od.gui.switch_action( od.action.list )'> action.list.link_text </a>
       <h1 class="i18n">action.list.title</h1>
-      <a class='i18n button' href='#'> action.about.link_homepage </a>      
+      <a class='i18n' href='#'> action.about.link_homepage </a>
    </div>
    
    <h1 class='i18n'> action.about.h_history </h1>

@@ -2,9 +2,13 @@
   - action_view.html
   - View content of an entry / multiple entries
   -->
-<div id='action_view'>
-   <div id="act_view_pnl_loading"></div>
-   <a class="i18n no-print" onclick="od.gui.switch_action(od.action.list)">action.view.a_back</a>
+<div id='action_view' data-role='page'>
+
+   <div data-role='header'>
+      <a class='i18n' onclick='od.gui.switch_action( od.action.list );'> action.list.link_text </a>
+      <h1 id="action_view_h_title"></h1>
+   </div>
+
    <div id="act_view_pnl_content"></div>
 </div>
 
