@@ -8,8 +8,8 @@ _.l.setLocale( 'en' );
 
 _.l.set( 'data', {
    'category' : {
-      'EpicDestiny' : '史詩天命',
-      'ParagonPath' : '典範',
+      'EpicDestiny' : 'Epic Destiny',
+      'ParagonPath' : 'Paragon Path',
    },
    'field' : {
       "PowerSourceText" : 'Power Source',
@@ -47,15 +47,13 @@ _.l.set( 'action.list', {
    title : "Browse Database",
    link_text : "Browse",
 
-   btn_update : "Update Database",
-   txt_search_placeholder : "Search text. e.g. ranger OR martial bonus -\"feat bonus\" ",
+   txt_search_placeholder : "Search keywords. e.g. ranger OR martial   bonus -\"feat bonus\" ",
    chk_search_body : "Search content",
    a_all : "All Category",
    a_category : "%1 (%2)"
 });
 
 _.l.set( 'action.view', {
-   a_back : "Back to list"
 });
 
 _.l.set( 'action.download', {
@@ -89,6 +87,9 @@ _.l.set( 'action.about', {
    link_text : "Help",
    
    h_language : "Language",
+   lbl_select_lang : ":", // please translate as "Please select language:"
+   opt_auto : "(Auto detect)", 
+   
    h_help : "How to use",
    h_version_history : "Version History",
    h_history : "Product History",

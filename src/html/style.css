@@ -43,7 +43,7 @@ div[data-role="page"] {
 }
 
 div[data-role="page"] > * {
-   padding: 1em;
+   padding: 12pt; /* If use em/ex, will varies by content font size and inconsistent */
 }
 
 /*********************** Page styles *************************/

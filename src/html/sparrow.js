@@ -507,7 +507,6 @@ _.Executor = function( thread, interval ) {
    if ( interval ) this.interval = interval;
    this.running = [];
    this.waiting = [];
-   this.event = new _.EventManager( this, [ 'add', 'start', 'done' ] );
 };
 _.Executor.prototype = {
    "_paused": false,
@@ -516,7 +515,6 @@ _.Executor.prototype = {
    "interval": 0,
    "running": [],
    "waiting": [],
-   "event": null,
    "add": function _executor_add ( runnable, param /*...*/ ) {
       this.addTo.apply( this, [ this.waiting.length ].concat( _.ary( arguments ) ) );
       return this;
@@ -530,7 +528,6 @@ _.Executor.prototype = {
       _.debug('Queue task ' + runnable.name );
       var arg = [ runnable ].concat( _.ary( arguments, 2 ) );
       this.waiting.splice( index, 0, arg );
-      this.event.fire.apply( this.event, [ "add", index ].concat( arg ) );
       this.notice();
       return this;
    },
@@ -538,7 +535,6 @@ _.Executor.prototype = {
       var r = this.running[id];
       _.debug('Finish task #' + id + ' ' + r[0].name );
       this.running[id] = null;
-      this.event.fire.apply( this.event, [ "done", id ].concat( r ) );
       this.notice();
       return this;
    },
@@ -580,8 +576,7 @@ _.EventManager = function _EventManager( owner, events ) {
    for ( var i = 0, l = events.length ; i < l ; i++ ) {
       lst[events[i]] = null;
    }
-   _.noExt(lst);
-   this.lst = lst;
+   this.lst = _.noExt( lst );
 };
 _.EventManager.prototype = {
    "lst" : {},
@@ -590,28 +585,25 @@ _.EventManager.prototype = {
       if ( this.lst[event] === undefined ) throw new Error("Unknown event");
       if ( this.lst[event] === null ) this.lst[event] = [];
       this.lst[event].push( listener );
-      return this.owner;
    },
    "remove" : function _EventManager_remove( event, listener ) {
       var lst = this.lst[event];
       if ( lst === undefined ) throw new Error("Unknown event");
-      if ( lst === null ) return this.owner;
+      if ( lst === null ) return;
       var i = lst.indexOf( listener );
       if ( i ) {
          lst.splice( i, 1 );
          if ( lst.length < 0 ) this.lst[event] = null;
       }
-      return this.owner;
    },
    "fire" : function _EventManager_remove( event ) {
       var lst = this.lst[event];
       if ( lst === undefined ) throw new Error("Unknown event");
-      if ( lst === null ) return this.owner;
+      if ( lst === null ) return;
       var l = lst.length, param = _.ary( arguments, 1 );
       for ( var i = 0 ; i < l ; i++ ) {
          lst[i].apply( this.owner, param );
       }
-      return this.owner;
    }
 };
 
@@ -649,10 +641,26 @@ _.l.data = {};
 /**
  * Set current locale. 
  * 
- * @param {String} lang  Locale to use
+ * @param {String} lang  Locale to use. Pass in empty string, null, false etc. to use auto-detection
  * @returns {undefined}
  */
-_.l.setLocale = function _l_setLocale( lang ) { _.l.currentLocale = lang; };
+_.l.setLocale = function _l_setLocale( lang ) { 
+    if ( ! lang ) return _.l.detectLocale();
+    if ( lang === _.l.currentLocale ) return;
+    _.l.currentLocale = lang;
+    _.l.event.fire( 'locale', lang );
+};
+
+/**
+ * Override auto detect locale. 
+ * 
+ * @param {String} lang  Locale to use and save.
+ * @returns {undefined}
+ */
+_.l.saveLocale = function _l_saveLocale( lang ) { 
+    _.l.setLocale( lang );
+    if ( window.Storage ) localStorage['_.l.locale'] = lang;
+};
 
 /**
  * Detect user locale.  First check local session then check language setting.
@@ -665,9 +673,7 @@ _.l.detectLocale = function _l_detectLocale( defaultLocale ) {
     var list = Object.keys( l.data );
     if ( defaultLocale ) l.fallbackLocale = defaultLocale;
     var pref = navigator.language;
-    if ( window.Storage ) {
-        pref = localStorage['_.l.locale'] || pref;
-    }
+    if ( window.Storage ) pref = localStorage['_.l.locale'] || pref;
     if ( list.indexOf( pref ) >= 0 ) return l.setLocale( pref );
     if ( pref.indexOf('-') < 0 ) return;
     pref = pref.split( '-' )[0];
@@ -697,7 +703,7 @@ _.l.getset = function _l_getset( path, set, locale ) {
    if ( set !== null ) {
       base[last] = set;
    } else {
-      if ( locale !== this.fallbackLocale ) return this.getset( path, null, this.fallbackLocale );
+      if ( base[last] === undefined && locale !== this.fallbackLocale ) return this.getset( path, null, this.fallbackLocale );
       return base[last];
    }
 };
@@ -709,7 +715,10 @@ _.l.getset = function _l_getset( path, set, locale ) {
  * @param {type} data Resource to set
  * @returns {undefined}
  */
-_.l.set = function _l_set( path, data ) { _.l.getset( path, data, _.l.currentLocale ); };
+_.l.set = function _l_set( path, data ) { 
+    _.l.getset( path, data, _.l.currentLocale );
+    _.l.event.fire( 'set', path, data );
+};
 
 /**
  * Localise all child elements with a class name of 'i18n' using its initial textContent or value as resource path.
@@ -724,17 +733,18 @@ _.l.localise = function _l_localise( root ) {
    var el = root.getElementsByClassName( "i18n" );
    for ( var i = 0, l = el.length ; i < l ; i++ ) {
       var e = el[i];
+      var isInput = e.tagName === 'INPUT';
       var key = e.getAttribute("data-i18n");
-      if ( !key ) {
-         if ( e.tagName === 'INPUT' ) {
-            e.setAttribute("data-i18n", key = e.value.trim() );
-         } else {
-            e.setAttribute("data-i18n", key = e.textContent.trim() );
-         }
+      if ( ! key ) {
+          key = ( isInput ? e.value : e.textContent ).trim();
+          e.setAttribute("data-i18n", key );
       }
-      e.innerHTML = _l( key, key.split('.').pop() );
+      var val = _l( key, key.split('.').pop() );
+      e[ isInput ? 'value' : 'innerHTML' ] = val;
    }
 };
+
+_.l.event = new _.EventManager( _.l, ['set','locale'] );
 
 _.debug('Sparrow loaded.');
 _.time();
