@@ -163,18 +163,22 @@ od.search = {
    "gen_search" : function search_gen_search ( term ) {
       var hl = [];
       var regx = "^";
+      // Break down search input into tokens
       var parts = term.match( /[+-]?(?:"[^"]+"|\S+)/g );
       if ( ! parts ) return null;
 
+      // Remove leading / trailing OR which is invalid
       while ( parts.length > 0 && parts[0] === 'OR' ) parts.splice(0,1);
       var l = parts.length;
       while ( l > 0 && parts[l-1] === 'OR' ) parts.splice(--l,1);
 
       for ( var i = 0, l = parts.length ; i < l ; ) {
+         // Contains all parts joined by OR, e.g. a OR b OR c >>> ['(?=.*a.*)','(?=.*b.*)','(?=.*c.*)']
          var addPart = [];
          do {
             var term = parts[i];
             var part = "";
+            // Detect whether to include or exclude term
             if ( term.indexOf('-') === 0 ) {
                term = term.substr(1);
                part += '(?!.*';
@@ -183,21 +187,32 @@ od.search = {
                part += '(?=.*';
             }
             if ( term ) {
-               if ( /^[+-]?"[^"]+"$/.test( term ) ) {
+               // Regular expression is used as is.
+               if ( /^\/.+\/$/.test( term ) ) {
+                  part += term.substr( 1, term.length-2 );
+                  term = ''; // prevent term highlight
+                  
+               // Terms need to be unquoted first
+               } else if ( /^"[^"]+"$/.test( term ) ) {
                   term = term.substr( 1, term.length-2 );
-                  if ( term ) part += term;
-                  else part = "";
+                  part += _.escRegx( term );
+                
+               // Otherwise is normal word, just need to unescape
                } else {
-                  part += term;
+                  part += _.escRegx(term);
                }
+               
+               // If not exclude, add term to highlight
                if ( part ) {
-                  if ( part.indexOf( '(?=' ) === 0 ) hl.push( term );
+                  if ( part.indexOf( '(?=' ) === 0 && term ) hl.push( term );
                   part += '.*)';
                   addPart.push( part );
                }
             }
+            // Advance pointer and check whether next token is not OR
             i++;
             if ( i >= l || parts[i] !== 'OR' ) break;
+            // Next token is OR, so move to next non-OR token.
             do { ++i; } while ( i < l && parts[i] === 'OR' );
          } while ( i < l )
          if ( addPart.length ) {
@@ -209,6 +224,7 @@ od.search = {
          }
       }
       if ( regx === '^' ) return null;
+      _.debug( [ regx, hl ] );
       return [ new RegExp( regx, 'i' ), hl ];
    }
 };
