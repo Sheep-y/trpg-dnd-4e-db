@@ -26,12 +26,10 @@ od.action.view = {
 
    "clear" : function act_view_clear() { _( '#act_view_pnl_content')[0].innerHTML = ""; },
 
-   "loading" : function act_view_loading() { _( '#act_view_pnl_content')[0].innerHTML = ""; },
-
-   "show_data" : function act_view_show_data( data ) {
+   "show_data" : function act_view_show_data( title, data ) {
       this.clear();
-      this.loading();
       var latch = new _.Latch( data.length+1 );
+      _('#action_view_h_title')[0].textContent = title;
       data.forEach( function(e) {
          od.data.get( e[0] ).load_data( e[1], latch.count_down_function() );
       });

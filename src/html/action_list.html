@@ -167,9 +167,7 @@ od.action.list = {
        var cat = od.action.list.category;
        if ( ! cat ) cat = this.getAttribute( 'data-category' );
        var id = this.getAttribute('data-id');
-
-       // TODO: Loading screen
-       od.action.view.show_data( [[cat, id]] );
+       od.action.view.show_data( this.querySelector('td').textContent, [[cat, id]] );
    }
 };
 

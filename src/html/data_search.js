@@ -138,7 +138,7 @@ od.search = {
          for ( var c = 0 ; c < cl ; c++ ) {
            item.push( base[col[c]] ? base[col[c]] : null );
          }
-         item._category = base._category.name;
+         item._category = base._category;
          list[i] = item;
       }
       return data;
