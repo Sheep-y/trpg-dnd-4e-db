@@ -88,9 +88,9 @@ od.data = {
       data = data.match( /<body[^>]*>\s*((?:.|\n)*?)\s*<\/body\s*>/ );
       if ( !data ) return null;
       // Remove script and form tags
-      data = data.trim().replace( /<script\b.*?<\/script\s*>/g, '' ).replace( /<input[^>]*>/g, '').replace( /<form[^>]*>|<\/form\s*>/g, '' );
+      data = data[1].trim().replace( /<script\b.*?<\/script\s*>/g, '' ).replace( /<input[^>]*>/g, '').replace( /<form[^>]*>|<\/form\s*>/g, '' );
       // Normalise whitespace
-      data = data[1].replace( /[\n\s]+/g, ' ' );
+      data = data.replace( /[\n\s]+/g, ' ' );
       // Remove empty contents
       data = data.replace( /<div[^>]*>\s*<\/div\s*>/g, '' );
       // Compression - Removes quotes, links, nbsp etc.

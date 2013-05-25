@@ -659,7 +659,7 @@ _.l.setLocale = function _l_setLocale( lang ) {
  */
 _.l.saveLocale = function _l_saveLocale( lang ) { 
     _.l.setLocale( lang );
-    if ( window.Storage ) localStorage['_.l.locale'] = lang;
+    if ( window.localStorage ) localStorage['_.l.locale'] = lang;
 };
 
 /**
@@ -672,10 +672,10 @@ _.l.detectLocale = function _l_detectLocale( defaultLocale ) {
     var l = _.l;
     var list = Object.keys( l.data );
     if ( defaultLocale ) l.fallbackLocale = defaultLocale;
-    var pref = navigator.language;
-    if ( window.Storage ) pref = localStorage['_.l.locale'] || pref;
+    var pref = navigator.language || navigator.userLanguage;
+    if ( window.localStorage ) pref = localStorage['_.l.locale'] || pref;
+    if ( ! pref ) return;
     if ( list.indexOf( pref ) >= 0 ) return l.setLocale( pref );
-    if ( pref.indexOf('-') < 0 ) return;
     pref = pref.split( '-' )[0];
     if ( list.indexOf( pref ) >= 0 ) l.setLocale( pref );
 };

@@ -43,12 +43,15 @@
 
    </target>
 
+   <!-- Stripts unnecessary code from deploy. -->
    <target name="deploy" description="Compress browsable" depends="make">
-      <replaceregexp match=" *&lt;!--(.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" />
-      <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="${deliverable}" />
-      <replaceregexp match=" *// .*?\n" replace="" flags="g" file="${deliverable}" />
-      <replaceregexp match="   " replace="" flags="g" file="${deliverable}" />
-      <replaceregexp match="(\n)[\n ]+" replace="\1" flags="g" file="${deliverable}" />
+      <!-- Remove comments. The extra space after html comment start tag is to preserv license block -->
+      <replaceregexp match=" *&lt;!-- (.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <replaceregexp match=" *// .*?\n" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <!-- Remove redundent whitespaces -->
+      <replaceregexp match="   " replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <replaceregexp match="(\n)[\n ]+" replace="\1" flags="g" file="${deliverable}" encoding="UTF-8" />
    </target>
 
    <!-- Old make. Simple but component files make less sense.

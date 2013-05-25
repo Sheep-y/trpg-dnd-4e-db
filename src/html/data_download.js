@@ -198,8 +198,9 @@ od.download.Category.prototype = {
             var ids = _.ary( _.xpath( transformed.documentElement, '//div//td[1]/a' ) ).map( function(e){ return e.getAttribute('href'); } );
             if ( ids.length !== results.length ) _.error('Error getting listing for ' + remote.title + ': xsl transform rows mismatch' );
             for ( var i = 0, l = ids.length ; i < l ; i++ ) {
-               var rowId = ids[i].trim();
+               var rowId = ids[i];
                if ( rowId ) { // Skip empty and duplicate id - which is download link
+                  rowId = rowId.trim();
                   var row = _.col( results[i].getElementsByTagName('*'), 'textContent' );
                   if ( idList.indexOf( rowId ) >= 0 ) {
                      _.error( "Duplicate result: " + rowId + " (" + row[1] + ")" );
