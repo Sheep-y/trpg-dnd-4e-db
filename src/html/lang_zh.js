@@ -120,6 +120,10 @@ _.l.set( 'action.about', {
    lbl_select_lang : "請選擇語言 :", // please translate as "Please select language:"
    opt_auto : "(自動偵察)", 
    
+   h_license : "授權",
+   p_license : "此文本是免費軟件，以GNU AGPL v3 授權發佈。",
+   a_source : "源碼",
+   
    h_help : "使用方法",
    h_version_history : "版本歷史",
    h_history : "產品歷史",
@@ -128,4 +132,9 @@ _.l.set( 'action.about', {
    },
    
    link_homepage : "Home"
+});
+
+_.l.set( 'action.license', {
+   title : "授權協議",
+   link_text : "授權",
 });

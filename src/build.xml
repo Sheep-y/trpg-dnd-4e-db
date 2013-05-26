@@ -19,6 +19,7 @@
       <loadfile property="action_list.html" srcfile="${srcdir}action_list.html" encoding="UTF-8" />
       <loadfile property="action_view.html" srcfile="${srcdir}action_view.html" encoding="UTF-8" />
       <loadfile property="action_about.html" srcfile="${srcdir}action_about.html" encoding="UTF-8" />
+      <loadfile property="license_agpl.html" srcfile="license_agpl.html" encoding="UTF-8" />
 
       <delete file="${deliverable}" failonerror="false" />
       <copy file="${srcdir}/html_template.html" tofile="${deliverable}" />
@@ -39,6 +40,7 @@
           <replacefilter token="&lt;!--#include file='action_list.html' --&gt;" value="${action_list.html}"/>
           <replacefilter token="&lt;!--#include file='action_view.html' --&gt;" value="${action_view.html}"/>
           <replacefilter token="&lt;!--#include file='action_about.html' --&gt;" value="${action_about.html}"/>
+          <replacefilter token="&lt;!--#include file='license_agpl.html' --&gt;" value="${license_agpl.html}"/>
       </replace>
 
    </target>

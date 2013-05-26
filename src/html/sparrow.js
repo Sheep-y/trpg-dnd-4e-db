@@ -2,8 +2,6 @@
  * sparrow.js
  *
  * Sparrow - light weight JS library.
- *
- * @author Hermia Yeung (c) 2013
  */
 
 // Simple check for browser features

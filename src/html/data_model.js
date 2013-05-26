@@ -1,6 +1,5 @@
 /*
  * data_model.js
- *
  * Model and manage data in memory.
  * Data model does not care whether it is dirty; that is handled by downloader.
  */
