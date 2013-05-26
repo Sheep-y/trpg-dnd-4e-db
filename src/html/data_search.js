@@ -150,9 +150,9 @@ od.search = {
    /**
     * Given a textual search term, return a regular expression and highlight terms.
     *
-    * Syntax: Terms are separated by space, and can be double quoted.
-    *         Terms with leading '-' are excluded, otherwise are searched in any order, case in-sensitively.
-    *         The word "OR" (uppercase, without quote) can be used to specify an or condition between left and right terms.
+    * Syntax: Terms are separated by space, can be double quoted, may appears in any order, case in-sensitive.
+    *         Terms with leading '-' are excluded from result. Terms starting and ending with / are treated as regular expression.
+    *         The word "OR" (uppercase, without quote) can be used to specify an or condition of two terms.
     *         Terms are not searched word by word, so for example they can appears in the middle of a word.
     *
     * Example : javascript OR ecmascript "bug database"
@@ -215,12 +215,11 @@ od.search = {
             // Next token is OR, so move to next non-OR token.
             do { ++i; } while ( i < l && parts[i] === 'OR' );
          } while ( i < l )
-         if ( addPart.length ) {
-            if ( addPart.length === 1 ) {
-               regx += addPart[0];
-            } else {
-               regx += '(?:' + addPart.join('|') + ')';
-            }
+         // Append to global search pattern
+         if ( addPart.length === 1 ) {
+            regx += addPart[0];
+         } else if ( addPart.length ) {
+            regx += '(?:' + addPart.join('|') + ')';
          }
       }
       if ( regx === '^' ) return null;
