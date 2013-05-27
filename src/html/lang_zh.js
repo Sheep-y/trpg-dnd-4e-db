@@ -69,7 +69,8 @@ _.l.set( 'error', {
 });
 
 _.l.set( 'gui', {
-   'loading': 'Loading...',
+   'title'   : '離線四版資料庫',
+   'loading' : 'Loading...',
    'loading1': 'Loading %1'
 });
 
@@ -121,15 +122,60 @@ _.l.set( 'action.about', {
    opt_auto : "(自動偵察)", 
    
    h_license : "授權",
-   p_license : "此文本是免費軟件，以GNU AGPL v3 授權發佈。",
+   p_license : "此文本是免費軟件，以 GNU AGPL v3 授權發佈。",
    a_source : "源碼",
+   a_email  : "電郵",
    lbl_source_manual : "請在關閉此提示後右按並點選'顯示源碼'，因為 IE 不支援，因為您的瀏覽器不能用程序呼叫這功能。",
    
-   h_help : "使用方法",
-   h_version_history : "版本歷史",
+
+   h_get_data : "如何獲取數據",
+   p_get_data :
+      "此文本不附帶任何數據。要獲取數據，您需要一些東西，當中包括 active <a href='http://www.wizards.com/DnD/Subscription.aspx'>Dungeons & Dragons Insider subscription</a>. <br/>"+
+      "要獲取數據，只需以下短短幾步： <br/> <ol> "+
+      " <li> 將此 HTML 儲存到檔案系統，並用 Internet Explorer（非 Metro）開啓。"+
+      " <li> 下載目錄 "+
+      " <li> 下載一類或多類的列表 "+
+      " <li> 下載數據（可能會要求登入）"+
+      " <li> 儲存數據 "+
+      "</ol> 下載頁有更多的詳情。",
+   
+   h_search_data : "如果搜尋數據",
+   p_search_data :
+      "輸入要找的字詞，就會找出包含所有字詞的結果，不論順序，不論大小寫。 <br/>"+
+      "例、<kbd>fighter heal</kbd> 會找出同時包括 <q>Fighter</q> 和 <q>Heal</q> 或 <q>Healing</q> 或 <q>Healer</q> 的結果. <br/>"+
+      "<br/>"+
+      "您可以先選取一個類別，以收窄搜尋範圍。搜尋名字也會比全文搜尋快。 <br/>"+
+      "<br/> <ul>"+
+      "<li> 要搜尋特定詞組，可以用半形雙引號 <q>\"</q> 包裹它。 <br/>"+
+      " &nbsp; 例、<kbd>\"extra damage\"</kbd> 只符合詞組 <q>Extra damage</q>，而不是分成 <q>Extra</q> 和 <q>Damage</q>。 <br/>"+
+      "<li> 要自結果排除字詞，可以在前面加半型減號 <q>-</q>。 <br/>"+
+      " &nbsp; 例、<kbd>-\"feat bonus\"</kbd> 會排除包含 <q>Feat bonus</q> 詞組的組果。 <br/>"+
+      "<li> 要指定'或者'條件，可用大寫 <q>OR</q>. <br/>"+
+      " &nbsp; 例、<kbd>ranger OR rogue blind</kbd> 會搜尋包含 <q>Blind</q> 以及 <q>Ranger</q> 或 <q>Rogue</q>。 <br/>"+
+      "<li> 用 '*' 作萬用字符。 <br/>"+
+      " &nbsp; 例、<kbd>p* bonus</kbd> 同時符合 <q>Proficiency bonus</q> 和 <q>Power bonus</q>。 <br/>"+
+      "<li> 如果您會用正規表逹式，您可以用它代替字詞。 <br/>"+
+      " &nbsp; 例、<kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd>. "+
+      "</ul>",
+
+   h_move_data : "如果搬移數據",
+   p_move_data : 
+      "已獲取的數據會儲存在 <q>offline_database_files</q> 目錄之內。 <br/>"+
+      "你只需要開啓本 HTML 就可以離線瀏覽和搜尋它們。 <br/>"+
+      "在個人使用的前提下，您可以合法地將本 HTML 和數據目錄複制到 USB 或智能電話。 <br/>"+
+      "<br/>"+
+      "預設的安卓瀏覽器不支援開啓本機檔案，但您可以用 <a href='https://play.google.com/store/apps/details?id=com.opera.browser'>Opera Mobile</a> 或 <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox Mobile</a>。不能用 Chrome。 <br/> "+
+      "蘋果的 iTune 有各種限制，目前您需要已越獄的裝置。"+
+      "如果您有對其他智能電話/裝置的經驗，請讓我知道。"+
+      "<br/>"+
+      "你可以把東西都放到個人網頁伺服器，不過初始的搜尋可能很慢，完整全文搜尋需要 ~37MB 數據。",
+
    h_history : "產品歷史",
-   lbl_history : "（如若圖片沒有顯示，請試用支援 WebP 格式的 Chrome 或 Android 瀏覽器。）",
+   lbl_history : "（如若沒有看見圖片，請試用支援 WebP 格式的 Chrome 或 Android 瀏覽器。）",
    lbl_english_only : "此章節只有英文版本。",
+
+   h_version_history : "版本歷史",
+   
    
    link_homepage : "主頁"
 });
