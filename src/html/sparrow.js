@@ -660,8 +660,11 @@ _.l.setLocale = function _l_setLocale( lang ) {
  * @returns {undefined}
  */
 _.l.saveLocale = function _l_saveLocale( lang ) { 
+    if ( window.localStorage ) {
+       if ( lang ) localStorage['_.l.locale'] = lang;
+       else delete localStorage['_.l.locale'];
+    }
     _.l.setLocale( lang );
-    if ( window.localStorage ) localStorage['_.l.locale'] = lang;
 };
 
 /**
