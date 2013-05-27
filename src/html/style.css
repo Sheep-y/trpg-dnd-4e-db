@@ -3,6 +3,7 @@
  * Contains CSS styles that applies to general UI (instead of data entries)
  */
 
+/********************** Baseline **************************/
 * {
    box-sizing: border-box;
    -moz-box-sizing: border-box;
@@ -19,16 +20,20 @@ html, body {
    font: 14px sans-serif;
 }
 
-.fullw { width: 100%; }
-.right { float: right; }
-.left { float: left; }
-.hide { display: none; }
-
 @media print {
    .no-print { display: none; }
 }
 
 th { text-align: left; }
+
+figure { margin: 0; }
+
+/********************** Custom classes **************************/
+
+.fullw { width: 100%; }
+.right { float: right; }
+.left { float: left; }
+.hide { display: none; }
 
 .button {
    display: inline-block;
@@ -38,24 +43,20 @@ th { text-align: left; }
 }
 
 /** Action divs */
-div[data-role="page"] {
+body > div {
    display: none;
    width: 100%;
 }
 
-div[data-role="page"] > * {
-   padding: 12pt; /* If use em/ex, will varies by content font size and inconsistent */
-}
+/*********************** Page header styles *************************/
 
-/*********************** Page styles *************************/
-
-div[data-role="header"] {
+header {
    background-color: black;
-   padding: 0.5em 1ex;
+   padding: 0.5em 1ex !important;
    text-align: center;
 }
 
-div[data-role="header"] h1 {
+header h1 {
    display: inline-block;
    padding: 0;
    margin: 0;
@@ -64,7 +65,7 @@ div[data-role="header"] h1 {
    font-weight: bold;
 }
 
-div[data-role="header"] a {
+header a {
    float: left;
    display: inline-block;
    padding: 0.25em 1ex;
@@ -76,6 +77,12 @@ div[data-role="header"] a {
    cursor: pointer;
 }
 
-div[data-role="header"] h1 + a {
+header h1 + a {
    float: right;
+}
+
+/******************* Page content ***********************/
+
+body > div > * {
+   padding: 12pt; /* If use em/ex, will varies by content font size and inconsistent */
 }
