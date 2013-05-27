@@ -4,7 +4,8 @@
    <property name="srcdir" value="html/" />
 
    <target name="make" description="Compile browsable html">
-      <loadfile property="style.css" srcfile="${srcdir}style.css" encoding="UTF-8" />
+      <loadfile property="style_gui.css" srcfile="${srcdir}style_gui.css" encoding="UTF-8" />
+      <loadfile property="style_data.css" srcfile="${srcdir}style_data.css" encoding="UTF-8" />
       <loadfile property="config.js" srcfile="${srcdir}config.js" encoding="UTF-8" />
       <loadfile property="sparrow.js" srcfile="${srcdir}sparrow.js" encoding="UTF-8" />
       <loadfile property="lang_en.js" srcfile="${srcdir}lang_en.js" encoding="UTF-8" />
@@ -25,7 +26,8 @@
       <copy file="${srcdir}/html_template.html" tofile="${deliverable}" />
 
       <replace file="${deliverable}" encoding="UTF-8">
-          <replacefilter token="&lt;!--#include file='style.css' --&gt;" value="${style.css}"/>
+          <replacefilter token="&lt;!--#include file='style_gui.css' --&gt;" value="${style_gui.css}"/>
+          <replacefilter token="&lt;!--#include file='style_data.css' --&gt;" value="${style_data.css}"/>
           <replacefilter token="&lt;!--#include file='config.js' --&gt;" value="${config.js}"/>
           <replacefilter token="&lt;!--#include file='sparrow.js' --&gt;" value="${sparrow.js}"/>
           <replacefilter token="&lt;!--#include file='lang_en.js' --&gt;" value="${lang_en.js}"/>
