@@ -24,38 +24,43 @@
 }
   </style>
 </head><body>
-<div id="loading" class='i18n' style='display:none;'>gui.loading</div>
-<script>//<![CDATA[
-'use strict';
-var od = { action : {} };
-<!--#include file='config.js' -->
-<!--#include file='sparrow.js' -->
-<!--#include file='lang_en.js' -->
-<!--#include file='lang_zh.js' -->
-<!--#include file='code_gui.js' -->
-<!--#include file='data_model.js' -->
-<!--#include file='data_search.js' -->
-<!--#include file='data_download.js' -->
-<!--#include file='data_reader.js' -->
-<!--#include file='data_writer.js' -->
-//]]></script><noscript>
-   <h1> Please enable JavaScript </h1>
-   <h1> 請啟用 JavaScript </h1>
-</noscript>
-<!--#include file='action_download.html' -->
-<!--#include file='action_list.html' -->
-<!--#include file='action_view.html' -->
-<!--#include file='action_about.html' -->
-<script>'use strict';
-   _.time('All code loaded.');
-   _.freeze(_);
-   for ( var i in od ) _.seal( Object.preventExtensions( od[i] ) );
-   //window.addEventListener('DOMContentLoaded',function(){
-   //   _.time('DOM loaded.'); // Don't need to wait until dom ready.
-      _.l.detectLocale( 'en' );
-      _.l.localise();
-      od.gui.switch_action( od.action.list );
-      _.time('Switched to initial page.');
-   //},false);
-</script>
+<![if gte IE 9]>
+   <div id="loading" class='i18n' style='display:none;'>gui.loading</div>
+   <script>//<![CDATA[
+   'use strict';
+   var od = { action : {} };
+   <!--#include file='config.js' -->
+   <!--#include file='sparrow.js' -->
+   <!--#include file='lang_en.js' -->
+   <!--#include file='lang_zh.js' -->
+   <!--#include file='code_gui.js' -->
+   <!--#include file='data_model.js' -->
+   <!--#include file='data_search.js' -->
+   <!--#include file='data_download.js' -->
+   <!--#include file='data_reader.js' -->
+   <!--#include file='data_writer.js' -->
+   //]]></script><noscript>
+      <h1> Please enable JavaScript </h1>
+      <h1> 請啟用 JavaScript </h1>
+   </noscript>
+   <!--#include file='action_download.html' -->
+   <!--#include file='action_list.html' -->
+   <!--#include file='action_view.html' -->
+   <!--#include file='action_about.html' -->
+   <script>'use strict';
+      _.time('All code loaded.');
+      _.freeze(_);
+      for ( var i in od ) _.seal( Object.preventExtensions( od[i] ) );
+      //window.addEventListener('DOMContentLoaded',function(){
+      //   _.time('DOM loaded.'); // Don't need to wait until dom ready.
+         _.l.detectLocale( 'en' );
+         _.l.localise();
+         od.gui.switch_action( od.action.list );
+         _.time('Switched to initial page.');
+      //},false);
+   </script>
+<![endif]><!--[if lte IE 8]>
+   <h1> Please upgrade browser. </h1>
+   <h1> 請升級瀏覽器。 </h1>
+<![endif]-->
 </body></html>
