@@ -616,8 +616,8 @@ _.EventManager.prototype = {
 /** Get language string and, if additional parameters are provided, format the parameters */
 _.l = function _l( path, defaultValue, param /*...*/ ) {
    var l = _.l;
-   var result = l.getset( path, null, l.currentLocale );
-   if ( !result ) result = ( defaultValue !== undefined || defaultValue === null ) ? defaultValue : path;
+   var result = l.getset( path, undefined, l.currentLocale );
+   if ( result === undefined ) result = ( defaultValue !== undefined || defaultValue === null ) ? defaultValue : path;
    if ( arguments.length > 2 ) {
       if ( arguments.length === 3 ) return l.format( result, param );
       else return l.format.apply( this, [result].concat( _.ary(arguments, 2) ) );
@@ -702,10 +702,10 @@ _.l.getset = function _l_getset( path, set, locale ) {
       base = base[node];
    };
    // Set or get data
-   if ( set !== null ) {
+   if ( set !== undefined ) {
       base[last] = set;
    } else {
-      if ( base[last] === undefined && locale !== this.fallbackLocale ) return this.getset( path, null, this.fallbackLocale );
+      if ( base[last] === undefined && locale !== this.fallbackLocale ) return this.getset( path, undefined, this.fallbackLocale );
       return base[last];
    }
 };
