@@ -63,7 +63,7 @@ _.l.set( 'error', {
    'com_file_security' : 'Cannot save data due to browser security settings. Go to Tools > Internet Options > Security > Custom Level. Enable "Initialize and script ActiveX controls not marked as safe".',
    'file_grant_permission' : 'You may see a prompt. Please grant us the permission update data files.',
    'file_no_api' : 'Only support saving in IE, because JavaScript has no standard for saving portable offline data.',
-   'file_cannot_delete' : 'Cannot overwrite %1',
+   'file_cannot_delete' : '無法覆寫 %1',
 
    'wrong_ext': 'Extended list different from raw list, please re-index from download screen: %1.'
 });
@@ -94,7 +94,7 @@ _.l.set( 'action.download', {
       "This browser script allows you to download and save compendium entries, then search and list them offline using advanced Google-like syntax.",
       "<b>Requires an active DDI subscription to download any data.</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates' target='_blank'>Official Rules Updates</a>"
    ],
-   btn_get_catalog : "Refresh catalog",
+   btn_get_catalog : "刷新列表",
    btn_all_list : "Check all",
    btn_list : "Check",
    btn_update_changed : "Get %1 items",
@@ -123,15 +123,15 @@ _.l.set( 'action.about', {
    h_license : "授權",
    p_license : "此文本是免費軟件，以GNU AGPL v3 授權發佈。",
    a_source : "源碼",
+   lbl_source_manual : "請在關閉此提示後右按並點選'顯示源碼'，因為 IE 不支援，因為您的瀏覽器不能用程序呼叫這功能。",
    
    h_help : "使用方法",
    h_version_history : "版本歷史",
    h_history : "產品歷史",
+   lbl_history : "（如若圖片沒有顯示，請試用支援 WebP 格式的 Chrome 或 Android 瀏覽器。）",
+   lbl_english_only : "此章節只有英文版本。",
    
-   p_history : {
-   },
-   
-   link_homepage : "Home"
+   link_homepage : "主頁"
 });
 
 _.l.set( 'action.license', {

@@ -88,18 +88,18 @@ _.l.set( 'action.about', {
    
    h_language : "Language",
    lbl_select_lang : ":", // please translate as "Please select language:"
-   opt_auto : "(Auto detect)", 
+   opt_auto   : "(Auto detect)", 
    
    h_license : "License",
    p_license : "This script is free software and license under GNU AGPL v3.",
-   a_source : "Source",
+   a_source  : "Source",
+   lbl_source_manual : "Please right click and select 'View Source' after closing this message, since your browser does not let us do it programmatically.",
    
-   h_help : "How to use",
+   h_help    : "How to use",
    h_version_history : "Version History",
-   h_history : "Product History",
-   
-   p_history : {
-   },
+   h_history   : "Product History",
+   lbl_history : "(If images are not displayed, please try Chrome or Android browser which support WebP.)",
+   lbl_english_only : "", // Please translate as "This section is English only."
    
    link_homepage : "Home"
 });
