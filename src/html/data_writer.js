@@ -55,8 +55,9 @@ od.writer = {
                return false;
             }
          }*/
-         var f = fso.OpenTextFile( file, 2, true, -1); // = OpenTextFile( file, WRITE, CREATE, UNICODE )
+         var f = fso.CreateTextFile( file, true ); // true = overwrite
          content.split( '\n' ).forEach( function(line){ f.WriteLine( line ); } );
+         //f.BinaryWrite( new ActiveXObject("Utf8Lib.Utf8Enc").UnicodeToUtf8(content) ); // No such method: BinaryWrite
          f.Close();
          if ( ondone ) ondone();
       }, onerror );
@@ -107,7 +108,7 @@ od.writer = {
 
    write_data : function writer_write_data( category, id, data, ondone, onerror ) {
       this._write( od.config.file.data( category.name, id ),
-       'od.reader.jsonp_data(20130330,"' + _.escJs( category.name ) + '", "' + _.escJs( id )+'",'+
+       'od.reader.jsonp_data(20130330,"' + _.escJs( category.name ) + '","' + _.escJs( id )+'",'+
        JSON.stringify( data ) + ')', ondone );
    }
 

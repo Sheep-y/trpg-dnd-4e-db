@@ -93,10 +93,33 @@ od.data = {
       // Remove empty contents
       data = data.replace( /<div[^>]*>\s*<\/div\s*>/g, '' );
       // Compression - Removes quotes, links, nbsp etc.
-      data = data.replace( /(<\w+ \w+=)"([^" ]+)"/g, '$1$2' );
+      data = data.replace( /(<\w+ \w+\s*)=\s*"([^" ]+)"/g, '$1=$2' );
       data = data.replace( /<br\s*\/>/g, '<br>' );
       data = data.replace( /&nbsp;/g, '\u00A0' );
       data = data.replace( /<\/?a(\s[^>]+)?>/g, '' );
+      data = data.replace( / alt=""/g, ' ' );
+      // Image conversion
+      data = data.replace( /https?:\/\/(www\.)?wizards\.com\/dnd\/images\//g, 'images/' );
+      data = data.replace( /<img [^>]*src=images\/bullet\.gif [^>]*\/>/g, '✦' ); // Most common symbols at 50k+.
+      data = data.replace( /<img [^>]*src=images\/symbol\/x\.gif [^>]*\/>/g, '✦' ); // Second most common symbols at 20k+.
+      data = data.replace( /<img [^>]*src=images\/symbol\/aura\.png [^>]*\/>/g, '☼' ); // About 500 hits
+      // S1 - basic close ; S2 - basic melee ; S3 - basic ranged ; S4 - basic area. Should use \u20DD Enclosing circle but only supported by Code2000, too high requirment
+      // Z1 & z1a - close ; z2a - melee ; z3a - ranged ; Z4 & z4a - area
+      data = data.replace( /<img [^>]*src=images\/symbol\/[sS]1\.gif [^>]*\/>/g, '͜͡⋖' ); // None
+      data = data.replace( /<img [^>]*src=images\/symbol\/[zZ]1[aA]?\.gif [^>]*\/>/g,'⋖' ); // ~3300
+      data = data.replace( /<img [^>]*src=images\/symbol\/[sS]2\.gif [^>]*\/>/g, '͜͡⚔' ); // ~5600
+      data = data.replace( /<img [^>]*src=images\/symbol\/[zZ]2[aA]?\.gif [^>]*\/>/g, '⚔' ); // ~4200
+      data = data.replace( /<img [^>]*src=images\/symbol\/[sS]3\.gif [^>]*\/>/g, '͜͡➶' ); // ~950
+      data = data.replace( /<img [^>]*src=images\/symbol\/[zZ]3[aA]?\.gif [^>]*\/>/g, '➶' ); // ~2000
+      data = data.replace( /<img [^>]*src=images\/symbol\/[sS]4\.gif [^>]*\/>/g, '͜͡✻' ); // No hits
+      data = data.replace( /<img [^>]*src=images\/symbol\/[zZ]4[aA]?\.gif [^>]*\/>/g, '✻' ); // ~720
+      // 1a ... 6a = dice face 1-6
+      data = data.replace( /<img [^>]*src=images\/symbol\/1[aA]\.gif [^>]*\/>/g, '⚀' ); // 1
+      data = data.replace( /<img [^>]*src=images\/symbol\/2[aA]\.gif [^>]*\/>/g, '⚁' ); // 4
+      data = data.replace( /<img [^>]*src=images\/symbol\/3[aA]\.gif [^>]*\/>/g, '⚂' ); // ~30
+      data = data.replace( /<img [^>]*src=images\/symbol\/4[aA]\.gif [^>]*\/>/g, '⚃' ); // ~560
+      data = data.replace( /<img [^>]*src=images\/symbol\/5[aA]\.gif [^>]*\/>/g, '⚄' ); // ~2100
+      data = data.replace( /<img [^>]*src=images\/symbol\/6[aA]\.gif [^>]*\/>/g, '⚅' ); // ~2500
       // Convert ’ to ' so that people can actually search for it
       data = data.replace( /’/g, "'" );
       return data.trim();

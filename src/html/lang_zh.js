@@ -139,7 +139,7 @@ _.l.set( 'action.about', {
       " <li> 儲存數據 "+
       "</ol> 下載頁有更多的詳情。",
    
-   h_search_data : "如果搜尋數據",
+   h_search_data : "如何搜尋數據",
    p_search_data :
       "輸入要找的字詞，就會找出包含所有字詞的結果，不論順序，不論大小寫。 <br/>"+
       "例、<kbd>fighter heal</kbd> 會找出同時包括 <q>Fighter</q> 和 <q>Heal</q> 或 <q>Healing</q> 或 <q>Healer</q> 的結果. <br/>"+
@@ -158,7 +158,7 @@ _.l.set( 'action.about', {
       " &nbsp; 例、<kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd>. "+
       "</ul>",
 
-   h_move_data : "如果搬移數據",
+   h_move_data : "如何搬移數據",
    p_move_data : 
       "已獲取的數據會儲存在 <q>offline_database_files</q> 目錄之內。 <br/>"+
       "你只需要開啓本 HTML 就可以離線瀏覽和搜尋它們。 <br/>"+
