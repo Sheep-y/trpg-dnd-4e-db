@@ -20,7 +20,8 @@
       <loadfile property="action_list.html" srcfile="${srcdir}action_list.html" encoding="UTF-8" />
       <loadfile property="action_view.html" srcfile="${srcdir}action_view.html" encoding="UTF-8" />
       <loadfile property="action_about.html" srcfile="${srcdir}action_about.html" encoding="UTF-8" />
-      <loadfile property="license_agpl.html" srcfile="license_agpl.html" encoding="UTF-8" />
+      <loadfile property="images.html" srcfile="${srcdir}images.html" encoding="UTF-8" />
+      <loadfile property="license_agpl.html" srcfile="license_agpl.html" encoding="UTF-8" />      
 
       <delete file="${deliverable}" failonerror="false" />
       <copy file="${srcdir}/html_template.html" tofile="${deliverable}" />
@@ -42,20 +43,25 @@
           <replacefilter token="&lt;!--#include file='action_list.html' --&gt;" value="${action_list.html}"/>
           <replacefilter token="&lt;!--#include file='action_view.html' --&gt;" value="${action_view.html}"/>
           <replacefilter token="&lt;!--#include file='action_about.html' --&gt;" value="${action_about.html}"/>
+          <replacefilter token="&lt;!--#include file='images.html' --&gt;" value="${images.html}"/>
           <replacefilter token="&lt;!--#include file='license_agpl.html' --&gt;" value="${license_agpl.html}"/>
       </replace>
 
    </target>
 
-   <!-- Stripts unnecessary code from deploy. -->
+   <!-- Stripts unnecessary code for deploy. Saves about 11% (34k) so the value is in doubt.  -->
    <target name="deploy" description="Compress browsable" depends="make">
-      <!-- Remove comments. The extra space after html comment start tag is to preserv license block -->
-      <replaceregexp match=" *&lt;!-- (.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <!-- Remove comments. Start comment with three hypens to preserv license blocks. -->
+      <replaceregexp match=" *&lt;!--(?![\[-])(.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
       <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
-      <replaceregexp match=" *// .*?\n" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <replaceregexp match=" *(?&lt;=[ ;])//(?!\]).*?\n" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
       <!-- Remove redundent whitespaces -->
       <replaceregexp match="   " replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
       <replaceregexp match="(\n)[\n ]+" replace="\1" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <!-- Concat htmls -->
+      <replaceregexp match=">\n&lt;" replace=">&lt;" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <!-- Concat js -->
+      <replaceregexp match="\n}" replace="}" flags="g" file="${deliverable}" encoding="UTF-8" />
    </target>
 
    <!-- Old make. Simple but component files make less sense.
