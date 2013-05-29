@@ -39,7 +39,7 @@ od.action.download = {
 
    'initialize': function act_download_init () {
       _.hide( '#act_download_tbl_list, #act_download_btn_all_list, #act_download_btn_update, #act_download_btn_save');
-      if ( ! od.config.show_download ) {
+      if ( location.protocol !== 'file:' || ! window.ActiveXObject || ! /\bMSIE (9|\d\d+)\./.test(navigator.userAgent) ) {
          _.hide( '#act_download_btn_get_catalog' );
          alert( _.l( 'error.file_no_api' ) );
       }

@@ -168,7 +168,7 @@ _.l.set( 'action.about', {
 
    h_move_data : "如何搬移數據",
    p_move_data : 
-      "已獲取的數據會儲存在 <q>offline_database_files</q> 目錄之內。 <br/>"+
+      "已獲取的數據會儲存在 <q id='action_about_lbl_folder'></q> 目錄之內。 <br/>"+
       "你只需要開啓本 HTML 就可以離線瀏覽和搜尋它們。 <br/>"+
       "在個人使用的前提下，您可以合法地將本 HTML 和數據目錄複制到 USB 或智能電話。 <br/>"+
       "<br/>"+

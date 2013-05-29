@@ -1,58 +1,17 @@
 /*
  * config.js
- * Path Configurations
+ * System Configurations
  */
 
 od.config = {
-   "symbol_conversion" : 'Common',
-   "symbols": {
-      "Common" : {
-         '⋖': '☄',
-         '͜͡⋖': '(☄)',
-         '⚔': '☭',
-         '͜͡⚔': '(☭)',
-         '͜͡➶': '(➶)',
-         '͜͡✻': '(✻)',
-         '☼': '❂'
-      },
-      "Dingbat" : {
-         '✦': '★',
-         '⋖': '<',
-         '⚔': '†',
-         '͜͡⋖': '(<)',
-         '͜͡⚔': '(†)',
-         '͜͡➶': '(➶)',
-         '͜͡✻': '(✻)',
-         '☼': '❂'
-      },
-      "Plain" : {
-         '✦': '+',
-         '⋖': '<',
-         '͜͡⋖': '(<)',
-         '⚔': '+',
-         '͜͡⚔': '(+)',
-         '➶': '~',
-         '͜͡➶': '(~)',
-         '✻': 'X',
-         '͜͡✻': '(X)',
-         '⚀': '[1]',
-         '⚁': '[2]',
-         '⚂': '[3]',
-         '⚃': '[4]',
-         '⚄': '[5]',
-         '⚅': '[6]',
-         '☼': '(O)'
-      }
-   },
-   "show_download" : location.protocol === 'file:' && window.ActiveXObject && /\bMSIE (9|\d\d+)\./.test(navigator.userAgent),
    "simulate" : false, // If true, load data from local file instead of live url
    "simulated_data_url" : 'debug_files',
-   "data_read_path" : 'offline_database_files',
-   "data_write_path" : location.href.replace( /file:\/\/\/|[^\\\/]+.html?(\?.*)?$/g, '' ) + 'offline_database_files',
-   "retry" : 3,
-   "retry_interval" : 30 * 1000,
-   "down_interval" : 0,
-   "thread" : 6,
+   "data_read_path" : '4e_database_files',
+   "data_write_path" : location.href.replace( /file:\/\/\/|[^\\\/]+.html?(\?.*)?$/g, '' ) + '4e_database_files',
+   "retry" : 3, // Number of retry of download.
+   "retry_interval" : 30 * 1000, // (ms) Interval between retry.
+   "down_interval" : 0, // (ms) Interval between download, but unlikely to work......
+   "thread" : 6, // Number of download threads
    "source" : {
       "catalog" :
          function url() {
@@ -101,5 +60,46 @@ od.config = {
          function url( category ) { return od.config.data_write_path + '/'+category+'/_index.js'; },
       "data" :
          function url( category, id ) { return od.config.data_write_path + '/'+category+'/'+id.replace( /\.aspx\?id=|\W+/g, '' )+'.js'; }
+   },   
+   
+   "symbol_conversion" : 'Common',
+   "symbols": {
+      "Common" : {
+         '⋖': '☄',
+         '͜͡⋖': '(☄)',
+         '⚔': '☭',
+         '͜͡⚔': '(☭)',
+         '͜͡➶': '(➶)',
+         '͜͡✻': '(✻)',
+         '☼': '❂'
+      },
+      "Dingbat" : {
+         '✦': '★',
+         '⋖': '<',
+         '⚔': '†',
+         '͜͡⋖': '(<)',
+         '͜͡⚔': '(†)',
+         '͜͡➶': '(➶)',
+         '͜͡✻': '(✻)',
+         '☼': '❂'
+      },
+      "Plain" : {
+         '✦': '+',
+         '⋖': '<',
+         '͜͡⋖': '(<)',
+         '⚔': '+',
+         '͜͡⚔': '(+)',
+         '➶': '~',
+         '͜͡➶': '(~)',
+         '✻': 'X',
+         '͜͡✻': '(X)',
+         '⚀': '[1]',
+         '⚁': '[2]',
+         '⚂': '[3]',
+         '⚃': '[4]',
+         '⚄': '[5]',
+         '⚅': '[6]',
+         '☼': '(O)'
+      }
    }
 };

@@ -178,6 +178,7 @@ od.action.about = {
       _('#action_about_history_1')[0].src = _('#img_about_history_1')[0].src;
       _('#action_about_history_2')[0].src = _('#img_about_history_2')[0].src;
       _('#action_about_history_3')[0].src = _('#img_about_history_3')[0].src;
+      _('#action_about_lbl_folder')[0].textContent = od.config.data_read_path; // TODO: Properly hook into i18n.
    },
 
    "setup": function action_about_setup ( lang ) {

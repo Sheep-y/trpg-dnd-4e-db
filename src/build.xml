@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="oddi" default="make" basedir=".">
-   <property name="deliverable" value="../offline_database.html" />
+   <property name="deliverable" value="../4e_database.html" />
    <property name="srcdir" value="html/" />
 
    <target name="make" description="Compile browsable html">
@@ -48,8 +48,13 @@
       </replace>
 
    </target>
+   
+   <!-- Produce a simulation biuld for testing.  -->
+   <target name="offline_simulate" description="Offline test build" depends="make">
+      <replace file="${deliverable}" token='"simulate" : false' value='"simulate" : true' encoding="UTF-8" />
+   </target>
 
-   <!-- Stripts unnecessary code for deploy. Saves about 11% (34k) so the value is in doubt.  -->
+   <!-- Stripts unnecessary code for deployment. Saves about 11% (34k) so production value is in doubt.  -->
    <target name="deploy" description="Compress browsable" depends="make">
       <!-- Remove comments. Start comment with three hypens to preserv license blocks. -->
       <replaceregexp match=" *&lt;!--(?![\[-])(.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />

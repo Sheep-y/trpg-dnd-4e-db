@@ -138,7 +138,7 @@ _.l.set( 'action.about', {
 
    h_move_data : "How to Move data",
    p_move_data : 
-      "Acquired data are stored locally, in <q>offline_database_files</q> folder. <br/>"+
+      "Acquired data are stored locally, in <q id='action_about_lbl_folder'></q> folder. <br/>"+
       "You just need to open this html to browse and search them without needing to go online. <br/>"+
       "You can lawfully copy this html and the data folder to USB or to smart phone, as long as it is for personal use. <br/>"+
       "<br/>"+
