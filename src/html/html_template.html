@@ -14,32 +14,23 @@
   <style>
 <!--#include file='style_gui.css' -->
 <!--#include file='style_data.css' -->
-#loading {
-   position: fixed;
-   top: 0;
-   left: 0;
-   padding: 0.5ex;
-   border: 1px solid black;
-   width: 100%;
-   z-index: 1;
-}
   </style>
 </head><body>
 <![if gte IE 9]>
    <div id="loading" class='i18n' style='display:none;'>gui.loading</div>
-   <script>//<![CDATA[
-   'use strict';
-   var od = { action : {} };
-   <!--#include file='config.js' -->
-   <!--#include file='sparrow.js' -->
-   <!--#include file='lang_en.js' -->
-   <!--#include file='lang_zh.js' -->
-   <!--#include file='code_gui.js' -->
-   <!--#include file='data_model.js' -->
-   <!--#include file='data_search.js' -->
-   <!--#include file='data_download.js' -->
-   <!--#include file='data_reader.js' -->
-   <!--#include file='data_writer.js' -->
+   <script>//<![CDATA[ 
+      'use strict';
+      var od = { action : {} };
+      <!--#include file='config.js' -->
+      <!--#include file='sparrow.js' -->
+      <!--#include file='lang_en.js' -->
+      <!--#include file='lang_zh.js' -->
+      <!--#include file='code_gui.js' -->
+      <!--#include file='data_model.js' -->
+      <!--#include file='data_search.js' -->
+      <!--#include file='data_download.js' -->
+      <!--#include file='data_reader.js' -->
+      <!--#include file='data_writer.js' -->
    //]]></script><noscript>
       <h1> Please enable JavaScript </h1>
       <h1> 請啟用 JavaScript </h1>
@@ -49,18 +40,17 @@
    <!--#include file='action_view.html' -->
    <!--#include file='action_about.html' -->
    <!--#include file='images.html' -->
-   <script>'use strict';
-      _.time('All code loaded.');
-      _.freeze(_);
-      for ( var i in od ) _.seal( Object.preventExtensions( od[i] ) );
-      //window.addEventListener('DOMContentLoaded',function(){
-      //   _.time('DOM loaded.'); // Don't need to wait until dom ready.
-         _.l.detectLocale( 'en' );
-         _.l.localise();
-         od.gui.switch_action( od.action.list );
-         _.time('Switched to initial page.');
-      //},false);
-   </script>
+   <script>//<![CDATA[ 
+      'use strict';
+      // Init code. Running in a script block is faster then waiting for dom ready.
+      _.time( 'All code loaded.' );
+      _.freeze( _ );
+      for ( var i in od ) _.seal( _.noExt( od[i] ) ); // Seal object to avoid accidents
+      _.l.detectLocale( 'en' );
+      _.l.localise();
+      od.gui.switch_action( od.action.list );
+      _.time( 'Switched to initial page.' );
+   //]]></script>
 <![endif]><!--[if lte IE 8]>
    <h1> Please upgrade browser. </h1>
    <h1> 請升級瀏覽器。 </h1>
