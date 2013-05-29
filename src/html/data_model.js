@@ -100,9 +100,9 @@ od.data = {
       data = data.replace( / alt=""/g, ' ' );
       // Image conversion
       data = data.replace( /https?:\/\/(www\.)?wizards\.com\/dnd\/images\//g, 'images/' );
-      data = data.replace( /<img [^>]*src=images\/bullet\.gif [^>]*\/>/g, '✦' ); // Most common symbols at 50k+.
-      data = data.replace( /<img [^>]*src=images\/symbol\/x\.gif [^>]*\/>/g, '✦' ); // Second most common symbols at 20k+.
-      data = data.replace( /<img [^>]*src=images\/symbol\/aura\.png [^>]*\/>/g, '☼' ); // About 500 hits
+      data = data.replace( /<img [^>]*src=images\/bullet\.gif [^>]*\/>/g, '✦' ); // Most common symbol at 100k.
+      data = data.replace( /<img [^>]*src=images\/symbol\/x\.gif [^>]*\/>/g, '✦' ); // Second most common symbol at 40k.
+      data = data.replace( /<img [^>]*src=images\/symbol\/aura\.png [^>]*\/>/g, '☼' ); // About 1000 hits
       // S1 - basic close ; S2 - basic melee ; S3 - basic ranged ; S4 - basic area. Should use \u20DD Enclosing circle but only supported by Code2000, too high requirment
       // Z1 & z1a - close ; z2a - melee ; z3a - ranged ; Z4 & z4a - area
       data = data.replace( /<img [^>]*src=images\/symbol\/[sS]1\.gif [^>]*\/>/g, '͜͡⋖' ); // None

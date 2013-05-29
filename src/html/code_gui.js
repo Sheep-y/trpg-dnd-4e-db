@@ -62,6 +62,21 @@ od.gui = {
             e.style.display = '';
          } );
       }
+   },
+    
+   /**
+    * Convert special unicode symbols to common symbols for safe display.
+    * 
+    * @param {String} Input string.
+    * @returns {String} Safe version of input converted to common symbols
+    */
+   symbol_safe_convert : function gui_symbol_safe_convert( str ) {
+      if ( od.config.symbol_conversion === false ) return str;
+      var mapping = od.config.symbols[od.config.symbol_conversion];
+      if ( mapping === undefined ) return str;
+      return str.replace( /͜͡[⋖⚔➶✻]|[✦⋖⚔➶✻⚀⚁⚂⚃⚄⚅☼]/g, function gui_symbol_safe_convert_replace( txt ) {
+         return txt in mapping ? mapping[txt] : txt;
+      });
    }
 
 };

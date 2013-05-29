@@ -36,7 +36,7 @@ od.action.view = {
       latch.ondone = function() {
          data.forEach( function(e) {
             _( '#act_view_pnl_content')[0].appendChild( _.create( 'div', {
-               html: od.data.get( e[0] ).data[ e[1] ]
+               html: od.gui.symbol_safe_convert( od.data.get( e[0] ).data[ e[1] ] )
             } ) );
             od.gui.switch_action( od.action.view );
          } );

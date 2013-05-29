@@ -89,7 +89,16 @@ _.l.set( 'action.about', {
 
    h_language : "Language",
    lbl_select_lang : ":", // Please translate as "Please select language:"
-   opt_auto   : "(Auto detect)", 
+   opt_auto    : "(Auto detect)",
+   lst_symbol  : "Please select symbols set:",
+   opt_original: "Original",
+   opt_common  : "Common",
+   opt_dingbat : "Dingbat",
+   opt_plain   : "Plain",
+   hint_basic  : "Basic Attacks (Close, Melee, Ranged, Area)",
+   hint_attack : "Non-Basic Attacks (Close, Melee, Ranged, Area)",
+   hint_dice   : "Dice faces (Recharge) 1 2 3 4 5 6",
+   hint_aura   : "Aura",
 
    h_license : "License",
    p_license : "This script is free software and licensed under GNU AGPL v3.",
@@ -150,5 +159,5 @@ _.l.set( 'action.about', {
 
 _.l.set( 'action.license', {
    title : "License",
-   link_text : "License",
+   link_text : "License"
 });

@@ -3,7 +3,7 @@
   - Product information and language select
   -->
 <div id='action_about' data-role="page">
-   <style scopted>
+   <style scoped>
       #action_about img:hover { width: 700px; }
       #action_about div { max-width: 1000px; margin: 0 auto; }
       #action_about div h1, #action_about article h2 { clear: both; }
@@ -23,11 +23,28 @@
          <h1 class='i18n'> action.about.h_language </h1>
          <p> 
             Please select language <span class='i18n'> action.about.lbl_select_lang </span>
-            <select onchange='od.action.about.change_language(this.value)'>
+            <select id='action_about_lst_lang' onchange='od.action.about.change_language(this.value)'>
                <option value='' class='i18n'> action.about.opt_auto
                <option value='zh'> Chinese 中文
                <option value='en'> English
-            </select>
+            </select> <br/>
+            <label>
+               <span class='i18n'> action.about.lst_symbol </span>
+               <select id='action_about_lst_symbol' onchange="od.action.about.change_symbol(this.value)">
+                  <option value='' class='i18n'> action.about.opt_original
+                  <option value='Common'  class='i18n'> action.about.opt_common
+                  <option value='Dingbat' class='i18n'> action.about.opt_dingbat
+                  <option value='Plain'   class='i18n'> action.about.opt_plain
+               </select>
+            </label> <br/>
+            <span id="action_about_lbl_unicode" class="hide">
+               ✦
+               <span class='hint_basic'> ͜͡⋖ ͜͡⚔ ͜͡➶ ͜͡✻ </span>
+               <span class='hint_attack'> ⋖ ⚔ ➶ ✻ </span>
+               <span class='hint_dice'> ⚀ ⚁ ⚂ ⚃ ⚄ ⚅ </span>
+               <span class='hint_aura'> ☼ </span>
+            </span>
+            <span id="action_about_lbl_symbol"></span>
          </p>
       </article>
 
@@ -64,11 +81,11 @@
          </p>
          <section>
             <h2> Original Prototype </h2>
-            <p>    
                <figure class='right'>
-                  <img alt='' id="action_about_history_0"/>
+                  <img alt='' id="action_about_history_0" src=''/>
                   <figcaption>Screenshot version: <time>2010-11-17</time></figcaption>
                </figure>
+            <p>    
                It all started with online Character Builder. <br/>
                I was, and still is, spending 3 hours on buses each day.  Sometimes I spent them on the original, offline Character Builder. <br/>
                Until it went online.  Wanting better offline access, the prototype as seen on right was born. <br/>
@@ -77,26 +94,26 @@
          </section>
          <section>
             <h2> 1<sup>st</sup> Generation </h2>
-            <p>
                <figure class='left'>
-                  <img alt='' id="action_about_history_1"/>
+                  <img alt='' id="action_about_history_1" src=''/>
                   <figcaption>Screenshot version: <time>2012-03-23</time>;<br/>Main development ceased in 2011 March. </figcaption>
                </figure>
+            <p>
                So I kept working on it. <br/>
                Inspired by DataTables' search code, I coded a search term parser that works with Google like syntax. <br/>
                With the ability to search for feat with <q>"bonus to damage" OR "extra damage" -"feat bonus"</q>, it is now possible to build characters using a goal-oriented approach, instead of choosing from valid options. <br/>
                New features are also being added.  Preview panel, multi columns, or pick out items and generate a simple sheet. <br/>
-               Look matters, too, so the script will grab a <a href='http://www.wizards.com/default.asp?x=dnd/dnd/20030711x'>nice wallpaper<a> through <a href='http://en.wikipedia.org/wiki/Coral_Content_Distribution_Network'>Coral</a>, output fancy CSS styles, data uri icons etc. <br/>
+               Look matters, too, so the script will grab a <a href='http://www.wizards.com/default.asp?x=dnd/dnd/20030711x'>nice wallpaper</a> through <a href='http://en.wikipedia.org/wiki/Coral_Content_Distribution_Network'>Coral</a>, output fancy CSS styles, data uri icons etc. <br/>
                It helped me a lot in the two years that follows, both as a DM and as a player.
             </p>
          </section>
          <section>
             <h2> 2<sup>nd</sup> Generation </h2>
-            <p>
                <figure class='right'>
-                  <img alt='' id="action_about_history_2"/>
+                  <img alt='' id="action_about_history_2" src=''/>
                   <figcaption>Screenshot version: <time>2012-02-17</time></figcaption>
                </figure>
+            <p>
                The problem with first generation is that it is designed for computers. <br/>
                Consider that "Powers" is a 15MB html file, and the browser has to layout all its contents, then create a 8800 rows table.
                My relatively new (by then) <a href="http://en.wikipedia.org/wiki/Motorola_Milestone_XT720">XT720</a> Android phone can't even load it. <br/>
@@ -109,11 +126,11 @@
          </section>
          <section>
             <h2> 3<sup>rd</sup> Generation Prototype </h2>
-            <p>
                <figure class='left'>
-                  <img alt='' id="action_about_history_3"/>
+                  <img alt='' id="action_about_history_3" src=''/>
                   <figcaption>Screenshot version: <time>2012-05-16</time></figcaption>
                </figure>
+            <p>
                Third generation development started in 2012-09-09, and is a bold experiment in what can JavaScript do.
                Instead of letting others do most of the work, the new version do everything by itself. <br/>
                Sadly, when a prototype is working, Firefox <a href="https://blog.mozilla.org/mrbkap/2012/09/12/">pulled the plug on enablePrivilage</a> and killed it with no hope of resurrection. <br/>
@@ -141,7 +158,7 @@
 </div>
 
 <div id='action_license' data-role="page">
-   <header data-role="header">
+   <header>
       <a class='i18n' onclick='od.gui.switch_action( od.action.about )'> action.about.link_text </a>
       <h1 class="i18n"> action.license.title </h1>
       <a class='i18n' onclick='od.action.about.show_source()'> action.about.a_source </a>
@@ -156,20 +173,28 @@
 od.action.about = {
    "id": 'action_about',
 
-   "initialize" : function action_about_change_language ( lang ) {
+   "initialize" : function action_about_init ( lang ) {
       _('#action_about_history_0')[0].src = _('#img_about_history_0')[0].src;
       _('#action_about_history_1')[0].src = _('#img_about_history_1')[0].src;
       _('#action_about_history_2')[0].src = _('#img_about_history_2')[0].src;
       _('#action_about_history_3')[0].src = _('#img_about_history_3')[0].src;
    },
 
-   "setup": null,
+   "setup": function action_about_setup ( lang ) {
+      od.action.about.change_language( _('#action_about_lst_lang')[0].value );
+      od.action.about.change_symbol( _('#action_about_lst_symbol')[0].value );
+   },
 
    "cleanup": null,
 
    "change_language" : function action_about_change_language ( lang ) {
       _.l.saveLocale( lang );
       _.l.localise();
+   },
+           
+   "change_symbol" : function action_about_change_symbol ( symbol ) {
+      od.config.symbol_conversion = symbol ? symbol : false;
+      _('#action_about_lbl_symbol')[0].innerHTML = od.gui.symbol_safe_convert( _('#action_about_lbl_unicode')[0].innerHTML );
    },
 
    "show_source" : function action_about_show_source ( ) {

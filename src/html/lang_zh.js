@@ -119,14 +119,22 @@ _.l.set( 'action.about', {
    
    h_language : "語言",
    lbl_select_lang : "請選擇語言 :", // please translate as "Please select language:"
-   opt_auto : "(自動偵察)", 
+   opt_auto : "(自動偵察)",
+   lst_symbol  : "請選擇符號集：",
+   opt_original: "原設",
+   opt_common  : "常見",
+   opt_dingbat : "雜錦",
+   opt_plain   : "純文字",
+   hint_basic  : "基礎攻擊（近距，近戰，遠程，範圍）",
+   hint_attack : "基礎攻擊（近距，近戰，遠程，範圍）",
+   hint_dice   : "骰面（充能） 1 2 3 4 5 6",
+   hint_aura   : "氣場",
    
    h_license : "授權",
    p_license : "此文本是免費軟件，以 GNU AGPL v3 授權發佈。",
    a_source : "源碼",
    a_email  : "電郵",
-   lbl_source_manual : "請在關閉此提示後右按並點選'顯示源碼'，因為 IE 不支援，因為您的瀏覽器不能用程序呼叫這功能。",
-   
+   lbl_source_manual : "請在關閉此提示後右按並點選'顯示源碼'，因為 IE 不支援，因為您的瀏覽器不能用程序呼叫這功能。",   
 
    h_get_data : "如何獲取數據",
    p_get_data :
@@ -176,11 +184,10 @@ _.l.set( 'action.about', {
 
    h_version_history : "版本歷史",
    
-   
    link_homepage : "主頁"
 });
 
 _.l.set( 'action.license', {
    title : "授權協議",
-   link_text : "授權",
+   link_text : "授權"
 });

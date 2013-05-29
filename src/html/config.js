@@ -4,6 +4,46 @@
  */
 
 od.config = {
+   "symbol_conversion" : 'Common',
+   "symbols": {
+      "Common" : {
+         '⋖': '☄',
+         '͜͡⋖': '(☄)',
+         '⚔': '☭',
+         '͜͡⚔': '(☭)',
+         '͜͡➶': '(➶)',
+         '͜͡✻': '(✻)',
+         '☼': '❂'
+      },
+      "Dingbat" : {
+         '✦': '★',
+         '⋖': '<',
+         '⚔': '†',
+         '͜͡⋖': '(<)',
+         '͜͡⚔': '(†)',
+         '͜͡➶': '(➶)',
+         '͜͡✻': '(✻)',
+         '☼': '❂'
+      },
+      "Plain" : {
+         '✦': '+',
+         '⋖': '<',
+         '͜͡⋖': '(<)',
+         '⚔': '+',
+         '͜͡⚔': '(+)',
+         '➶': '~',
+         '͜͡➶': '(~)',
+         '✻': 'X',
+         '͜͡✻': '(X)',
+         '⚀': '[1]',
+         '⚁': '[2]',
+         '⚂': '[3]',
+         '⚃': '[4]',
+         '⚄': '[5]',
+         '⚅': '[6]',
+         '☼': '(O)'
+      }
+   },
    "show_download" : location.protocol === 'file:' && window.ActiveXObject && /\bMSIE (9|\d\d+)\./.test(navigator.userAgent),
    "simulate" : false, // If true, load data from local file instead of live url
    "simulated_data_url" : 'debug_files',
