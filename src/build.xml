@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="oddi" default="make" basedir=".">
    <property name="deliverable" value="../4e_database.html" />
+   <property name="datadir" value="../4e_database_files/" />
    <property name="srcdir" value="html/" />
 
    <target name="make" description="Compile browsable html">
@@ -46,7 +47,6 @@
           <replacefilter token="&lt;!--#include file='images.html' --&gt;" value="${images.html}"/>
           <replacefilter token="&lt;!--#include file='license_agpl.html' --&gt;" value="${license_agpl.html}"/>
       </replace>
-
    </target>
    
    <!-- Produce a simulation biuld for testing.  -->
@@ -67,6 +67,19 @@
       <replaceregexp match=">\n&lt;" replace=">&lt;" flags="g" file="${deliverable}" encoding="UTF-8" />
       <!-- Concat js -->
       <replaceregexp match="\n}" replace="}" flags="g" file="${deliverable}" encoding="UTF-8" />
+   </target>
+   
+   <!-- Convert data from UCS2-LE to UTF-8 to save space. Please note there is NO auto encoding detection. -->
+   <target name="utf8data" description="Convert UTF-16 data to UTF-8">
+      <echo message="Converting reterived data."/>
+      <move todir="../tmp">
+         <fileset dir="${datadir}"/>
+      </move>
+      <copy todir="${datadir}" overwrite="true" encoding="UTF-16LE" outputencoding="UTF-8" verbose="true">
+         <fileset dir="../tmp"/>
+      </copy>
+      <delete dir="../tmp" />
+      <echo message="Data converted from UCS2-LE to UTF-8."/>
    </target>
 
    <!-- Old make. Simple but component files make less sense.
