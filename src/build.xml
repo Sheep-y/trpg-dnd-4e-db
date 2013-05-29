@@ -48,7 +48,7 @@
           <replacefilter token="&lt;!--#include file='license_agpl.html' --&gt;" value="${license_agpl.html}"/>
       </replace>
    </target>
-   
+
    <!-- Produce a simulation biuld for testing.  -->
    <target name="offline_simulate" description="Offline test build" depends="make">
       <replace file="${deliverable}" token='"simulate" : false' value='"simulate" : true' encoding="UTF-8" />
@@ -68,7 +68,17 @@
       <!-- Concat js -->
       <replaceregexp match="\n}" replace="}" flags="g" file="${deliverable}" encoding="UTF-8" />
    </target>
-   
+
+   <target name='javac' description="Compile Java applet">
+      <javac srcdir="java/" destdir="java/" source="1.7" includeantruntime="false" encoding="UTF-8">
+         <compilerarg value="-Xlint"/> 
+      </javac>
+      <zip basedir="java/" includes="*.class,META-INF/MANIFEST.MF" destfile="Sign.jar" level="9" />
+      <signjar jar="Sign.jar" signedjar="Proxy.jar" alias="sign" keystore="cert/keystore.jks" storepass="123456" />
+      <delete><fileset dir="." includes="java/*.class,Sign.jar"/></delete>
+      <echo message="Compiled Java applet; please manually convert to data uri and embed in sparrow.js." />
+   </target>
+
    <!-- Convert data from UCS2-LE to UTF-8 to save space. Please note there is NO auto encoding detection. -->
    <target name="utf8data" description="Convert UTF-16 data to UTF-8">
       <echo message="Converting reterived data."/>

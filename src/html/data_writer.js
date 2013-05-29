@@ -5,8 +5,8 @@
  */
 
 od.writer = {
-   _fs : null,
-   _asked: false,
+   _fs : null, // File system object cache
+   _state: 'initial', // 'initial', 'failed', 'success'
 
    _call : function writer_call ( com_callback, onerror ) {
       if ( window.ActiveXObject ) {
@@ -14,11 +14,12 @@ od.writer = {
             try {
                var fso = od.writer._fs;
                if ( fso === null ) {
-                  if ( od.writer._asked === false ) {
+                  if ( od.writer._state === 'initial' ) {
                      alert( _.l( 'error.file_grant_permission' ) );
-                     od.writer._asked = true;
+                     od.writer._state = 'failed';
                   }
                   fso = od.writer._fs = new ActiveXObject("Scripting.FileSystemObject");
+                  od.writer._state = 'success';
                }
                com_callback( fso );
             } catch (e) {
