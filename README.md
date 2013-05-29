@@ -15,7 +15,7 @@ It kind of works, but usability is pretty terriable.
  <br/>
 For release plan please see <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/issues/1">Task List</a>.
 
-To try it out you can save the <a download="offline_database.html" href="http://raw.github.com/Sheep-y/trpg-dnd-4e-db/master/offline_database.html">solo HTML</a> from main branch as a local file, then open it in Internet Explorer.
+To try it out you can save the <a download="4e_database.html" href="http://raw.github.com/Sheep-y/trpg-dnd-4e-db/master/4e_database.html">solo HTML</a> from main branch as a local file, then open it in Internet Explorer.
 Due to technical reason the download page only works in Internet Explorer, but browsing would work in any modern browsers, including mobile phones.
 
 <small>
