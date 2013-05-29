@@ -55,7 +55,7 @@ od.writer = {
                return false;
             }
          }*/
-         var f = fso.CreateTextFile( file, true ); // true = overwrite
+         var f = fso.CreateTextFile( file, true, true ); // true = overwrite, true = unicode
          content.split( '\n' ).forEach( function(line){ f.WriteLine( line ); } );
          //f.BinaryWrite( new ActiveXObject("Utf8Lib.Utf8Enc").UnicodeToUtf8(content) ); // No such method: BinaryWrite
          f.Close();
