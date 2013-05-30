@@ -21,13 +21,14 @@ od.search = {
          _.call( options.onblank );
          return;
       }
+      var search_body = options.search_body;
       var regx = options.regx = tmp[0];
       options.highlight = tmp[1];
       var cat = options.category;
       if ( cat ) {
          // Search in a single category
          cat.load_listing( function(){
-            if ( ! options.search_body ) {
+            if ( search_body ) {
                cat.load_index( function(){
                   do_search( );
                });
@@ -38,7 +39,7 @@ od.search = {
       } else {
          // Search in all categories
          od.data.load_all_listing( function(){
-            if ( options.search_body ) {
+            if ( search_body ) {
                od.data.load_all_index( function(){
                   do_search( );
                });
@@ -51,7 +52,6 @@ od.search = {
 
       function do_search () {
          var list = { "columns":[], "data":[] };
-         var search_body = options.search_body;
          if ( cat ) {
             _.info( 'Search ' + cat.name + ': ' + options.term );
             list.columns = cat.columns;
