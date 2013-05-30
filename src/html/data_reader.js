@@ -42,7 +42,7 @@ od.reader = {
       var path = od.config.url.raw( category );
       this._read(
          path,
-         function(){ return od.data.get(category).raw.length > 0 },
+         function(){ return od.data.get(category).raw.length > 0; },
          onload,
          onerror ? onerror : 'Cannot read ' + category + ' listing from ' + path );
    },

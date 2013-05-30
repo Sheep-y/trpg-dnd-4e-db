@@ -27,7 +27,7 @@ function _( root, selector ) {
       if ( selector.indexOf('.') === 0 ) return root.getElementsByClassName( selector.substr(1) );
       return root.getElementsByTagName( selector );
    }
-};
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Array Helpers
@@ -496,7 +496,7 @@ _.Latch.prototype = {
       if ( value === undefined ) value = 1;
       this.count -= value;
       if ( this.count < 0 ) throw "IllegalStateException: Latch count below zero";
-      if ( this.count == 0 ) _.call( this.ondone, this );
+      if ( this.count === 0 ) _.call( this.ondone, this );
    },
    /** Return a function that can be used to countdown this latch */
    "count_down_function" : function _latch_countdown_function( value ) {
@@ -555,7 +555,7 @@ _.Executor.prototype = {
             //_.debug('Schedule task #' + i + ' ' + r[0].name );
             setTimeout( _.callparam( i, r, function _Executor_run(ii,r){
                _.debug('Start task #' + ii + ' ' + r[0].name );
-               _lastRun = new Date().getTime();
+               exe._lastRun = new Date().getTime();
                try {
                   if ( r[0].apply( null, [ ii ].concat( r.slice(1) ) ) !== false ) exe.finish( ii );
                } catch ( e ) {
@@ -704,7 +704,7 @@ _.l.getset = function _l_getset( path, set, locale ) {
       var node = p[i];
       if ( base[node] === undefined ) base[node] = {};
       base = base[node];
-   };
+   }
    // Set or get data
    if ( set !== undefined ) {
       base[last] = set;

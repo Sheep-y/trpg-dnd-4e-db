@@ -85,7 +85,7 @@ od.search = {
                         }
                      }
                      if ( search_body ) {
-                        if ( regx.test( row._category.index[row["ID"]] ) ) {
+                        if ( regx.test( row._category.index[row.ID] ) ) {
                            result.push( row );
                            break;
                         }
@@ -95,7 +95,7 @@ od.search = {
             }
             return result;
          }
-      };
+      }
    },
 
    "list_category" : function data_search_list_category ( cat, onload ) {
@@ -157,14 +157,14 @@ od.search = {
     *
     * Example : javascript OR ecmascript "bug database"
     *
-    * @param {String} term  Terms to search for
+    * @param {String} terms  Terms to search for
     * @return {Array} [ RegExp, ["highlight 1", "highlight 2", ... ] ] OR null (if terms turn out to be empty conditions)
     */
-   "gen_search" : function search_gen_search ( term ) {
+   "gen_search" : function search_gen_search ( terms ) {
       var hl = [];
       var regx = "^";
       // Break down search input into tokens
-      var parts = term.match( /[+-]?(?:"[^"]+"|\S+)/g );
+      var parts = terms.match( /[+-]?(?:"[^"]+"|\S+)/g );
       if ( ! parts ) return null;
 
       // Remove leading / trailing OR which is invalid
@@ -172,7 +172,7 @@ od.search = {
       var l = parts.length;
       while ( l > 0 && parts[l-1] === 'OR' ) parts.splice(--l,1);
 
-      for ( var i = 0, l = parts.length ; i < l ; ) {
+      for ( var i = 0 ; i < l ; ) {
          // Contains all parts joined by OR, e.g. a OR b OR c >>> ['(?=.*a.*)','(?=.*b.*)','(?=.*c.*)']
          var addPart = [];
          do {
@@ -214,7 +214,7 @@ od.search = {
             if ( i >= l || parts[i] !== 'OR' ) break;
             // Next token is OR, so move to next non-OR token.
             do { ++i; } while ( i < l && parts[i] === 'OR' );
-         } while ( i < l )
+         } while ( i < l );
          // Append to global search pattern
          if ( addPart.length === 1 ) {
             regx += addPart[0];

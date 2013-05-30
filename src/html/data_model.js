@@ -226,9 +226,9 @@ od.data.Category.prototype = {
    },
 
    "update" : function data_Cat_update( id, listing, data ) {
+      if ( id !== listing[0] ) _.error("Mismatch update id : " + id + " [" + listing + "]");
       var i = _.col( this.raw ).indexOf( id );
       var cat = this;
-      var id = listing[0];
       data = od.data.preprocess( data );
       var index = od.data.indexify( data );
       if ( i >= 0 ) {
@@ -272,7 +272,7 @@ od.data.Category.prototype = {
          var item = {"Category":this.title}, r = raw[i], e = ext[i];
          for ( var j = 0 ; j < rl ; j++ ) item[raw_col[j]] = r[j];
          if ( e[0] === r[0] ) { // First item is id
-            for ( var j = 1 ; j < el ; j++ ) {
+            for ( j = 1 ; j < el ; j++ ) {
                if ( item[ext_col[j]] === undefined ) {
                   item[ext_col[j]] = e[j];
                } else {

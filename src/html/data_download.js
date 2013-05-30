@@ -70,9 +70,9 @@ od.download = {
             //var retry = 0;
             function download_schedule_download_task( threadid ) {
                if ( ! item ) {
-                  _.call( onprogress, remote, id );
+                  _.call( onprogress, remote, item );
                   return true;
-               }               
+               }
                remote.get_data(
                   item,
                   function download_schedule_download_ondown( remote, id, data ){
@@ -125,7 +125,7 @@ od.download = {
                );
                // Return false make sure the thread pool knows we're not finished (if we are already finished, we have already notified it)
                return false;
-            };
+            }
             exec.add( download_schedule_download_task );
          });
       }
@@ -179,7 +179,7 @@ od.download.Category.prototype = {
          remote.count = 0;
          var list = remote.raw = [];
          var done = true;
-         
+
          if ( ! data || ! xsl ) return err('No Data');
 
          data = data.replace( /’/g, "'" );
@@ -230,8 +230,8 @@ od.download.Category.prototype = {
       };
       latch.count_down();
    },
-   
-   
+
+
    "get_remote": function download_Cat_get_remote( url, onload, onerror, retry ) {
       var remote = this;
       if ( retry === undefined ) retry = od.config.retry;
@@ -252,7 +252,7 @@ od.download.Category.prototype = {
       if ( local === null )
          return this.added = _.col( this.raw );
       if ( JSON.stringify( this.raw_columns ) !== JSON.stringify( local.raw_columns ) )
-         return this.changed = _.col( raw );
+         return this.changed = _.col( this.raw );
       for ( var i = 0, l = this.raw.length ; i < l ; i++ ) {
          var row = this.raw[i], id = row[0];
          var localrow;
@@ -283,7 +283,7 @@ od.download.Category.prototype = {
          _.warn( 'downloar_Cat_get_data_retry: ' + retry );
          --retry;
          if ( retry <= 0 ) {
-            onerror ? _.call( onerror, remote, remote, id, err ) : _.error("Cannot download " + cat.name + " listing from " + address + ": " + err );
+            onerror ? _.call( onerror, remote, remote, id, err ) : _.error("Cannot download " + remote.name + " listing from " + address + ": " + err );
          } else remote.get_data( id, onload, onerror, retry );
       }
    }
