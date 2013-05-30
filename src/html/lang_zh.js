@@ -92,7 +92,7 @@ _.l.set( 'action.view', {
 _.l.set( 'action.download', {
    title : "更新數據庫",
    link_text : "更新",
-   
+
    paragraph : [
       "This browser script allows you to download and save compendium entries, then search and list them offline using advanced Google-like syntax.",
       "<b>Requires an active DDI subscription to download any data.</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates' target='_blank'>Official Rules Updates</a>"
@@ -109,16 +109,16 @@ _.l.set( 'action.download', {
    th_changed : "異動",
    th_new : "新增",
    th_total : "合共",
-   
+
    lbl_progress : "%1/%2",
-   
+
    msg_login  : "一個登入頁即將彈出。請登入然後關閉登入窗口以繼續下載。或者按\"取消\"終止更新程序。"
 });
 
 _.l.set( 'action.about', {
    title : "關於",
    link_text : "關於",
-   
+
    h_language : "語言",
    lbl_select_lang : "請選擇語言 :", // please translate as "Please select language:"
    opt_auto : "(自動偵察)",
@@ -131,12 +131,12 @@ _.l.set( 'action.about', {
    hint_attack : "基礎攻擊（近距，近戰，遠程，範圍）",
    hint_dice   : "骰面（充能） 1 2 3 4 5 6",
    hint_aura   : "氣場",
-   
+
    h_license : "授權",
    p_license : "此文本是免費軟件，以 GNU AGPL v3 授權發佈。",
    a_source : "源碼",
    a_email  : "電郵",
-   lbl_source_manual : "請在關閉此提示後右按並點選'顯示源碼'，因為 IE 不支援，因為您的瀏覽器不能用程序呼叫這功能。",   
+   lbl_source_manual : "請在關閉此提示後右按並點選'顯示源碼'，因為 IE 不支援，因為您的瀏覽器不能用程序呼叫這功能。",
 
    h_get_data : "如何獲取數據",
    p_get_data :
@@ -148,7 +148,7 @@ _.l.set( 'action.about', {
       " <li> 下載數據（可能會要求登入）"+
       " <li> 儲存數據 "+
       "</ol> 下載頁有更多的詳情。",
-   
+
    h_search_data : "如何搜尋數據",
    p_search_data :
       "輸入要找的字詞，就會找出包含所有字詞的結果，不論順序，不論大小寫。 <br/>"+
@@ -169,7 +169,7 @@ _.l.set( 'action.about', {
       "</ul>",
 
    h_move_data : "如何搬移數據",
-   p_move_data : 
+   p_move_data :
       "已獲取的數據會儲存在 <q id='action_about_lbl_folder'></q> 目錄之內。 <br/>"+
       "你只需要開啓本 HTML 就可以離線瀏覽和搜尋它們。 <br/>"+
       "在個人使用的前提下，您可以合法地將本 HTML 和數據目錄複制到 USB 或智能電話。 <br/>"+
@@ -185,7 +185,7 @@ _.l.set( 'action.about', {
    lbl_english_only : "此章節只有英文版本。",
 
    h_version_history : "版本歷史",
-   
+
    link_homepage : "主頁"
 });
 

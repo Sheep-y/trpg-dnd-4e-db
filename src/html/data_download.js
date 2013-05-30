@@ -48,7 +48,7 @@ od.download = {
 
    /**
     * Schedule download of a list of items in same category.
-    * 
+    *
     * @param {type} remote Remote category object
     * @param {type} list Array of id to download
     * @param {type} onprogress
@@ -82,7 +82,7 @@ od.download = {
                            exec.pause();
                            down.login_check_id = threadid;
                            if ( confirm( _.l( 'action.download.msg_login' ) ) ) {
-                              window.showModalDialog( od.config.source.data( remote.name, item ) );                              
+                              window.showModalDialog( od.config.source.data( remote.name, item ) );
                               download_schedule_download_task( threadid );
                            } else {
                               exec.clear();
@@ -160,7 +160,7 @@ od.download.Category.prototype = {
 
    /**
     * Get entry listing of this category. Catalog must have been loaded.
-    * 
+    *
     * @param {type} onload Success load callback.
     * @param {type} onerror Failed load callback.
     * @param {type} retry Retry countdown, first call should be undefined.  Will recursively download until negative.
@@ -191,10 +191,10 @@ od.download.Category.prototype = {
          var results = _.xml( data ).querySelectorAll('Results > *');
          var transformed = _.xsl( data, xsl );
          var idList = [];
-         
+
          if ( results.length > 0 && transformed !== null ) {
             remote.raw_columns = _.col( results[0].getElementsByTagName('*'), 'tagName' );
-            
+
             var ids = _.ary( _.xpath( transformed.documentElement, '//div//td[1]/a' ) ).map( function(e){ return e.getAttribute('href'); } );
             if ( ids.length !== results.length ) _.error('Error getting listing for ' + remote.title + ': xsl transform rows mismatch' );
             for ( var i = 0, l = ids.length ; i < l ; i++ ) {

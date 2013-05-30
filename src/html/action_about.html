@@ -21,7 +21,7 @@
    <div>
       <article class='left'>
          <h1 class='i18n'> action.about.h_language </h1>
-         <p> 
+         <p>
             Please select language <span class='i18n'> action.about.lbl_select_lang </span>
             <select id='action_about_lst_lang' onchange='od.action.about.change_language(this.value)'>
                <option value='' class='i18n'> action.about.opt_auto
@@ -67,14 +67,14 @@
          <h1 class='i18n'> action.about.h_search_data </h1>
          <p class='i18n'> action.about.p_search_data </p>
       </article>
-      
+
       <article>
          <h1 class='i18n'> action.about.h_move_data </h1>
          <p class='i18n'> action.about.p_move_data </p>
       </article>
 
       <article>
-         <h1 class='i18n'> action.about.h_history </h1>      
+         <h1 class='i18n'> action.about.h_history </h1>
          <p>
             <span class="i18n"> action.about.lbl_history </span> <br/>
             <span class="i18n"> action.about.lbl_english_only </span>
@@ -85,7 +85,7 @@
                   <img alt='' id="action_about_history_0" src=''/>
                   <figcaption>Screenshot version: <time>2010-11-17</time></figcaption>
                </figure>
-            <p>    
+            <p>
                It all started with online Character Builder. <br/>
                I was, and still is, spending 3 hours on buses each day.  Sometimes I spent them on the original, offline Character Builder. <br/>
                Until it went online.  Wanting better offline access, the prototype as seen on right was born. <br/>
@@ -117,7 +117,7 @@
                The problem with first generation is that it is designed for computers. <br/>
                Consider that "Powers" is a 15MB html file, and the browser has to layout all its contents, then create a 8800 rows table.
                My relatively new (by then) <a href="http://en.wikipedia.org/wiki/Motorola_Milestone_XT720">XT720</a> Android phone can't even load it. <br/>
-               Thus come the second generation, powered by the then prototype <a href="http://jquerymobile.com/‎">jQuery Mobile</a>. 
+               Thus come the second generation, powered by the then prototype <a href="http://jquerymobile.com/‎">jQuery Mobile</a>.
                It looks really good.  Impressive animation, elegance style, familiar icons.  An index was created from <a href='http://ails.deviantart.com/art/420-Pixel-Art-Icons-for-RPG-129892453'>Ails' RPG icons</a>, data are processed in multiple threads, and appcache used to preload data. <br/>
                Turns out it is a disaster.  First, Android browser refuse to load local HTML.   Second, cookie and web workers are not supported offline.  Google really want you stay online. <br/>
                There are workarounds, but the biggest problem is, jQuery Mobile takes very long time to display entry titles (rightmost screen).  Two to three times longer then displaying their _contents_ in previous version. <br/>
@@ -146,10 +146,10 @@
          <dl>
             <dt> Alpha <time pubdate>2013-05-xx</time> </dt>
             <dd> Added help documentation, AGPL license, view source, email, regx terms. </dd>
-            
+
             <dt> Alpha <time>2013-05-25</time> </dt>
             <dd> Published through Github. Added about page, nav header style. </dd>
-            
+
             <dt> Alpha <time>2013-05-25</time> </dt>
             <dd> Prototype complete after testing on full set of compendium data. </dd>
          </dl>
@@ -192,7 +192,7 @@ od.action.about = {
       _.l.saveLocale( lang );
       _.l.localise();
    },
-           
+
    "change_symbol" : function action_about_change_symbol ( symbol ) {
       od.config.symbol_conversion = symbol ? symbol : false;
       _('#action_about_lbl_symbol')[0].innerHTML = od.gui.symbol_safe_convert( _('#action_about_lbl_unicode')[0].innerHTML );

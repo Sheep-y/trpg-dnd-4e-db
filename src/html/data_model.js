@@ -24,7 +24,7 @@ od.data = {
    /**
     * With no parameter: return an array of category names.
     * With string parameter: Return a category.
-    * 
+    *
     * @param {type} name Name of category.
     * @returns {od.data.Category} Requested category. Null if category not exist.
     */
@@ -40,7 +40,7 @@ od.data = {
 
    /**
     * Make sure a category exists and return it.
-    * 
+    *
     * @param {type} name Name of category.
     * @returns {od.data.Category} Requested category.
     */
@@ -69,7 +69,7 @@ od.data = {
       for ( var cat in cats ) cats[cat].load_listing( lat.count_down_function() );
       lat.count_down();
    },
-           
+
    "save_catalog" : function data_save_catalog( ondone, onerror ) {
       od.data.get().forEach( function(e) {
          if ( e.count === 0 ) delete od.data.category[e.name];
@@ -125,7 +125,7 @@ od.data = {
       data = data.replace( /’/g, "'" );
       return data.trim();
    },
-           
+
    /**
     * Pre-process data - extract content, remove scripts and forms, normalise symbols and links etc.
     */
@@ -162,7 +162,7 @@ od.data.Category.prototype = {
 
    /**
     * Clear all loaded data and columns.
-    * 
+    *
     * @returns undefined
     */
    "unload" : function data_Cat_unload() {
@@ -198,22 +198,22 @@ od.data.Category.prototype = {
    "load_data" : function data_Cat_load_data( id, ondone, onerror ) {
       od.reader.read_data( this.name, id, ondone, onerror );
    },
-           
+
    "save_listing" : function data_Cat_save_listing( ondone, onerror ) {
       // od.reader.jsonp_data_listing( 20120915, "Sample", [ "Id", "Name", "Category", "SourceBook" ], [
       var l = new _.Latch( 2, ondone );
       onerror = _.callonce( onerror );
       od.writer.write_data_listing ( this, l.count_down_function(), onerror );
       od.writer.write_data_extended( this, l.count_down_function(), onerror );
-      
+
    },
-           
+
    "save_index" : function data_Cat_save_index( ondone, onerror ) {
       od.writer.write_data_index( this, ondone, onerror );
    },
 
    "save_data" : function data_Cat_save_data( id, ondone, onerror ) {
-      od.writer.write_data( this, id, this.data[id], ondone, onerror );      
+      od.writer.write_data( this, id, this.data[id], ondone, onerror );
    },
 
    "check_columns" : function data_Cat_check_columns( col ) {

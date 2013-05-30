@@ -17,7 +17,7 @@ od.gui = {
     *   setup      : function(){ triggered when this page swap in },
     *   cleanup    : function(){ triggered when this page swap out, return false to abort switching },
     * }
-    * 
+    *
     * @param {Object} action Action to switch to.
     */
    switch_action : function gui_switch_action( action ) {
@@ -63,10 +63,10 @@ od.gui = {
          } );
       }
    },
-    
+
    /**
     * Convert special unicode symbols to common symbols for safe display.
-    * 
+    *
     * @param {String} Input string.
     * @returns {String} Safe version of input converted to common symbols
     */

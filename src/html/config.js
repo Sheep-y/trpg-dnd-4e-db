@@ -60,8 +60,8 @@ od.config = {
          function url( category ) { return od.config.data_write_path + '/'+category+'/_index.js'; },
       "data" :
          function url( category, id ) { return od.config.data_write_path + '/'+category+'/'+id.replace( /\.aspx\?id=|\W+/g, '' )+'.js'; }
-   },   
-   
+   },
+
    "symbol_conversion" : 'Common',
    "symbols": {
       "Common" : {

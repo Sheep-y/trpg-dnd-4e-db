@@ -93,7 +93,7 @@ od.writer = {
          +JSON.stringify( category.raw_columns ) + ','
          +JSON.stringify( category.raw ) + ')', ondone, onerror );
    },
-           
+
    write_data_extended : function writer_write_data_extended( category, ondone, onerror ) {
       this._write( od.config.file.extended( category.name ),
          'od.reader.jsonp_data_extended(20130330,"' + _.escJs( category.name ) + '",'

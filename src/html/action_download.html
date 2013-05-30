@@ -9,7 +9,7 @@
       <h1 class='i18n'>action.download.title</h1>
       <a class='i18n' onclick='od.gui.switch_action( od.action.about )'> action.about.link_text </a>
    </header>
-   
+
    <p class='i18n'> action.download.paragraph.0 </p>
    <p class='i18n'> action.download.paragraph.1 </p>
    <p>
@@ -54,7 +54,7 @@ od.action.download = {
    'cleanup': null,
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   
+
    'tr': {},
 
    'get_catalog' : function act_download_get_catalog () {
@@ -71,12 +71,12 @@ od.action.download = {
       var action = od.action.download;
       od.download.get().forEach( function( c ) {
          var changeCount = c.added.length + c.changed.length;
-         if ( changeCount ) 
+         if ( changeCount )
             od.download.schedule_download( c, [].concat( c.added, c.changed ), action.progress_func( action.tr[ c.name ], changeCount ) );
       } );
       _.hide( '#act_download_btn_update' );
    },
-           
+
    'save' : function act_download_save () {
       var remotes = od.download.get();
       remotes.forEach( function act_download_save_cat(e) {

@@ -66,7 +66,7 @@ od.search = {
             } );
             _.call( options.ondone, null, od.search.normalise_list( list ) );
          }
-         
+
          function search( lst ) {
             var result = [];
             for ( var i = 0, l = lst.length ; i < l ; i++ ) {
@@ -123,7 +123,7 @@ od.search = {
 
    /**
     * Given data.columns and data.data, convert data.data to two-dimension array that match the columns.
-    * 
+    *
     * @param {Object} data before conversion: { "columns": ["col1","col2"], "data": [ {"col1":xxx}, {"col2":bbb,"col3":ddd}, ... ] }
     * @returns {Object} data after conversion: { "columns": ["col1","col2"], "data": [ [xxx, null], [null, bbb], ... ] }
     */
@@ -191,17 +191,17 @@ od.search = {
                if ( /^\/.+\/$/.test( term ) ) {
                   part += term.substr( 1, term.length-2 );
                   term = ''; // prevent term highlight
-                  
+
                // Terms need to be unquoted first
                } else if ( /^"[^"]+"$/.test( term ) ) {
                   term = term.substr( 1, term.length-2 );
                   part += _.escRegx( term );
-                
+
                // Otherwise is normal word, just need to unescape
                } else {
                   part += _.escRegx(term);
                }
-               
+
                // If not exclude, add term to highlight
                if ( part ) {
                   if ( part.indexOf( '(?=' ) === 0 && term ) hl.push( term );

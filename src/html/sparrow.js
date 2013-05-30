@@ -35,7 +35,7 @@ function _( root, selector ) {
 
 /**
  * Convert an array-like object to be an array. Default to clone or slice.
- * 
+ *
  * @param {Array-like object} subject Subject to be converted.
  * @param {Integer} startpos If given, work like Array.slice( startpos ).
  * @param {Integer} endpos If this and startpos is given, work like Array.slice( startpos, length ).
@@ -50,7 +50,7 @@ _.ary = function _ary( subject, startpos, endpos ) {
 
 /**
  * Given an array-like object and one or more columns, extract and return those columns from subject.
- * 
+ *
  * @param {Array-like object} subject Array-like object to be extracted.
  * @param {String} column Columns (field) to extract.
  * @returns {Array} Array (if single column) or Array of Array (if multiple columns).
@@ -59,7 +59,7 @@ _.col = function _col( subject, column /* ... */) {
    if ( ! ( subject instanceof Array ) ) subject = _.ary( subject );
    if ( column === undefined ) return subject.map(function(e){ return e[0]; });
    if ( arguments.length === 2 ) return subject.map(function(e){ return e[column]; });
-   else return subject.map(function(e){ 
+   else return subject.map(function(e){
       var result = [];
       for ( var i = 1, l = arguments.length ; i < l ; i++ ) result.push( e[arguments[i]] );
       return result ;
@@ -92,7 +92,7 @@ _.call = function _call( func, thisObj, param /*...*/ ) {
  * Useful for concurrent error callback, so that the first error pass through and subsequency error doesn't.
  * Parameters passed to the returned function will be supplied to the callback as is.
  * This function will disregard any additional parameters.
- * 
+ *
  * @param {type} func  Function to call.
  * @returns {function} Function that can be safely called multiple times without calling func more then once
  */
@@ -131,7 +131,7 @@ _.callfunc = function _callfunc( func, param /*...*/ ) {
 if ( window.setImmediate === undefined ) {
    if ( window.requestAnimationFrame ) {
       window.setImmediate = window.requestAnimationFrame;
-      window.clearImmediate = window.cancelAnimationFrame;       
+      window.clearImmediate = window.cancelAnimationFrame;
    } else {
       window.setImmediate = function(func){ return window.setTimeout(func, 0); };
       window.clearImmediate = window.clearTimeout;
@@ -257,7 +257,7 @@ _.cor = function _cor( url, onsuccess, onfail, ondone ) {
 _.xml = function _xml( txt ) {
    if ( window.DOMParser !== undefined ) {
       return new DOMParser().parseFromString( txt, 'text/xml' );
-      
+
    } else if ( window.ActiveXObject !== undefined )  {
       var xml = new ActiveXObject('Msxml2.DOMDocument.6.0');
       xml.loadXML( txt );
@@ -286,7 +286,7 @@ _.html.node = null;
 
 /**
  * Apply an xsl to xml and return the result of transform
- * 
+ *
  * @param {type} xml XML String or document to be transformed.
  * @param {type} xsl XSL String or document to transform xml.
  * @returns {Document} Transformed fragment root or null if XSL is unsupported.
@@ -298,7 +298,7 @@ _.xsl = function _xsl( xml, xsl ) {
       var xsltProcessor = new XSLTProcessor();
       xsltProcessor.importStylesheet( xslDom );
       return xsltProcessor.transformToFragment( xmlDom, document );
-      
+
    } else if ( xmlDom.transformNode ) {
       return xmlDom.transformNode( xslDom );
 
@@ -324,7 +324,7 @@ _.xsl = function _xsl( xml, xsl ) {
          result.validateOnParse = true;
          xmlDom.transformNodeToObject( xslDom, result );
          return result;
-         
+
    } else {
       return null;
    }
@@ -395,16 +395,16 @@ _.time = function _time( msg ) {
 // String escape
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-_.escHtml = function _escHtml( t ) { 
+_.escHtml = function _escHtml( t ) {
    if ( ! t.match( /[<&'"]/ ) ) return t;
    return t.replace( /&/g, '&amp;').replace( /</g, '&lt;').replace( /"/g, '&quot;' ).replace( /'/g, '&#39;' );
 };
 
-_.escJs = function _escJs( t ) { 
-   return t.replace( /\r?\n/g, '\\n').replace( /'"/g, '\\$0'); 
+_.escJs = function _escJs( t ) {
+   return t.replace( /\r?\n/g, '\\n').replace( /'"/g, '\\$0');
 };
 
-_.escRegx = function _escRegx( t ) { 
+_.escRegx = function _escRegx( t ) {
    return t.replace( /[()?*+.\\{}[\]]/g, '\\$0' );
 };
 
@@ -642,12 +642,12 @@ _.l.fallbackLocale = 'en';
 _.l.data = {};
 
 /**
- * Set current locale. 
- * 
+ * Set current locale.
+ *
  * @param {String} lang  Locale to use. Pass in empty string, null, false etc. to use auto-detection
  * @returns {undefined}
  */
-_.l.setLocale = function _l_setLocale( lang ) { 
+_.l.setLocale = function _l_setLocale( lang ) {
     if ( ! lang ) return _.l.detectLocale();
     if ( lang === _.l.currentLocale ) return;
     _.l.currentLocale = lang;
@@ -655,12 +655,12 @@ _.l.setLocale = function _l_setLocale( lang ) {
 };
 
 /**
- * Override auto detect locale. 
- * 
+ * Override auto detect locale.
+ *
  * @param {String} lang  Locale to use and save.
  * @returns {undefined}
  */
-_.l.saveLocale = function _l_saveLocale( lang ) { 
+_.l.saveLocale = function _l_saveLocale( lang ) {
     if ( window.localStorage ) {
        if ( lang ) localStorage['_.l.locale'] = lang;
        else delete localStorage['_.l.locale'];
@@ -671,7 +671,7 @@ _.l.saveLocale = function _l_saveLocale( lang ) {
 /**
  * Detect user locale.  First check local session then check language setting.
  *
- * @param {String} defaultLocale  Default locale to use 
+ * @param {String} defaultLocale  Default locale to use
  * @returns {undefined}
  */
 _.l.detectLocale = function _l_detectLocale( defaultLocale ) {
@@ -686,9 +686,9 @@ _.l.detectLocale = function _l_detectLocale( defaultLocale ) {
     if ( list.indexOf( pref ) >= 0 ) l.setLocale( pref );
 };
 
-/** 
- * Get/set l10n resource on given path 
- * 
+/**
+ * Get/set l10n resource on given path
+ *
  * @param {type} path Path to get/set resource.
  * @param {type} set  Resource to set.  If null then regarded as get.
  * @param {type} locale Locale to use. NO DEFAULT.
@@ -714,14 +714,14 @@ _.l.getset = function _l_getset( path, set, locale ) {
    }
 };
 
-/** 
- * Set l10n resource on given path 
- * 
+/**
+ * Set l10n resource on given path
+ *
  * @param {type} path Path to set resource
  * @param {type} data Resource to set
  * @returns {undefined}
  */
-_.l.set = function _l_set( path, data ) { 
+_.l.set = function _l_set( path, data ) {
     _.l.getset( path, data, _.l.currentLocale );
     _.l.event.fire( 'set', path, data );
 };
@@ -729,7 +729,7 @@ _.l.set = function _l_set( path, data ) {
 /**
  * Localise all child elements with a class name of 'i18n' using its initial textContent or value as resource path.
  *  e.g. <div class='i18n'> gui.frmCalcluate.lblHelp </div>
- * 
+ *
  * @param {type} root Root element to localise, default to whole document
  * @returns {undefined}
  */

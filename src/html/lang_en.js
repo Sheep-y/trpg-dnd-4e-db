@@ -62,7 +62,7 @@ _.l.set( 'action.view', {
 _.l.set( 'action.download', {
    title : "Update Database",
    link_text : "Update",
-   
+
    paragraph : [
       "This browser script allows you to download and save compendium entries, then search and list them offline using advanced Google-like syntax.",
       "<b>Requires an active DDI subscription to download any data.</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates' target='_blank'>Official Rules Updates</a>"
@@ -79,9 +79,9 @@ _.l.set( 'action.download', {
    th_changed : "Changed",
    th_new : "New",
    th_total : "Total",
-   
+
    lbl_progress : "%1/%2",
-   
+
    msg_login  : "A login window will pop up.  Please login and then close the login popup to resume download.  Or press Cancel to stop the update process."
 });
 
@@ -118,7 +118,7 @@ _.l.set( 'action.about', {
       " <li> Get data (may prompt login) "+
       " <li> Save data "+
       "</ol> More information is availble from the download page.",
-   
+
    h_search_data : "How to Search data",
    p_search_data :
       "Type in search terms and it will find results that contains all the terms, in any order, regardless of case. <br/>"+
@@ -139,7 +139,7 @@ _.l.set( 'action.about', {
       "</ul>",
 
    h_move_data : "How to Move data",
-   p_move_data : 
+   p_move_data :
       "Acquired data are stored locally, in <q id='action_about_lbl_folder'></q> folder. <br/>"+
       "You just need to open this html to browse and search them without needing to go online. <br/>"+
       "You can lawfully copy this html and the data folder to USB or to smart phone, as long as it is for personal use. <br/>"+
@@ -153,9 +153,9 @@ _.l.set( 'action.about', {
    h_history   : "Product History",
    lbl_history : "(If there are no images, please try Chrome or Android browser which support WebP.)",
    lbl_english_only  : "", // Please translate as "This section is English only."
-   
+
    h_version_history : "Version History",
-   
+
    link_homepage : "Home"
 });
 

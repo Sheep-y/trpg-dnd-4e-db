@@ -90,7 +90,7 @@ od.action.list = {
    'reset' : function act_list_reset() {
       _('#act_list_pnl_category')[0].innerHTML = '';
    },
-           
+
    'show_category' : function act_list_show_category() {
       _.hide( '#act_list_pnl_list' );
       od.action.list.category = null;
@@ -152,7 +152,7 @@ od.action.list = {
             if ( ! d ) {
                str += '<td></td>';
             } else {
-               if ( d && typeof(d) !== 'string' ) d = d.raw;               
+               if ( d && typeof(d) !== 'string' ) d = d.raw;
                str += '<td>' + _.escHtml( d ) + '</td>';
             }
             */

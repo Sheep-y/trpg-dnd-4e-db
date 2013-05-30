@@ -46,7 +46,7 @@
 }
 
 br + p:empty {
-   border-bottom-left-radius: 10px; 
+   border-bottom-left-radius: 10px;
    border-bottom-right-radius: 10px;
    border-bottom: 2px solid #666;
    margin-bottom: 10px;
@@ -54,7 +54,7 @@ br + p:empty {
 
 h3, p:empty + h1 {
    border-top-left-radius: 10px;
-   border-top-right-radius: 10px;  
+   border-top-right-radius: 10px;
    border-top: 2px solid #666;
    margin-top: 10px;
 }
