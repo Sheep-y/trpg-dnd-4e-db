@@ -49,7 +49,9 @@ _.l.set( 'action.list', {
    link_text : "Browse",
 
    txt_search_placeholder : "Search keywords. e.g. ranger OR martial   bonus -\"feat bonus\" ",
-   chk_search_body : "Search content",
+   bth_search_name : "Name search",
+   bth_search_body : "Full search",
+   bth_search_advanced : "Advacned search",
    a_all : "All Category",
    a_category : "%1 (%2)"
 });

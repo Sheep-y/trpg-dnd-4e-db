@@ -415,6 +415,7 @@ _.escRegx = function _escRegx( t ) {
 _.freeze = function _freeze( o ) { return Object.freeze ? Object.freeze(o) : o; };
 _.seal = function _seal( o ) { return Object.seal ? Object.seal(o) : o; };
 _.noExt = function _noExt( o ) { return Object.preventExtensions ? Object.preventExtensions(o) : o; };
+_.noDef = function _noDef( e ) { if ( e && e.preventDefault ) e.preventDefault(); return false; };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DOM manipulation

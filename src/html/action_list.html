@@ -11,9 +11,11 @@
    </header>
 
    <div id='act_list_pnl_search'>
-      <input type='search' id='act_list_txt_search' class='fullw' onkeydown='od.action.list.txt_search(event)' />
+      <input type='search' id='act_list_txt_search' class='fullw' />
       <br/>
-      <label><input type='checkbox' id='act_list_chk_search_body' checked /><span class='i18n'>action.list.chk_search_body</span></label>
+      <button class="button i18n" onclick="od.action.list.txt_search('name', event);">action.list.bth_search_name</button>
+      <button class="button i18n" onclick="od.action.list.txt_search('full', event);">action.list.bth_search_body</button>
+      <button class="button i18n" onclick="">action.list.bth_search_advanced</button>
 
       <div id='act_list_pnl_category'>
          <a onclick='od.action.list.a_category(event, null);'>All Category</a>
@@ -46,6 +48,7 @@ od.action.list = {
    'cleanup': null,
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   '_last_search_type' : 'name',
 
    'search_timeout' : 0,
 
@@ -54,33 +57,31 @@ od.action.list = {
    'data' : [],
    'highlights' : [],
 
-   'txt_search' : function act_list_txt_search ( evt, timeout ) {
-      if ( timeout === undefined ) timeout = 1000;
-      clearTimeout( od.action.list.search_timeout );
-      od.action.list.search_timeout = setTimeout( function act_list_txt_search_timeout() {
-         var cat = od.action.list.category;
-         od.search.search({
-            'category': cat ? od.data.get(cat) : null,
-            'term': od.action.list.get_search_term(),
-            'search_body': od.action.list.get_search_body(),
-            'onblank' : function() { _.hide( '#act_list_pnl_list' ); },
-            'ondone'  : od.action.list.show_list
-         });
-      }, timeout);
+   'txt_search' : function act_list_txt_search ( search_type, evt ) {
+      if ( search_type === undefined ) {
+         search_type = od.action.list._last_search_type;
+      } else {
+         od.action.list._last_search_type = search_type;
+      }
+      var cat = od.action.list.category;
+      od.search.search({
+         'category': cat ? od.data.get(cat) : null,
+         'term': od.action.list.get_search_term(),
+         'search_body': search_type === 'full',
+         'onblank' : function() { _.hide( '#act_list_pnl_list' ); },
+         'ondone'  : od.action.list.show_list
+      });
+      return _.noDef( evt );
    },
 
    'get_search_term' : function act_list_get_search_term () {
       return _( '#act_list_txt_search' )[0].value;
    },
 
-   'get_search_body' : function act_list_get_search_body () {
-      return _( '#act_list_chk_search_body' )[0].checked;
-   },
-
    'a_category' : function act_list_a_category ( evt, cat ) {
       od.action.list.category = cat;
       if ( od.action.list.get_search_term() !== '' ) {
-         od.action.list.txt_search( null, 0 );
+         od.action.list.txt_search();
       } else {
          od.search.list_category( cat ? od.data.get(cat) : null, this.show_list );
       }
