@@ -51,9 +51,13 @@ body > div {
 /*********************** Page header styles *************************/
 
 header {
+   position: fixed;
+   top: 0;
+   width: 100%;
+   height: 40pz;
    background-color: black;
-   padding: 0.5em 1ex !important;
    text-align: center;
+   padding: 0.5em 1ex !important;
 }
 
 header h1 {
@@ -83,6 +87,10 @@ header h1 + a {
 
 /******************* Page content ***********************/
 
+body > div {
+   margin-top: 40px;
+}
+
 body > div > * {
-   padding: 12pt; /* If use em/ex, will varies by content font size and inconsistent */
+   padding: 10px; /* If use em/ex, will varies by content font size and inconsistent */
 }
