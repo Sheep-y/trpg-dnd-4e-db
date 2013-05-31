@@ -35,7 +35,7 @@ od.download = {
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
             for ( var i = 0, len = tabs.length ; i < len ; i++ ) {
                var cat = tabs[i].getElementsByTagName('Table')[0].textContent;
-               category[cat] = new od.download.Category( cat );
+               category[cat] = new od.download.RemoteCategory( cat );
             }
             _.call( onload );
          },
@@ -132,7 +132,7 @@ od.download = {
    }
 };
 
-od.download.Category = function Category( name ) {
+od.download.RemoteCategory = function RemoteCategory( name ) {
    this.name = name;
    this.title = _.l( 'data.category.' + name, name );
    this.raw_columns = [];
@@ -142,9 +142,11 @@ od.download.Category = function Category( name ) {
    this.added = [];
    //this.loading = [];
 };
-od.download.Category.prototype = {
+od.download.RemoteCategory.prototype = {
    "name": "",
    "title": "",
+   "state" : "unlisted", // "unlisted" -> "listing" <-> "listed" -> "downloading" -> "downloaded" -> "saved"
+   "progress" : "", // Text statue progress
 
    /** Raw data used to compose list property */
    "raw_columns": [],  // e.g. ["ID","Name","Category","SourceBook", ... ]
@@ -286,7 +288,28 @@ od.download.Category.prototype = {
             onerror ? _.call( onerror, remote, remote, id, err ) : _.error("Cannot download " + remote.name + " listing from " + address + ": " + err );
          } else remote.get_data( id, onload, onerror, retry );
       }
-   }
+   },
 
+   "save" : function download_Cat_save( ondone, onerror ) {
+      if ( this.dirty.length ) { // Has dirty
+         var remote = this;
+         var local = od.data.get( remote.name );
+         local.save_listing( function download_Cat_saved_list(){
+            local.save_index( function download_Cat_saved_index(){ 
+               var latch = new _.Latch( remote.dirty.length+1 );
+               remote.dirty.forEach( function download_Cat_save_data(id) {
+                  local.save_data( id, latch.count_down_function(), onerror );
+               });
+               latch.ondone = function download_Cat_saved_data() {
+                  remote.state = "saved";
+                  _.call( ondone, remote );
+               };
+               latch.count_down();
+            }, onerror);
+         }, onerror);
+      } else {
+         _.call( ondone, this );
+      }
+   }
 };
 _.seal( od.data.Category.prototype );
