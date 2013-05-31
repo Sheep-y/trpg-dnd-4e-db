@@ -11,7 +11,7 @@ You will need an active <a href="http://www.wizards.com/DnD/Subscription.aspx">D
 This is not an independent program, nor is it automated.
  <br/>
 The script is still in Alpha prototype stage. 
-It kind of works, but usability is pretty terriable.
+It kind of works, but usability is pretty terriable, and bug is abundance.
  <br/>
 For release plan please see <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/issues/1">Task List</a>.
 
