@@ -54,7 +54,8 @@ od.download = {
     * @param {type} onprogress
     * @returns {undefined}
     */
-   "schedule_download": function download_schedule_download( remote, list, onprogress ) {
+   "schedule_download": function download_schedule_download( remote, list, onprogress, ondone ) {
+      remote.status = "downloading";
       var down = od.download;
       var exec = down.executor;
       var local = od.data.create( remote.name );
@@ -65,17 +66,21 @@ od.download = {
          download_schedule_download_run(); // New or resetted category, no need to load index.
       }
       function download_schedule_download_run() {
-         _.debug('Schedule '+ list.length);
+         _.debug( 'Schedule '+ list.length );
+         var latch = new _.Latch( list.length, function download_schedule_download_done() {
+            _.call( ondone, remote );
+         });
          list.forEach( function download_schedule_download_each( item ) {
             //var retry = 0;
             function download_schedule_download_task( threadid ) {
                if ( ! item ) {
                   _.call( onprogress, remote, item );
+                  latch.count_down();
                   return true;
                }
                remote.get_data(
                   item,
-                  function download_schedule_download_ondown( remote, id, data ){
+                  function download_schedule_download_ondone( remote, id, data ){
                      if ( data.toLowerCase().indexOf( "subscrib" ) >= 0 && data.toLowerCase().indexOf( "password" ) >= 0 ) {
                         if ( down.login_check_id < 0 || down.login_check_id === threadid ) {
                            // If need to login, and if we are first, show login dialog in model mode
@@ -105,6 +110,7 @@ od.download = {
                         if ( remote.dirty.indexOf( id ) < 0 ) remote.dirty.push( id );
                         exec.finish( threadid );
                         _.call( onprogress, remote, id );
+                        latch.count_down();
                      }
                   },
                   function download_schedule_download_onerror( cat, id, err ){
@@ -169,6 +175,7 @@ od.download.RemoteCategory.prototype = {
     * @returns {undefined}
     */
    "get_listing": function download_Cat_get_listing( onload, onerror ) {
+      this.status = "listing";
       var remote = this;
       var data, xsl;
       var latch = new _.Latch( 3 );
@@ -176,6 +183,7 @@ od.download.RemoteCategory.prototype = {
       this.get_remote( od.config.source.list( this.name ), function(txt){ data = txt; latch.count_down(); }, err );
       this.get_remote( od.config.source.xsl ( this.name ), function(txt){ xsl  = txt; latch.count_down(); }, err );
       latch.ondone = function download_Cat_get_listing_done() {
+         remote.status = "listed";
          remote.added = [];
          remote.changed = [];
          remote.count = 0;
