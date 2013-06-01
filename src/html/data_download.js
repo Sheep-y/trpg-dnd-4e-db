@@ -35,7 +35,7 @@ od.download = {
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
             for ( var i = 0, len = tabs.length ; i < len ; i++ ) {
                var cat = tabs[i].getElementsByTagName('Table')[0].textContent;
-               category[cat] = new od.download.Category( cat );
+               category[cat] = new od.download.RemoteCategory( cat );
             }
             _.call( onload );
          },
@@ -54,7 +54,8 @@ od.download = {
     * @param {type} onprogress
     * @returns {undefined}
     */
-   "schedule_download": function download_schedule_download( remote, list, onprogress ) {
+   "schedule_download": function download_schedule_download( remote, list, onprogress, ondone ) {
+      remote.status = "downloading";
       var down = od.download;
       var exec = down.executor;
       var local = od.data.create( remote.name );
@@ -65,17 +66,21 @@ od.download = {
          download_schedule_download_run(); // New or resetted category, no need to load index.
       }
       function download_schedule_download_run() {
-         _.debug('Schedule '+ list.length);
+         _.debug( 'Schedule '+ list.length );
+         var latch = new _.Latch( list.length, function download_schedule_download_done() {
+            _.call( ondone, remote );
+         });
          list.forEach( function download_schedule_download_each( item ) {
             //var retry = 0;
             function download_schedule_download_task( threadid ) {
                if ( ! item ) {
                   _.call( onprogress, remote, item );
+                  latch.count_down();
                   return true;
                }
                remote.get_data(
                   item,
-                  function download_schedule_download_ondown( remote, id, data ){
+                  function download_schedule_download_ondone( remote, id, data ){
                      if ( data.toLowerCase().indexOf( "subscrib" ) >= 0 && data.toLowerCase().indexOf( "password" ) >= 0 ) {
                         if ( down.login_check_id < 0 || down.login_check_id === threadid ) {
                            // If need to login, and if we are first, show login dialog in model mode
@@ -105,6 +110,7 @@ od.download = {
                         if ( remote.dirty.indexOf( id ) < 0 ) remote.dirty.push( id );
                         exec.finish( threadid );
                         _.call( onprogress, remote, id );
+                        latch.count_down();
                      }
                   },
                   function download_schedule_download_onerror( cat, id, err ){
@@ -132,7 +138,7 @@ od.download = {
    }
 };
 
-od.download.Category = function Category( name ) {
+od.download.RemoteCategory = function RemoteCategory( name ) {
    this.name = name;
    this.title = _.l( 'data.category.' + name, name );
    this.raw_columns = [];
@@ -142,9 +148,11 @@ od.download.Category = function Category( name ) {
    this.added = [];
    //this.loading = [];
 };
-od.download.Category.prototype = {
+od.download.RemoteCategory.prototype = {
    "name": "",
    "title": "",
+   "state" : "unlisted", // "unlisted" -> "listing" <-> "listed" -> "downloading" -> "downloaded" -> "saved"
+   "progress" : "", // Text statue progress
 
    /** Raw data used to compose list property */
    "raw_columns": [],  // e.g. ["ID","Name","Category","SourceBook", ... ]
@@ -167,6 +175,7 @@ od.download.Category.prototype = {
     * @returns {undefined}
     */
    "get_listing": function download_Cat_get_listing( onload, onerror ) {
+      this.status = "listing";
       var remote = this;
       var data, xsl;
       var latch = new _.Latch( 3 );
@@ -174,6 +183,7 @@ od.download.Category.prototype = {
       this.get_remote( od.config.source.list( this.name ), function(txt){ data = txt; latch.count_down(); }, err );
       this.get_remote( od.config.source.xsl ( this.name ), function(txt){ xsl  = txt; latch.count_down(); }, err );
       latch.ondone = function download_Cat_get_listing_done() {
+         remote.status = "listed";
          remote.added = [];
          remote.changed = [];
          remote.count = 0;
@@ -286,7 +296,28 @@ od.download.Category.prototype = {
             onerror ? _.call( onerror, remote, remote, id, err ) : _.error("Cannot download " + remote.name + " listing from " + address + ": " + err );
          } else remote.get_data( id, onload, onerror, retry );
       }
-   }
+   },
 
+   "save" : function download_Cat_save( ondone, onerror ) {
+      if ( this.dirty.length ) { // Has dirty
+         var remote = this;
+         var local = od.data.get( remote.name );
+         local.save_listing( function download_Cat_saved_list(){
+            local.save_index( function download_Cat_saved_index(){ 
+               var latch = new _.Latch( remote.dirty.length+1 );
+               remote.dirty.forEach( function download_Cat_save_data(id) {
+                  local.save_data( id, latch.count_down_function(), onerror );
+               });
+               latch.ondone = function download_Cat_saved_data() {
+                  remote.state = "saved";
+                  _.call( ondone, remote );
+               };
+               latch.count_down();
+            }, onerror);
+         }, onerror);
+      } else {
+         _.call( ondone, this );
+      }
+   }
 };
 _.seal( od.data.Category.prototype );

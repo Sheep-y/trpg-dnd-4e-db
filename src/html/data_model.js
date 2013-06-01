@@ -130,10 +130,12 @@ od.data = {
     * Pre-process data - extract content, remove scripts and forms, normalise symbols and links etc.
     */
    "indexify" : function data_indexify( data ) {
-      // Remove tags
-      data = data.replace( /<p class=flavor>.*?<\/p>/g, '' );
+      // Remove power and item flavors
+      data = data.replace( /(<h1 class=\w+power><span[^>]+>[^<]+<\/span>[^<]+<\/h1>)<p class=flavor>.*?<\/p>/g, '$1' );
+      data = data.replace( /<p class=miflavor>.*?<\/p>/g, '' );
+      // Remove tags and condense whitespaces
       data = data.replace( /<[^>]+>/g, ' ' );
-      data = data.replace( /\s+/g, ' ' );
+      data = data.replace( /  +/g, ' ' );
       return data.trim();
    }
 };

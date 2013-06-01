@@ -44,8 +44,9 @@ od.action.download = {
          alert( _.l( 'error.file_no_api' ) );
       }
       od.data.load_catalog( afterLoadCatalog, afterLoadCatalog );
-      function afterLoadCatalog() {
-         od.download.get_catalog( od.action.download.refresh );
+      function afterLoadCatalog() { 
+         // od.download.get_catalog( od.action.download.refresh );
+         od.action.download.refresh();
       }
    },
 
@@ -79,18 +80,15 @@ od.action.download = {
 
    'save' : function act_download_save () {
       var remotes = od.download.get();
+      var latch = new _.Latch( remotes.length+1 );
       remotes.forEach( function act_download_save_cat(e) {
-         if ( e.dirty.length ) { // Has dirty
-            var local = od.data.get( e.name );
-            local.save_listing();
-            local.save_index();
-            e.dirty.forEach( function act_download_save_data(id) {
-               local.save_data(id);
-            });
-         }
+         e.save( latch.count_down_function() );
       });
-      od.data.save_catalog();
-      _.hide( '#act_download_btn_save' );
+      latch.ondone = function act_download_save_done() {
+         od.data.save_catalog();
+         _.hide( '#act_download_btn_save' );
+      };
+      latch.count_down();
    },
 
    'progress_func' : function act_download_progress ( tr, total ) {
