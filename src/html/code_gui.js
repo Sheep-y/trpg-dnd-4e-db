@@ -33,7 +33,8 @@ od.gui = {
 
       // Hide other actions and show target page
       Array.prototype.forEach.call(_('body > div[id^="action_"]'), function(e){ e.style.display = ''; });
-      _( "#"+action.id )[0].style.display = 'block';
+      var page = _( "#"+action.id )[0];
+      page.style.display = 'block';
 
       // Post-switch setup
       if ( gui.initialized.indexOf( action ) < 0 ) {
@@ -43,6 +44,9 @@ od.gui = {
       }
       _.info( "[Action] Setup " + action.id );
       _.call( action.setup, action, currentAction );
+      setImmediate( function gui_switch_action_immediate() {
+         _('title')[0].textContent = od.config.title_prefix + _( page, 'h1' )[0].textContent;
+      });
 
       gui.action = action;
    },
