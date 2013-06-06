@@ -104,11 +104,13 @@ _.l.set( 'action.download', {
    btn_update_all : "Get all items",
    btn_save : "儲存",
 
-   th_category : "類別",
-   th_action : " ",
+   th_category: "類別",
+   th_local   : "已儲存",
+   th_remote  : "在線",
    th_changed : "異動",
-   th_new : "新增",
-   th_total : "合共",
+   th_new     : "新增",
+   th_status  : " ",
+   th_commands: " ",
 
    lbl_progress : "%1/%2",
 

@@ -21,7 +21,14 @@ od.download = {
          for ( var c in this.category ) result.push( this.category[c] );
          return result;
       }
-      return this.category[name];
+      result = this.category[name];
+      return result ? result : null;
+   },
+           
+   "create" : function download_create( name ) {
+      var result = this.get( name );
+      if ( result === null ) this.category[name] = result = new od.download.RemoteCategory( name );
+      return result;
    },
 
    /**
@@ -35,7 +42,7 @@ od.download = {
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
             for ( var i = 0, len = tabs.length ; i < len ; i++ ) {
                var cat = tabs[i].getElementsByTagName('Table')[0].textContent;
-               category[cat] = new od.download.RemoteCategory( cat );
+               this.create( cat );
             }
             _.call( onload );
          },
@@ -141,17 +148,12 @@ od.download = {
 od.download.RemoteCategory = function RemoteCategory( name ) {
    this.name = name;
    this.title = _.l( 'data.category.' + name, name );
-   this.raw_columns = [];
-   this.raw = [];
-   this.dirty = [];
-   this.changed = [];
-   this.added = [];
-   //this.loading = [];
+   this.reset();
 };
 od.download.RemoteCategory.prototype = {
    "name": "",
    "title": "",
-   "state" : "unlisted", // "unlisted" -> "listing" <-> "listed" -> "downloading" -> "downloaded" -> "saved"
+   "state" : "unlisted", // "unlisted" -> "absent" OR "listing" <-> "listed" -> "downloading" -> "downloaded" -> "saved"
    "progress" : "", // Text statue progress
 
    /** Raw data used to compose list property */
@@ -163,6 +165,15 @@ od.download.RemoteCategory.prototype = {
    "count": false,
    "changed": [],
    "added": [],
+   
+   "reset" : function download_Cat_reset() {
+      this.raw_columns = [];
+      this.raw = [];
+      this.dirty = [];
+      this.changed = [];
+      this.added = [];
+      this.progress = "";
+   },
 
    //"loading": [],
 

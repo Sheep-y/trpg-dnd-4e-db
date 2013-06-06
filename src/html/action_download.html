@@ -22,10 +22,12 @@
       <thead>
          <tr>
             <th class='i18n'> action.download.th_category </th>
-            <th class='i18n'> action.download.th_total </th>
+            <th class='i18n'> action.download.th_local </th>
+            <th class='i18n'> action.download.th_remote </th>
             <th class='i18n'> action.download.th_new </th>
             <th class='i18n'> action.download.th_changed </th>
-            <th class='i18n'> action.download.th_action </th>
+            <th class='i18n'> action.download.th_status </th>
+            <th class='i18n'> action.download.th_commands </th>
          </tr>
       </thead>
       <tbody></tbody>
@@ -41,13 +43,17 @@ od.action.download = {
       _.hide( '#act_download_tbl_list, #act_download_btn_all_list, #act_download_btn_update, #act_download_btn_save');
       if ( location.protocol !== 'file:' || ! window.ActiveXObject || ! /\bMSIE (9|\d\d+)\./.test(navigator.userAgent) ) {
          _.hide( '#act_download_btn_get_catalog' );
-         alert( _.l( 'error.file_no_api' ) );
+         //alert( _.l( 'error.file_no_api' ) );
       }
-      od.data.load_catalog( afterLoadCatalog, afterLoadCatalog );
-      function afterLoadCatalog() { 
-         // od.download.get_catalog( od.action.download.refresh );
-         od.action.download.refresh();
-      }
+      od.data.load_catalog(
+         function loadCatalogOk(){
+            od.data.get().forEach( function( c ){ od.download.create( c.name ); } );
+            od.action.download.refresh();
+         },
+         function loadCatalogFail(){
+            od.action.download.refresh();
+         }
+      );
    },
 
    'setup': function act_download_setup () {
@@ -101,57 +107,63 @@ od.action.download = {
       };
    },
 
+   'create_row' : function act_download_create_row( remote ) {
+      var local = od.data.get( remote.name );
+      var tr = _.create( 'tr' );
+      tr.appendChild( _.create( 'td', { 'text': remote.name } ) );
+      tr.appendChild( _.create( 'td', { 'text': local ? local.count : '--' } ) ); // 1: Local count
+      tr.appendChild( _.create( 'td' ) ); // 2: Remote count
+      tr.appendChild( _.create( 'td' ) ); // 3: Added count
+      tr.appendChild( _.create( 'td' ) ); // 4: Changed count
+      tr.appendChild( _.create( 'td' ) ); // 5: Status
+      tr.appendChild( _.create( 'td' ) ); // 6: Actions
+      _('#act_download_tbl_list tbody')[0].appendChild( tr );
+      od.action.download.tr[ remote.name ] = tr;
+      return tr;
+   },
+
    'refresh' : function act_download_refresh () {
       var action = od.action.download;
-      var tbody = _('#act_download_tbl_list tbody')[0];
-      tbody.innerHTML = '';
       var unlisted = 0, changed = 0, dirty = 0;
       od.download.get().forEach( function( remote ) {
-         var tr = _.create( 'tr' );
-         tr.appendChild( _.create( 'td', { 'text': remote.name } ) );
-         var td = _.create( 'td' );
-         if ( remote.count !== false ) {
-            if ( remote.count ) {
-               var changeCount = remote.added.length + remote.changed.length;
-               changed += changeCount;
-               tr.appendChild( _.create( 'td', { 'text': remote.count } ) );
-               tr.appendChild( _.create( 'td', { 'text': remote.added.length } ) );
-               tr.appendChild( _.create( 'td', { 'text': remote.changed.length } ) );
-               td.appendChild( _.create( 'input', {
-                  'type'  : 'button',
-                  'value' : _.l('action.download.btn_update_all' ),
+         var tr = action.tr[ remote.name ];
+         if ( tr === undefined ) tr = action.create_row( remote );
+         var cells = _( tr, 'td' );
+         var commands = cells[6];
+         commands.innerHTML = '';
+         switch ( remote.state ) {
+            case "unlisted" :
+               cells[2].textContent = '--';
+               cells[3].textContent = '--';
+               cells[4].textContent = '--';
+               cells[5].textContent = '--';
+               commands.appendChild( _.create( 'input', { 'type'  : 'button', 'value' : _.l('action.download.btn_list'),
                   'onclick' : function act_download_category_list() {
-                     od.download.schedule_download( remote, _.col( remote.raw ), od.action.download.progress_func( tr, remote.raw.length ) );
+                     remote.get_listing( od.action.download.refresh );
                   }
                } ) );
+               break;
+            default:
+               var changeCount = remote.added.length + remote.changed.length;
+               changed += changeCount;
+               cells[2].textContent = remote.count;
+               cells[3].textContent = remote.added.length;
+               cells[4].textContent = remote.changed.length;
+               cells[5].textContent = remote.progress;
                if ( changeCount ) {
-                  td.appendChild( _.create( 'input', {
-                     'type'  : 'button',
-                     'value' : _.l('action.download.btn_update_changed', null, changeCount ),
+                  commands.appendChild( _.create( 'input', { 'type'  : 'button', 'value' : _.l('action.download.btn_update_all' ),
+                     'onclick' : function act_download_category_list() {
+                        od.download.schedule_download( remote, _.col( remote.raw ), od.action.download.progress_func( tr, remote.raw.length ) );
+                     }
+                  } ) );
+                  commands.appendChild( _.create( 'input', { 'type'  : 'button', 'value' : _.l('action.download.btn_update_changed', null, changeCount ),
                      'onclick' : function act_download_category_list() {
                         od.download.schedule_download( remote, [].concat( remote.added, remote.changed ), od.action.download.progress_func( tr, changeCount ) );
                      }
                   } ) );
                }
-               dirty += remote.dirty.length;
-            }
-         } else {
-            // Just a name; haven't got listing yet
-            unlisted++;
-            tr.appendChild( _.create( 'td', { 'text': '?' } ) );
-            tr.appendChild( _.create( 'td', { 'text': '?' } ) );
-            tr.appendChild( _.create( 'td', { 'text': '?' } ) );
-            td.appendChild( _.create( 'input', {
-               'type'  : 'button',
-               'value' : _.l('action.download.btn_list'),
-               'onclick' : function act_download_category_list() {
-                  remote.get_listing( od.action.download.refresh );
-               }
-            } ) );
          }
-         tr.appendChild( td );
-         tbody.appendChild( tr );
-         action.tr[ remote.name ] = tr;
+         dirty += remote.dirty.length;
       });
       if ( changed ) {
          _( '#act_download_btn_update' )[0].innerHTML = _.l( 'action.download.btn_update_changed', null, changed );

@@ -74,11 +74,13 @@ _.l.set( 'action.download', {
    btn_update_all : "Get all items",
    btn_save : "Save",
 
-   th_category : "Category",
-   th_action : " ",
+   th_category: "Category",
+   th_local   : "Saved",
+   th_remote  : "Online",
    th_changed : "Changed",
-   th_new : "New",
-   th_total : "Total",
+   th_new     : "New",
+   th_status  : " ",
+   th_commands: " ",
 
    lbl_progress : "%1/%2",
 
