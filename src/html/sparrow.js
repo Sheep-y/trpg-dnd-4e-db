@@ -84,7 +84,7 @@ _.call = function _call( func, thisObj, param /*...*/ ) {
       if ( arguments.length <= 1 ) return func();
       else if ( arguments.length <= 3 ) return func.call( thisObj, param );
       else return func.apply( thisObj, _.ary(arguments, 2) );
-   } catch ( e ) { _.error(e); }
+   } catch ( e ) { _.error( [ e, func, arguments ] ); }
 };
 
 /**
@@ -209,13 +209,8 @@ _.js = function _js( url, option ) {
    e.addEventListener( 'load', function _js_load(){
       // Delay execution to make sure validate/load is called _after_ script has been ran.
       setImmediate( function _js_load_delayed() {
-         // Loaded _will_ run regardless of whether the script has error, as long as it exists.
-         if ( option.validate ) {
-            var ok;
-            try { ok = option.validate.call( e, url, option ); } catch(ex) { _.error(ex); }
-            if ( !ok ) {
-               return _js_done( 'onerror', "[JS] Script error: " + url );
-            }
+         if ( option.validate && ! _.call( option.validate, e, url, option )  ) {
+            return _js_done( 'onerror', "[JS] Script error: " + url );
          }
          _js_done( 'onload', "[JS] Script loaded: " + url );
       } );
@@ -351,7 +346,7 @@ _.log = function _info( type, msg ) {
    if ( window.console ) {
       if ( console[type] === undefined ) type = 'log';
       var t = new Date();
-      console[type]( "["+t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds()+"] " + msg );
+      console[type]( "["+t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds()+"] ", msg );
    }
 };
 _.debug = function _info( msg ) { _.log( 'debug', msg ); };
@@ -363,19 +358,18 @@ _.error = function _info( msg ) {
       _.error.timeout = setTimeout( function _error_timeout(){
          _.error.timeout = 0;
          var err = _.error.log;
-         _.error.log = "";
+         _.error.log = [];
          alert( err );
       }, 50 );
    }
    _.log( 'error', msg );
-   msg = "" + msg;
-   if ( msg !== _.error.lastmsg ) {
-      _.error.lastmsg = msg;
-      _.error.log += msg + "\n";
+   if ( ( "" + msg ) !== _.error.lastmsg ) {
+      _.error.lastmsg = "" + msg;
+      _.error.log.push( msg );
    }
 };
 _.error.timeout = 0;
-_.error.log = "";
+_.error.log = [];
 
 _.time = function _time( msg ) {
    var t = _.time;
@@ -559,6 +553,7 @@ _.Executor.prototype = {
                try {
                   if ( r[0].apply( null, [ ii ].concat( r.slice(1) ) ) !== false ) exe.finish( ii );
                } catch ( e ) {
+                  console.log(e)
                   _.error( e );
                   exe.finish( ii );
                }
