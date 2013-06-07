@@ -141,10 +141,36 @@ od.action.download = {
       return tr;
    },
 
-   'refresh' : function act_download_refresh () {
+   'create_button' : function act_download_create_button( command, remote, txt ) {
+      function refreshRemote() { od.action.download.refresh( remote ); }
+      switch ( command ) {
+          case 'list' : 
+             if ( ! this.list ) 
+                this.list = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_list() {
+                   remote.get_listing( refreshRemote );
+                }};
+             this.list.value = _.l( txt );
+          case 'update_all':
+             if ( ! this.update_all ) 
+                this.update_all = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_update_all() {
+                   od.download.schedule_download( remote, _.col( remote.raw ), refreshRemote );
+                }};
+             this.update_all.value = _.l( txt );
+          case 'update':
+             if ( ! this.update ) 
+                this.update = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_update() {
+                   od.download.schedule_download( remote, [].concat( remote.added, remote.changed ), refreshRemote );
+                }};
+             this.update.value = _.l( txt );
+      }
+      return _.create( 'input', this[command] );
+   },
+
+   'refresh' : function act_download_refresh ( remote_cat ) {
       var action = od.action.download;
       var unlisted = 0, changed = 0, dirty = 0;
-      od.download.get().forEach( function( remote ) {
+
+      function act_download_refresh_row ( remote ) {
          var tr = action.tr[ remote.name ];
          if ( tr === undefined ) tr = action.create_row( remote );
          var cells = _( tr, 'td' );
@@ -167,11 +193,7 @@ od.action.download = {
             case "unlisted" :
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
                cells[5].textContent = 'Unlisted'; // TODO: i18n
-               commands.appendChild( _.create( 'input', { 'type'  : 'button', 'value' : _.l('action.download.btn_list'),
-                  'onclick' : function act_download_category_list() {
-                     remote.get_listing( od.action.download.refresh );
-                  }
-               } ) );
+               commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_list' ) );
                break;
             case "listed" :
                var changeCount = remote.added.length + remote.changed.length;
@@ -180,26 +202,26 @@ od.action.download = {
                cells[3].textContent = remote.added.length;
                cells[4].textContent = remote.changed.length;
                cells[5].textContent = remote.progress;
-               if ( changeCount ) {
-                  commands.appendChild( _.create( 'input', { 'type'  : 'button', 'value' : _.l('action.download.btn_update_all' ),
-                     'onclick' : function act_download_category_list() {
-                        od.download.schedule_download( remote, _.col( remote.raw ), od.action.download.progress_func( tr, remote.raw.length ) );
-                     }
-                  } ) );
-                  commands.appendChild( _.create( 'input', { 'type'  : 'button', 'value' : _.l('action.download.btn_update_changed', null, changeCount ),
-                     'onclick' : function act_download_category_list() {
-                        od.download.schedule_download( remote, [].concat( remote.added, remote.changed ), od.action.download.progress_func( tr, changeCount ) );
-                     }
-                  } ) );
-               }
+               if ( remote.raw.length )
+                  commands.appendChild( action.create_button( 'update_all', remote, 'action.download.btn_update_all' ) );
+               if ( changeCount )
+                  commands.appendChild( action.create_button( 'update', remote, 'action.download.btn_update_changed' ) );
+               break;
             default:
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
                cells[5].textContent = remote.state;
          }
          dirty += remote.dirty.length;
-      });
+      };
+
+      if ( remote_cat !== undefined ) {
+         act_download_refresh_row( remote_cat );
+      } else {
+        od.download.get().forEach( act_download_refresh_row );
+      }
+
       if ( changed ) {
-         _( '#act_download_btn_update' )[0].innerHTML = _.l( 'action.download.btn_update_changed', null, changed );
+         od.gui.set( '#act_download_btn_update', _.l( 'action.download.btn_update_changed', null, changed ) );
       }
       _.visible( '#act_download_btn_save', dirty );
       _.visible( '#act_download_btn_all_list', unlisted );
