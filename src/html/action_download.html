@@ -35,7 +35,26 @@
    <!--fieldset id='act_download_lst_status'><legend class='i18n'>action.download.lst_thread</legend></fieldset-->
 </div>
 <script type='text/javascript'>'use strict';(function action_download_init(){
-
+/*
+ * Remote category commands by state:
+ *  - local / absent: Reindex | Delete
+ *  - unlisted: Check | Reindex | Delete
+ *  - listing: (none)
+ *  - listed: Recheck | Reindex | Delete | Update All | Update changed
+ *  - downloading: Stop
+ *  
+ * Top buttons: List categories | Check all | Update changed | Stop all | Save | Reindex all
+ *  
+ * If any remote category has dirty data, save button may be available.
+ * If any category is downloading, reindex/delete/save is not available for all cat, since data is being updated.
+ * A check will reload listing but will not reset dirty (copied to local) data.
+ * Reindex and delete will erase any dirty data.  Both are saved immediately.
+ *
+ * Workflow:
+ *   Load cat -> create remotes (local) -> Get cat -> Create / update remote state (unlisted or absent).
+ *   List / Relist : reset ->  (listing) get_listing -> find_changed (listed)
+ *   Download -> schedule_download -> get_data -> local.update, add to dirty
+ */
 od.action.download = {
    'id': 'action_download',
 
@@ -109,7 +128,7 @@ od.action.download = {
 
    'create_row' : function act_download_create_row( remote ) {
       var local = od.data.get( remote.name );
-      var tr = _.create( 'tr' );
+      var tr = _.create( 'tr', { 'data-name': remote.name } );
       tr.appendChild( _.create( 'td', { 'text': remote.name } ) );
       tr.appendChild( _.create( 'td', { 'text': local ? local.count : '--' } ) ); // 1: Local count
       tr.appendChild( _.create( 'td' ) ); // 2: Remote count
@@ -132,18 +151,29 @@ od.action.download = {
          var commands = cells[6];
          commands.innerHTML = '';
          switch ( remote.state ) {
+            case "listing":
+            case "downloading":
+               break; // Please do not interrupt while working!
+            case "absent" :
+               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '--';
+               cells[5].textContent = 'Local'; // TODO: i18n
+               // TODO: Delete, Reindex
+               break;
+            case "local" :
+               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
+               cells[5].textContent = '';
+               // TODO: Delete, Reindex
+               break;
             case "unlisted" :
-               cells[2].textContent = '--';
-               cells[3].textContent = '--';
-               cells[4].textContent = '--';
-               cells[5].textContent = '--';
+               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
+               cells[5].textContent = 'Unlisted'; // TODO: i18n
                commands.appendChild( _.create( 'input', { 'type'  : 'button', 'value' : _.l('action.download.btn_list'),
                   'onclick' : function act_download_category_list() {
                      remote.get_listing( od.action.download.refresh );
                   }
                } ) );
                break;
-            default:
+            case "listed" :
                var changeCount = remote.added.length + remote.changed.length;
                changed += changeCount;
                cells[2].textContent = remote.count;
@@ -162,6 +192,9 @@ od.action.download = {
                      }
                   } ) );
                }
+            default:
+               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
+               cells[5].textContent = remote.state;
          }
          dirty += remote.dirty.length;
       });

@@ -35,14 +35,19 @@ od.download = {
     * Get category listing.
     */
    "get_catalog": function download_get_catalog( onload, onerror ) {
+      var down = od.download;
       var address = od.config.source.catalog();
       _.cor( address,
          function download_get_catalog_callback( data, xhr ){
-            var category = od.download.category = {};
+            // First reset state of all unlisted cat, assuming they are not on remote
+            down.get().forEach( function download_get_catalog_reset( r ){ 
+                if ( r.state === "unlisted" || r.state === "local" ) r.state = "absent";
+            });
+            // Get tab list and update state
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
             for ( var i = 0, len = tabs.length ; i < len ; i++ ) {
-               var cat = tabs[i].getElementsByTagName('Table')[0].textContent;
-               this.create( cat );
+               var cat = down.create( tabs[i].getElementsByTagName('Table')[0].textContent );
+               if ( cat.state === 'absent' ) cat.state = 'unlisted';
             }
             _.call( onload );
          },
@@ -148,12 +153,13 @@ od.download = {
 od.download.RemoteCategory = function RemoteCategory( name ) {
    this.name = name;
    this.title = _.l( 'data.category.' + name, name );
+   this.dirty = [];
    this.reset();
 };
 od.download.RemoteCategory.prototype = {
    "name": "",
    "title": "",
-   "state" : "unlisted", // "unlisted" -> "absent" OR "listing" <-> "listed" -> "downloading" -> "downloaded" -> "saved"
+   "state" : "local", // "local" -> "unlisted" OR "absent" -> "listing" <-> "listed" <-> "downloading"
    "progress" : "", // Text statue progress
 
    /** Raw data used to compose list property */
@@ -169,7 +175,6 @@ od.download.RemoteCategory.prototype = {
    "reset" : function download_Cat_reset() {
       this.raw_columns = [];
       this.raw = [];
-      this.dirty = [];
       this.changed = [];
       this.added = [];
       this.progress = "";
@@ -252,7 +257,6 @@ od.download.RemoteCategory.prototype = {
       latch.count_down();
    },
 
-
    "get_remote": function download_Cat_get_remote( url, onload, onerror, retry ) {
       var remote = this;
       if ( retry === undefined ) retry = od.config.retry;
@@ -320,7 +324,6 @@ od.download.RemoteCategory.prototype = {
                   local.save_data( id, latch.count_down_function(), onerror );
                });
                latch.ondone = function download_Cat_saved_data() {
-                  remote.state = "saved";
                   _.call( ondone, remote );
                };
                latch.count_down();
