@@ -293,6 +293,24 @@ od.download.RemoteCategory.prototype = {
          }
       }
    },
+           
+   "update_all" : function download_Cat_update_all( ondone ) {
+      var remote = this;
+      remote.state = "downloading";
+      od.download.schedule_download( remote, _.col( remote.raw ), function download_Cat_update_all_done(){
+         remote.state = "listed";
+         _.call( ondone, remote );
+      } );
+   },
+
+   "update_changed" : function download_Cat_update_changed( ondone) {
+      var remote = this;
+      remote.state = "downloading";
+      od.download.schedule_download( remote, [].concat( remote.added, remote.changed ), function download_Cat_update_changed_doneo(){
+         remote.state = "listed";
+         _.call( ondone, remote );
+      });
+   },
 
    /**
     * Get entry content

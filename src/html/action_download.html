@@ -160,13 +160,13 @@ od.action.download = {
           case 'update_all':
              if ( ! thisFunc.update_all ) 
                 thisFunc.update_all = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_update_all() {
-                   od.download.schedule_download( remote, _.col( remote.raw ), refreshRemote );
+                   remote.update_all( refreshRemote );
                 }};
              thisFunc.update_all.value = _.l( txt );
           case 'update':
              if ( ! thisFunc.update ) 
                 thisFunc.update = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_update() {
-                   od.download.schedule_download( remote, [].concat( remote.added, remote.changed ), refreshRemote );
+                   remote.update_changed( refreshRemote );
                 }};
              thisFunc.update.value = _.l( txt );
       }
