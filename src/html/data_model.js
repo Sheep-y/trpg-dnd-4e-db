@@ -51,7 +51,7 @@ od.data = {
       }
       return result;
    },
-
+           
    "list" : function data_list() { return Object.keys( this.category ); },
 
    "load_catalog" : function data_load_catalog ( ondone, onerror ) { od.reader.read_catalog( ondone, onerror ); },
@@ -76,7 +76,7 @@ od.data = {
       });
       od.writer.write_catalog( ondone, onerror );
    },
-
+ 
    /**
     * Pre-process data - extract content, remove scripts and forms, normalise symbols and links etc.
     */

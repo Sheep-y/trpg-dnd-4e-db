@@ -191,7 +191,7 @@ od.download.RemoteCategory.prototype = {
     * @returns {undefined}
     */
    "get_listing": function download_Cat_get_listing( onload, onerror ) {
-      this.status = "listing";
+      this.state = "listing";
       var remote = this;
       var data, xsl;
       var latch = new _.Latch( 3 );
@@ -199,12 +199,13 @@ od.download.RemoteCategory.prototype = {
       this.get_remote( od.config.source.list( this.name ), function(txt){ data = txt; latch.count_down(); }, err );
       this.get_remote( od.config.source.xsl ( this.name ), function(txt){ xsl  = txt; latch.count_down(); }, err );
       latch.ondone = function download_Cat_get_listing_done() {
-         remote.status = "listed";
          remote.added = [];
          remote.changed = [];
          remote.count = 0;
          var list = remote.raw = [];
-         var done = true;
+         function download_Cat_get_listing_done_callback (){
+             _.call( onload, remote, remote );
+         };
 
          if ( ! data || ! xsl ) return err('No Data');
 
@@ -238,21 +239,24 @@ od.download.RemoteCategory.prototype = {
                   idList.push( rowId );
                }
             }
+            remote.state = "listed";
             // Check local exist and columns match, if ok then pass to find_changed()
             remote.count = list.length;
             var local = od.data.get( remote.name );
             if ( local !== null ) {
                // Load local index and find differences
-               local.load_listing( function() {
+               local.load_listing( function download_Cat_get_listing_local() {
                   remote.find_changed();
-                  _.call( onload, remote, remote );
+                  download_Cat_get_listing_done_callback();
+               }, function download_Cat_get_listing_local_error() {
+                  remote.added = _.col( list );
+                  download_Cat_get_listing_done_callback();
                } );
-               done = false;
             } else {
                remote.added = _.col( list );
+               download_Cat_get_listing_done_callback();
             }
          }
-         if ( done ) _.call( onload, remote, remote );
       };
       latch.count_down();
    },

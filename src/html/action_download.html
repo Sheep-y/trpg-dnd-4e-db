@@ -144,6 +144,11 @@ od.action.download = {
    'create_button' : function act_download_create_button( command, remote, txt ) {
       function refreshRemote() { od.action.download.refresh( remote ); }
       switch ( command ) {
+          case 'reindex' : 
+             if ( ! this.reindex ) 
+                this.reindex = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_reindex() {
+                }};
+             this.reindex.value = _.l( txt );
           case 'list' : 
              if ( ! this.list ) 
                 this.list = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_list() {
@@ -176,6 +181,8 @@ od.action.download = {
          var cells = _( tr, 'td' );
          var commands = cells[6];
          commands.innerHTML = '';
+         //var local = od.data.get( remote.name );
+         //cells[1].textContent = local ? local.count : '--'; // Local count may change because of load failure or download update
          switch ( remote.state ) {
             case "listing":
             case "downloading":
