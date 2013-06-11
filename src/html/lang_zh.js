@@ -98,10 +98,10 @@ _.l.set( 'action.download', {
       "<b>Requires an active DDI subscription to download any data.</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates' target='_blank'>Official Rules Updates</a>"
    ],
    btn_get_catalog : "刷新列表",
-   btn_all_list : "Check all",
-   btn_list : "Check",
-   btn_update_changed : "Get %1 items",
-   btn_update_all : "Get all items",
+   btn_all_list : "全部檢查",
+   btn_list : "檢查",
+   btn_update_changed : "獲取新/改變條目",
+   btn_update_all : "獲取所月條目",
    btn_save : "儲存",
 
    th_category: "類別",
