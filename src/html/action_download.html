@@ -14,7 +14,7 @@
    <p class='i18n'> action.download.paragraph.1 </p>
    <p>
       <a class='button i18n' id='act_download_btn_get_catalog' onclick='od.action.download.get_catalog()'> action.download.btn_get_catalog </a>
-      <a class='button i18n' id='act_download_btn_all_list' onclick='od.action.download.get_all_list()'> action.download.btn_all_list </a>
+      <a class='button i18n' id='act_download_btn_all_list' onclick='od.action.download.list_all()'> action.download.btn_all_list </a>
       <a class='button i18n' id='act_download_btn_update' onclick='od.action.download.update_all()'> action.download.btn_update_changed </a>
       <a class='button i18n' id='act_download_btn_save' onclick='od.action.download.save()'> action.download.btn_save </a>
    </p>
@@ -48,7 +48,7 @@
  * If any remote category has dirty data, save button may be available.
  * If any category is downloading, reindex/delete/save is not available for all cat, since data is being updated.
  * A check will reload listing but will not reset dirty (copied to local) data.
- * Reindex and delete will erase any dirty data.  Both are saved immediately.
+ * Reindex and delete will erase any dirty data.  Both are non-stopable and are saved immediately.
  *
  * Workflow:
  *   Load cat -> create remotes (local) -> Get cat -> Create / update remote state (unlisted or absent).
@@ -87,18 +87,18 @@ od.action.download = {
       od.download.get_catalog( od.action.download.refresh );
    },
 
-   'get_all_list' : function act_download_all_list () {
-      od.download.get().forEach( function( c ) {
-         c.get_listing( od.action.download.refresh );
+   'list_all' : function act_download_list_all () {
+      od.download.get().forEach( function act_download_list_all_each ( remote ) {
+         remote.get_listing( od.action.download.refresh_func( remote ) );
       } );
    },
 
    'update_all' : function act_download_update_all () {
-      var action = od.action.download;
-      od.download.get().forEach( function( c ) {
-         var changeCount = c.added.length + c.changed.length;
-         if ( changeCount )
-            od.download.schedule_download( c, [].concat( c.added, c.changed ), action.progress_func( action.tr[ c.name ], changeCount ) );
+      od.download.get().forEach( function act_download_update_all_each ( remote ) {
+         if ( remote.added.length || remote.changed.length ) {
+            var refresh = od.action.download.refresh_func( remote );
+            remote.update_changed( refresh, refresh );
+         }
       } );
       _.hide( '#act_download_btn_update' );
    },
@@ -114,16 +114,6 @@ od.action.download = {
          _.hide( '#act_download_btn_save' );
       };
       latch.count_down();
-   },
-
-   'progress_func' : function act_download_progress ( tr, total ) {
-      _( tr, 'td:last-child' )[0].innerHTML = '';
-      var count = 0;
-      return function act_download_progress_callback ( ) {
-         _( tr, 'td:last-child' )[0].innerHTML = _.l( 'action.download.lbl_progress', null, ++count, total );
-         if ( count >= total ) _.show( '#act_download_btn_save' );
-         od.action.list.reset();
-      };
    },
 
    'create_row' : function act_download_create_row( remote ) {
@@ -142,7 +132,7 @@ od.action.download = {
    },
 
    'create_button' : function act_download_create_button( command, remote, txt ) {
-      function refreshRemote() { od.action.download.refresh( remote ); }
+      var refreshRemote = od.action.download.refresh_func( remote );
       var thisFunc = od.action.download.create_button;
       switch ( command ) {
           case 'reindex' : 
@@ -172,6 +162,12 @@ od.action.download = {
       }
       return _.create( 'input', thisFunc[command] );
    },
+
+   'refresh_func' : function act_download_refresh_func ( remote_cat ) {
+      return function act_download_refresh_func_callback () {
+          od.action.download.refresh( remote_cat );
+      };
+    },
 
    'refresh' : function act_download_refresh ( remote_cat ) {
       var action = od.action.download;
@@ -230,12 +226,11 @@ od.action.download = {
       od.download.get().forEach( function act_download_refresh_check( remote ) {
          switch ( remote.state ) {
             case "local" :
-                break;
+            case "listing":
             case "absent" :
                 break;
             case "unlisted" :
                 unlisted = true;
-            case "listing":
                 break;
             case "listed" :
                 dirty = dirty || remote.dirty.length > 0;
