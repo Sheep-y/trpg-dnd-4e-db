@@ -160,13 +160,13 @@ od.action.download = {
           case 'update_all':
              if ( ! thisFunc.update_all ) 
                 thisFunc.update_all = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_update_all() {
-                   remote.update_all( refreshRemote );
+                   remote.update_all( refreshRemote, refreshRemote );
                 }};
              thisFunc.update_all.value = _.l( txt );
           case 'update':
              if ( ! thisFunc.update ) 
                 thisFunc.update = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_update() {
-                   remote.update_changed( refreshRemote );
+                   remote.update_changed( refreshRemote, refreshRemote );
                 }};
              thisFunc.update.value = _.l( txt );
       }
@@ -175,7 +175,6 @@ od.action.download = {
 
    'refresh' : function act_download_refresh ( remote_cat ) {
       var action = od.action.download;
-      var unlisted = 0, changed = 0, dirty = 0;
 
       function act_download_refresh_row ( remote ) {
          var tr = action.tr[ remote.name ];
@@ -195,7 +194,7 @@ od.action.download = {
                // TODO: Delete, Reindex
                break;
             case "local" :
-               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
+               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '';
                cells[5].textContent = '';
                // TODO: Delete, Reindex
                break;
@@ -205,22 +204,19 @@ od.action.download = {
                commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_list' ) );
                break;
             case "listed" :
-               var changeCount = remote.added.length + remote.changed.length;
-               changed += changeCount;
                cells[2].textContent = remote.count;
                cells[3].textContent = remote.added.length;
                cells[4].textContent = remote.changed.length;
                cells[5].textContent = remote.progress;
                if ( remote.raw.length )
                   commands.appendChild( action.create_button( 'update_all', remote, 'action.download.btn_update_all' ) );
-               if ( changeCount )
+               if ( remote.added.length || remote.changed.length )
                   commands.appendChild( action.create_button( 'update', remote, 'action.download.btn_update_changed' ) );
                break;
             default:
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
                cells[5].textContent = remote.state;
          }
-         dirty += remote.dirty.length;
       };
 
       if ( remote_cat !== undefined ) {
@@ -229,10 +225,32 @@ od.action.download = {
         od.download.get().forEach( act_download_refresh_row );
       }
 
+      // Find whether there are unlisted (Check all), changed (Get all), Downloading & Dirty (Save all) items
+      var unlisted = false, changed = false, downloading = false, dirty = false;
+      od.download.get().forEach( function act_download_refresh_check( remote ) {
+         switch ( remote.state ) {
+            case "local" :
+                break;
+            case "absent" :
+                break;
+            case "unlisted" :
+                unlisted = true;
+            case "listing":
+                break;
+            case "listed" :
+                dirty = dirty || remote.dirty.length > 0;
+                changed = changed || ( remote.added.length > 0 || remote.changed.length > 0 );
+                break;
+            case "downloading":
+                downloading = true;
+                break;
+         }
+      });
+
       if ( changed ) {
          od.gui.set( '#act_download_btn_update', _.l( 'action.download.btn_update_changed', null, changed ) );
       }
-      _.visible( '#act_download_btn_save', dirty );
+      _.visible( '#act_download_btn_save', ( ! downloading ) && dirty );
       _.visible( '#act_download_btn_all_list', unlisted );
       _.visible( '#act_download_btn_update', changed );
       _.show('#act_download_tbl_list');
