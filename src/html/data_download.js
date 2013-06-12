@@ -203,10 +203,6 @@ od.download.RemoteCategory.prototype = {
          remote.changed = [];
          remote.count = 0;
          var list = remote.raw = [];
-         function download_Cat_get_listing_done_callback (){
-             _.call( onload, remote, remote );
-         };
-
          if ( ! data || ! xsl ) return err('No Data');
 
          data = data.replace( /’/g, "'" );
@@ -240,27 +236,13 @@ od.download.RemoteCategory.prototype = {
                }
             }
             remote.state = "listed";
-            // Check local exist and columns match, if ok then pass to find_changed()
             remote.count = list.length;
-            var local = od.data.get( remote.name );
-            if ( local !== null ) {
-               // Load local index and find differences
-               local.load_listing( function download_Cat_get_listing_local() {
-                  remote.find_changed();
-                  download_Cat_get_listing_done_callback();
-               }, function download_Cat_get_listing_local_error() {
-                  remote.added = _.col( list );
-                  download_Cat_get_listing_done_callback();
-               } );
-            } else {
-               remote.added = _.col( list );
-               download_Cat_get_listing_done_callback();
-            }
+            remote.find_changed( onload );
          }
       };
       latch.count_down();
    },
-
+           
    "get_remote": function download_Cat_get_remote( url, onload, onerror, retry ) {
       var remote = this;
       if ( retry === undefined ) retry = od.config.retry;
@@ -274,41 +256,61 @@ od.download.RemoteCategory.prototype = {
       );
    },
 
-   "find_changed": function download_Cat_find_changed( ) {
-      var local = od.data.get( this.name );
-      this.added = [];
-      this.changed = [];
-      if ( local === null )
-         return this.added = _.col( this.raw );
-      if ( JSON.stringify( this.raw_columns ) !== JSON.stringify( local.raw_columns ) )
-         return this.changed = _.col( this.raw );
-      for ( var i = 0, l = this.raw.length ; i < l ; i++ ) {
-         var row = this.raw[i], id = row[0];
-         var localrow;
-         local.raw.some( function(e){ if ( e[0] === id ) return localrow = e; return false;  } );
-         if ( !localrow ) {
-            this.added.push( id );
-         } else {
-            if ( JSON.stringify( row ) !== JSON.stringify( localrow ) ) this.changed.push( id );
-         }
+    /**
+     * Check local exist and columns match, if ok then pass to remote.find_changed()
+     * Oterwise assume all items are new.
+     * 
+     * @param {function } onload  Callback after changed items is founds
+     * @returns {undefined}
+     */
+   "find_changed": function download_Cat_find_changed( onload ) {
+      var remote = this;
+      var local = od.data.get( remote.name );
+      var list = remote.raw;
+      if ( local !== null ) {
+         // Load local index and find differences
+         local.load_listing( function download_Cat_find_changed_work() {
+            var added = remote.added = [];
+            var changed = remote.changed = [];
+            var raw = remote.raw;
+            if ( JSON.stringify( remote.raw_columns ) !== JSON.stringify( local.raw_columns ) )
+               return remote.changed = _.col( raw );
+            for ( var i = 0, l = raw.length ; i < l ; i++ ) {
+               var row = raw[i], id = row[0];
+               var localrow = null;
+               local.raw.some( function(e){ if ( e[0] === id ) return localrow = e; return false;  } );
+               if ( ! localrow ) {
+                  added.push( id );
+               } else {
+                  if ( JSON.stringify( row ) !== JSON.stringify( localrow ) ) changed.push( id );
+               }
+            }
+            _.call( onload, remote );
+         }, download_Cat_find_changed_addall );
+      } else {
+         download_Cat_find_changed_addall();
+      }
+      function download_Cat_find_changed_addall() {
+         remote.added = _.col( list );
+         _.call( onload, remote );
       }
    },
-           
-   "update_all" : function download_Cat_update_all( ondone ) {
+
+   "update_all" : function download_Cat_update_all( onstep, ondone ) {
       var remote = this;
       remote.state = "downloading";
-      od.download.schedule_download( remote, _.col( remote.raw ), function download_Cat_update_all_done(){
+      od.download.schedule_download( remote, _.col( remote.raw ), onstep, function download_Cat_update_all_done(){
          remote.state = "listed";
-         _.call( ondone, remote );
+         remote.find_changed( ondone );
       } );
    },
 
-   "update_changed" : function download_Cat_update_changed( ondone) {
+   "update_changed" : function download_Cat_update_changed( onstep, ondone ) {
       var remote = this;
       remote.state = "downloading";
-      od.download.schedule_download( remote, [].concat( remote.added, remote.changed ), function download_Cat_update_changed_doneo(){
+      od.download.schedule_download( remote, [].concat( remote.added, remote.changed ), onstep, function download_Cat_update_changed_doneo(){
          remote.state = "listed";
-         _.call( ondone, remote );
+         remote.find_changed( ondone );
       });
    },
 
