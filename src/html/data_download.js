@@ -308,7 +308,7 @@ od.download.RemoteCategory.prototype = {
    "update_changed" : function download_Cat_update_changed( onstep, ondone ) {
       var remote = this;
       remote.state = "downloading";
-      od.download.schedule_download( remote, [].concat( remote.added, remote.changed ), onstep, function download_Cat_update_changed_doneo(){
+      od.download.schedule_download( remote, remote.added.concat( remote.changed ), onstep, function download_Cat_update_changed_doneo(){
          remote.state = "listed";
          remote.find_changed( ondone );
       });

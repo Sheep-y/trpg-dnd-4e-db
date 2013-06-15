@@ -127,40 +127,35 @@ od.action.download = {
       tr.appendChild( _.create( 'td' ) ); // 5: Status
       tr.appendChild( _.create( 'td' ) ); // 6: Actions
       _('#act_download_tbl_list tbody')[0].appendChild( tr );
-      od.action.download.tr[ remote.name ] = tr;
-      return tr;
+      return this.tr[ remote.name ] = tr;
    },
 
    'create_button' : function act_download_create_button( command, remote, txt ) {
       var refreshRemote = od.action.download.refresh_func( remote );
-      var thisFunc = od.action.download.create_button;
+      var param;
       switch ( command ) {
           case 'reindex' : 
-             if ( ! thisFunc.reindex ) 
-                thisFunc.reindex = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_reindex() {
-                   // TODO: Reindex
-                }};
-             thisFunc.reindex.value = _.l( txt );
+             param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
+               // TODO: Reindex
+             }};
+             break;
           case 'list' : 
-             if ( ! thisFunc.list ) 
-                thisFunc.list = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_list() {
-                   remote.get_listing( refreshRemote );
-                }};
-             thisFunc.list.value = _.l( txt );
+             param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_list() {
+                remote.get_listing( refreshRemote );
+             }};
+             break;
           case 'update_all':
-             if ( ! thisFunc.update_all ) 
-                thisFunc.update_all = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_update_all() {
-                   remote.update_all( refreshRemote, refreshRemote );
-                }};
-             thisFunc.update_all.value = _.l( txt );
+             param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_update_all() {
+                remote.update_all( refreshRemote, refreshRemote );
+             }};
+             break;
           case 'update':
-             if ( ! thisFunc.update ) 
-                thisFunc.update = { 'type' : 'button', 'value' : "", 'onclick' : function act_download_btn_update() {
-                   remote.update_changed( refreshRemote, refreshRemote );
-                }};
-             thisFunc.update.value = _.l( txt );
+             param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_update() {
+                remote.update_changed( refreshRemote, refreshRemote );
+             }};
+             break;
       }
-      return _.create( 'input', thisFunc[command] );
+      return _.create( 'input', param );
    },
 
    'refresh_func' : function act_download_refresh_func ( remote_cat ) {
@@ -208,6 +203,7 @@ od.action.download = {
                   commands.appendChild( action.create_button( 'update_all', remote, 'action.download.btn_update_all' ) );
                if ( remote.added.length || remote.changed.length )
                   commands.appendChild( action.create_button( 'update', remote, 'action.download.btn_update_changed' ) );
+               commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_relist' ) );
                break;
             default:
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';

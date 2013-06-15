@@ -70,6 +70,7 @@ _.l.set( 'action.download', {
    btn_get_catalog : "Refresh catalog",
    btn_all_list : "Check all",
    btn_list : "Check",
+   btn_relist : "Re-check",
    btn_update_changed : "Get new + changed",
    btn_update_all : "Get all items",
    btn_save : "Save",
