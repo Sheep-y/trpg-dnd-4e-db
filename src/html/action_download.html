@@ -18,7 +18,7 @@
       <a class='button i18n' id='act_download_btn_update' onclick='od.action.download.update_all()'> action.download.btn_update_changed </a>
       <a class='button i18n' id='act_download_btn_save' onclick='od.action.download.save()'> action.download.btn_save </a>
    </p>
-   <table id='act_download_tbl_list'>
+   <table id='act_download_tbl_list' class="fullw">
       <thead>
          <tr>
             <th class='i18n'> action.download.th_category </th>
@@ -192,7 +192,7 @@ od.action.download = {
          }
       });
 
-      // Update specified rows's data and 
+      // Update specified rows's state and commands
       function act_download_refresh_row ( remote ) {
          var tr = action.tr[ remote.name ];
          if ( tr === undefined ) tr = action.create_row( remote );
@@ -233,9 +233,9 @@ od.action.download = {
                   commands.appendChild( action.create_button( 'update_all', remote, 'action.download.btn_update_all' ) );
                if ( remote.added.length || remote.changed.length )
                   commands.appendChild( action.create_button( 'update', remote, 'action.download.btn_update_changed' ) );
+               commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_relist' ) );
                if ( local ) {
                   commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
-                  commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_relist' ) );
                }
                // TODO: Delete, Reindex
                break;
@@ -245,11 +245,19 @@ od.action.download = {
       if ( remote_cat !== undefined ) {
          act_download_refresh_row( remote_cat );
       } else {
-        od.download.get().forEach( act_download_refresh_row );
+         od.download.get().forEach( act_download_refresh_row );
+         // Remove rows that has been deleted
+         Object.keys( action.tr ).forEach( function act_download_check_tr ( name ) {
+            if ( od.download.get( name ) === null ) {
+               var row = action.tr[ name ];
+               row.parentNode.removeChild( row );
+               delete action.tr[ name ];
+            }
+         });
       }
 
       if ( changed ) {
-         od.gui.set( '#act_download_btn_update', _.l( 'action.download.btn_update_changed', null, changed ) );
+         od.gui.set( '#act_download_btn_update', _.l( 'action.download.btn_update_changed' ) );
       }
       _.visible( '#act_download_btn_save', ( ! downloading ) && dirty );
       _.visible( '#act_download_btn_all_list', unlisted );

@@ -33,7 +33,7 @@ od.download = {
    },
 
    "delete" : function download_delete( remote ) {
-      if ( ! od.data.category[remote.name] ) return;
+      if ( ! od.data.category[remote.name] ) return _.error( "Cannot delete a non-local category" );;
       switch ( remote.state ) {
          case "local" :
          case "absent" :
@@ -43,12 +43,16 @@ od.download = {
          case "downloading":
             _.error( "Cannot delete a listing / downloading category" );
             return;
-         case "unlisted" :
          case "listed" :
+            remote.added = _.col( remote.raw );
+            remote.changed = [];
+            remote.dirty = [];
+            break;
+         case "unlisted" :
       }
       delete od.data.category[remote.name];
-      od.action.download.refresh();
       this.dirty_catalog = true;
+      od.action.download.refresh();
    },
 
    /**
@@ -60,14 +64,14 @@ od.download = {
       _.cor( address,
          function download_get_catalog_callback( data, xhr ){
             // First reset state of all unlisted cat, assuming they are not on remote
-            down.get().forEach( function download_get_catalog_reset( r ){ 
+            down.get().forEach( function download_get_catalog_reset( r ){
                 if ( r.state === "unlisted" || r.state === "local" ) r.state = "absent";
             });
             // Get tab list and update state
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
             for ( var i = 0, len = tabs.length ; i < len ; i++ ) {
-               var cat = down.create( tabs[i].getElementsByTagName('Table')[0].textContent );
-               if ( cat.state === 'absent' ) cat.state = 'unlisted';
+               var r = down.create( tabs[i].getElementsByTagName('Table')[0].textContent );
+               if ( r.state === 'absent' || r.state === 'local' ) r.state = 'unlisted';
             }
             _.call( onload );
          },
