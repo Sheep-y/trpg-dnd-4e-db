@@ -46,9 +46,9 @@
  * Top buttons: List categories | Check all | Update changed | Stop all | Save | Reindex all
  *  
  * If any remote category has dirty data, save button may be available.
- * If any category is downloading, reindex/delete/save is not available for all cat, since data is being updated.
+ * If any category is downloading, reindex/save is not available for all cat, since data is being updated.
  * A check will reload listing but will not reset dirty (copied to local) data.
- * Reindex and delete will erase any dirty data.  Both are non-stopable and are saved immediately.
+ * Reindex and delete will erase any dirty data.  Both are non-stopable.
  *
  * Workflow:
  *   Load cat -> create remotes (local) -> Get cat -> Create / update remote state (unlisted or absent).
@@ -124,8 +124,7 @@ od.action.download = {
       tr.appendChild( _.create( 'td' ) ); // 2: Remote count
       tr.appendChild( _.create( 'td' ) ); // 3: Added count
       tr.appendChild( _.create( 'td' ) ); // 4: Changed count
-      tr.appendChild( _.create( 'td' ) ); // 5: Status
-      tr.appendChild( _.create( 'td' ) ); // 6: Actions
+      tr.appendChild( _.create( 'td' ) ); // 5: Actions
       _('#act_download_tbl_list tbody')[0].appendChild( tr );
       return this.tr[ remote.name ] = tr;
    },
@@ -137,6 +136,11 @@ od.action.download = {
           case 'reindex' : 
              param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
                // TODO: Reindex
+             }};
+             break;
+          case 'delete' :
+             param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
+                od.download.delete( remote );
              }};
              break;
           case 'list' : 
@@ -167,58 +171,8 @@ od.action.download = {
    'refresh' : function act_download_refresh ( remote_cat ) {
       var action = od.action.download;
 
-      function act_download_refresh_row ( remote ) {
-         var tr = action.tr[ remote.name ];
-         if ( tr === undefined ) tr = action.create_row( remote );
-         var cells = _( tr, 'td' );
-         var commands = cells[6];
-         commands.innerHTML = '';
-         //var local = od.data.get( remote.name );
-         //cells[1].textContent = local ? local.count : '--'; // Local count may change because of load failure or download update
-         switch ( remote.state ) {
-            case "listing":
-            case "downloading":
-               break; // Please do not interrupt while working!
-            case "absent" :
-               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '--';
-               cells[5].textContent = 'Local'; // TODO: i18n
-               // TODO: Delete, Reindex
-               break;
-            case "local" :
-               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '';
-               cells[5].textContent = '';
-               // TODO: Delete, Reindex
-               break;
-            case "unlisted" :
-               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
-               cells[5].textContent = 'Unlisted'; // TODO: i18n
-               commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_list' ) );
-               break;
-            case "listed" :
-               cells[2].textContent = remote.count;
-               cells[3].textContent = remote.added.length;
-               cells[4].textContent = remote.changed.length;
-               cells[5].textContent = remote.progress;
-               if ( remote.raw.length )
-                  commands.appendChild( action.create_button( 'update_all', remote, 'action.download.btn_update_all' ) );
-               if ( remote.added.length || remote.changed.length )
-                  commands.appendChild( action.create_button( 'update', remote, 'action.download.btn_update_changed' ) );
-               commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_relist' ) );
-               break;
-            default:
-               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
-               cells[5].textContent = remote.state;
-         }
-      };
-
-      if ( remote_cat !== undefined ) {
-         act_download_refresh_row( remote_cat );
-      } else {
-        od.download.get().forEach( act_download_refresh_row );
-      }
-
       // Find whether there are unlisted (Check all), changed (Get all), Downloading & Dirty (Save all) items
-      var unlisted = false, changed = false, downloading = false, dirty = false;
+      var unlisted = false, changed = false, downloading = false, dirty = od.download.dirty_catalog;
       od.download.get().forEach( function act_download_refresh_check( remote ) {
          switch ( remote.state ) {
             case "local" :
@@ -237,6 +191,62 @@ od.action.download = {
                 break;
          }
       });
+
+      // Update specified rows's data and 
+      function act_download_refresh_row ( remote ) {
+         var tr = action.tr[ remote.name ];
+         if ( tr === undefined ) tr = action.create_row( remote );
+         var cells = _( tr, 'td' );
+         var commands = cells[5];
+         var local = od.data.get( remote.name );
+         commands.innerHTML = '';
+         //var local = od.data.get( remote.name );
+         //cells[1].textContent = local ? local.count : '--'; // Local count may change because of load failure or download update
+         switch ( remote.state ) {
+            case "listing":
+            case "downloading":
+               break; // Please do not interrupt while working!
+            case "absent" :
+               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '--';
+               //cells[5].textContent = 'Local'; // TODO: i18n
+               // TODO: Reindex
+               commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
+               break;
+            case "local" :
+               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '';
+               //cells[5].textContent = '';
+               // TODO: Reindex
+               commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
+               break;
+            case "unlisted" :
+               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
+               //cells[5].textContent = 'Unlisted'; // TODO: i18n
+               commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_list' ) );
+               if ( local ) commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
+               break;
+            case "listed" :
+               cells[2].textContent = remote.count;
+               cells[3].textContent = remote.added.length;
+               cells[4].textContent = remote.changed.length;
+               //cells[5].textContent = remote.progress;
+               if ( remote.raw.length )
+                  commands.appendChild( action.create_button( 'update_all', remote, 'action.download.btn_update_all' ) );
+               if ( remote.added.length || remote.changed.length )
+                  commands.appendChild( action.create_button( 'update', remote, 'action.download.btn_update_changed' ) );
+               if ( local ) {
+                  commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
+                  commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_relist' ) );
+               }
+               // TODO: Delete, Reindex
+               break;
+         }
+      };
+
+      if ( remote_cat !== undefined ) {
+         act_download_refresh_row( remote_cat );
+      } else {
+        od.download.get().forEach( act_download_refresh_row );
+      }
 
       if ( changed ) {
          od.gui.set( '#act_download_btn_update', _.l( 'action.download.btn_update_changed', null, changed ) );

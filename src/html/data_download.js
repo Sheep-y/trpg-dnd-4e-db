@@ -15,6 +15,7 @@ od.download = {
       //    dirty: [ "id1","id2" ]
       // }
    },
+   dirty_catalog : false, // Mark whether master catalog is dirty, e.g. a category is deleted. Note that a dirty category always imply dirty catalog.
    "get" : function download_get( name ) {
       if ( name === undefined ) {
          var result = [];
@@ -29,6 +30,25 @@ od.download = {
       var result = this.get( name );
       if ( result === null ) this.category[name] = result = new od.download.RemoteCategory( name );
       return result;
+   },
+
+   "delete" : function download_delete( remote ) {
+      if ( ! od.data.category[remote.name] ) return;
+      switch ( remote.state ) {
+         case "local" :
+         case "absent" :
+            delete this.category[remote.name];
+            break;
+         case "listing":
+         case "downloading":
+            _.error( "Cannot delete a listing / downloading category" );
+            return;
+         case "unlisted" :
+         case "listed" :
+      }
+      delete od.data.category[remote.name];
+      od.action.download.refresh();
+      this.dirty_catalog = true;
    },
 
    /**

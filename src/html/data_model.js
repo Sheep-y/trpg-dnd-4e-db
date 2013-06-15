@@ -159,7 +159,7 @@ od.data.Category.prototype = {
 
    "columns": [], // e.g. [ "ID","Name","Category","SourceBook","Level", ... ]
    "list" : [],   // e.g. [ {ID:"sampleId001", "SourceBook": { "raw":"Multiple", "ext": ["PHB","PHB2"] }, ... ]
-   "map" : {},    // e.g. { "sampleId001": (point to same item in list), ... }
+   "map" : {},   // e.g. { "sampleId001": (point to same item in list), ... }
    "data" : {},   // e.g. { "sampleId001": "<h1 class='player'>Sample Data 1</h1><p class='flavor'>..." }, ... }
 
    /**

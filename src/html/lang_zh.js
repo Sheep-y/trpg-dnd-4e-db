@@ -101,6 +101,7 @@ _.l.set( 'action.download', {
    btn_all_list : "全部檢查",
    btn_list : "檢查",
    btn_relist : "再檢查",
+   btn_delete : "刪除",
    btn_update_changed : "獲取新/改變條目",
    btn_update_all : "獲取所有條目",
    btn_save : "儲存",
