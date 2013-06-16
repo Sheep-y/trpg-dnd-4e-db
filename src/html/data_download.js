@@ -100,8 +100,10 @@ od.download = {
       } else {
          download_schedule_download_run(); // New or resetted category, no need to load index.
       }
+      // Update progress now, because first item may be queued after other category
       var step = 0, total = list.length;
       remote.progress = _.l( 'action.download.lbl_progress', null, 0, total );
+      _.call( onstep );
       function download_schedule_download_run() {
          _.debug( 'Schedule '+ list.length );
          var latch = new _.Latch( list.length, function download_schedule_download_done() {

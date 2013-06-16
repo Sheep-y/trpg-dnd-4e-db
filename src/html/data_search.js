@@ -27,11 +27,9 @@ od.search = {
       var cat = options.category;
       if ( cat ) {
          // Search in a single category
-         cat.load_listing( function(){
+         cat.load_extended( function(){
             if ( search_body ) {
-               cat.load_index( function(){
-                  do_search( );
-               });
+               cat.load_index( do_search );
             } else {
                do_search( );
             }
@@ -40,11 +38,8 @@ od.search = {
          // Search in all categories
          od.data.load_all_listing( function(){
             if ( search_body ) {
-               od.data.load_all_index( function(){
-                  do_search( );
-               });
+               od.data.load_all_index( do_search );
             } else {
-               // Seach listing only
                do_search( );
             }
          });
@@ -56,7 +51,7 @@ od.search = {
             _.info( 'Search ' + cat.name + ': ' + options.term );
             list.columns = cat.columns;
             list.data = [].concat( search( cat.list ) );
-            _.call( options.ondone, null, od.search.normalise_list( list ) );
+            _.call( options.ondone, null, list );
          } else {
             _.info( 'Searching all categories: ' + options.term  );
             list.columns = ["ID","Name","Category","Type","Level","SourceBook"];
@@ -64,33 +59,25 @@ od.search = {
             od.data.get().forEach( function( c ) {
                list.data = list.data.concat( search( c.list ) );
             } );
-            _.call( options.ondone, null, od.search.normalise_list( list ) );
+            _.call( options.ondone, null, list );
          }
 
          function search( lst ) {
             var result = [];
+search_loop:
             for ( var i = 0, l = lst.length ; i < l ; i++ ) {
                var row = lst[i];
                for ( var prop in row ) {
                   if ( prop !== '_category' ) {
-                     if ( row[prop].raw ) {
-                        if ( regx.test( row[prop].raw ) ) {
-                           result.push( row );
-                           break;
-                        }
-                     } else {
-                        if ( regx.test( row[prop] ) ) {
-                           result.push( row );
-                           break;
-                        }
-                     }
-                     if ( search_body ) {
-                        if ( regx.test( row._category.index[row.ID] ) ) {
-                           result.push( row );
-                           break;
-                        }
+                     var p = row[prop];
+                     if ( regx.test( p.text ? p.text : p ) ) {
+                        result.push( row );
+                        continue search_loop;
                      }
                   }
+               }
+               if ( search_body && regx.test( row._category.index[row.ID] ) ) {
+                  result.push( row );
                }
             }
             return result;
@@ -103,10 +90,10 @@ od.search = {
          var list = { "columns":[], "data":[] };
          if ( cat ) {
             _.info( 'List ' + cat.title );
-            cat.load_listing( function data_search_list_category_load_cat() {
+            cat.load_extended( function data_search_list_category_load_cat() {
                list.columns = cat.columns;
                list.data = [].concat( cat.list );
-               _.call( onload, cat, od.search.normalise_list( list ) );
+               _.call( onload, cat, list );
             });
          } else {
             _.info( 'List all categories' );
@@ -115,33 +102,10 @@ od.search = {
                od.data.get().forEach( function data_search_list_category_each( c ) {
                   list.data = list.data.concat( c.list );
                } );
-               _.call( onload, null, od.search.normalise_list( list ) );
+               _.call( onload, null, list );
             });
          }
       } );
-   },
-
-   /**
-    * Given data.columns and data.data, convert data.data to two-dimension array that match the columns.
-    *
-    * @param {Object} data before conversion: { "columns": ["col1","col2"], "data": [ {"col1":xxx}, {"col2":bbb,"col3":ddd}, ... ] }
-    * @returns {Object} data after conversion: { "columns": ["col1","col2"], "data": [ [xxx, null], [null, bbb], ... ] }
-    */
-   "normalise_list" : function data_search_normalise_list( data ) {
-      var list = data.data;
-      var col = data.columns;
-      var cl = col.length;
-      _.debug( 'Normalise ' + list.length + ' results' );
-      for ( var i = 0, l = list.length ; i < l ; i++ ) {
-         var item = [];
-         var base = list[i];
-         for ( var c = 0 ; c < cl ; c++ ) {
-           item.push( base[col[c]] ? base[col[c]] : null );
-         }
-         item._category = base._category;
-         list[i] = item;
-      }
-      return data;
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -66,7 +66,7 @@ od.data = {
    "load_all_listing" : function data_load_all_listing( ondone ) {
       var lat = new _.Latch( this.list().length+1, ondone );
       var cats = this.category;
-      for ( var cat in cats ) cats[cat].load_listing( lat.count_down_function() );
+      for ( var cat in cats ) cats[cat].load_extended( lat.count_down_function() );
       lat.count_down();
    },
 
@@ -151,14 +151,14 @@ od.data.Category.prototype = {
    "count": 0,
 
    /** Raw data used to compose list property */
-   "raw_columns": [],  // e.g. ["ID","Name","Category","SourceBook", ... ]
-   "raw": [],          // e.g. [ ["sampleId001","Sample Data 1","Sample1","Git"], ... ]
-   "ext_columns": [],  // e.g. ["ID","Level","SourceBook", ... ]
-   "extended": [],     // e.g. [ ["sampleId001",[1,3],["PHB","PHB2"]], ... ]
+   "raw_columns": [],  // e.g. ["ID","Name","SourceBook", ... ]
+   "raw": [],          // e.g. [ ["sampleId001","Sample Data 1","Git,Csv"], ... ]
+   "ext_columns": [],  // e.g. ["ID","Name","Level","SourceBook", ... ]
+   "extended": [],     // e.g. [ ["sampleId001","Sample",["1+",1,3],["Multiple","Git","Csv"]], ... ]
    "index": {},        // e.g. { "sampleId001":"Sample Data 1 Published in ...", ... }
 
-   "columns": [], // e.g. [ "ID","Name","Category","SourceBook","Level", ... ]
-   "list" : [],   // e.g. [ {ID:"sampleId001", "SourceBook": { "raw":"Multiple", "ext": ["PHB","PHB2"] }, ... ]
+   "columns": [], // e.g. [ Name","SourceBook","Level", ... ]
+   "list" : [],   // e.g. [ {ID:"sampleId001", SourceBook": { "text":"Multiple", "set": ["Git","Csv"] }, ... ]
    "map" : {},   // e.g. { "sampleId001": (point to same item in list), ... }
    "data" : {},   // e.g. { "sampleId001": "<h1 class='player'>Sample Data 1</h1><p class='flavor'>..." }, ... }
 
@@ -181,12 +181,15 @@ od.data.Category.prototype = {
    },
 
    "load_listing" : function data_Cat_load_listing( ondone, onerror ) {
+      od.reader.read_data_listing( this.name, ondone, _.callonce( onerror ) );
+   },
+
+   "load_extended" : function data_Cat_load_extended( ondone, onerror ) {
       var cat = this;
-      var err = onerror ? function(){ onerror.call(); onerror = function(){}; } : onerror;
       od.reader.read_data_extended( this.name, function data_Cat_load_listing_done() {
          cat.build_listing();
          _.call( ondone );
-      }, err );
+      }, _.callonce( onerror ) );
    },
 
    "load_index" : function data_Cat_load_index( ondone, onerror ) {
@@ -219,8 +222,17 @@ od.data.Category.prototype = {
          this.unload();
          this.count = 0;
          this.raw_columns = col;
-         this.ext_columns = ["ID"];
+         this.ext_columns = this.parse_extended( col, null );
       }
+   },
+
+   "parse_extended" : function data_Cat_parse_extended ( listing, data ) {
+      // Data is null = listing columns
+      if ( data ) {
+         var pos = this.ext_columns.indexOf( 'SourceBook' );
+         if ( pos && listing[pos].indexOf(',') >= 0 ) listing[ pos ] = [ listing[pos] ].concat( listing[pos].split(',') );
+      }
+      return listing.concat();
    },
 
    "update" : function data_Cat_update( id, listing, data ) {
@@ -233,61 +245,46 @@ od.data.Category.prototype = {
          _.info('Updating ' + id + ' (' + listing[1] + ') of ' + cat.name );
          cat.load_data( id, function data_Cat_update_load(){
             cat.raw[i] = listing;
-            cat.extended[i] = [ id ];
+            cat.extended[i] = cat.parse_extended( listing, data );
             cat.index[id] = index;
             cat.data[id] = data;
          });
       } else {
          _.info('Adding ' + id + ' (' + listing[1] + ') to ' + cat.name );
          cat.raw.push( listing );
-         cat.extended.push( [ id ] );
+         cat.extended.push( cat.parse_extended( listing, data ) );
          cat.index[id] = index;
          cat.data[id] = data;
          ++cat.count;
       }
    },
 
-   // Build this.columns and this.list from raw listing and extended listing.
+   // Build this.columns and this.list.
    "build_listing" : function data_Cat_bulid_listing() {
       var cat = this;
-      if ( this.raw.length !== this.extended.length ) {
-         _.error( _.l( 'error.wrong_ext', null, this.title ) );
-         this.ext_columns = [];
-         this.extended = new Array( this.raw.length );
-      }
+      var data = this.extended;
+      var col = this.ext_columns;
 
-      var raw = this.raw;
-      var raw_col = this.raw_columns;
-      var rl = raw_col.length;
-
-      var ext = this.extended;
-      var ext_col = this.ext_columns;
-      var el = ext_col.length;
-
-      var list = this.list = [];
+      this.columns = col.slice( 1 );
+      var list = this.list = new Array( data.length );
       var map = this.map = {};
-      for ( var i = 0, ll = raw.length ; i < ll ; i++ ) {
-         var item = {"Category":this.title}, r = raw[i], e = ext[i];
-         for ( var j = 0 ; j < rl ; j++ ) item[raw_col[j]] = r[j];
-         if ( e[0] === r[0] ) { // First item is id
-            for ( j = 1 ; j < el ; j++ ) {
-               if ( item[ext_col[j]] === undefined ) {
-                  item[ext_col[j]] = e[j];
-               } else {
-                  if ( e[j] ) item[ext_col[j]] = { "raw": item[ext_col[j]], "ext": e[j] };
-               }
+
+      var colCount = col.length;
+      for ( var i = 0, l = data.length ; i < l ; i++ ) {
+         var listing = data[i];
+         var item = {};
+         for ( var j = 0 ; j < colCount ; j++ ) {
+            var prop = listing[j];
+            if ( typeof( prop ) === 'string' ) {
+               item[ col[j] ] = prop;
+            } else {
+               item[ col[j] ] = { "text" : prop[0], "set" : prop.slice( 1 ) };
             }
-            item._category = this;
-         } else {
-            _.warn( this.name + ' reindex #' + i + ': ' + e[0] + ' !== ' + r[0] );
          }
+         item._category = this;
          list.push( item );
-         map[ item[raw_col[0]] ] = item;
+         map[ listing[0] ] = item;
       }
-      this.columns = this.raw_columns.concat( this.ext_columns );
-      this.columns = this.columns.filter( function(e,i) {
-         return cat.columns.indexOf(e) >= i;
-      });
    }
 };
 _.seal( od.data.Category.prototype );

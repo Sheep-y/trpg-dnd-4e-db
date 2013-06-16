@@ -96,10 +96,10 @@ _.call = function _call( func, thisObj, param /*...*/ ) {
  * @param {type} func  Function to call.
  * @returns {function} Function that can be safely called multiple times without calling func more then once
  */
-_.callonce = function _call( func ) {
-   if ( !func ) return function(){};
+_.callonce = function _call ( func ) {
+   if ( ! func ) return function () {};
    return function _callonce_call () {
-      if ( !func ) return;
+      if ( ! func ) return; // func would be set to null after first call
       var f = func;
       func = null;
       return _.call.apply( this, [ f, this ].concat( _.ary( arguments ) ) );
