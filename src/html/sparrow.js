@@ -38,14 +38,14 @@ function _( root, selector ) {
  *
  * @param {Array-like object} subject Subject to be converted.
  * @param {Integer} startpos If given, work like Array.slice( startpos ).
- * @param {Integer} endpos If this and startpos is given, work like Array.slice( startpos, length ).
+ * @param {Integer} length If this and startpos is given, work like Array.slice( startpos, length ).
  * @returns {Array} Clone or slice of subject.
  */
-_.ary = function _ary( subject, startpos, endpos ) {
+_.ary = function _ary( subject, startpos, length ) {
    if ( subject.length <= 0 ) return [];
    var s = Array.prototype.slice;
    if ( startpos === undefined ) return subject instanceof Array ? subject : s.call( subject, 0 );
-   return s.call( subject, startpos, endpos );
+   return s.call( subject, startpos, length );
 };
 
 /**
@@ -110,22 +110,20 @@ _.callonce = function _call( func ) {
  * Capture parameters in a closure and return a callback function
  * that can be called at a later time.
  */
-_.callparam = function _callparam( param /*...*/, func ) {
+_.callparam = function _callparam( thisObj, param /*...*/, func ) {
    var l = arguments.length-1;
    var f = arguments[l];
-   var arg = _.ary( arguments, 0, l );
-   var thisp = this;
-   return function _callback() { f.apply( thisp, arg ); };
+   var arg = _.ary( arguments, 1, l );
+   return function _callback() { f.apply( thisObj, arg ); };
 };
 
 /**
  * Capture parameters in a closure and return a callback function
  * that can be called at a later time.
  */
-_.callfunc = function _callfunc( func, param /*...*/ ) {
-   var arg = _.ary( arguments, 1 );
-   var thisp = this;
-   return function _callback() { func.apply( thisp, arg ); };
+_.callfunc = function _callfunc( func, thisObj, param /*...*/ ) {
+   var arg = _.ary( arguments, 2 );
+   return function _callback() { func.apply( thisObj, arg ); };
 };
 
 if ( window.setImmediate === undefined ) {
@@ -492,6 +490,7 @@ _.Latch.prototype = {
       if ( this.count < 0 ) throw "IllegalStateException: Latch count below zero";
       if ( this.count === 0 ) _.call( this.ondone, this );
    },
+
    /** Return a function that can be used to countdown this latch */
    "count_down_function" : function _latch_countdown_function( value ) {
       var latch = this;
@@ -499,6 +498,13 @@ _.Latch.prototype = {
    }
 };
 
+/**
+ * Create a new executor
+ * 
+ * @param {type} thread   Max. number of parallel jobs.
+ * @param {type} interval Minimal interval between job start.
+ * @returns {_.Executor}  New executor object
+ */
 _.Executor = function( thread, interval ) {
    if ( thread ) this.thread = thread;
    if ( interval ) this.interval = interval;
@@ -506,58 +512,70 @@ _.Executor = function( thread, interval ) {
    this.waiting = [];
 };
 _.Executor.prototype = {
-   "_paused": false,
-   "_lastRun": 0,
-   "thread": 1,
+   "_paused": false, // Whether this executor is paused.
+   "_lastRun": 0, // Last job run time.
+   "_timer" : 0,  // Timer for next notice() event, if interval > 0.
+   "thread" : 1,
    "interval": 0,
    "running": [],
    "waiting": [],
    "add": function _executor_add ( runnable, param /*...*/ ) {
-      this.addTo.apply( this, [ this.waiting.length ].concat( _.ary( arguments ) ) );
-      return this;
+      return this.addTo.apply( this, [ this.waiting.length ].concat( _.ary( arguments ) ) );
    },
    "asap": function _executor_asap ( runnable, param /*...*/ ) {
-      this.addTo.apply( this, [0].concat( _.ary( arguments ) ) );
-      return this;
+      return this.addTo.apply( this, [0].concat( _.ary( arguments ) ) );
    },
    "addTo": function _executor_addTo ( index, runnable, param /*...*/ ) {
       if ( ! runnable.name ) runnable.name = runnable.toString().match(/^function\s+([^\s(]+)/)[1];
       _.debug('Queue task ' + runnable.name );
       var arg = [ runnable ].concat( _.ary( arguments, 2 ) );
       this.waiting.splice( index, 0, arg );
-      this.notice();
-      return this;
+      return this.notice();
    },
    "finish" : function _executor_finish ( id ) {
       var r = this.running[id];
       _.debug('Finish task #' + id + ' ' + r[0].name );
       this.running[id] = null;
-      this.notice();
-      return this;
+      return this.notice();
    },
-   "clear": function _executor_clear() { this.waiting = []; },
-   "pause": function _executor_pause() { this._paused = true; return this; },
-   "resume": function _executor_resume() { this._paused = false; this.notice(); return this; },
-   "notice": function _executor_notice() {
+   "clear"  : function _executor_clear () { this.waiting = []; },
+   "pause"  : function _executor_pause () { this._paused = true; if ( exe._timer ) clearTimeout( this._timer ); return this; },
+   "resume" : function _executor_resume () { this._paused = false; this.notice(); return this; },
+   /**
+    * Check state of threads and schedule tasks to fill the threads.
+    * This method always return immediately; tasks will run after current script finish.
+    * 
+    * @returns {_executor_notice}
+    */
+   "notice" : function _executor_notice () {
+      this._timer = 0;
       if ( this._paused ) return this;
-      var nextInterval = 0;
       var exe = this;
+
+      function _executor_schedule_notice ( delay ) {
+         if ( exe._timer ) clearTimeout( exe._timer );
+         exe._timer = setTimeout( _.callfunc( exe.notice, exe ), delay );
+         return exe;
+      }
+
+      var delay = this.interval <= 0 ? 0 : Math.max( 0, -(new Date).getTime() + this._lastRun + this.interval );
+      if ( delay > 12 ) return _executor_schedule_notice ( delay ); // setTimeout is not accurate so allow 12ms deviations
       for ( var i = 0 ; i < this.thread && this.waiting.length > 0 ; i++ ) {
-         if ( !this.running[i] ) {
-            var r = this.waiting.splice( 0, 1 )[0];
-            this.running[i] = r;
+         if ( ! this.running[i] ) {
+            var r = exe.waiting.splice( 0, 1 )[0];
+            exe.running[i] = r;
             //_.debug('Schedule task #' + i + ' ' + r[0].name );
-            setTimeout( _.callparam( i, r, function _Executor_run(ii,r){
+            exe._lastRun = new Date().getTime();
+            setImmediate( _.callparam( null, i, r, function _Executor_run ( ii, r ){
                _.debug('Start task #' + ii + ' ' + r[0].name );
-               exe._lastRun = new Date().getTime();
                try {
                   if ( r[0].apply( null, [ ii ].concat( r.slice(1) ) ) !== false ) exe.finish( ii );
                } catch ( e ) {
-                  console.log(e)
                   _.error( e );
                   exe.finish( ii );
                }
-            } ), nextInterval += this.interval );
+            } ));
+            if ( exe.interval > 0 ) return _executor_schedule_notice ( exe.interval );
          }
       }
       return this;
