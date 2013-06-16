@@ -52,6 +52,7 @@
    <!-- Produce a simulation biuld for testing.  -->
    <target name="offline_simulate" description="Offline test build" depends="make">
       <replace file="${deliverable}" token='"simulate" : false' value='"simulate" : true' encoding="UTF-8" />
+      <replace file="${deliverable}" token='"down_interval" : 0' value='"down_interval" : 1000' encoding="UTF-8" />
    </target>
 
    <!-- Stripts unnecessary code for deployment. Saves about 11% (34k) so production value is in doubt.  -->
