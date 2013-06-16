@@ -52,7 +52,6 @@ od.download = {
       }
       delete od.data.category[remote.name];
       this.dirty_catalog = true;
-      od.action.download.refresh();
    },
 
    /**
@@ -85,12 +84,12 @@ od.download = {
    /**
     * Schedule download of a list of items in same category.
     *
-    * @param {type} remote Remote category object
-    * @param {type} list Array of id to download
-    * @param {type} onprogress
+    * @param {type} remote  Remote category object
+    * @param {type} list    Array of id to download
+    * @param {type} onstep  Callback on each progress
     * @returns {undefined}
     */
-   "schedule_download": function download_schedule_download( remote, list, onprogress, ondone ) {
+   "schedule_download": function download_schedule_download( remote, list, onstep, ondone ) {
       remote.status = "downloading";
       var down = od.download;
       var exec = down.executor;
@@ -101,6 +100,8 @@ od.download = {
       } else {
          download_schedule_download_run(); // New or resetted category, no need to load index.
       }
+      var step = 0, total = list.length;
+      remote.progress = _.l( 'action.download.lbl_progress', null, 0, total );
       function download_schedule_download_run() {
          _.debug( 'Schedule '+ list.length );
          var latch = new _.Latch( list.length, function download_schedule_download_done() {
@@ -110,7 +111,7 @@ od.download = {
             //var retry = 0;
             function download_schedule_download_task( threadid ) {
                if ( ! item ) {
-                  _.call( onprogress, remote, item );
+                  _.call( onstep, remote, item );
                   latch.count_down();
                   return true;
                }
@@ -144,8 +145,9 @@ od.download = {
                         var index = _.col( remote.raw, 0 ).indexOf( id );
                         local.update( id, remote.raw[index], data  );
                         if ( remote.dirty.indexOf( id ) < 0 ) remote.dirty.push( id );
+                        remote.progress = _.l( 'action.download.lbl_progress', null, ++step, total );
                         exec.finish( threadid );
-                        _.call( onprogress, remote, id );
+                        _.call( onstep, remote, id );
                         latch.count_down();
                      }
                   },
@@ -162,7 +164,7 @@ od.download = {
                         _.error( _.l( 'error.updating_data', null, id + i , cat.name, err ) );
                      //}
                      exec.finish( threadid );
-                     _.call( onprogress, remote, id );
+                     _.call( onstep, remote, id );
                   }
                );
                // Return false make sure the thread pool knows we're not finished (if we are already finished, we have already notified it)
@@ -220,21 +222,31 @@ od.download.RemoteCategory.prototype = {
       var data, xsl;
       var latch = new _.Latch( 3 );
       var err = _.callonce( onerror );
-      this.get_remote( od.config.source.list( this.name ), function(txt){ data = txt; latch.count_down(); }, err );
-      this.get_remote( od.config.source.xsl ( this.name ), function(txt){ xsl  = txt; latch.count_down(); }, err );
+      remote.state = _.l('action.download.lbl_fetching_both');
+      this.get_remote( od.config.source.list( this.name ), function(txt){ 
+         data = txt; 
+         data = data.replace( /’/g, "'" );
+         remote.state = _.l('action.download.lbl_fetching_xsl'); 
+         latch.count_down(); 
+      }, err );
+      this.get_remote( od.config.source.xsl ( this.name ), function(txt){ 
+         xsl = txt; 
+         xsl = xsl.replace( /\n\s+/g, '\n' );
+         xsl = xsl.replace( /<script(.*\r?\n)+?<\/script>/g, '' ); // Remove scripts so that xsl can run
+         xsl = xsl.replace( /<xsl:sort[^>]+>/g, '' ); // Undo sort so that transformed id match result
+         xsl = xsl.replace( /Multiple Sources/g, '<xsl:apply-templates select="SourceBook"/>' ); // Undo multiple source replacement
+         xsl = xsl.replace( /\bselect="'20'"\s*\/>/, 'select="\'99999\'"/>' ); // Undo paging so that we get all result
+         remote.state = _.l('action.download.lbl_fetching_xml');
+         latch.count_down(); 
+      }, err );
       latch.ondone = function download_Cat_get_listing_done() {
+         remote.state = '';
          remote.added = [];
          remote.changed = [];
          remote.count = 0;
          var list = remote.raw = [];
          if ( ! data || ! xsl ) return err('No Data');
 
-         data = data.replace( /’/g, "'" );
-         xsl = xsl.replace( /\n\s+/g, '\n' );
-         xsl = xsl.replace( /<script(.*\r?\n)+?<\/script>/g, '' ); // Remove scripts so that xsl can run
-         xsl = xsl.replace( /<xsl:sort[^>]+>/g, '' ); // Undo sort so that transformed id match result
-         xsl = xsl.replace( /Multiple Sources/g, '<xsl:apply-templates select="SourceBook"/>' ); // Undo multiple source replacement
-         xsl = xsl.replace( /\bselect="'20'"\s*\/>/, 'select="\'99999\'"/>' ); // Undo paging so that we get all result
          var results = _.xml( data ).querySelectorAll('Results > *');
          var transformed = _.xsl( data, xsl );
          var idList = [];
@@ -340,6 +352,12 @@ od.download.RemoteCategory.prototype = {
 
    /**
     * Get entry content
+    * 
+    * @param {type} id      Id of entry
+    * @param {type} onload  Callback after successful load
+    * @param {type} onerror Callback after error
+    * @param {type} retry   Number of retry before throwing error.
+    * @returns {undefined}
     */
    "get_data": function download_Cat_get_data( id, onload, onerror, retry ) {
       var address = od.config.source.data( this.name, id );
@@ -361,6 +379,13 @@ od.download.RemoteCategory.prototype = {
       }
    },
 
+   /**
+    * Save this category's changed data.
+    * 
+    * @param {type} ondone  Callback after data is saved
+    * @param {type} onerror Callback after error
+    * @returns {undefined}
+    */
    "save" : function download_Cat_save( ondone, onerror ) {
       if ( this.dirty.length ) { // Has dirty
          var remote = this;

@@ -141,6 +141,7 @@ od.action.download = {
           case 'delete' :
              param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
                 od.download.delete( remote );
+                refreshRemote();
              }};
              break;
           case 'list' : 
@@ -205,6 +206,7 @@ od.action.download = {
          switch ( remote.state ) {
             case "listing":
             case "downloading":
+               commands.textContent = remote.progress;
                break; // Please do not interrupt while working!
             case "absent" :
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '--';
