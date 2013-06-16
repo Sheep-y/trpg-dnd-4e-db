@@ -64,9 +64,14 @@ od.reader = {
          function(){ return od.data.get(category).extended.length > 0; },
          onload,
          onerror ? onerror : 'Cannot read extended ' + category + ' listing from ' + path );
+      // TODO: Make error handler use thrown error message (e.g. need reindex) instead of default
    },
 
    jsonp_data_extended: function reader_jsonp_data_extended( version, category, columns, data ) {
+      if ( version < 20130616 ) {
+         _.error( _.l( 'error.need_reindex' ) );
+         return;
+      }
       var cat = od.data.get(category);
       cat.ext_columns = columns;
       cat.extended = data;

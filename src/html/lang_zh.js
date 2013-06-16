@@ -65,7 +65,8 @@ _.l.set( 'error', {
    'file_no_api' : 'Only support saving in IE, because JavaScript has no standard for saving portable offline data.',
    'file_cannot_delete' : '無法覆寫 %1',
 
-   'wrong_ext': 'Extended list different from raw list, please re-index from download screen: %1.'
+   'wrong_ext': 'Extended list different from raw list, please re-index from download screen: %1.',
+   'need_reindex' : '索引格式過時；請到更新頁重建索引。'
 });
 
 _.l.set( 'gui', {
@@ -75,78 +76,79 @@ _.l.set( 'gui', {
 });
 
 _.l.set( 'action.list', {
-   title : "瀏覽數據庫",
-   link_text : "瀏覽",
+   'title' : "瀏覽數據庫",
+   'link_text' : "瀏覽",
 
-   txt_search_placeholder : "搜尋關鍵詞。例：ranger OR martial   bonus -\"feat bonus\" ",
-   bth_search_name : "名字搜尋",
-   bth_search_body : "全文搜尋",
-   bth_search_advanced : "進階搜尋",
-   a_all : "全類別",
-   a_category : "%1 (%2)"
+   'txt_search_placeholder' : "搜尋關鍵詞。例：ranger OR martial   bonus -\"feat bonus\" ",
+   'bth_search_name' : "名字搜尋",
+   'bth_search_body' : "全文搜尋",
+   'bth_search_advanced' : "進階搜尋",
+   'a_all' : "全類別",
+   'a_category' : "%1 (%2)"
 });
 
 _.l.set( 'action.view', {
 });
 
 _.l.set( 'action.download', {
-   title : "更新數據庫",
-   link_text : "更新",
+   'title' : "更新數據庫",
+   'link_text' : "更新",
 
-   paragraph : [
+   'paragraph' : [
       "This browser script allows you to download and save compendium entries, then search and list them offline using advanced Google-like syntax.",
       "<b>Requires an active DDI subscription to download any data.</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates' target='_blank'>Official Rules Updates</a>"
    ],
-   btn_get_catalog : "刷新列表",
-   btn_all_list : "全部檢查",
-   btn_list : "檢查",
-   btn_relist : "再檢查",
-   btn_delete : "刪除",
-   btn_update_changed : "獲取新/改變條目",
-   btn_update_all : "獲取所有條目",
-   btn_save : "儲存",
+   'btn_get_catalog' : "刷新列表",
+   'btn_all_list' : "全部檢查",
+   'btn_list' : "檢查",
+   'btn_relist' : "再檢查",
+   'btn_delete' : "刪除",
+   'btn_reindex': "重建索引",
+   'btn_update_changed' : "獲取新/改變條目",
+   'btn_update_all' : "獲取所有條目",
+   'btn_save' : "儲存",
 
-   th_category: "類別",
-   th_local   : "已儲存",
-   th_remote  : "在線",
-   th_changed : "異動",
-   th_new     : "新增",
-   th_status  : " ",
-   th_commands: " ",
+   'th_category': "類別",
+   'th_local'   : "已儲存",
+   'th_remote'  : "在線",
+   'th_changed' : "異動",
+   'th_new'     : "新增",
+   'th_status'  : " ",
+   'th_commands': " ",
 
-   lbl_fetching_both : "提取列表及轉換器中",
-   lbl_fetching_xml : "提取列表中",
-   lbl_fetching_xsl : "提取轉換器中",
-   lbl_progress : "%1/%2",
+   'lbl_fetching_both' : "提取列表及轉換器中",
+   'lbl_fetching_xml' : "提取列表中",
+   'lbl_fetching_xsl' : "提取轉換器中",
+   'lbl_progress' : "%1/%2",
 
-   msg_login  : "一個登入頁即將彈出。請登入然後關閉登入窗口以繼續下載。或者按\"取消\"終止更新程序。"
+   'msg_login'  : "一個登入頁即將彈出。請登入然後關閉登入窗口以繼續下載。或者按\"取消\"終止更新程序。"
 });
 
 _.l.set( 'action.about', {
-   title : "關於",
-   link_text : "關於",
+   'title' : "關於",
+   'link_text' : "關於",
 
-   h_language : "語言",
-   lbl_select_lang : "請選擇語言 :", // please translate as "Please select language:"
-   opt_auto : "(自動偵察)",
-   lst_symbol  : "請選擇符號集：",
-   opt_original: "原設",
-   opt_common  : "常見",
-   opt_dingbat : "雜錦",
-   opt_plain   : "純文字",
-   hint_basic  : "基礎攻擊（近距，近戰，遠程，範圍）",
-   hint_attack : "基礎攻擊（近距，近戰，遠程，範圍）",
-   hint_dice   : "骰面（充能） 1 2 3 4 5 6",
-   hint_aura   : "氣場",
+   'h_language' : "語言",
+   'lbl_select_lang' : "請選擇語言 :", // please translate as "Please select language:"
+   'opt_auto' : "(自動偵察)",
+   'lst_symbol'  : "請選擇符號集：",
+   'opt_original': "原設",
+   'opt_common'  : "常見",
+   'opt_dingbat' : "雜錦",
+   'opt_plain'   : "純文字",
+   'hint_basic'  : "基礎攻擊（近距，近戰，遠程，範圍）",
+   'hint_attack' : "基礎攻擊（近距，近戰，遠程，範圍）",
+   'hint_dice'   : "骰面（充能） 1 2 3 4 5 6",
+   'hint_aura'   : "氣場",
 
-   h_license : "授權",
-   p_license : "此文本是免費軟件，以 GNU AGPL v3 授權發佈。",
-   a_source : "源碼",
-   a_email  : "電郵",
-   lbl_source_manual : "請在關閉此提示後右按並點選'顯示源碼'，因為 IE 不支援，因為您的瀏覽器不能用程序呼叫這功能。",
+   'h_license' : "授權",
+   'p_license' : "此文本是免費軟件，以 GNU AGPL v3 授權發佈。",
+   'a_source' : "源碼",
+   'a_email'  : "電郵",
+   'lbl_source_manual' : "請在關閉此提示後右按並點選'顯示源碼'，因為 IE 不支援，因為您的瀏覽器不能用程序呼叫這功能。",
 
-   h_get_data : "如何獲取數據",
-   p_get_data :
+   'h_get_data' : "如何獲取數據",
+   'p_get_data' :
       "此文本不附帶任何數據。要獲取數據，您需要一些東西，當中包括 active <a href='http://www.wizards.com/DnD/Subscription.aspx'>Dungeons & Dragons Insider subscription</a>. <br/>"+
       "要獲取數據，只需以下短短幾步： <br/> <ol> "+
       " <li> 將此 HTML 儲存到檔案系統，並用 Internet Explorer（非 Metro）開啓。"+
@@ -156,8 +158,8 @@ _.l.set( 'action.about', {
       " <li> 儲存數據 "+
       "</ol> 下載頁有更多的詳情。",
 
-   h_search_data : "如何搜尋數據",
-   p_search_data :
+   'h_search_data' : "如何搜尋數據",
+   'p_search_data' :
       "輸入要找的字詞，就會找出包含所有字詞的結果，不論順序，不論大小寫。 <br/>"+
       "例、<kbd>fighter heal</kbd> 會找出同時包括 <q>Fighter</q> 和 <q>Heal</q> 或 <q>Healing</q> 或 <q>Healer</q> 的結果. <br/>"+
       "<br/>"+
@@ -175,8 +177,8 @@ _.l.set( 'action.about', {
       " &nbsp; 例、<kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd>. "+
       "</ul>",
 
-   h_move_data : "如何搬移數據",
-   p_move_data :
+   'h_move_data' : "如何搬移數據",
+   'p_move_data' :
       "已獲取的數據會儲存在 <q id='action_about_lbl_folder'></q> 目錄之內。 <br/>"+
       "你只需要開啓本 HTML 就可以離線瀏覽和搜尋它們。 <br/>"+
       "在個人使用的前提下，您可以合法地將本 HTML 和數據目錄複制到 USB 或智能電話。 <br/>"+
@@ -187,16 +189,16 @@ _.l.set( 'action.about', {
       "<br/>"+
       "你可以把東西都放到個人網頁伺服器，不過初始的搜尋可能很慢，完整全文搜尋需要 ~37MB 數據。",
 
-   h_history : "產品歷史",
-   lbl_history : "（如若沒有看見圖片，請試用支援 WebP 格式的 Chrome 或 Android 瀏覽器。）",
-   lbl_english_only : "此章節只有英文版本。",
+   'h_history' : "產品歷史",
+   'lbl_history' : "（如若沒有看見圖片，請試用支援 WebP 格式的 Chrome 或 Android 瀏覽器。）",
+   'lbl_english_only' : "此章節只有英文版本。",
 
-   h_version_history : "版本歷史",
+   'h_version_history' : "版本歷史",
 
-   link_homepage : "主頁"
+   'link_homepage' : "主頁"
 });
 
 _.l.set( 'action.license', {
-   title : "授權協議",
-   link_text : "授權"
+   'title' : "授權協議",
+   'link_text' : "授權"
 });

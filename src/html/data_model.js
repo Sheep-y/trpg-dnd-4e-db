@@ -182,15 +182,11 @@ od.data.Category.prototype = {
 
    "load_listing" : function data_Cat_load_listing( ondone, onerror ) {
       var cat = this;
-      var lat = new _.Latch( 3 );
       var err = onerror ? function(){ onerror.call(); onerror = function(){}; } : onerror;
-      od.reader.read_data_raw( this.name, lat.count_down_function(), err );
-      od.reader.read_data_extended( this.name, lat.count_down_function(), err );
-      lat.ondone = function(){
+      od.reader.read_data_extended( this.name, function data_Cat_load_listing_done() {
          cat.build_listing();
          _.call( ondone );
-      };
-      lat.count_down();
+      }, err );
    },
 
    "load_index" : function data_Cat_load_index( ondone, onerror ) {

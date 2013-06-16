@@ -35,7 +35,8 @@ _.l.set( 'error', {
    'file_no_api' : 'Only support saving in IE, because JavaScript has no standard for saving portable offline data.',
    'file_cannot_delete' : 'Cannot overwrite %1',
 
-   'wrong_ext': 'Extended list different from raw list, please re-index from download screen: %1.'
+   'wrong_ext': 'Extended list different from raw list, please re-index from download screen: %1.',
+   'need_reindex' : 'Index format outdated; Please go to update page and Re-index.'
 });
 
 _.l.set( 'gui', {
@@ -45,78 +46,79 @@ _.l.set( 'gui', {
 });
 
 _.l.set( 'action.list', {
-   title : "Browse Database",
-   link_text : "Browse",
+   'title' : "Browse Database",
+   'link_text' : "Browse",
 
-   txt_search_placeholder : "Search keywords. e.g. ranger OR martial   bonus -\"feat bonus\" ",
-   bth_search_name : "Name search",
-   bth_search_body : "Full search",
-   bth_search_advanced : "Advacned search",
-   a_all : "All Category",
-   a_category : "%1 (%2)"
+   'txt_search_placeholder' : "Search keywords. e.g. ranger OR martial   bonus -\"feat bonus\" ",
+   'bth_search_name' : "Name search",
+   'bth_search_body' : "Full search",
+   'bth_search_advanced' : "Advacned search",
+   'a_all' : "All Category",
+   'a_category' : "%1 (%2)"
 });
 
 _.l.set( 'action.view', {
 });
 
 _.l.set( 'action.download', {
-   title : "Update Database",
-   link_text : "Update",
+   'title' : "Update Database",
+   'link_text' : "Update",
 
-   paragraph : [
+   'paragraph' : [
       "This browser script allows you to download and save compendium entries, then search and list them offline using advanced Google-like syntax.",
       "<b>Requires an active DDI subscription to download any data.</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates' target='_blank'>Official Rules Updates</a>"
    ],
-   btn_get_catalog : "Refresh catalog",
-   btn_all_list : "Check all",
-   btn_list : "Check",
-   btn_relist : "Re-check",
-   btn_delete : "Delete",
-   btn_update_changed : "Get new + changed",
-   btn_update_all : "Get all items",
-   btn_save : "Save",
+   'btn_get_catalog' : "Refresh catalog",
+   'btn_all_list' : "Check all",
+   'btn_list' : "Check",
+   'btn_relist' : "Re-check",
+   'btn_delete' : "Delete",
+   'btn_reindex': "Re-index",
+   'btn_update_changed' : "Get new + changed",
+   'btn_update_all' : "Get all items",
+   'btn_save' : "Save",
 
-   th_category: "Category",
-   th_local   : "Saved",
-   th_remote  : "Online",
-   th_changed : "Changed",
-   th_new     : "New",
-   th_status  : " ",
-   th_commands: " ",
+   'th_category': "Category",
+   'th_local'   : "Saved",
+   'th_remote'  : "Online",
+   'th_changed' : "Changed",
+   'th_new'     : "New",
+   'th_status'  : " ",
+   'th_commands': " ",
 
-   lbl_fetching_both : "Fetching list and convertor",
-   lbl_fetching_xml : "Fetching list",
-   lbl_fetching_xsl : "Fetching convertor",
-   lbl_progress : "%1/%2",
+   'lbl_fetching_both' : "Fetching list and convertor",
+   'lbl_fetching_xml' : "Fetching list",
+   'lbl_fetching_xsl' : "Fetching convertor",
+   'lbl_progress' : "%1/%2",
 
-   msg_login  : "A login window will pop up.  Please login and then close the login popup to resume download.  Or press Cancel to stop the update process."
+   'msg_login'  : "A login window will pop up.  Please login and then close the login popup to resume download.  Or press Cancel to stop the update process."
 });
 
 _.l.set( 'action.about', {
-   title : "Help",
-   link_text : "Help",
+   'title' : "Help",
+   'link_text' : "Help",
 
-   h_language : "Language",
-   lbl_select_lang : ":", // Please translate as "Please select language:"
-   opt_auto    : "(Auto detect)",
-   lst_symbol  : "Please select symbols set:",
-   opt_original: "Original",
-   opt_common  : "Common",
-   opt_dingbat : "Dingbat",
-   opt_plain   : "Plain",
-   hint_basic  : "Basic Attacks (Close, Melee, Ranged, Area)",
-   hint_attack : "Non-Basic Attacks (Close, Melee, Ranged, Area)",
-   hint_dice   : "Dice faces (Recharge) 1 2 3 4 5 6",
-   hint_aura   : "Aura",
+   'h_language' : "Language",
+   'lbl_select_lang' : ":", // Please translate as "Please select language:"
+   'opt_auto'    : "(Auto detect)",
+   'lst_symbol'  : "Please select symbols set:",
+   'opt_original': "Original",
+   'opt_common'  : "Common",
+   'opt_dingbat' : "Dingbat",
+   'opt_plain'   : "Plain",
+   'hint_basic'  : "Basic Attacks (Close, Melee, Ranged, Area)",
+   'hint_attack' : "Non-Basic Attacks (Close, Melee, Ranged, Area)",
+   'hint_dice'   : "Dice faces (Recharge) 1 2 3 4 5 6",
+   'hint_aura'   : "Aura",
 
-   h_license : "License",
-   p_license : "This script is free software and licensed under GNU AGPL v3.",
-   a_source  : "Source",
-   a_email  : "Email",
-   lbl_source_manual : "Please right click and select 'View Source' after closing this message, since your browser does not let us do it programmatically.",
+   'h_license' : "License",
+   'p_license' : "This script is free software and licensed under GNU AGPL v3.",
+   'a_source'  : "Source",
+   'a_email'  : "Email",
+   'lbl_source_manual' : "Please right click and select 'View Source' after closing this message, since your browser does not let us do it programmatically.",
 
-   h_get_data : "How to Get data",
-   p_get_data :
+   'h_get_data' : "How to Get data",
+   'p_get_data' :
       "This script comes with no data. To get data, you need a few things, including an active <a href='http://www.wizards.com/DnD/Subscription.aspx'>Dungeons & Dragons Insider subscription</a>. <br/>"+
       "Data can be acquired in a few steps: <br/> <ol> "+
       " <li> Save this HTML to file system and open in Internet Explorer (non-Metro) "+
@@ -126,8 +128,8 @@ _.l.set( 'action.about', {
       " <li> Save data "+
       "</ol> More information is availble from the download page.",
 
-   h_search_data : "How to Search data",
-   p_search_data :
+   'h_search_data' : "How to Search data",
+   'p_search_data' :
       "Type in search terms and it will find results that contains all the terms, in any order, regardless of case. <br/>"+
       "e.g. <kbd>fighter heal</kbd> will search for results that contains <q>Fighter</q> and <q>Heal</q> or <q>Healing</q> or <q>Healer</q>. <br/>"+
       "<br/>"+
@@ -145,8 +147,8 @@ _.l.set( 'action.about', {
       " &nbsp; e.g. <kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd>. "+
       "</ul>",
 
-   h_move_data : "How to Move data",
-   p_move_data :
+   'h_move_data' : "How to Move data",
+   'p_move_data' :
       "Acquired data are stored locally, in <q id='action_about_lbl_folder'></q> folder. <br/>"+
       "You just need to open this html to browse and search them without needing to go online. <br/>"+
       "You can lawfully copy this html and the data folder to USB or to smart phone, as long as it is for personal use. <br/>"+
@@ -157,16 +159,16 @@ _.l.set( 'action.about', {
       "<br/>"+
       "You can put everything on personal web server, but initial search speed can be slow, a full search needs ~37MB data.",
 
-   h_history   : "Product History",
-   lbl_history : "(If there are no images, please try Chrome or Android browser which support WebP.)",
-   lbl_english_only  : "", // Please translate as "This section is English only."
+   'h_history'   : "Product History",
+   'lbl_history' : "(If there are no images, please try Chrome or Android browser which support WebP.)",
+   'lbl_english_only'  : "", // Please translate as "This section is English only."
 
-   h_version_history : "Version History",
+   'h_version_history' : "Version History",
 
-   link_homepage : "Home"
+   'link_homepage' : "Home"
 });
 
 _.l.set( 'action.license', {
-   title : "License",
-   link_text : "License"
+   'title' : "License",
+   'link_text' : "License"
 });
