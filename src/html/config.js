@@ -7,7 +7,7 @@ od.config = {
    "title_prefix" : "Compendium - ",
 
    "simulate" : false, // If true, load data from local file instead of live url
-   "simulated_data_url" : 'debug_files',
+   "simulated_data_url" : 'offline_simulation_files',
    "data_read_path" : '4e_database_files',
    "data_write_path" : location.href.replace( /file:\/\/\/|[^\\\/]+.html?(\?.*)?$/g, '' ) + '4e_database_files',
    "retry" : 3, // Number of retry of download.

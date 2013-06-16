@@ -181,7 +181,7 @@ od.data.Category.prototype = {
    },
 
    "load_listing" : function data_Cat_load_listing( ondone, onerror ) {
-      od.reader.read_data_listing( this.name, ondone, _.callonce( onerror ) );
+      od.reader.read_data_raw( this.name, ondone, _.callonce( onerror ) );
    },
 
    "load_extended" : function data_Cat_load_extended( ondone, onerror ) {

@@ -48,6 +48,7 @@ od.reader = {
    },
 
    jsonp_data_raw: function reader_jsonp_data_raw( version, category, columns, data ) {
+      if ( version < 20130616 ) return; // Old data, cannot read
       var cat = od.data.get(category);
       cat.raw_columns = columns;
       cat.raw = data;
