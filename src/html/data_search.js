@@ -69,7 +69,7 @@ search_loop:
                var row = lst[i];
                for ( var prop in row ) {
                   if ( prop !== '_category' ) {
-                     var p = row[prop];
+                     var p = row[ prop ];
                      if ( regx.test( p.text ? p.text : p ) ) {
                         result.push( row );
                         continue search_loop;

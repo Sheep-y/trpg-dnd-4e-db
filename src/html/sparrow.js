@@ -111,6 +111,8 @@ _.callonce = function _call ( func ) {
  * that can be called at a later time.
  */
 _.callfunc = function _callfunc( func, thisObj, param /*...*/ ) {
+   if ( arguments.length <= 1 ) return func;
+   if ( arguments.length <= 3 ) return function _callback1() { func.call( thisObj, param ); };
    var arg = _.ary( arguments, 2 );
    return function _callback() { func.apply( thisObj, arg ); };
 };

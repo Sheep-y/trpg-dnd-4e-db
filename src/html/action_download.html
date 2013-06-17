@@ -142,7 +142,7 @@ od.action.download = {
           case 'delete' :
              param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
                 od.download.delete( remote );
-                refreshRemote();
+                od.action.download.refresh(); // Category can be deleted from remote, need full refresh to delete row
              }};
              break;
           case 'list' : 
@@ -215,13 +215,13 @@ od.action.download = {
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '--';
                //cells[5].textContent = 'Local';
                commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
-               commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
+               if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
                break;
             case "local" :
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '';
                //cells[5].textContent = '';
                commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
-               commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
+               if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
                break;
             case "unlisted" :
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
@@ -241,7 +241,7 @@ od.action.download = {
                commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_relist' ) );
                if ( local ) {
                   commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
-                  commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
+                  if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
                }
                break;
          }
