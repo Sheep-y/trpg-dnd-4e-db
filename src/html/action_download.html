@@ -136,7 +136,7 @@ od.action.download = {
       switch ( command ) {
           case 'reindex' : 
              param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
-               // TODO: Reindex
+                remote.reindex( refreshRemote, refreshRemote );
              }};
              break;
           case 'delete' :
@@ -177,9 +177,11 @@ od.action.download = {
       var unlisted = false, changed = false, downloading = false, dirty = od.download.dirty_catalog;
       od.download.get().forEach( function act_download_refresh_check( remote ) {
          switch ( remote.state ) {
-            case "local" :
             case "listing":
             case "absent" :
+                break;
+            case "local" :
+                dirty = dirty || remote.dirty.length > 0; // May be dirty because of re-index
                 break;
             case "unlisted" :
                 unlisted = true;
@@ -211,19 +213,19 @@ od.action.download = {
                break; // Please do not interrupt while working!
             case "absent" :
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '--';
-               //cells[5].textContent = 'Local'; // TODO: i18n
-               // TODO: Reindex
+               //cells[5].textContent = 'Local';
                commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
+               commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
                break;
             case "local" :
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '';
                //cells[5].textContent = '';
-               // TODO: Reindex
                commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
+               commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
                break;
             case "unlisted" :
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
-               //cells[5].textContent = 'Unlisted'; // TODO: i18n
+               //cells[5].textContent = 'Unlisted';
                commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_list' ) );
                if ( local ) commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
                break;
@@ -239,8 +241,8 @@ od.action.download = {
                commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_relist' ) );
                if ( local ) {
                   commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
+                  commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
                }
-               // TODO: Delete, Reindex
                break;
          }
       };

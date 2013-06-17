@@ -235,25 +235,13 @@ od.data.Category.prototype = {
    "update" : function data_Cat_update ( id, listing, data ) {
       if ( id !== listing[0] ) _.error("Mismatch update id : " + id + " [" + listing + "]");
       var i = _.col( this.raw ).indexOf( id );
-      var cat = this;
       data = od.data.preprocess( data );
       var index = od.data.indexify( data );
-      if ( i >= 0 ) {
-         _.info('Updating ' + id + ' (' + listing[1] + ') of ' + cat.name );
-         cat.load_data( id, function data_Cat_update_load (){
-            cat.raw[i] = listing;
-            cat.extended[i] = cat.parse_extended( listing, data );
-            cat.index[id] = index;
-            cat.data[id] = data;
-         });
-      } else {
-         _.info('Adding ' + id + ' (' + listing[1] + ') to ' + cat.name );
-         cat.raw.push( listing );
-         cat.extended.push( cat.parse_extended( listing, data ) );
-         cat.index[id] = index;
-         cat.data[id] = data;
-         ++cat.count;
-      }
+      if ( i < 0 ) i = this.count++;
+      this.raw[i] = listing;
+      this.extended[i] = this.parse_extended( listing, data );
+      this.index[id] = index;
+      this.data[id] = data;
    },
 
    // Build this.columns and this.list.

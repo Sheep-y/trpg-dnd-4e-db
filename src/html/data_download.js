@@ -34,11 +34,11 @@ od.download = {
    },
 
    "delete" : function download_delete ( remote ) {
-      if ( ! od.data.category[remote.name] ) return _.error( "Cannot delete a non-local category" );
+      if ( ! od.data.category[ remote.name ] ) return _.error( "Cannot delete a non-local category" );
       switch ( remote.state ) {
          case "local" :
          case "absent" :
-            delete this.category[remote.name];
+            delete this.category[ remote.name ];
             break;
          case "listing":
          case "downloading":
@@ -51,7 +51,7 @@ od.download = {
             break;
          case "unlisted" :
       }
-      delete od.data.category[remote.name];
+      delete od.data.category[ remote.name ];
       this.dirty_catalog = true;
    },
 
@@ -197,7 +197,7 @@ od.download.RemoteCategory.prototype = {
 
    "dirty": [],        // e.g. [ "sampleId001", "sampleId002" ]
 
-   "count": false,
+   "count": 0,
    "changed": [],
    "added": [],
    
@@ -382,6 +382,61 @@ od.download.RemoteCategory.prototype = {
       }
    },
 
+   "reindex" : function download_Cat_reindex ( onstep, ondone, onerror ) {
+      var remote = this, origial_state = remote.state;
+      var local = od.data.get( remote.name );
+      var idList, l, latch, count = 0;
+      remote.state = 'downloading';
+      
+      // Called once for each id. i is the position in index.
+      function download_Cat_reindex_each ( i, id ) {
+         setImmediate( function download_Cat_reindex_run () {
+            local.load_data( id, function download_Cat_reindex_loaded() {
+               // Re-run local.update for reindex purpose
+               local.update( id, local.raw[ i ], '<body>' + local.data[ id ] + '</body>' );
+               if ( remote.dirty.indexOf( id ) < 0 ) delete local.data[ id ]; // Unload to save memory if not dirty data
+               download_Cat_reindex_step();
+            }, function download_Cat_reindex_error () {
+               // Delete item
+               local.raw.splice( i, 1 );
+               local.extended.splice( i, 1 );
+               delete local.index[ id ];
+               download_Cat_reindex_step();
+            } );
+         } );
+      }
+
+      function download_Cat_reindex_step () {
+         remote.progress = _.l( 'action.download.lbl_progress', null, ++count, l );
+         _.call( onstep, remote, count, l );
+         latch.count_down();
+      }
+
+      local.load_raw( function download_Cat_reindex_loaded () {
+         idList = _.col( local.raw );
+         l = idList.length;
+         if ( l <= 0 ) {
+            // If there is no data, do a delete instead.
+            od.download.delete( remote );
+            return _.call( ondone, remote );
+         }
+         local.ext_columns = local.parse_extended( local.raw, null );
+         local.extended = new Array( l );
+         local.index = {};
+         latch = new _.Latch( l, function download_Cat_reindex_done ( ) {
+            remote.state = origial_state;
+            local.count = local.raw.length;
+            if ( local.count > 0 ) {
+               if ( remote.dirty.length <= 0 ) remote.dirty.push( idList[0] );
+            } else {
+               od.download.delete( remote );
+            }
+            _.call( ondone, remote );
+         } );
+         for ( var i = l-1 ; i >= 0 ; i-- ) download_Cat_reindex_each ( i, idList[i] );
+      }, onerror );
+   },
+
    /**
     * Save this category's changed data.
     * 
@@ -399,6 +454,7 @@ od.download.RemoteCategory.prototype = {
                local.save_data( id, latch.count_down_function(), onerror );
             });
             latch.ondone = function download_Cat_saved_data () {
+               remote.dirty = [];
                _.call( ondone, remote );
             };
             latch.count_down();
