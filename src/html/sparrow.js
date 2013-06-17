@@ -16,17 +16,17 @@ function _( root, selector ) {
       selector = root;
       root = document;
    }
-   if ( selector.indexOf(' ') > 0 || ! /^[#.]?\w+$/.test( selector ) ) {
-      return root.querySelectorAll( selector );
-   } else {
-      // Get Element series is many times faster then querySelectorAll
-      if ( selector.indexOf('#') === 0 ) {
-         var result = root.getElementById( selector.substr(1) );
-         return result ? [ result ] : [ ];
-      }
-      if ( selector.indexOf('.') === 0 ) return root.getElementsByClassName( selector.substr(1) );
-      return root.getElementsByTagName( selector );
+   if ( ! selector ) return [ root ];
+   // Test for simple id / class / tag, if fail then use querySelectorAll
+   if ( selector.indexOf(' ') > 0 || ! /^[#.]?\w+$/.test( selector ) ) return root.querySelectorAll( selector );
+   
+   // Get Element series is many times faster then querySelectorAll
+   if ( selector.charAt(0) === '#' ) {
+      var result = root.getElementById( selector.substr(1) );
+      return result ? [ result ] : [ ];
    }
+   if ( selector.charAt(0) === '.' ) return root.getElementsByClassName( selector.substr(1) );
+   return root.getElementsByTagName( selector );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ _.col = function _col( subject, column /* ... */) {
    if ( ! ( subject instanceof Array ) ) subject = _.ary( subject );
    if ( column === undefined ) return subject.map(function(e){ return e[0]; });
    if ( arguments.length === 2 ) return subject.map(function(e){ return e[column]; });
-   else return subject.map(function(e){
+   return subject.map(function(e){
       var result = [];
       for ( var i = 1, l = arguments.length ; i < l ; i++ ) result.push( e[arguments[i]] );
       return result ;
@@ -104,17 +104,6 @@ _.callonce = function _call ( func ) {
       func = null;
       return _.call.apply( this, [ f, this ].concat( _.ary( arguments ) ) );
    };
-};
-
-/**
- * Capture parameters in a closure and return a callback function
- * that can be called at a later time.
- */
-_.callparam = function _callparam( thisObj, param /*...*/, func ) {
-   var l = arguments.length-1;
-   var f = arguments[l];
-   var arg = _.ary( arguments, 1, l );
-   return function _callback() { f.apply( thisObj, arg ); };
 };
 
 /**
@@ -539,7 +528,7 @@ _.Executor.prototype = {
       return this.notice();
    },
    "clear"  : function _executor_clear () { this.waiting = []; },
-   "pause"  : function _executor_pause () { this._paused = true; if ( exe._timer ) clearTimeout( this._timer ); return this; },
+   "pause"  : function _executor_pause () { this._paused = true; if ( this._timer ) clearTimeout( this._timer ); return this; },
    "resume" : function _executor_resume () { this._paused = false; this.notice(); return this; },
    /**
     * Check state of threads and schedule tasks to fill the threads.
@@ -558,7 +547,17 @@ _.Executor.prototype = {
          return exe;
       }
 
-      var delay = this.interval <= 0 ? 0 : Math.max( 0, -(new Date).getTime() + this._lastRun + this.interval );
+      function _executor_run ( ii, r ){
+         _.debug('Start task #' + ii + ' ' + r[0].name );
+         try {
+            if ( r[0].apply( null, [ ii ].concat( r.slice(1) ) ) !== false ) exe.finish( ii );
+         } catch ( e ) {
+            _.error( e );
+            exe.finish( ii );
+         }
+      }
+
+      var delay = this.interval <= 0 ? 0 : Math.max( 0, -(new Date()).getTime() + this._lastRun + this.interval );
       if ( delay > 12 ) return _executor_schedule_notice ( delay ); // setTimeout is not accurate so allow 12ms deviations
       for ( var i = 0 ; i < this.thread && this.waiting.length > 0 ; i++ ) {
          if ( ! this.running[i] ) {
@@ -566,15 +565,7 @@ _.Executor.prototype = {
             exe.running[i] = r;
             //_.debug('Schedule task #' + i + ' ' + r[0].name );
             exe._lastRun = new Date().getTime();
-            setImmediate( _.callparam( null, i, r, function _Executor_run ( ii, r ){
-               _.debug('Start task #' + ii + ' ' + r[0].name );
-               try {
-                  if ( r[0].apply( null, [ ii ].concat( r.slice(1) ) ) !== false ) exe.finish( ii );
-               } catch ( e ) {
-                  _.error( e );
-                  exe.finish( ii );
-               }
-            } ));
+            setImmediate( _.callfunc( _executor_run, null, i, r ) );
             if ( exe.interval > 0 ) return _executor_schedule_notice ( exe.interval );
          }
       }

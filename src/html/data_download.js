@@ -17,8 +17,9 @@ od.download = {
    },
    dirty_catalog : false, // Mark whether master catalog is dirty, e.g. a category is deleted. Note that a dirty category always imply dirty catalog.
    "get" : function download_get ( name ) {
+      var result;
       if ( name === undefined ) {
-         var result = [];
+         result = [];
          for ( var c in this.category ) result.push( this.category[c] );
          return result;
       }
@@ -33,7 +34,7 @@ od.download = {
    },
 
    "delete" : function download_delete ( remote ) {
-      if ( ! od.data.category[remote.name] ) return _.error( "Cannot delete a non-local category" );;
+      if ( ! od.data.category[remote.name] ) return _.error( "Cannot delete a non-local category" );
       switch ( remote.state ) {
          case "local" :
          case "absent" :
@@ -307,7 +308,7 @@ od.download.RemoteCategory.prototype = {
       var list = remote.raw;
       if ( local !== null ) {
          // Load local index and find differences
-         local.load_listing( function download_Cat_find_changed_work () {
+         local.load_raw( function download_Cat_find_changed_work () {
             var added = remote.added = [];
             var changed = remote.changed = [];
             var raw = remote.raw;

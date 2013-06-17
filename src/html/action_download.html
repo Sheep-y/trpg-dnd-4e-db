@@ -89,13 +89,13 @@ od.action.download = {
 
    'list_all' : function act_download_list_all () {
       od.download.get().forEach( function act_download_list_all_each ( remote ) {
-         remote.get_listing( od.action.download.refresh_func( remote ) );
+         if ( remote.state === 'unlisted' ) remote.get_listing( od.action.download.refresh_func( remote ) );
       } );
    },
 
    'update_all' : function act_download_update_all () {
       od.download.get().forEach( function act_download_update_all_each ( remote ) {
-         if ( remote.added.length || remote.changed.length ) {
+         if ( remote.state === 'listed' && ( remote.added.length || remote.changed.length ) ) {
             var refresh = od.action.download.refresh_func( remote );
             remote.update_changed( refresh, refresh );
          }
@@ -111,6 +111,7 @@ od.action.download = {
       });
       latch.ondone = function act_download_save_done() {
          od.data.save_catalog();
+         od.download.dirty_catalog = false;
          _.hide( '#act_download_btn_save' );
       };
       latch.count_down();

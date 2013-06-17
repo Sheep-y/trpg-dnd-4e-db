@@ -11,7 +11,7 @@ od.data = {
    "category" : {},
 
    /** Clear all loaded data or a category of data */
-   "clear" : function data_clear( cat ) {
+   "clear" : function data_clear ( cat ) {
       var category = this.category;
       for ( var c in category ) {
          if ( cat === undefined || cat === c ) {
@@ -28,13 +28,14 @@ od.data = {
     * @param {type} name Name of category.
     * @returns {od.data.Category} Requested category. Null if category not exist.
     */
-   "get" : function data_get( name ) {
+   "get" : function data_get ( name ) {
+      var result;
       if ( name === undefined ) {
-         var result = [];
+         result = [];
          for ( var c in this.category ) result.push( this.category[c] );
          return result;
       }
-      var result = this.category[name];
+      result = this.category[name];
       return result ? result : null;
    },
 
@@ -44,7 +45,7 @@ od.data = {
     * @param {type} name Name of category.
     * @returns {od.data.Category} Requested category.
     */
-   "create" : function data_get( name ) {
+   "create" : function data_create ( name ) {
       var result = this.category[name];
       if ( result === undefined ) {
          this.category[name] = result = new od.data.Category( name );
@@ -52,25 +53,25 @@ od.data = {
       return result;
    },
            
-   "list" : function data_list() { return Object.keys( this.category ); },
+   "list" : function data_list () { return Object.keys( this.category ); },
 
    "load_catalog" : function data_load_catalog ( ondone, onerror ) { od.reader.read_catalog( ondone, onerror ); },
 
-   "load_all_index" : function data_load_all_index( ondone ) {
+   "load_all_index" : function data_load_all_index ( ondone ) {
       var lat = new _.Latch( this.list().length+1, ondone );
       var cats = this.category;
       for ( var cat in cats ) cats[cat].load_index( lat.count_down_function() );
       lat.count_down();
    },
 
-   "load_all_listing" : function data_load_all_listing( ondone ) {
+   "load_all_listing" : function data_load_all_listing ( ondone ) {
       var lat = new _.Latch( this.list().length+1, ondone );
       var cats = this.category;
       for ( var cat in cats ) cats[cat].load_listing( lat.count_down_function() );
       lat.count_down();
    },
 
-   "save_catalog" : function data_save_catalog( ondone, onerror ) {
+   "save_catalog" : function data_save_catalog ( ondone, onerror ) {
       od.data.get().forEach( function(e) {
          if ( e.count === 0 ) delete od.data.category[e.name];
       });
@@ -80,7 +81,7 @@ od.data = {
    /**
     * Pre-process data - extract content, remove scripts and forms, normalise symbols and links etc.
     */
-   "preprocess" : function data_preprocess( data ) {
+   "preprocess" : function data_preprocess ( data ) {
       // Normalise input
       data = data.trim().replace( /\r\n?/g, '\n' );
       // Extract body
@@ -129,7 +130,7 @@ od.data = {
    /**
     * Pre-process data - extract content, remove scripts and forms, normalise symbols and links etc.
     */
-   "indexify" : function data_indexify( data ) {
+   "indexify" : function data_indexify ( data ) {
       // Remove power and item flavors
       data = data.replace( /(<h1 class=\w+power><span[^>]+>[^<]+<\/span>[^<]+<\/h1>)<p class=flavor>.*?<\/p>/g, '$1' );
       data = data.replace( /<p class=miflavor>.*?<\/p>/g, '' );
@@ -140,7 +141,7 @@ od.data = {
    }
 };
 
-od.data.Category = function Category( name ) {
+od.data.Category = function Category ( name ) {
    this.name = name;
    this.title = _.l( 'data.category.' + name, name );
    this.unload();
@@ -167,7 +168,7 @@ od.data.Category.prototype = {
     *
     * @returns undefined
     */
-   "unload" : function data_Cat_unload() {
+   "unload" : function data_Cat_unload () {
       if ( this.list ) this.count = this.list.length;
       this.raw_columns = [];
       this.raw = [];
@@ -180,11 +181,11 @@ od.data.Category.prototype = {
       this.data = {};
    },
 
-   "load_raw" : function data_Cat_load_raw( ondone, onerror ) {
+   "load_raw" : function data_Cat_load_raw ( ondone, onerror ) {
       od.reader.read_data_raw( this.name, ondone, _.callonce( onerror ) );
    },
 
-   "load_listing" : function data_Cat_load_listing( ondone, onerror ) {
+   "load_listing" : function data_Cat_load_listing ( ondone, onerror ) {
       var cat = this;
       od.reader.read_data_listing( this.name, function data_Cat_load_listing_done() {
          cat.build_listing();
@@ -192,15 +193,15 @@ od.data.Category.prototype = {
       }, _.callonce( onerror ) );
    },
 
-   "load_index" : function data_Cat_load_index( ondone, onerror ) {
+   "load_index" : function data_Cat_load_index ( ondone, onerror ) {
       od.reader.read_data_index( this.name, ondone, onerror );
    },
 
-   "load_data" : function data_Cat_load_data( id, ondone, onerror ) {
+   "load_data" : function data_Cat_load_data ( id, ondone, onerror ) {
       od.reader.read_data( this.name, id, ondone, onerror );
    },
 
-   "save" : function data_Cat_save_listing( ondone, onerror ) {
+   "save" : function data_Cat_save_listing ( ondone, onerror ) {
       // od.reader.jsonp_data_listing( 20120915, "Sample", [ "Id", "Name", "Category", "SourceBook" ], [
       var l = new _.Latch( 3, ondone ), countdown = l.count_down_function();
       onerror = _.callonce( onerror );
@@ -209,11 +210,11 @@ od.data.Category.prototype = {
       od.writer.write_data_index( this, countdown, onerror );
    },
 
-   "save_data" : function data_Cat_save_data( id, ondone, onerror ) {
+   "save_data" : function data_Cat_save_data ( id, ondone, onerror ) {
       od.writer.write_data( this, id, this.data[id], ondone, onerror );
    },
 
-   "check_columns" : function data_Cat_check_columns( col ) {
+   "check_columns" : function data_Cat_check_columns ( col ) {
       if ( JSON.stringify(this.raw_columns) !== JSON.stringify(col) ) {
          this.unload();
          this.count = 0;
@@ -226,12 +227,12 @@ od.data.Category.prototype = {
       // Data is null = listing columns
       if ( data ) {
          var pos = this.ext_columns.indexOf( 'SourceBook' );
-         if ( pos && listing[pos].indexOf(',') >= 0 ) listing[ pos ] = [ listing[pos] ].concat( listing[pos].split(',') );
+         if ( pos && listing[ pos ] && listing[ pos ].indexOf(',') >= 0 ) listing[ pos ] = [ listing[pos] ].concat( listing[pos].split(',') );
       }
       return listing.concat();
    },
 
-   "update" : function data_Cat_update( id, listing, data ) {
+   "update" : function data_Cat_update ( id, listing, data ) {
       if ( id !== listing[0] ) _.error("Mismatch update id : " + id + " [" + listing + "]");
       var i = _.col( this.raw ).indexOf( id );
       var cat = this;
@@ -239,7 +240,7 @@ od.data.Category.prototype = {
       var index = od.data.indexify( data );
       if ( i >= 0 ) {
          _.info('Updating ' + id + ' (' + listing[1] + ') of ' + cat.name );
-         cat.load_data( id, function data_Cat_update_load(){
+         cat.load_data( id, function data_Cat_update_load (){
             cat.raw[i] = listing;
             cat.extended[i] = cat.parse_extended( listing, data );
             cat.index[id] = index;
@@ -256,7 +257,7 @@ od.data.Category.prototype = {
    },
 
    // Build this.columns and this.list.
-   "build_listing" : function data_Cat_bulid_listing() {
+   "build_listing" : function data_Cat_bulid_listing () {
       var cat = this;
       var data = this.extended;
       var col = this.ext_columns;

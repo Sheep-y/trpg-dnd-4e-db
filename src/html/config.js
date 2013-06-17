@@ -9,7 +9,7 @@ od.config = {
    "simulate" : false, // If true, load data from local file instead of live url
    "simulated_data_url" : 'offline_simulation_files',
    "data_read_path" : '4e_database_files',
-   "data_write_path" : location.href.replace( /file:\/\/\/|[^\\\/]+.html?(\?.*)?$/g, '' ) + '4e_database_files',
+   "data_write_path" : location.href.replace( /file:\/\/\/|[^\\\/]+\.html?(\?.*)?$/g, '' ) + '4e_database_files',
    "retry" : 3, // Number of retry of download.
    "retry_interval" : 30 * 1000, // (ms) Interval between retry.
    "down_interval" : 0, // (ms) Interval between download, but unlikely to work......
