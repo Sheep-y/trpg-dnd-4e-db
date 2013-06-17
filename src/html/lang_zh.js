@@ -66,7 +66,8 @@ _.l.set( 'error', {
    'file_cannot_delete' : '無法覆寫 %1',
 
    'wrong_ext': 'Extended list different from raw list, please re-index from download screen: %1.',
-   'need_reindex' : '索引格式過時；請到更新頁重建索引。'
+   'need_reindex' : '索引格式過時；請到更新頁重建索引。',
+   'need_redown'  : '索引格式過時；請到更新頁重新下載。'
 });
 
 _.l.set( 'gui', {

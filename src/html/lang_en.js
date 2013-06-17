@@ -36,7 +36,8 @@ _.l.set( 'error', {
    'file_cannot_delete' : 'Cannot overwrite %1',
 
    'wrong_ext': 'Extended list different from raw list, please re-index from download screen: %1.',
-   'need_reindex' : 'Index format outdated; Please go to update page and Re-index.'
+   'need_reindex' : 'Save format outdated; Please go to update page and Re-index.',
+   'need_redown'  : 'Save format outdated; Please go to update page and Re-download.'
 });
 
 _.l.set( 'gui', {

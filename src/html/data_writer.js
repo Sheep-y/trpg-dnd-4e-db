@@ -33,7 +33,7 @@ od.writer = {
       }
    },
 
-   _write : function writer_write( file, content, ondone, onerror ) {
+   _write : function writer_write ( file, content, ondone, onerror ) {
       // IE ActiveX writer. Write file in UTF-16 and windows linebreak, not much choice here.
       //file = od.config.data_full_path + '/' + file;
       this._call( function writer_com_write( fso ) {
@@ -56,7 +56,7 @@ od.writer = {
                return false;
             }
          }*/
-         var f = fso.CreateTextFile( file, true, true ); // true = overwrite, true = unicode
+         var f = fso.CreateTextFile ( file, true, true ); // true = overwrite, true = unicode
          content.split( '\n' ).forEach( function(line){ f.WriteLine( line ); } );
          //f.BinaryWrite( new ActiveXObject("Utf8Lib.Utf8Enc").UnicodeToUtf8(content) ); // No such method: BinaryWrite
          f.Close();
@@ -64,7 +64,7 @@ od.writer = {
       }, onerror );
    },
 
-   _delete : function writer_write( file, ondone ) {
+   _delete : function writer_write ( file, ondone ) {
       this._call( function writer_com_delete( fso ) {
          // IE ActiveX file system.
          file = od.writer.basePath + file;
@@ -80,36 +80,36 @@ od.writer = {
    },
 
    // Writing is instantaneous, but let's use callback for future compatibility
-   write_catalog : function writer_write_catalog( ondone, onerror ) {
+   write_catalog : function writer_write_catalog ( ondone, onerror ) {
       // od.reader.jsonp_index( 20120915, {
       var object = {}, data = od.data.category;
       for ( var cat in data ) object[cat] = data[cat].count;
-      this._write( od.config.file.catalog(), 'od.reader.jsonp_catalog(20130330,' + JSON.stringify( object ) + ')', ondone, onerror );
+      this._write( od.config.file.catalog(), 'od.reader.jsonp_catalog(20130616,' + JSON.stringify( object ) + ')', ondone, onerror );
    },
 
-   write_data_listing : function writer_write_data_listing( category, ondone, onerror ) {
+   write_data_raw : function writer_write_data_raw ( category, ondone, onerror ) {
       this._write( od.config.file.raw( category.name ),
-         'od.reader.jsonp_data_raw(20130330,"' + _.escJs( category.name ) + '",'
+         'od.reader.jsonp_data_raw(20130616,"' + _.escJs( category.name ) + '",'
          +JSON.stringify( category.raw_columns ) + ','
          +JSON.stringify( category.raw ) + ')', ondone, onerror );
    },
 
-   write_data_extended : function writer_write_data_extended( category, ondone, onerror ) {
-      this._write( od.config.file.extended( category.name ),
-         'od.reader.jsonp_data_extended(20130616,"' + _.escJs( category.name ) + '",'
+   write_data_listing : function writer_write_data_listing ( category, ondone, onerror ) {
+      this._write( od.config.file.listing( category.name ),
+         'od.reader.jsonp_data_listing(20130616,"' + _.escJs( category.name ) + '",'
          +JSON.stringify( category.ext_columns ) + ','
          +JSON.stringify( category.extended ) + ')', ondone, onerror );
    },
 
-   write_data_index : function writer_write_data_index( category, ondone, onerror ) {
+   write_data_index : function writer_write_data_index ( category, ondone, onerror ) {
       this._write( od.config.file.index( category.name ),
-       'od.reader.jsonp_data_index(20130330,"' + _.escJs( category.name ) + '",'
+       'od.reader.jsonp_data_index(20130616,"' + _.escJs( category.name ) + '",'
        +JSON.stringify( category.index ) + ')', ondone );
    },
 
-   write_data : function writer_write_data( category, id, data, ondone, onerror ) {
+   write_data : function writer_write_data ( category, id, data, ondone, onerror ) {
       this._write( od.config.file.data( category.name, id ),
-       'od.reader.jsonp_data(20130330,"' + _.escJs( category.name ) + '","' + _.escJs( id )+'",'+
+       'od.reader.jsonp_data(20130616,"' + _.escJs( category.name ) + '","' + _.escJs( id )+'",'+
        JSON.stringify( data ) + ')', ondone );
    }
 

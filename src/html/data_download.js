@@ -16,7 +16,7 @@ od.download = {
       // }
    },
    dirty_catalog : false, // Mark whether master catalog is dirty, e.g. a category is deleted. Note that a dirty category always imply dirty catalog.
-   "get" : function download_get( name ) {
+   "get" : function download_get ( name ) {
       if ( name === undefined ) {
          var result = [];
          for ( var c in this.category ) result.push( this.category[c] );
@@ -26,13 +26,13 @@ od.download = {
       return result ? result : null;
    },
            
-   "create" : function download_create( name ) {
+   "create" : function download_create ( name ) {
       var result = this.get( name );
       if ( result === null ) this.category[name] = result = new od.download.RemoteCategory( name );
       return result;
    },
 
-   "delete" : function download_delete( remote ) {
+   "delete" : function download_delete ( remote ) {
       if ( ! od.data.category[remote.name] ) return _.error( "Cannot delete a non-local category" );;
       switch ( remote.state ) {
          case "local" :
@@ -57,7 +57,7 @@ od.download = {
    /**
     * Get category listing.
     */
-   "get_catalog": function download_get_catalog( onload, onerror ) {
+   "get_catalog": function download_get_catalog ( onload, onerror ) {
       var down = od.download;
       var address = od.config.source.catalog();
       _.cor( address,
@@ -89,7 +89,7 @@ od.download = {
     * @param {type} onstep  Callback on each progress
     * @returns {undefined}
     */
-   "schedule_download": function download_schedule_download( remote, list, onstep, ondone ) {
+   "schedule_download": function download_schedule_download ( remote, list, onstep, ondone ) {
       remote.status = "downloading";
       var down = od.download;
       var exec = down.executor;
@@ -106,7 +106,7 @@ od.download = {
       _.call( onstep );
       function download_schedule_download_run() {
          _.debug( 'Schedule '+ list.length );
-         var latch = new _.Latch( list.length, function download_schedule_download_done() {
+         var latch = new _.Latch( list.length, function download_schedule_download_done () {
             _.call( ondone, remote );
          });
          list.forEach( function download_schedule_download_each( item ) {
@@ -119,7 +119,7 @@ od.download = {
                }
                remote.get_data(
                   item,
-                  function download_schedule_download_ondone( remote, id, data ){
+                  function download_schedule_download_ondone ( remote, id, data ) {
                      if ( data.toLowerCase().indexOf( "subscrib" ) >= 0 && data.toLowerCase().indexOf( "password" ) >= 0 ) {
                         if ( down.login_check_id < 0 || down.login_check_id === threadid ) {
                            // If need to login, and if we are first, show login dialog in model mode
@@ -153,7 +153,7 @@ od.download = {
                         latch.count_down();
                      }
                   },
-                  function download_schedule_download_onerror( cat, id, err ){
+                  function download_schedule_download_onerror ( cat, id, err ){
                      /** Get data already include retry.
                      if ( ++retry <= od.config.retry ) {
                         setTimeout( function(){
@@ -178,7 +178,7 @@ od.download = {
    }
 };
 
-od.download.RemoteCategory = function RemoteCategory( name ) {
+od.download.RemoteCategory = function RemoteCategory ( name ) {
    this.name = name;
    this.title = _.l( 'data.category.' + name, name );
    this.dirty = [];
@@ -200,7 +200,7 @@ od.download.RemoteCategory.prototype = {
    "changed": [],
    "added": [],
    
-   "reset" : function download_Cat_reset() {
+   "reset" : function download_Cat_reset () {
       this.raw_columns = [];
       this.raw = [];
       this.changed = [];
@@ -218,7 +218,7 @@ od.download.RemoteCategory.prototype = {
     * @param {type} retry Retry countdown, first call should be undefined.  Will recursively download until negative.
     * @returns {undefined}
     */
-   "get_listing": function download_Cat_get_listing( onload, onerror ) {
+   "get_listing": function download_Cat_get_listing ( onload, onerror ) {
       this.state = "listing";
       var remote = this;
       var data, xsl;
@@ -241,7 +241,7 @@ od.download.RemoteCategory.prototype = {
          remote.state = _.l('action.download.lbl_fetching_xml');
          latch.count_down(); 
       }, err );
-      latch.ondone = function download_Cat_get_listing_done() {
+      latch.ondone = function download_Cat_get_listing_done () {
          remote.state = '';
          remote.added = [];
          remote.changed = [];
@@ -281,7 +281,7 @@ od.download.RemoteCategory.prototype = {
       latch.count_down();
    },
            
-   "get_remote": function download_Cat_get_remote( url, onload, onerror, retry ) {
+   "get_remote": function download_Cat_get_remote ( url, onload, onerror, retry ) {
       var remote = this;
       if ( retry === undefined ) retry = od.config.retry;
       if ( onerror && typeof( onerror ) === 'string' ) onerror = function() { _.error( _.l.format( onerror, remote.name, url ) ); };
@@ -301,13 +301,13 @@ od.download.RemoteCategory.prototype = {
      * @param {function } onload  Callback after changed items is founds
      * @returns {undefined}
      */
-   "find_changed": function download_Cat_find_changed( onload ) {
+   "find_changed": function download_Cat_find_changed ( onload ) {
       var remote = this;
       var local = od.data.get( remote.name );
       var list = remote.raw;
       if ( local !== null ) {
          // Load local index and find differences
-         local.load_listing( function download_Cat_find_changed_work() {
+         local.load_listing( function download_Cat_find_changed_work () {
             var added = remote.added = [];
             var changed = remote.changed = [];
             var raw = remote.raw;
@@ -328,25 +328,25 @@ od.download.RemoteCategory.prototype = {
       } else {
          download_Cat_find_changed_addall();
       }
-      function download_Cat_find_changed_addall() {
+      function download_Cat_find_changed_addall () {
          remote.added = _.col( list );
          _.call( onload, remote );
       }
    },
 
-   "update_all" : function download_Cat_update_all( onstep, ondone ) {
+   "update_all" : function download_Cat_update_all ( onstep, ondone ) {
       var remote = this;
       remote.state = "downloading";
-      od.download.schedule_download( remote, _.col( remote.raw ), onstep, function download_Cat_update_all_done(){
+      od.download.schedule_download( remote, _.col( remote.raw ), onstep, function download_Cat_update_all_done () {
          remote.state = "listed";
          remote.find_changed( ondone );
       } );
    },
 
-   "update_changed" : function download_Cat_update_changed( onstep, ondone ) {
+   "update_changed" : function download_Cat_update_changed ( onstep, ondone ) {
       var remote = this;
       remote.state = "downloading";
-      od.download.schedule_download( remote, remote.added.concat( remote.changed ), onstep, function download_Cat_update_changed_doneo(){
+      od.download.schedule_download( remote, remote.added.concat( remote.changed ), onstep, function download_Cat_update_changed_done () {
          remote.state = "listed";
          remote.find_changed( ondone );
       });
@@ -361,18 +361,18 @@ od.download.RemoteCategory.prototype = {
     * @param {type} retry   Number of retry before throwing error.
     * @returns {undefined}
     */
-   "get_data": function download_Cat_get_data( id, onload, onerror, retry ) {
+   "get_data": function download_Cat_get_data ( id, onload, onerror, retry ) {
       var address = od.config.source.data( this.name, id );
       var remote = this;
       if ( retry === undefined ) retry = od.config.retry;
       _.cor( address,
-         function download_Cat_get_data_callback( data, xhr ){
+         function download_Cat_get_data_callback ( data, xhr ){
             if ( ! data ) return downloar_Cat_get_data_retry( xhr, 'No Data' );
             _.call( onload, remote, remote, id, xhr.responseText );
          },
          downloar_Cat_get_data_retry
       );
-      function downloar_Cat_get_data_retry( xhr, err ){
+      function downloar_Cat_get_data_retry ( xhr, err ) {
          _.warn( 'downloar_Cat_get_data_retry: ' + retry );
          --retry;
          if ( retry <= 0 ) {
@@ -388,21 +388,19 @@ od.download.RemoteCategory.prototype = {
     * @param {type} onerror Callback after error
     * @returns {undefined}
     */
-   "save" : function download_Cat_save( ondone, onerror ) {
+   "save" : function download_Cat_save ( ondone, onerror ) {
       if ( this.dirty.length ) { // Has dirty
          var remote = this;
          var local = od.data.get( remote.name );
-         local.save_listing( function download_Cat_saved_list(){
-            local.save_index( function download_Cat_saved_index(){ 
-               var latch = new _.Latch( remote.dirty.length+1 );
-               remote.dirty.forEach( function download_Cat_save_data(id) {
-                  local.save_data( id, latch.count_down_function(), onerror );
-               });
-               latch.ondone = function download_Cat_saved_data() {
-                  _.call( ondone, remote );
-               };
-               latch.count_down();
-            }, onerror);
+         local.save( function download_Cat_saved () {
+            var latch = new _.Latch( remote.dirty.length+1 );
+            remote.dirty.forEach( function download_Cat_save_data ( id ) {
+               local.save_data( id, latch.count_down_function(), onerror );
+            });
+            latch.ondone = function download_Cat_saved_data () {
+               _.call( ondone, remote );
+            };
+            latch.count_down();
          }, onerror);
       } else {
          _.call( ondone, this );

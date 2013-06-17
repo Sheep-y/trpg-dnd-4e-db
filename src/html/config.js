@@ -43,9 +43,9 @@ od.config = {
       "catalog" :
          function url() { return od.config.data_read_path + '/catalog.js'; },
       "raw" :
+         function url( category ) { return od.config.data_read_path + '/'+category+'/_raw.js'; },
+      "listing" :
          function url( category ) { return od.config.data_read_path + '/'+category+'/_listing.js'; },
-      "extended" :
-         function url( category ) { return od.config.data_read_path + '/'+category+'/_extended.js'; },
       "index" :
          function url( category ) { return od.config.data_read_path + '/'+category+'/_index.js'; },
       "data" :
@@ -55,9 +55,9 @@ od.config = {
       "catalog" :
          function url() { return od.config.data_write_path+'/catalog.js'; },
       "raw" :
+         function url( category ) { return od.config.data_write_path + '/'+category+'/_raw.js'; },
+      "listing" :
          function url( category ) { return od.config.data_write_path + '/'+category+'/_listing.js'; },
-      "extended" :
-         function url( category ) { return od.config.data_write_path + '/'+category+'/_extended.js'; },
       "index" :
          function url( category ) { return od.config.data_write_path + '/'+category+'/_index.js'; },
       "data" :

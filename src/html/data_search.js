@@ -27,7 +27,7 @@ od.search = {
       var cat = options.category;
       if ( cat ) {
          // Search in a single category
-         cat.load_extended( function(){
+         cat.load_listing( function(){
             if ( search_body ) {
                cat.load_index( do_search );
             } else {
@@ -90,7 +90,7 @@ search_loop:
          var list = { "columns":[], "data":[] };
          if ( cat ) {
             _.info( 'List ' + cat.title );
-            cat.load_extended( function data_search_list_category_load_cat() {
+            cat.load_listing( function data_search_list_category_load_cat() {
                list.columns = cat.columns;
                list.data = [].concat( cat.list );
                _.call( onload, cat, list );

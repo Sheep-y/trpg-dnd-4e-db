@@ -48,7 +48,6 @@ od.reader = {
    },
 
    jsonp_data_raw: function reader_jsonp_data_raw( version, category, columns, data ) {
-      if ( version < 20130616 ) return; // Old data, cannot read
       var cat = od.data.get(category);
       cat.raw_columns = columns;
       cat.raw = data;
@@ -58,8 +57,8 @@ od.reader = {
 
    // Listing is a processed listing of items in a category.
 
-   read_data_extended: function reader_read_data_extended( category, onload, onerror ) {
-      var path = od.config.url.extended( category );
+   read_data_listing: function reader_read_data_listing( category, onload, onerror ) {
+      var path = od.config.url.listing( category );
       this._read(
          path,
          function(){ return od.data.get(category).extended.length > 0; },
@@ -68,14 +67,18 @@ od.reader = {
       // TODO: Make error handler use thrown error message (e.g. need reindex) instead of default
    },
 
-   jsonp_data_extended: function reader_jsonp_data_extended( version, category, columns, data ) {
-      if ( version < 20130616 ) {
-         _.error( _.l( 'error.need_reindex' ) );
-         return;
-      }
+   jsonp_data_listing: function reader_jsonp_data_listing( version, category, columns, data ) {
+      if ( version < 20130616 )
+         // Milestone 1 data, file name changed, not worth trouble to support.
+         // Can manually rename _listing.js to _raw.js and run reindex.
+         return _.error( _.l( 'error.need_reget' ) ); 
       var cat = od.data.get(category);
       cat.ext_columns = columns;
       cat.extended = data;
+   },
+
+   jsonp_data_extended: function reader_jsonp_data_extended( version, category, columns, data ) {
+      return _.error( _.l( 'error.need_reget' ) ); // Milestone 1 data (ver 20130330), not worth trouble to support. See above.
    },
 
    /////////////////////////////////////////////////////////
