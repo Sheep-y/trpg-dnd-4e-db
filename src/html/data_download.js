@@ -48,6 +48,7 @@ od.download = {
             remote.added = _.col( remote.raw );
             remote.changed = [];
             remote.dirty = [];
+            remote.reindexed = false;
             break;
          case "unlisted" :
       }
@@ -200,6 +201,7 @@ od.download.RemoteCategory.prototype = {
    "count": 0,
    "changed": [],
    "added": [],
+   "reindexed" : false,
    
    "reset" : function download_Cat_reset () {
       this.raw_columns = [];
@@ -387,13 +389,22 @@ od.download.RemoteCategory.prototype = {
       var local = od.data.get( remote.name );
       var idList, l, latch, count = 0;
       remote.state = 'downloading';
-      
+
+      function download_Cat_reindex_batch ( i ) {
+         var l = i - 100;
+         while ( i >= 0 && i > l ) {
+            setImmediate( download_Cat_reindex_func( i, idList[ i ] ) );
+            --i;
+         }
+         if ( i > 0 ) setTimeout( _.callfunc( download_Cat_reindex_batch, null, i ), 10 );
+      }
+
       // Called once for each id. i is the position in index.
-      function download_Cat_reindex_each ( i, id ) {
-         setImmediate( function download_Cat_reindex_run () {
+      function download_Cat_reindex_func ( i, id ) {
+         return function download_Cat_reindex_task () {
             local.load_data( id, function download_Cat_reindex_loaded() {
                // Re-run local.update for reindex purpose
-               local.update( id, local.raw[ i ], '<body>' + local.data[ id ] + '</body>' );
+               local.update( id, local.raw[ i ], '<body>' + local.data[ id ] + '</body>', i );
                if ( remote.dirty.indexOf( id ) < 0 ) delete local.data[ id ]; // Unload to save memory if not dirty data
                download_Cat_reindex_step();
             }, function download_Cat_reindex_error () {
@@ -403,7 +414,7 @@ od.download.RemoteCategory.prototype = {
                delete local.index[ id ];
                download_Cat_reindex_step();
             } );
-         } );
+         }
       }
 
       function download_Cat_reindex_step () {
@@ -425,6 +436,7 @@ od.download.RemoteCategory.prototype = {
          local.index = {};
          latch = new _.Latch( l, function download_Cat_reindex_done ( ) {
             remote.state = origial_state;
+            remote.reindexed = true;
             local.count = local.raw.length;
             if ( local.count > 0 ) {
                if ( remote.dirty.length <= 0 ) remote.dirty.push( idList[0] );
@@ -433,7 +445,7 @@ od.download.RemoteCategory.prototype = {
             }
             _.call( ondone, remote );
          } );
-         for ( var i = l-1 ; i >= 0 ; i-- ) download_Cat_reindex_each ( i, idList[i] );
+         download_Cat_reindex_batch( l-1 );
       }, onerror );
    },
 

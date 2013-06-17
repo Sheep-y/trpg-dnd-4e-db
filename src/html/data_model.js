@@ -232,9 +232,9 @@ od.data.Category.prototype = {
       return listing.concat();
    },
 
-   "update" : function data_Cat_update ( id, listing, data ) {
+   "update" : function data_Cat_update ( id, listing, data, i ) {
       if ( id !== listing[0] ) _.error("Mismatch update id : " + id + " [" + listing + "]");
-      var i = _.col( this.raw ).indexOf( id );
+      if ( i === undefined ) i = _.col( this.raw ).indexOf( id );
       data = od.data.preprocess( data );
       var index = od.data.indexify( data );
       if ( i < 0 ) i = this.count++;
@@ -259,11 +259,11 @@ od.data.Category.prototype = {
          var listing = data[i];
          var item = {};
          for ( var j = 0 ; j < colCount ; j++ ) {
-            var prop = listing[j];
-            if ( typeof( prop ) === 'string' ) {
-               item[ col[j] ] = prop;
+            var prop = listing[ j ];
+            if ( ! prop || typeof( prop ) === 'string' ) {
+               item[ col[ j ] ] = prop;
             } else {
-               item[ col[j] ] = { "text" : prop[0], "set" : prop.slice( 1 ) };
+               item[ col[ j ] ] = { "text" : prop[ 0 ], "set" : prop.slice( 1 ) };
             }
          }
          item._category = this;
