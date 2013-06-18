@@ -6,12 +6,12 @@ This is the third iteration of a script that ask the browser to reterives entrie
  <br/>
 Stored entries can be browsed and searched using a Google-like index with multi-word term search, wildcast, exclusion, inclusion ("OR"), and even regular expression.
 
-This is not an official project and does not contain any copyrighted data.
+This is a fan-made project and does not contain any copyrighted data.
 You will need an active <a href="http://www.wizards.com/DnD/Subscription.aspx">Dungeons & Dragons Insider subscription</a> to reterive or update data.
 This is not an independent program, nor is it automated.
  <br/>
-The script is still in Alpha prototype stage. 
-It kind of works, but usability is pretty terriable, and bug is abundance.
+The script is in Alpha prototype stage. 
+Basic feature is usable, but is far from stable and mature.
 
 The source code is split into multiple files for easy management, and must be put together by the Ant script before it can be run. <br/>
 Due to technical reason the download page only works in Internet Explorer, but browsing would work in any modern browsers, including mobile phones.
