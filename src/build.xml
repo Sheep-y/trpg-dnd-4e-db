@@ -14,7 +14,7 @@
       <loadfile property="code_gui.js" srcfile="${srcdir}code_gui.js" encoding="UTF-8" />
       <loadfile property="data_model.js" srcfile="${srcdir}data_model.js" encoding="UTF-8" />
       <loadfile property="data_search.js" srcfile="${srcdir}data_search.js" encoding="UTF-8" />
-      <loadfile property="data_download.js" srcfile="${srcdir}data_download.js" encoding="UTF-8" />
+      <loadfile property="data_updater.js" srcfile="${srcdir}data_updater.js" encoding="UTF-8" />
       <loadfile property="data_reader.js" srcfile="${srcdir}data_reader.js" encoding="UTF-8" />
       <loadfile property="data_writer.js" srcfile="${srcdir}data_writer.js" encoding="UTF-8" />
       <loadfile property="action_download.html" srcfile="${srcdir}action_download.html" encoding="UTF-8" />
@@ -37,7 +37,7 @@
           <replacefilter token="&lt;!--#include file='code_gui.js' --&gt;" value="${code_gui.js}"/>
           <replacefilter token="&lt;!--#include file='data_model.js' --&gt;" value="${data_model.js}"/>
           <replacefilter token="&lt;!--#include file='data_search.js' --&gt;" value="${data_search.js}"/>
-          <replacefilter token="&lt;!--#include file='data_download.js' --&gt;" value="${data_download.js}"/>
+          <replacefilter token="&lt;!--#include file='data_updater.js' --&gt;" value="${data_updater.js}"/>
           <replacefilter token="&lt;!--#include file='data_reader.js' --&gt;" value="${data_reader.js}"/>
           <replacefilter token="&lt;!--#include file='data_writer.js' --&gt;" value="${data_writer.js}"/>
           <replacefilter token="&lt;!--#include file='action_download.html' --&gt;" value="${action_download.html}"/>

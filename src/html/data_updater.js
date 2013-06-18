@@ -1,10 +1,11 @@
 /*
- * data_download.js
- * Core (non-ui) logic of entry downloading
+ * data_updater.js
+ *
+ * Core (non-ui) logic of entry downloading and higher level data updating such as reindex and deletion.
  */
 
 // GUI namespace
-od.download = {
+od.updater = {
    /** Remote listing. Just for finding out what needs to be updated, does not contain index or details. */
    "category": {
       // Sample: {
@@ -29,7 +30,7 @@ od.download = {
            
    "create" : function download_create ( name ) {
       var result = this.get( name );
-      if ( result === null ) this.category[name] = result = new od.download.RemoteCategory( name );
+      if ( result === null ) this.category[name] = result = new od.updater.RemoteCategory( name );
       return result;
    },
 
@@ -60,18 +61,18 @@ od.download = {
     * Get category listing.
     */
    "get_catalog": function download_get_catalog ( onload, onerror ) {
-      var down = od.download;
+      var updater = od.updater;
       var address = od.config.source.catalog();
       _.cor( address,
          function download_get_catalog_callback( data, xhr ){
             // First reset state of all unlisted cat, assuming they are not on remote
-            down.get().forEach( function download_get_catalog_reset( r ){
+            updater.get().forEach( function download_get_catalog_reset( r ){
                 if ( r.state === "unlisted" || r.state === "local" ) r.state = "absent";
             });
             // Get tab list and update state
             var tabs = _.xml(xhr.responseText).getElementsByTagName("Tab");
             for ( var i = 0, len = tabs.length ; i < len ; i++ ) {
-               var r = down.create( tabs[i].getElementsByTagName('Table')[0].textContent );
+               var r = updater.create( tabs[i].getElementsByTagName('Table')[0].textContent );
                if ( r.state === 'absent' || r.state === 'local' ) r.state = 'unlisted';
             }
             _.call( onload );
@@ -93,8 +94,8 @@ od.download = {
     */
    "schedule_download": function download_schedule_download ( remote, list, onstep, ondone ) {
       remote.status = "downloading";
-      var down = od.download;
-      var exec = down.executor;
+      var updater = od.updater;
+      var exec = updater.executor;
       var local = od.data.create( remote.name );
       local.check_columns( remote.raw_columns );
       if ( local.count ) {
@@ -123,10 +124,10 @@ od.download = {
                   item,
                   function download_schedule_download_ondone ( remote, id, data ) {
                      if ( data.toLowerCase().indexOf( "subscrib" ) >= 0 && data.toLowerCase().indexOf( "password" ) >= 0 ) {
-                        if ( down.login_check_id < 0 || down.login_check_id === threadid ) {
+                        if ( updater.login_check_id < 0 || updater.login_check_id === threadid ) {
                            // If need to login, and if we are first, show login dialog in model mode
                            exec.pause();
-                           down.login_check_id = threadid;
+                           updater.login_check_id = threadid;
                            if ( confirm( _.l( 'action.download.msg_login' ) ) ) {
                               window.showModalDialog( od.config.source.data( remote.name, item ) );
                               download_schedule_download_task( threadid );
@@ -142,8 +143,8 @@ od.download = {
                      } else {
                         // Success download
                         exec.thread = od.config.thread;
-                        if ( down.login_check_id >= 0 ) {
-                           down.login_check_id = -1;
+                        if ( updater.login_check_id >= 0 ) {
+                           updater.login_check_id = -1;
                            exec.resume();
                         }
                         var index = _.col( remote.raw, 0 ).indexOf( id );
@@ -180,13 +181,13 @@ od.download = {
    }
 };
 
-od.download.RemoteCategory = function RemoteCategory ( name ) {
+od.updater.RemoteCategory = function RemoteCategory ( name ) {
    this.name = name;
    this.title = _.l( 'data.category.' + name, name );
    this.dirty = [];
    this.reset();
 };
-od.download.RemoteCategory.prototype = {
+od.updater.RemoteCategory.prototype = {
    "name": "",
    "title": "",
    "state" : "local", // "local" -> "unlisted" OR "absent" -> "listing" <-> "listed" <-> "downloading"
@@ -340,7 +341,7 @@ od.download.RemoteCategory.prototype = {
    "update_all" : function download_Cat_update_all ( onstep, ondone ) {
       var remote = this;
       remote.state = "downloading";
-      od.download.schedule_download( remote, _.col( remote.raw ), onstep, function download_Cat_update_all_done () {
+      od.updater.schedule_download( remote, _.col( remote.raw ), onstep, function download_Cat_update_all_done () {
          remote.state = "listed";
          remote.find_changed( ondone );
       } );
@@ -349,7 +350,7 @@ od.download.RemoteCategory.prototype = {
    "update_changed" : function download_Cat_update_changed ( onstep, ondone ) {
       var remote = this;
       remote.state = "downloading";
-      od.download.schedule_download( remote, remote.added.concat( remote.changed ), onstep, function download_Cat_update_changed_done () {
+      od.updater.schedule_download( remote, remote.added.concat( remote.changed ), onstep, function download_Cat_update_changed_done () {
          remote.state = "listed";
          remote.find_changed( ondone );
       });
@@ -428,7 +429,7 @@ od.download.RemoteCategory.prototype = {
          l = idList.length;
          if ( l <= 0 ) {
             // If there is no data, do a delete instead.
-            od.download.delete( remote );
+            od.updater.delete( remote );
             return _.call( ondone, remote );
          }
          local.ext_columns = local.parse_extended( local.raw_columns, null );
@@ -444,7 +445,7 @@ od.download.RemoteCategory.prototype = {
             if ( local.count > 0 ) {
                if ( remote.dirty.length <= 0 ) remote.dirty.push( idList[0] );
             } else {
-               od.download.delete( remote );
+               od.updater.delete( remote );
             }
             _.call( ondone, remote );
          };

@@ -66,7 +66,7 @@ od.action.download = {
       }
       od.data.load_catalog(
          function loadCatalogOk(){
-            od.data.get().forEach( function( c ){ od.download.create( c.name ); } );
+            od.data.get().forEach( function( c ){ od.updater.create( c.name ); } );
             od.action.download.refresh();
          },
          function loadCatalogFail(){
@@ -84,17 +84,17 @@ od.action.download = {
    'tr': {},
 
    'get_catalog' : function act_download_get_catalog () {
-      od.download.get_catalog( od.action.download.refresh );
+      od.updater.get_catalog( od.action.download.refresh );
    },
 
    'list_all' : function act_download_list_all () {
-      od.download.get().forEach( function act_download_list_all_each ( remote ) {
+      od.updater.get().forEach( function act_download_list_all_each ( remote ) {
          if ( remote.state === 'unlisted' ) remote.get_listing( od.action.download.refresh_func( remote ) );
       } );
    },
 
    'update_all' : function act_download_update_all () {
-      od.download.get().forEach( function act_download_update_all_each ( remote ) {
+      od.updater.get().forEach( function act_download_update_all_each ( remote ) {
          if ( remote.state === 'listed' && ( remote.added.length || remote.changed.length ) ) {
             var refresh = od.action.download.refresh_func( remote );
             remote.update_changed( refresh, refresh );
@@ -104,14 +104,14 @@ od.action.download = {
    },
 
    'save' : function act_download_save () {
-      var remotes = od.download.get();
+      var remotes = od.updater.get();
       var latch = new _.Latch( remotes.length+1 );
       remotes.forEach( function act_download_save_cat(e) {
          e.save( latch.count_down_function() );
       });
       latch.ondone = function act_download_save_done() {
          od.data.save_catalog();
-         od.download.dirty_catalog = false;
+         od.updater.dirty_catalog = false;
          _.hide( '#act_download_btn_save' );
       };
       latch.count_down();
@@ -141,7 +141,7 @@ od.action.download = {
              break;
           case 'delete' :
              param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
-                od.download.delete( remote );
+                od.updater.delete( remote );
                 od.action.download.refresh(); // Category can be deleted from remote, need full refresh to delete row
              }};
              break;
@@ -174,8 +174,8 @@ od.action.download = {
       var action = od.action.download;
 
       // Find whether there are unlisted (Check all), changed (Get all), Downloading & Dirty (Save all) items
-      var unlisted = false, changed = false, downloading = false, dirty = od.download.dirty_catalog;
-      od.download.get().forEach( function act_download_refresh_check( remote ) {
+      var unlisted = false, changed = false, downloading = false, dirty = od.updater.dirty_catalog;
+      od.updater.get().forEach( function act_download_refresh_check( remote ) {
          switch ( remote.state ) {
             case "listing":
             case "absent" :
@@ -250,10 +250,10 @@ od.action.download = {
       if ( remote_cat !== undefined ) {
          act_download_refresh_row( remote_cat );
       } else {
-         od.download.get().forEach( act_download_refresh_row );
+         od.updater.get().forEach( act_download_refresh_row );
          // Remove rows that has been deleted
          Object.keys( action.tr ).forEach( function act_download_check_tr ( name ) {
-            if ( od.download.get( name ) === null ) {
+            if ( od.updater.get( name ) === null ) {
                var row = action.tr[ name ];
                row.parentNode.removeChild( row );
                delete action.tr[ name ];
