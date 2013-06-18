@@ -149,7 +149,7 @@ od.updater = {
                         }
                         var index = _.col( remote.raw, 0 ).indexOf( id );
                         local.update( id, remote.raw[index], data  );
-                        if ( remote.dirty.indexOf( id ) < 0 ) remote.dirty.push( id );
+                        if ( remote.dirty.indexOf( id ) < 0 ) remote.dirty.push( true );
                         remote.progress = _.l( 'action.download.lbl_progress', null, ++step, total );
                         exec.finish( threadid );
                         _.call( onstep, remote, id );
@@ -466,6 +466,7 @@ od.updater.RemoteCategory.prototype = {
          local.save( function download_Cat_saved () {
             var latch = new _.Latch( remote.dirty.length+1 );
             remote.dirty.forEach( function download_Cat_save_data ( id ) {
+               if ( id === true ) return latch.count_down();
                local.save_data( id, latch.count_down_function(), onerror );
             });
             latch.ondone = function download_Cat_saved_data () {
