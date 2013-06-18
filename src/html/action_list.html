@@ -125,6 +125,7 @@ od.action.list = {
       table.appendChild( body );
       var col = action_list.columns = data.columns;
       var cl = col.length;
+      var idField = col[ 0 ];
       for ( var i = 1, l = cl ; i < l ; i++ ) {
          head.appendChild( _.create( 'th', {
             'text': _.l( 'data.field.' + col[i], col[i] ),
@@ -138,12 +139,12 @@ od.action.list = {
             // Create row.  Creating it ourself is about 18% faster then _.create.
             var row = document.createElement( 'tr' );
             row.addEventListener( 'click', action_list.row_click );
-            row.setAttribute( 'data-id', line.ID );
+            row.setAttribute( 'data-id', line[ idField ] );
             if ( action_list.category === null ) row.setAttribute( 'data-category', line._category.name );
             /* Building row by string is not supported by IE http://www.ericvasilik.com/2006/07/code-karma.html */
             for ( var j = 1 ; j < cl ; j++ ) {
                var td = document.createElement('td');
-               var d = line[ col[j] ];
+               var d = line[ col[ j ] ];
                if ( d ) td.textContent = d.text ? d.text : d;
                row.appendChild( td );
             }

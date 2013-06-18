@@ -314,16 +314,16 @@ od.download.RemoteCategory.prototype = {
             var added = remote.added = [];
             var changed = remote.changed = [];
             var raw = remote.raw;
+            var idList = _.col( local.raw );
             if ( JSON.stringify( remote.raw_columns ) !== JSON.stringify( local.raw_columns ) )
                return remote.changed = _.col( raw );
             for ( var i = 0, l = raw.length ; i < l ; i++ ) {
-               var row = raw[i], id = row[0];
-               var localrow = null;
-               local.raw.some( function(e){ if ( e[0] === id ) return localrow = e; return false;  } );
-               if ( ! localrow ) {
-                  added.push( id );
+               var row = raw[ i ], id = row[ 0 ];
+               var pos = idList.indexOf( id );
+               if ( pos >= 0 ) {
+                  if ( JSON.stringify( row ) !== JSON.stringify( local.raw[ pos ] ) ) changed.push( id );
                } else {
-                  if ( JSON.stringify( row ) !== JSON.stringify( localrow ) ) changed.push( id );
+                  added.push( id );
                }
             }
             _.call( onload, remote );
@@ -431,21 +431,23 @@ od.download.RemoteCategory.prototype = {
             od.download.delete( remote );
             return _.call( ondone, remote );
          }
-         local.ext_columns = local.parse_extended( local.raw, null );
+         local.ext_columns = local.parse_extended( local.raw_columns, null );
          local.extended = new Array( l );
          local.index = {};
-         latch = new _.Latch( l, function download_Cat_reindex_done ( ) {
+         latch = new _.Latch( l );
+         download_Cat_reindex_batch( l-1 );
+         latch.ondone = function download_Cat_reindex_done ( ) { // Reindex tasks are wrapped in setImmediate
             remote.state = origial_state;
             remote.reindexed = true;
             local.count = local.raw.length;
+            local.build_listing();
             if ( local.count > 0 ) {
                if ( remote.dirty.length <= 0 ) remote.dirty.push( idList[0] );
             } else {
                od.download.delete( remote );
             }
             _.call( ondone, remote );
-         } );
-         download_Cat_reindex_batch( l-1 );
+         };
       }, onerror );
    },
 

@@ -224,12 +224,13 @@ od.data.Category.prototype = {
    },
 
    "parse_extended" : function data_Cat_parse_extended ( listing, data ) {
+      var result = listing.concat();
       // Data is null = listing columns
       if ( data ) {
          var pos = this.ext_columns.indexOf( 'SourceBook' );
-         if ( pos && listing[ pos ] && listing[ pos ].indexOf(',') >= 0 ) listing[ pos ] = [ listing[pos] ].concat( listing[pos].split(',') );
+         if ( pos && listing[ pos ] && listing[ pos ].indexOf(',') >= 0 ) result[ pos ] = [ listing[pos] ].concat( listing[pos].split(',') );
       }
-      return listing.concat();
+      return result;
    },
 
    "update" : function data_Cat_update ( id, listing, data, i ) {
@@ -246,11 +247,10 @@ od.data.Category.prototype = {
 
    // Build this.columns and this.list.
    "build_listing" : function data_Cat_bulid_listing () {
-      var cat = this;
       var data = this.extended;
       var col = this.ext_columns;
 
-      this.columns = col.slice( 1 );
+      this.columns = col.concat();
       var list = this.list = new Array( data.length );
       var map = this.map = {};
 
@@ -267,8 +267,8 @@ od.data.Category.prototype = {
             }
          }
          item._category = this;
-         list.push( item );
-         map[ listing[0] ] = item;
+         list[ i ] = item;
+         map[ listing[ 0 ] ] = item;
       }
    }
 };
