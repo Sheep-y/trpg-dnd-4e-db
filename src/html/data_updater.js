@@ -392,7 +392,7 @@ od.updater.RemoteCategory.prototype = {
       remote.state = 'downloading';
 
       function download_Cat_reindex_batch ( i ) {
-         var l = i - 100;
+         var l = i - 25;
          while ( i >= 0 && i > l ) {
             setImmediate( download_Cat_reindex_func( i, idList[ i ] ) );
             --i;
@@ -405,7 +405,7 @@ od.updater.RemoteCategory.prototype = {
          return function download_Cat_reindex_task () {
             local.load_data( id, function download_Cat_reindex_loaded() {
                // Re-run local.update for reindex purpose
-               local.update( id, local.raw[ i ], '<body>' + local.data[ id ] + '</body>', i );
+               local.update( id, local.raw[ i ], local.data[ id ], i );
                if ( remote.dirty.indexOf( id ) < 0 ) delete local.data[ id ]; // Unload to save memory if not dirty data
                download_Cat_reindex_step();
             }, function download_Cat_reindex_error () {

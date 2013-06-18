@@ -86,8 +86,10 @@ od.data = {
       // Normalise input
       data = data.trim().replace( /\r\n?/g, '\n' );
       // Extract body
-      data = data.match( /<body[^>]*>\s*((?:.|\n)*?)\s*<\/body\s*>/ );
-      if ( !data ) return null;
+      if ( data.indexOf( '<body' ) >= 0 ) {
+         data = data.match( /<body[^>]*>\s*((?:.|\n)*?)\s*<\/body\s*>/ );
+         if ( !data ) return null;
+      }
       // Remove script and form tags
       data = data[1].trim().replace( /<script\b.*?<\/script\s*>/g, '' ).replace( /<input[^>]*>/g, '').replace( /<form[^>]*>|<\/form\s*>/g, '' );
       // Normalise whitespace
@@ -235,7 +237,6 @@ od.data.Category.prototype = {
    },
 
    "update" : function data_Cat_update ( id, listing, data, i ) {
-      if ( id !== listing[0] ) _.error("Mismatch update id : " + id + " [" + listing + "]");
       if ( i === undefined ) i = _.col( this.raw ).indexOf( id );
       data = od.data.preprocess( data );
       var index = od.data.indexify( data );

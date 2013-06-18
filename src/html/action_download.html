@@ -203,7 +203,6 @@ od.action.download = {
          var cells = _( tr, 'td' );
          var commands = cells[5];
          var local = od.data.get( remote.name );
-         commands.innerHTML = '';
          //var local = od.data.get( remote.name );
          //cells[1].textContent = local ? local.count : '--'; // Local count may change because of load failure or download update
          switch ( remote.state ) {
@@ -214,18 +213,21 @@ od.action.download = {
             case "absent" :
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '--';
                //cells[5].textContent = 'Local';
+               commands.innerHTML = '';
                commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
                if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
                break;
             case "local" :
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '';
                //cells[5].textContent = '';
+               commands.innerHTML = '';
                commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
                if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
                break;
             case "unlisted" :
                cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
                //cells[5].textContent = 'Unlisted';
+               commands.innerHTML = '';
                commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_list' ) );
                if ( local ) commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
                break;
@@ -234,6 +236,7 @@ od.action.download = {
                cells[3].textContent = remote.added.length;
                cells[4].textContent = remote.changed.length;
                //cells[5].textContent = remote.progress;
+               commands.innerHTML = '';
                if ( remote.raw.length )
                   commands.appendChild( action.create_button( 'update_all', remote, 'action.download.btn_update_all' ) );
                if ( remote.added.length || remote.changed.length )
