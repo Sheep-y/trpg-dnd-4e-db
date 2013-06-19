@@ -11,7 +11,7 @@
    </header>
 
    <div id='act_list_pnl_search'>
-      <input type='search' id='act_list_txt_search' class='fullw' />
+      <input type='search' id='act_list_txt_search' class='fullw' autocomplete autofocus />
       <br/>
       <button class="button i18n" onclick="od.action.list.txt_search('name');">action.list.bth_search_name</button>
       <button class="button i18n" onclick="od.action.list.txt_search('full');">action.list.bth_search_body</button>
@@ -82,7 +82,7 @@ od.action.list = {
       if ( action_list.get_search_term() !== '' ) {
          action_list.txt_search();
       } else {
-         od.search.list_category( cat, this.show_list );
+         od.search.list_category( cat, action_list.show_list );
       }
    },
 
@@ -92,17 +92,20 @@ od.action.list = {
          _.show( '#act_list_pnl_category' );
          var div = _('#act_list_pnl_category')[0];
          var total = 0;
-         div.innerHTML = '<a id="act_list_a_all" onclick="od.action.list.a_category( null )"></a>';
+         div.innerHTML = '';
+         // Sort and create each category
          var list = od.data.get();
          list.sort( function (a,b){ return a.name > b.name ? 1 : ( a.name < b.name ? -1 : 0); } );
          list.forEach(function(cat){
-            var a = document.createElement('a');
-            a.addEventListener( 'click', function (){ od.action.list.a_category( cat.name ); } );
-            a.innerHTML = _.l( 'action.list.a_category', null, cat.title, cat.count ) ;
+            var a = _.create( 'a', { 'text' : cat.title, 'onclick' : function (){ od.action.list.a_category( cat.name ); } } );
+            a.appendChild( _.create( 'span', cat.count ) );
             div.appendChild( a );
             total += cat.count;
          });
-         _('#act_list_a_all')[0].innerHTML = _.l( 'action.list.a_category', null, _.l( 'action.list.a_all' ), total );
+         // Prepend all category
+         var all = _.create( 'a', { 'text' : _.l( 'action.list.a_all' ), 'onclick' : od.action.list.a_category } );
+         all.appendChild( _.create( 'span', total ) );
+         div.insertBefore( all, div.firstChild );
       }, function act_list_show_category_error() {
          od.gui.switch_action( od.action.download );
       });
@@ -111,7 +114,9 @@ od.action.list = {
    'show_list' : function act_list_show_list( col, data, highlight ) {
       var table = _( '#act_list_pnl_list table' )[0];
       var action_list = od.action.list;
-      table.innerHTML = '';
+      table.parentNode.removeChild( table );
+      table = _.create('table');
+      //table.innerHTML = ''; // Remove a table is 13% faster then clearing it, but both spend major time when list is big
       var head = _.create( 'thead' );
       var body = _.create( 'tbody' );
       table.appendChild( head );
@@ -127,10 +132,11 @@ od.action.list = {
          } ) );
       }
       if ( ! data || data.length <= 0 ) {
-         _.debug( 'Search yielded empty results' );
-         return body.appendChild( _.create( 'td', { 'rowspan' : cl, 'text' : _.l( 'action.list.lbl_no_result' ) } ) );
+         _.time( 'Search yielded empty results' );
+         _( '#act_list_pnl_list' )[0].appendChild( table );
+         return body.appendChild( _.create( 'td', { 'rowspan' : cl, 'align' : 'center', 'etxt' : _.l( 'action.list.lbl_no_result' ) } ) );
       }
-      _.debug( 'Listing ' + data.length + ' results (' + col + ')' );
+      _.time( 'Listing ' + data.length + ' results (' + col + ')' );
       action_list.data = data;
       for ( i = 0, l = data.length ; i < l ; i++ ) {
          var line = data[i];
@@ -150,6 +156,8 @@ od.action.list = {
             body.appendChild( row );
          }
       }
+      _( '#act_list_pnl_list' )[0].appendChild( table );
+      _.time('Listed ' + data.length + ' results.' );
     },
 
    'row_click' : function() {

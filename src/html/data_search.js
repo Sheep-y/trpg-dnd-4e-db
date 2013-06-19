@@ -15,6 +15,7 @@ od.search = {
     */
 
    "search" : function search_search ( options ) {
+      _.time();
       var cat = options.category;
       var cols;
       var tmp = options.term ? this.gen_search( options.term ) : null;
@@ -46,10 +47,10 @@ od.search = {
       function do_search () {
          var regx = tmp[0];
          if ( cat ) {
-            _.info( 'Search ' + cat.name + ': ' + options.term );
+            _.time( 'Search ' + cat.name + ': ' + options.term );
             _.call( options.ondone, null, cols, search( cat.list ), tmp[1] );
          } else {
-            _.info( 'Searching all categories: ' + options.term  );
+            _.time( 'Searching all categories: ' + options.term  );
             var data = [];
             od.data.get().forEach( function( c ) {
                data = data.concat( search( c.list ) );
@@ -81,17 +82,18 @@ search_loop:
    },
 
    "list_category" : function data_search_list_category ( cat, onload ) {
+      _.time();
       od.data.load_catalog( function data_search_list_category_load() {
          var list = { "columns":[], "data":[] };
          if ( cat ) {
-            _.info( 'List ' + cat.title );
+            _.time( 'List ' + cat.title );
             cat.load_listing( function data_search_list_category_load_cat() {
                _.call( onload, cat, cat.columns, cat.list.concat() );
             });
          } else {
-            _.info( 'List all categories' );
-            var data = []
+            _.time( 'List all categories' );
             od.data.load_all_listing( function data_search_list_category_load_all(){
+               var data = []
                od.data.get().forEach( function data_search_list_category_each( c ) {
                   data = data.concat( c.list );
                } );

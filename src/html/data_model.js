@@ -191,7 +191,7 @@ od.data.Category.prototype = {
    "load_listing" : function data_Cat_load_listing ( ondone, onerror ) {
       var cat = this;
       od.reader.read_data_listing( this.name, function data_Cat_load_listing_done() {
-         cat.build_listing();
+         if ( cat.list.length <= 0 ) cat.build_listing(); // Skip if listing has been built
          _.call( ondone );
       }, _.callonce( onerror ) );
    },

@@ -31,12 +31,12 @@ od.action.view = {
       var latch = new _.Latch( data.length+1 );
       _('#action_view_h_title')[0].textContent = title;
       data.forEach( function(e) {
-         od.data.get( e[0] ).load_data( e[1], latch.count_down_function() );
+         e[0].load_data( e[1], latch.count_down_function() );
       });
       latch.ondone = function() {
          data.forEach( function(e) {
             _( '#act_view_pnl_content')[0].appendChild( _.create( 'div', {
-               html: od.gui.symbol_safe_convert( od.data.get( e[0] ).data[ e[1] ] )
+               html: od.gui.symbol_safe_convert( e[0].data[ e[1] ] )
             } ) );
             od.gui.switch_action( od.action.view );
          } );

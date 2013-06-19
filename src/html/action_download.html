@@ -120,8 +120,8 @@ od.action.download = {
    'create_row' : function act_download_create_row( remote ) {
       var local = od.data.get( remote.name );
       var tr = _.create( 'tr', { 'data-name': remote.name } );
-      tr.appendChild( _.create( 'td', { 'text': remote.name } ) );
-      tr.appendChild( _.create( 'td', { 'text': local ? local.count : '--' } ) ); // 1: Local count
+      tr.appendChild( _.create( 'td', remote.name ) );
+      tr.appendChild( _.create( 'td', local ? local.count : '--' ) ); // 1: Local count
       tr.appendChild( _.create( 'td' ) ); // 2: Remote count
       tr.appendChild( _.create( 'td' ) ); // 3: Added count
       tr.appendChild( _.create( 'td' ) ); // 4: Changed count

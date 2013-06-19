@@ -362,15 +362,15 @@ _.error.log = [];
 
 _.time = function _time( msg ) {
    var t = _.time;
+   var now = new Date();
    if ( msg === undefined ) {
-      t.base = new Date();
+      t.base = now;
       t.last = null;
       return;
    }
-   var now = new Date();
    var fromBase = now - t.base;
-   var fromLast = t.last ? ( ',+' + (now - t.last) ) : '';
-   _.debug( msg + ' (+' + fromBase + fromLast + ')' );
+   var fromLast = t.last ? ( 'ms,+' + (now - t.last) ) : '';
+   _.debug( msg + ' (+' + fromBase + fromLast + 'ms)' );
    t.last = now;
 };
 
@@ -405,21 +405,39 @@ _.noDef = function _noDef( e ) { if ( e && e.preventDefault ) e.preventDefault()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 _.create = function _create( tag, attr ) {
+   /* Disabled Id/class parsing because just the check would slow down _.create by 6% to 12%, and does not do anything new. *
+   if ( typeof( attr ) !== 'object' ) attr = { 'text' : attr }; // Convert text / numeric attribute to proper attribute object
+   if ( tag.indexOf( '#' ) > 0  || tag.indexOf( '.' ) > 0 ) { // Parse 'table.noprint.fullwidth#nav' into tag, class, id
+      if ( ! attr ) attr = {}; // Create attribute object if not given
+      tag.split( /(?=[#.])/ ).forEach( function( e, i ) {
+         if ( i === 0 ) return tag = e; // Set first token as tag name
+         if ( e.charAt(0) === '#') return attr.id = e.substr(1); // Set id
+         if ( ! attr.className ) return attr.className = e.substr(1); // Set className
+         attr.className += ' ' + e.substr(1); // Append className
+      } );
+   }
+   */
    var result = document.createElement( tag );
    if ( attr ) {
-      if ( attr.text ) {
-         result.textContent = attr.text;
-         delete attr.text;
-      }
-      if ( attr.html ) {
-         result.innerHTML = attr.html;
-         delete attr.html;
-      }
-      for ( var name in attr ) {
-         if ( name.indexOf('on') === 0 ) {
-            result.addEventListener( name.substr(2), attr[name] );
-         } else {
-            result.setAttribute( name, attr[name] );
+      if ( typeof( attr ) !== 'object' ) {
+         result.textContent = attr; 
+      } else {
+         for ( var name in attr ) {
+            if ( name === 'text' ) {
+               result.textContent = attr.text;
+               
+            } else if ( name === 'html' ) {
+               result.innerHTML = attr.html;
+               
+            } else if ( name === 'class' || name === 'className' ) {
+               result.className = attr[name];
+               
+            } else if ( name.indexOf('on') === 0 ) {
+               result.addEventListener( name.substr(2), attr[name] );
+               
+            } else {
+               result.setAttribute( name, attr[name] );
+            }
          }
       }
    }
