@@ -55,7 +55,9 @@ _.l.set( 'action.list', {
    'bth_search_body' : "Full search",
    'bth_search_advanced' : "Advacned search",
    'a_all' : "All Category",
-   'a_category' : "%1 (%2)"
+   'a_category' : "%1 (%2)",
+
+   'lbl_no_result' : "No result"
 });
 
 _.l.set( 'action.view', {

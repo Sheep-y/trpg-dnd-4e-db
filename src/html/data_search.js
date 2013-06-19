@@ -10,24 +10,20 @@ od.search = {
     *    category : category object, null for all categories,
     *    term : terms to search for,
     *    search_body : if false, search listing only, otherwise search both listing and content,
-    *    onblank: callback if search term is blank or invalid,
     *    ondone : callback after search is finished with search result { columns, list }, which may be zero rows
     * }
     */
 
    "search" : function search_search ( options ) {
-      var tmp = options.term ? this.gen_search( options.term ) : null;
-      if ( ! tmp ) {
-         _.call( options.onblank );
-         return;
-      }
-      var search_body = options.search_body;
-      var regx = options.regx = tmp[0];
-      options.highlight = tmp[1];
       var cat = options.category;
+      var cols;
+      var tmp = options.term ? this.gen_search( options.term ) : null;
+      var search_body = options.search_body;
       if ( cat ) {
          // Search in a single category
          cat.load_listing( function(){
+            cols = cat.columns;
+            if ( ! tmp ) return _.call( options.ondone, null, cols );
             if ( search_body ) {
                cat.load_index( do_search );
             } else {
@@ -36,6 +32,8 @@ od.search = {
          });
       } else {
          // Search in all categories
+         cols = ["ID","Name","Category","Type","Level","SourceBook"];
+         if ( ! tmp ) return _.call( options.ondone, null, cols );
          od.data.load_all_listing( function(){
             if ( search_body ) {
                od.data.load_all_index( do_search );
@@ -46,20 +44,17 @@ od.search = {
       }
 
       function do_search () {
-         var list = { "columns":[], "data":[] };
+         var regx = tmp[0];
          if ( cat ) {
             _.info( 'Search ' + cat.name + ': ' + options.term );
-            list.columns = cat.columns;
-            list.data = [].concat( search( cat.list ) );
-            _.call( options.ondone, null, list );
+            _.call( options.ondone, null, cols, search( cat.list ), tmp[1] );
          } else {
             _.info( 'Searching all categories: ' + options.term  );
-            list.columns = ["ID","Name","Category","Type","Level","SourceBook"];
-            list.data = [];
+            var data = [];
             od.data.get().forEach( function( c ) {
-               list.data = list.data.concat( search( c.list ) );
+               data = data.concat( search( c.list ) );
             } );
-            _.call( options.ondone, null, list );
+            _.call( options.ondone, null, cols, data, tmp[1] );
          }
 
          function search( lst ) {
@@ -91,18 +86,16 @@ search_loop:
          if ( cat ) {
             _.info( 'List ' + cat.title );
             cat.load_listing( function data_search_list_category_load_cat() {
-               list.columns = cat.columns;
-               list.data = [].concat( cat.list );
-               _.call( onload, cat, list );
+               _.call( onload, cat, cat.columns, cat.list.concat() );
             });
          } else {
             _.info( 'List all categories' );
-            list.columns = ["ID","Name","Category","Type","Level","SourceBook"];
+            var data = []
             od.data.load_all_listing( function data_search_list_category_load_all(){
                od.data.get().forEach( function data_search_list_category_each( c ) {
-                  list.data = list.data.concat( c.list );
+                  data = data.concat( c.list );
                } );
-               _.call( onload, null, list );
+               _.call( onload, null, ["ID","Name","Category","Type","Level","SourceBook"], data );
             });
          }
       } );

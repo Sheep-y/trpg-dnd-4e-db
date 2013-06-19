@@ -760,9 +760,3 @@ _.l.event = new _.EventManager( _.l, ['set','locale'] );
 
 _.debug('Sparrow loaded.');
 _.time();
-/*
-var e = new _.Executor();
-e.add( function(r){ console.log(r); }, 1 );
-e.add( function(r){ console.log(r); }, 2 );
-e.asap( function(r){ console.log(r); }, 3 );
-*/

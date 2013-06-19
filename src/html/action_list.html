@@ -13,19 +13,14 @@
    <div id='act_list_pnl_search'>
       <input type='search' id='act_list_txt_search' class='fullw' />
       <br/>
-      <button class="button i18n" onclick="od.action.list.txt_search('name', event);">action.list.bth_search_name</button>
-      <button class="button i18n" onclick="od.action.list.txt_search('full', event);">action.list.bth_search_body</button>
+      <button class="button i18n" onclick="od.action.list.txt_search('name');">action.list.bth_search_name</button>
+      <button class="button i18n" onclick="od.action.list.txt_search('full');">action.list.bth_search_body</button>
       <button class="button i18n" onclick="">action.list.bth_search_advanced</button>
 
-      <div id='act_list_pnl_category'>
-         <a onclick='od.action.list.a_category(event, null);'>All Category</a>
-      </div>
+      <div id='act_list_pnl_category'></div>
 
       <div id='act_list_pnl_list'>
-         <table class='fullw'>
-            <thead></thead>
-            <tbody></tbody>
-         </table>
+         <table class='fullw'></table>
       </div>
    </div>
 </div>
@@ -57,53 +52,52 @@ od.action.list = {
    'data' : [],
    'highlights' : [],
 
-   'txt_search' : function act_list_txt_search ( search_type, evt ) {
+   'txt_search' : function act_list_txt_search ( search_type ) {
+      var action_list = od.action.list;
       if ( search_type === undefined ) {
-         search_type = od.action.list._last_search_type;
+         search_type = action_list._last_search_type;
       } else {
-         od.action.list._last_search_type = search_type;
+         action_list._last_search_type = search_type;
       }
-      var cat = od.action.list.category;
       od.search.search({
-         'category': cat ? od.data.get(cat) : null,
-         'term': od.action.list.get_search_term(),
+         'category': action_list.get_search_category(),
+         'term': action_list.get_search_term(),
          'search_body': search_type === 'full',
-         'onblank' : function() { _.hide( '#act_list_pnl_list' ); },
-         'ondone'  : od.action.list.show_list
+         'ondone'  : action_list.show_list
       });
-      return _.noDef( evt );
+   },
+
+   'get_search_category' : function act_list_get_search_category () {
+      var cat = od.action.list.category;
+      return cat ? cat : null;
    },
 
    'get_search_term' : function act_list_get_search_term () {
       return _( '#act_list_txt_search' )[0].value;
    },
 
-   'a_category' : function act_list_a_category ( evt, cat ) {
-      od.action.list.category = cat;
-      if ( od.action.list.get_search_term() !== '' ) {
-         od.action.list.txt_search();
+   'a_category' : function act_list_a_category ( cat ) {
+      var action_list = od.action.list;
+      cat = action_list.category = cat ? od.data.get( cat ) : null;
+      if ( action_list.get_search_term() !== '' ) {
+         action_list.txt_search();
       } else {
-         od.search.list_category( cat ? od.data.get(cat) : null, this.show_list );
+         od.search.list_category( cat, this.show_list );
       }
    },
 
-   'reset' : function act_list_reset() {
-      _('#act_list_pnl_category')[0].innerHTML = '';
-   },
-
    'show_category' : function act_list_show_category() {
-      _.hide( '#act_list_pnl_list' );
       od.action.list.category = null;
       od.data.load_catalog( function act_list_show_category_load() {
          _.show( '#act_list_pnl_category' );
          var div = _('#act_list_pnl_category')[0];
          var total = 0;
-         div.innerHTML = '<a id="act_list_a_all" onclick="od.action.list.a_category(event, null)"></a>';
+         div.innerHTML = '<a id="act_list_a_all" onclick="od.action.list.a_category( null )"></a>';
          var list = od.data.get();
          list.sort( function (a,b){ return a.name > b.name ? 1 : ( a.name < b.name ? -1 : 0); } );
          list.forEach(function(cat){
             var a = document.createElement('a');
-            a.addEventListener( 'click', function( evt ){ od.action.list.a_category( evt, cat.name ); } );
+            a.addEventListener( 'click', function (){ od.action.list.a_category( cat.name ); } );
             a.innerHTML = _.l( 'action.list.a_category', null, cat.title, cat.count ) ;
             div.appendChild( a );
             total += cat.count;
@@ -114,8 +108,7 @@ od.action.list = {
       });
    },
 
-   'show_list' : function act_list_show_list( data ) {
-      _.debug( 'Listing ' + data.data.length + ' results' );
+   'show_list' : function act_list_show_list( col, data, highlight ) {
       var table = _( '#act_list_pnl_list table' )[0];
       var action_list = od.action.list;
       table.innerHTML = '';
@@ -123,17 +116,22 @@ od.action.list = {
       var body = _.create( 'tbody' );
       table.appendChild( head );
       table.appendChild( body );
-      var col = action_list.columns = data.columns;
+      action_list.columns = col;
       var cl = col.length;
       var idField = col[ 0 ];
       var i, l;
-      for ( i = 1, l = cl ; i < l ; i++ ) {
+      for ( i = 1 ; i < cl ; i++ ) {
          head.appendChild( _.create( 'th', {
             'text': _.l( 'data.field.' + col[i], col[i] ),
             'onclick': function(){ alert('sorting unimplemented (target M3)'); }
          } ) );
       }
-      data = action_list.data = data.data;
+      if ( ! data || data.length <= 0 ) {
+         _.debug( 'Search yielded empty results' );
+         return body.appendChild( _.create( 'td', { 'rowspan' : cl, 'text' : _.l( 'action.list.lbl_no_result' ) } ) );
+      }
+      _.debug( 'Listing ' + data.length + ' results (' + col + ')' );
+      action_list.data = data;
       for ( i = 0, l = data.length ; i < l ; i++ ) {
          var line = data[i];
          if ( line ) {
@@ -152,7 +150,6 @@ od.action.list = {
             body.appendChild( row );
          }
       }
-      _.show( '#act_list_pnl_list' );
     },
 
    'row_click' : function() {
