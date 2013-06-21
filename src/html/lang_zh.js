@@ -77,13 +77,13 @@ _.l.set( 'gui', {
 });
 
 _.l.set( 'action.list', {
-   'title' : "瀏覽數據庫",
+   'title' : "瀏覽",
    'link_text' : "瀏覽",
 
    'txt_search_placeholder' : "搜尋關鍵詞。例：ranger OR martial   bonus -\"feat bonus\" ",
    'bth_search_name' : "名字搜尋",
    'bth_search_body' : "全文搜尋",
-   'bth_search_advanced' : "進階搜尋",
+   'bth_search_advanced' : "...",
    'a_all' : "全類別",
    'lbl_count' : '%1/%2',
    
@@ -94,7 +94,7 @@ _.l.set( 'action.view', {
 });
 
 _.l.set( 'action.download', {
-   'title' : "更新數據庫",
+   'title' : "更新",
    'link_text' : "更新",
 
    'paragraph' : [

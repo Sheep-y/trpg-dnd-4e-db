@@ -3,6 +3,39 @@
   - List and search downloaded entries
   -->
 <div id='action_list' data-role='page'>
+   <style scoped>
+      /* Search buttons */
+      #act_list_tbl_search {
+         width: 100%;
+         max-width: 320px;
+         border-spacing: 0;
+      }
+      #act_list_tbl_search button {
+         border-radius: 0;
+      }
+      #act_list_tbl_search td:first-child button {
+         width: 50%;
+         margin: 0;
+      }
+      #act_list_tbl_search td+td {
+         width: 30px;
+      }
+      /* Category list */
+      #act_list_pnl_category a {
+         display: block;
+         float: left;
+         width: 100%;
+         border: 1px ridge #888;
+         padding: 5px;
+         max-width: 320px;
+      }
+      #act_list_pnl_category a span {
+         float: right;
+      }
+      #act_list_pnl_list {
+         clear: left;
+      }
+   </style>
 
    <header>
       <a class='i18n' id='act_list_btn_update' onclick='od.gui.switch_action( od.action.download )'> action.download.link_text </a>
@@ -13,9 +46,15 @@
    <div id='act_list_pnl_search'>
       <input type='search' id='act_list_txt_search' class='fullw' autocomplete autofocus />
       <br/>
-      <button class="button i18n" onclick="od.action.list.txt_search('name');">action.list.bth_search_name</button>
-      <button class="button i18n" onclick="od.action.list.txt_search('full');">action.list.bth_search_body</button>
-      <button class="button i18n" onclick="">action.list.bth_search_advanced</button>
+      <table id="act_list_tbl_search"><tr>
+         <td
+            ><button class="button i18n" onclick="od.action.list.txt_search('name');"> action.list.bth_search_name </button
+            ><button class="button i18n" onclick="od.action.list.txt_search('full');"> action.list.bth_search_body </button
+         ></td>
+         <td
+            ><button class="button i18n" onclick=""> action.list.bth_search_advanced </button
+         ></td>
+      </table>
 
       <div id='act_list_pnl_category'></div>
 
