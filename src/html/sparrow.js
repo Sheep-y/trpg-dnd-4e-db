@@ -11,7 +11,7 @@ if ( ! document.querySelectorAll || !window.Storage ) {
 
 // CSS select only but very simple and fast.
 // Only guarantees to return an array-like object.
-function _( root, selector ) {
+function _ ( root, selector ) {
    if ( selector === undefined ) {
       selector = root;
       root = document;
@@ -41,7 +41,7 @@ function _( root, selector ) {
  * @param {Integer} length If this and startpos is given, work like Array.slice( startpos, length ).
  * @returns {Array} Clone or slice of subject.
  */
-_.ary = function _ary( subject, startpos, length ) {
+_.ary = function _ary ( subject, startpos, length ) {
    if ( subject.length <= 0 ) return [];
    var s = Array.prototype.slice;
    if ( startpos === undefined ) return subject instanceof Array ? subject : s.call( subject, 0 );
@@ -55,7 +55,7 @@ _.ary = function _ary( subject, startpos, length ) {
  * @param {String} column Columns (field) to extract.
  * @returns {Array} Array (if single column) or Array of Array (if multiple columns).
  */
-_.col = function _col( subject, column /* ... */) {
+_.col = function _col ( subject, column /* ... */) {
    if ( ! ( subject instanceof Array ) ) subject = _.ary( subject );
    if ( column === undefined ) return subject.map(function(e){ return e[0]; });
    if ( arguments.length === 2 ) return subject.map(function(e){ return e[column]; });
@@ -78,7 +78,7 @@ _.col = function _col( subject, column /* ... */) {
  * @param {any} param       call parameters, can have multiple.
  * @returns {any}           Return value of called function, or undefined if function is not called or has error.
  */
-_.call = function _call( func, thisObj, param /*...*/ ) {
+_.call = function _call ( func, thisObj, param /*...*/ ) {
    if ( func === undefined || func === null ) return undefined;
    try {
       if ( arguments.length <= 1 ) return func();
@@ -108,13 +108,13 @@ _.callonce = function _call ( func ) {
 
 /**
  * Capture parameters in a closure and return a callback function
- * that can be called at a later time.
+ * that can be called ast a later time.
  */
-_.callfunc = function _callfunc( func, thisObj, param /*...*/ ) {
+_.callfunc = function _callfunc ( func, thisObj, param /*...*/ ) {
    if ( arguments.length <= 1 ) return func;
-   if ( arguments.length <= 3 ) return function _callback1() { func.call( thisObj, param ); };
+   if ( arguments.length <= 3 ) return function _callback1 () { func.call( thisObj, param ); };
    var arg = _.ary( arguments, 2 );
-   return function _callback() { func.apply( thisObj, arg ); };
+   return function _callback () { func.apply( thisObj, arg ); };
 };
 
 if ( window.setImmediate === undefined ) {
@@ -122,7 +122,7 @@ if ( window.setImmediate === undefined ) {
       window.setImmediate = window.requestAnimationFrame;
       window.clearImmediate = window.cancelAnimationFrame;
    } else {
-      window.setImmediate = function(func){ return window.setTimeout(func, 0); };
+      window.setImmediate = function setImmediate ( func ){ return window.setTimeout(func, 0); };
       window.clearImmediate = window.clearTimeout;
    }
 }
@@ -134,13 +134,13 @@ if ( window.setImmediate === undefined ) {
 /**
  * Ajax function
  */
-_.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
+_.ajax = function _ajax ( url, onsuccess, onfail, ondone, xhr ) {
    if ( xhr === undefined ) xhr = new XMLHttpRequest();
    _.info( "[AJAX] Ajax: "+url);
    xhr.open( 'GET', url );
    //xhr.mozBackgroundRequest = true;
    var finished = false;
-   xhr.onreadystatechange = function _ajax_onreadystatechange() {
+   xhr.onreadystatechange = function _ajax_onreadystatechange () {
       if ( xhr.readyState === 4 ) {
          _.debug( 'Ajax ready 4, status ' + xhr.status + ', url ' + url );
          // 0 is a possible response code for local file access under IE 9 ActiveX
@@ -152,7 +152,7 @@ _.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
                _.call( ondone, xhr, xhr );
             } );
          } else {
-            setImmediate( function _ajax_err_status(){
+            setImmediate( function _ajax_err_status () {
                if ( finished ) return;
                finished = true;
                _.call( onfail, xhr, xhr, "HTTP Response Code " + xhr.status );
@@ -176,7 +176,7 @@ _.ajax = function _ajax( url, onsuccess, onfail, ondone, xhr ) {
 /**
  * Load a javascript from an url
  */
-_.js = function _js( url, option ) {
+_.js = function _js ( url, option ) {
    if ( option === undefined ) option = {};
    // Validate before doing anything, if pass then we are done
    if ( option.validate && option.validate.call( null, url, option ) ) return _js_done( 'onload' );
@@ -187,7 +187,7 @@ _.js = function _js( url, option ) {
    _.info( "[JS] Load script: " + url );
 
    var done = false;
-   function _js_done( call, log ) {
+   function _js_done ( call, log ) {
       if ( done ) return;
       done = true;
       if ( log ) _.log( log );
@@ -195,16 +195,16 @@ _.js = function _js( url, option ) {
       if ( e && e.parentNode === document.body ) document.body.removeChild(e);
    }
 
-   e.addEventListener( 'load', function _js_load(){
+   e.addEventListener( 'load', function _js_load (){
       // Delay execution to make sure validate/load is called _after_ script has been ran.
-      setImmediate( function _js_load_delayed() {
+      setImmediate( function _js_load_delayed () {
          if ( option.validate && ! _.call( option.validate, e, url, option )  ) {
             return _js_done( 'onerror', "[JS] Script error: " + url );
          }
          _js_done( 'onload', "[JS] Script loaded: " + url );
       } );
    } );
-   e.addEventListener( 'error', function _js_error(){
+   e.addEventListener( 'error', function _js_error (){
       _js_done( 'onerror', "[JS] Script not found: " + url );
    } );
 
@@ -214,7 +214,7 @@ _.js = function _js( url, option ) {
 /**
  * Cross Origin Request function
  */
-_.cor = function _cor( url, onsuccess, onfail, ondone ) {
+_.cor = function _cor ( url, onsuccess, onfail, ondone ) {
    if ( window.ActiveXObject !== undefined ) {
       // XMLHttp can cross origin.
       return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
@@ -238,7 +238,7 @@ _.cor = function _cor( url, onsuccess, onfail, ondone ) {
 /**
  * parse xml and return an xml document
   */
-_.xml = function _xml( txt ) {
+_.xml = function _xml ( txt ) {
    if ( window.DOMParser !== undefined ) {
       return new DOMParser().parseFromString( txt, 'text/xml' );
 
@@ -255,7 +255,7 @@ _.xml = function _xml( txt ) {
 /**
  * parse html and return the containing dom node
  */
-_.html = function _html( txt ) {
+_.html = function _html ( txt ) {
    var e = _.html.node;
    if ( !e ) {
       e = _.html.node = document.createElement('div');
@@ -275,7 +275,7 @@ _.html.node = null;
  * @param {type} xsl XSL String or document to transform xml.
  * @returns {Document} Transformed fragment root or null if XSL is unsupported.
  */
-_.xsl = function _xsl( xml, xsl ) {
+_.xsl = function _xsl ( xml, xsl ) {
    var xmlDom = typeof( xml ) === 'string' ? _.xml( xml ) : xml;
    var xslDom = typeof( xsl ) === 'string' ? _.xml( xsl ) : xsl;
    if ( window.XSLTProcessor ) {
@@ -314,7 +314,7 @@ _.xsl = function _xsl( xml, xsl ) {
    }
 };
 
-_.xpath = function _xpath( node, path ) {
+_.xpath = function _xpath ( node, path ) {
    var doc = node.ownerDocument;
    if ( doc.evaluate ) {
       return doc.evaluate( path, node, null, XPathResult.ANY_TYPE, null );
@@ -327,7 +327,7 @@ _.xpath = function _xpath( node, path ) {
 // Console logging & timing.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-_.log = function _info( type, msg ) {
+_.log = function _info ( type, msg ) {
    if ( msg === undefined ) {
       msg = type;
       type = 'log';
@@ -338,10 +338,10 @@ _.log = function _info( type, msg ) {
       console[type]( "["+t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds()+"] ", msg );
    }
 };
-_.debug = function _info( msg ) { _.log( 'debug', msg ); };
-_.info = function _info( msg ) { _.log( 'info', msg ); };
-_.warn = function _info( msg ) { _.log( 'warn', msg ); };
-_.error = function _info( msg ) {
+_.debug = function _info ( msg ) { _.log( 'debug', msg ); };
+_.info = function _info ( msg ) { _.log( 'info', msg ); };
+_.warn = function _info ( msg ) { _.log( 'warn', msg ); };
+_.error = function _info ( msg ) {
    if ( ! _.error.timeout ) {
       // Delay a small period so that errors popup together instead ofone by one
       _.error.timeout = setTimeout( function _error_timeout(){
@@ -360,7 +360,7 @@ _.error = function _info( msg ) {
 _.error.timeout = 0;
 _.error.log = [];
 
-_.time = function _time( msg ) {
+_.time = function _time ( msg ) {
    var t = _.time;
    var now = new Date();
    if ( msg === undefined ) {
@@ -378,16 +378,16 @@ _.time = function _time( msg ) {
 // String escape
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-_.escHtml = function _escHtml( t ) {
+_.escHtml = function _escHtml ( t ) {
    if ( ! t.match( /[<&'"]/ ) ) return t;
    return t.replace( /&/g, '&amp;').replace( /</g, '&lt;').replace( /"/g, '&quot;' ).replace( /'/g, '&#39;' );
 };
 
-_.escJs = function _escJs( t ) {
+_.escJs = function _escJs ( t ) {
    return t.replace( /\r?\n/g, '\\n').replace( /'"/g, '\\$0');
 };
 
-_.escRegx = function _escRegx( t ) {
+_.escRegx = function _escRegx ( t ) {
    return t.replace( /[()?*+.\\{}[\]]/g, '\\$0' );
 };
 
@@ -395,16 +395,16 @@ _.escRegx = function _escRegx( t ) {
 // Object freezing
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-_.freeze = function _freeze( o ) { return Object.freeze ? Object.freeze(o) : o; };
-_.seal = function _seal( o ) { return Object.seal ? Object.seal(o) : o; };
-_.noExt = function _noExt( o ) { return Object.preventExtensions ? Object.preventExtensions(o) : o; };
-_.noDef = function _noDef( e ) { if ( e && e.preventDefault ) e.preventDefault(); return false; };
+_.freeze = function _freeze ( o ) { return Object.freeze ? Object.freeze(o) : o; };
+_.seal = function _seal ( o ) { return Object.seal ? Object.seal(o) : o; };
+_.noExt = function _noExt ( o ) { return Object.preventExtensions ? Object.preventExtensions(o) : o; };
+_.noDef = function _noDef ( e ) { if ( e && e.preventDefault ) e.preventDefault(); return false; };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DOM manipulation
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-_.create = function _create( tag, attr ) {
+_.create = function _create ( tag, attr ) {
    /* Disabled Id/class parsing because just the check would slow down _.create by 6% to 12%, and does not do anything new. *
    if ( typeof( attr ) !== 'object' ) attr = { 'text' : attr }; // Convert text / numeric attribute to proper attribute object
    if ( tag.indexOf( '#' ) > 0  || tag.indexOf( '.' ) > 0 ) { // Parse 'table.noprint.fullwidth#nav' into tag, class, id
@@ -430,13 +430,13 @@ _.create = function _create( tag, attr ) {
                result.innerHTML = attr.html;
                
             } else if ( name === 'class' || name === 'className' ) {
-               result.className = attr[name];
+               result.className = attr[ name ];
                
             } else if ( name.indexOf('on') === 0 ) {
-               result.addEventListener( name.substr(2), attr[name] );
+               result.addEventListener( name.substr( 2 ), attr[ name ] );
                
             } else {
-               result.setAttribute( name, attr[name] );
+               result.setAttribute( name, attr[ name ] );
             }
          }
       }
@@ -444,29 +444,53 @@ _.create = function _create( tag, attr ) {
    return result;
 };
 
-_.domlist = function _domlist(e) {
-   if ( typeof( e ) === 'string' ) return _(e);
+_.domlist = function _domlist ( e ) {
+   if ( typeof( e ) === 'string' ) return _( e );
    else if ( e.length === undefined ) return [ e ];
    return e;
 };
 
-_.show = function _show( e ) {
-   e = _.domlist(e);
+_.show = function _show ( e ) {
+   e = _.domlist( e );
    for ( var i = 0, l = e.length ; i < l ; i++ ) {
-      e[i].style.display = '';
-      delete e[i].style.display;
+      e[ i ].style.display = '';
+      delete e[ i ].style.display;
    }
 };
 
-_.hide = function _show( e ) {
-   e = _.domlist(e);
-   for ( var i = 0, l = e.length ; i < l ; i++ ) e[i].style.display = 'none';
+_.hide = function _show ( e ) {
+   e = _.domlist( e );
+   for ( var i = 0, l = e.length ; i < l ; i++ ) e[ i ].style.display = 'none';
 };
 
-_.visible = function _visible( e, visible ) {
-   if ( visible ) _.show(e); else _.hide(e);
+_.visible = function _visible ( e, visible ) {
+   if ( visible ) _.show( e ); else _.hide( e );
 };
 
+_.addClass = function _addClass ( e, className ) {
+   e = _.domlist( e );
+   for ( var i = 0, l = e.length ; i < l ; i++ ) {
+      if ( e[ i ].className.split( /\s+/ ).indexOf( className ) >= 0 ) continue;
+      e[ i ].className += ' ' + className;
+   }
+}
+
+_.removeClass = function _removeClass ( e, className ) {
+   if ( className === undefined ) className = e.substr( 1 );
+   e = _.domlist( e );
+   for ( var i = 0, l = e.length ; i < l ; i++ ) {
+      var lst = e[ i ].className.split( /\s+/ ), pos = lst.indexOf( className );
+      if ( pos < 0 ) continue;
+      lst.splice( pos, 1 );
+      e[ i ].className += lst.join( ' ' );
+   }
+}
+
+_.setClass = function _setClass ( e, className, addClass ) {
+   if ( addClass ) _.addClass( e, className ); else _.removeClass( e, className );
+}
+
+//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Asynchronous programming
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

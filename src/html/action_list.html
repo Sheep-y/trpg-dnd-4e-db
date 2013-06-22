@@ -115,6 +115,12 @@ od.action.list = {
       });
    },
 
+   'set_search_category' : function act_list_set_search_category ( cat ) {
+      od.action.list.category = cat;
+      _.removeClass( '.selected' );
+      _.setClass( '#act_list_pnl_list', 'selected' );
+   },
+
    'get_search_category' : function act_list_get_search_category () {
       var cat = od.action.list.category;
       return cat ? cat : null;
@@ -134,9 +140,9 @@ od.action.list = {
       }
    },
 
-   'show_category' : function act_list_show_category() {
+   'show_category' : function act_list_show_category () {
       od.action.list.category = null;
-      od.data.load_catalog( function act_list_show_category_load() {
+      od.data.load_catalog( function act_list_show_category_load () {
          _.show( '#act_list_pnl_category' );
          var div = _('#act_list_pnl_category')[0];
          var total = 0;
@@ -154,12 +160,12 @@ od.action.list = {
          var all = _.create( 'a', { 'text' : _.l( 'action.list.a_all' ), 'onclick' : od.action.list.a_category } );
          all.appendChild( _.create( 'span', total ) );
          div.insertBefore( all, div.firstChild );
-      }, function act_list_show_category_error() {
+      }, function act_list_show_category_error () {
          od.gui.switch_action( od.action.download );
       });
    },
 
-   'show_list' : function act_list_show_list( col, data, highlight ) {
+   'show_list' : function act_list_show_list ( col, data, highlight ) {
       var table = _( '#act_list_pnl_list table' )[0];
       var action_list = od.action.list;
       table.parentNode.removeChild( table );
@@ -208,12 +214,12 @@ od.action.list = {
       _.time('Listed ' + data.length + ' results.' );
     },
 
-   'row_click' : function() {
+   'row_click' : function act_list_row_click () {
        var list = od.action.list;
        var cat = od.action.list.category;
        if ( ! cat ) cat = this.getAttribute( 'data-category' );
        var id = this.getAttribute('data-id');
-       od.action.view.show_data( this.querySelector('td').textContent, [[cat, id]] );
+       od.action.view.show_data( this.querySelector('td').textContent, [ [ cat, id ] ] );
    }
 };
 
