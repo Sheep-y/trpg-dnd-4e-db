@@ -500,7 +500,7 @@ _.addClass = function _addClass ( e, className ) {
 _.removeClass = function _removeClass ( e, className ) {
    if ( className === undefined ) className = e.substr( 1 );
    e = _.domlist( e );
-   for ( var i = 0, l = e.length ; i < l ; i++ ) {
+   for ( var i = e.length-1 ; i >= 0 ; i-- ) {
       var lst = e[ i ].className.split( /\s+/ ), pos = lst.indexOf( className );
       if ( pos < 0 ) continue;
       lst.splice( pos, 1 );
