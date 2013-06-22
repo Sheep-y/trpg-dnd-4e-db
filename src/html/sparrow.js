@@ -468,23 +468,33 @@ _.show = function _show ( e ) {
       e[ i ].style.display = '';
       delete e[ i ].style.display;
    }
+   return e;
 };
 
 _.hide = function _show ( e ) {
    e = _.domlist( e );
    for ( var i = 0, l = e.length ; i < l ; i++ ) e[ i ].style.display = 'none';
+   return e;
 };
 
 _.visible = function _visible ( e, visible ) {
-   if ( visible ) _.show( e ); else _.hide( e );
+   return visible ? _.show( e ) : _.hide( e );
 };
 
+_.hasClass = function _hasClass ( e, className ) {
+   e = _.domlist( e );
+   for ( var i = 0, l = e.length ; i < l ; i++ ) {
+      if ( e[ i ].className.split( /\s+/ ).indexOf( className ) >= 0 ) return true;
+   }
+   return false;
+}
 _.addClass = function _addClass ( e, className ) {
    e = _.domlist( e );
    for ( var i = 0, l = e.length ; i < l ; i++ ) {
-      if ( e[ i ].className.split( /\s+/ ).indexOf( className ) >= 0 ) continue;
+      if ( _.hasClass( e, className ) ) continue;
       e[ i ].className += ' ' + className;
    }
+   return e;
 }
 
 _.removeClass = function _removeClass ( e, className ) {
@@ -494,12 +504,13 @@ _.removeClass = function _removeClass ( e, className ) {
       var lst = e[ i ].className.split( /\s+/ ), pos = lst.indexOf( className );
       if ( pos < 0 ) continue;
       lst.splice( pos, 1 );
-      e[ i ].className += lst.join( ' ' );
+      e[ i ].className = lst.join( ' ' );
    }
+   return e;
 }
 
 _.setClass = function _setClass ( e, className, addClass ) {
-   if ( addClass ) _.addClass( e, className ); else _.removeClass( e, className );
+   return addClass ? _.addClass( e, className ) : _.removeClass( e, className );
 }
 
 //

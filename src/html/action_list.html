@@ -40,11 +40,16 @@
       #act_list_pnl_list {
          clear: left;
       }
-      /* Big screen adjustment: Move search buttons to the right of search box */
+      /* Big screen: Move search buttons to the right of search box */
       @media (min-width: 768px) {
          #act_list_pnl_term { margin-right: -300px; padding-right: 300px; float: left; width: 100%; }
          #act_list_txt_search { font-size: 120%; }
          #act_list_tbl_search { width: 300px; float: right; }
+      }
+      /* Small screen: Show only selected cat */
+      @media (max-width: 979px) {
+         #act_list_pnl_category.selected a { display: none; }
+         #act_list_pnl_category.selected a.selected { display: block; }
       }
    </style>
 
@@ -109,19 +114,19 @@ od.action.list = {
       } else {
          action_list.last_search_type = search_type;
       }
-      od.search.search({
+      od.search.search( {
          'category': action_list.get_search_category(),
          'term': action_list.get_search_term(),
          'search_body': search_type === 'full',
          'ondone'  : action_list.show_list
-      });
+      } );
    },
 
    'set_search_category' : function act_list_set_search_category ( cat ) {
       od.action.list.category = cat;
       _.removeClass( '.selected' );
-      _.setClass( '#act_list_pnl_list', 'selected' );
-      od.action.list.category_dom[ cat.name ].className = 'selected';
+      _.addClass( '#act_list_pnl_category', 'selected' );
+      od.action.list.category_dom[ cat ? cat.name : "" ].className = 'selected';
    },
 
    'get_search_category' : function act_list_get_search_category () {
@@ -135,11 +140,16 @@ od.action.list = {
 
    'a_category' : function act_list_a_category ( cat ) {
       var action_list = od.action.list;
-      cat = action_list.category = cat ? od.data.get( cat ) : null;
+      if ( document.body.clientWidth <= 980 && _.hasClass( '#act_list_pnl_category', 'selected') ) {
+         _.hide( '#act_list_pnl_list' );
+         _.removeClass( '.selected' );
+         return;
+      }
+      action_list.set_search_category( cat ? od.data.get( cat ) : null );
       if ( action_list.get_search_term() !== '' ) {
          action_list.txt_search();
       } else {
-         od.search.list_category( cat, action_list.show_list );
+         od.search.list_category( action_list.category, action_list.show_list );
       }
    },
 
@@ -163,6 +173,7 @@ od.action.list = {
          // Prepend all category
          var all = _.create( 'a', { 'text' : _.l( 'action.list.a_all' ), 'onclick' : action_list.a_category } );
          all.appendChild( _.create( 'span', total ) );
+         od.action.list.category_dom[""] = all;
          div.insertBefore( all, div.firstChild );
          _.show( div );
       }, function act_list_show_category_error () {
@@ -216,7 +227,7 @@ od.action.list = {
             body.appendChild( row );
          }
       }
-      _( '#act_list_pnl_list' )[0].appendChild( table );
+      _.show( '#act_list_pnl_list' )[0].appendChild( table );
       _.time('Listed ' + data.length + ' results.' );
     },
 
