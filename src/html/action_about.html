@@ -200,7 +200,7 @@ od.action.about = {
 
    "show_source" : function action_about_show_source ( ) {
       // Chrome and Mozilla series (Firefox, SeaMonkey, Web) support view-source.
-      if ( ! navigator.userAgent.match( /\b(Gecko\/|Chrome\/)/ ) ) return alert( _.l( 'action.about.lbl_source_manual' ) );
+      if ( ! /\b(Gecko\/|Chrome\/)/.test( navigator.userAgent ) ) return alert( _.l( 'action.about.lbl_source_manual' ) );
       location.href = "view-source:" + location.href;
    }
 };

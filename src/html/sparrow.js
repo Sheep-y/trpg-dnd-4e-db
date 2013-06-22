@@ -387,12 +387,13 @@ _.time = function _time ( msg ) {
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// String escape
+// String helpers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 _.escHtml = function _escHtml ( t ) {
-   if ( ! t.match( /[<&'"]/ ) ) return t;
-   return t.replace( /&/g, '&amp;').replace( /</g, '&lt;').replace( /"/g, '&quot;' ).replace( /'/g, '&#39;' );
+   if ( ! /[<&'"]/.test( t ) ) return t;
+   //return t.replace( /&/g, '&amp;').replace( /</g, '&lt;').replace( /"/g, '&quot;' ).replace( /'/g, '&#39;' );
+   return t.replace( /[&<"']/g, function ( c ) { return { '&':'&amp;', '<':'&lt;', '"':"&quot;", "'":'&#39;' }[ c ]; });
 };
 
 _.escJs = function _escJs ( t ) {
@@ -401,6 +402,24 @@ _.escJs = function _escJs ( t ) {
 
 _.escRegx = function _escRegx ( t ) {
    return t.replace( /[()?*+.\\{}[\]]/g, '\\$0' );
+};
+
+_.round = function _round ( val, decimal ) {
+   var e = Math.pow( 10, ~~decimal );
+   //if ( e === 1 ) return Math.round( val );
+   return Math.round( val *= e ) / e;
+};
+
+_.si = function _si ( val, decimal ) {
+   if ( typeof( val ) === 'string' ) {
+      if ( ! /^-?\d+(\.\d+)?[kmgtp]$/i.test( val ) ) return +val;
+      var l = val.length-1, c = val.charAt( l ).toLowerCase();
+      return val.substr( 0, l )*{'k':1e3,'m':1e6,'g':1e9,'t':1e12,'p':1e15}[c];
+   } else {
+      var count = 0;
+      while ( val > 1000 || val < -1000 ) { val /= 1000; ++count; }
+      return _.round( val, decimal ) + ['','k','M','G','T','P'][count];
+   }
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
