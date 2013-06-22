@@ -51,8 +51,8 @@ _.l.set( 'action.list', {
    'link_text' : "Browse",
 
    'txt_search_placeholder' : "Search keywords. e.g. ranger OR martial   bonus -\"feat bonus\" ",
-   'bth_search_name' : "Name search",
-   'bth_search_body' : "Full search",
+   'bth_search_name' : "Name",
+   'bth_search_body' : "Full",
    'bth_search_advanced' : "...",
    'a_all' : "All Category",
    'lbl_count' : '%1/%2',

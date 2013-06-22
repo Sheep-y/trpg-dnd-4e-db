@@ -54,10 +54,11 @@ header {
    position: fixed;
    top: 0;
    width: 100%;
-   height: 40pz;
+   height: 40px;
    background-color: black;
    text-align: center;
    padding: 0.5em 1ex !important;
+   overflow: visible;
 }
 
 header h1 {
@@ -65,7 +66,7 @@ header h1 {
    padding: 0;
    margin: 0;
    color: white;
-   font-size: 1.5em;
+   font-size: 150%;
    font-weight: bold;
 }
 
@@ -93,4 +94,12 @@ body > div {
 
 body > div > * {
    padding: 10px; /* If use em/ex, will varies by content font size and inconsistent */
+}
+
+header a:hover, input:hover, button:hover, .hover-highlight > *:hover {
+   color: darkred;
+   cursor: pointer;
+}
+input:hover {
+   cursor: text;
 }

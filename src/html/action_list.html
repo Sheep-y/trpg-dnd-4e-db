@@ -7,11 +7,11 @@
       /* Search buttons */
       #act_list_tbl_search {
          width: 100%;
-         max-width: 320px;
          border-spacing: 0;
       }
       #act_list_tbl_search button {
          border-radius: 0;
+         font-weight: bold;
       }
       #act_list_tbl_search td:first-child button {
          width: 50%;
@@ -21,19 +21,30 @@
          width: 30px;
       }
       /* Category list */
+      #act_list_pnl_category {
+         clear: left;
+      }
       #act_list_pnl_category a {
          display: block;
          float: left;
          width: 100%;
-         border: 1px ridge #888;
+         border: 1px outset #888;
          padding: 5px;
          max-width: 320px;
+         font-weight: bold;
       }
       #act_list_pnl_category a span {
          float: right;
+         font-weight: normal;
       }
       #act_list_pnl_list {
          clear: left;
+      }
+      /* Big screen adjustment: Move search buttons to the right of search box */
+      @media (min-width: 768px) {
+         #act_list_pnl_term { margin-right: -300px; padding-right: 300px; float: left; width: 100%; }
+         #act_list_txt_search { font-size: 120%; }
+         #act_list_tbl_search { width: 300px; float: right; }
       }
    </style>
 
@@ -44,19 +55,17 @@
    </header>
 
    <div id='act_list_pnl_search'>
-      <input type='search' id='act_list_txt_search' class='fullw' autocomplete autofocus />
-      <br/>
-      <table id="act_list_tbl_search"><tr>
-         <td
-            ><button class="button i18n" onclick="od.action.list.txt_search('name');"> action.list.bth_search_name </button
-            ><button class="button i18n" onclick="od.action.list.txt_search('full');"> action.list.bth_search_body </button
-         ></td>
-         <td
-            ><button class="button i18n" onclick=""> action.list.bth_search_advanced </button
-         ></td>
-      </table>
+      <div id="act_list_pnl_term">
+         <input type='search' id='act_list_txt_search' class='fullw' autocomplete autofocus />
+      </div>
+      <table id="act_list_tbl_search"><tr><td
+         ><button class="button i18n" onclick="od.action.list.txt_search('name');"> action.list.bth_search_name </button
+         ><button class="button i18n" onclick="od.action.list.txt_search('full');"> action.list.bth_search_body </button
+      ></td><td
+         ><button class="button i18n" onclick=""> action.list.bth_search_advanced </button
+      ></td></table>
 
-      <div id='act_list_pnl_category'></div>
+      <div id='act_list_pnl_category' class="hover-highlight"></div>
 
       <div id='act_list_pnl_list'>
          <table class='fullw'></table>
