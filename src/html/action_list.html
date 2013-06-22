@@ -30,7 +30,7 @@
          width: 100%;
          border: 1px outset #888;
          padding: 5px;
-         max-width: 320px;
+         max-width: 360px;
          font-weight: bold;
       }
       #act_list_pnl_category a span {
@@ -46,8 +46,11 @@
          #act_list_txt_search { font-size: 120%; }
          #act_list_tbl_search { width: 300px; float: right; }
       }
+      @media (min-width: 890px) {
+         #act_list_pnl_category a { max-width: 290px; }
+      }
       /* Small screen: Show only selected cat */
-      @media (max-width: 979px) {
+      @media (max-width: 889px) {
          #act_list_pnl_category.selected a { display: none; }
          #act_list_pnl_category.selected a.selected { display: block; }
       }
@@ -98,9 +101,9 @@ od.action.list = {
    'last_search_type' : 'name',
    'category_dom' : [],
 
-   'search_timeout' : 0,
-
    'category' : null, // Current category
+   'counts' : null, // Current result count object
+   'total_count' : 0,
 
    // Current category's search result
    'columns' : [],
@@ -141,6 +144,7 @@ od.action.list = {
    'a_category' : function act_list_a_category ( cat ) {
       var action_list = od.action.list;
       if ( document.body.clientWidth <= 980 && _.hasClass( '#act_list_pnl_category', 'selected') ) {
+         // Hide results and show category list
          _.hide( '#act_list_pnl_list' );
          _.removeClass( '.selected' );
          return;
@@ -155,6 +159,7 @@ od.action.list = {
 
    'show_category' : function act_list_show_category () {
       var action_list = od.action.list;
+      action_list.counts = null;
       action_list.category = null;
       action_list.category_dom = [];
       od.data.load_catalog( function act_list_show_category_load () {
@@ -173,7 +178,8 @@ od.action.list = {
          // Prepend all category
          var all = _.create( 'a', { 'text' : _.l( 'action.list.a_all' ), 'onclick' : action_list.a_category } );
          all.appendChild( _.create( 'span', total ) );
-         od.action.list.category_dom[""] = all;
+         action_list.category_dom[""] = all;
+         action_list.total_count = total;
          div.insertBefore( all, div.firstChild );
          _.show( div );
       }, function act_list_show_category_error () {
@@ -181,9 +187,20 @@ od.action.list = {
       });
    },
 
-   'show_list' : function act_list_show_list ( col, data, highlight ) {
+   'show_count' : function act_list_show_count ( counts ) {
+      var action_list = od.action.list;
+      if ( action_list.counts === counts ) return;
+      od.data.get().forEach( function act_list_show_count_each ( cat ) {
+         var dom = action_list.category_dom[ cat.name ];
+         _( dom, 'span' )[ 0 ].textContent = counts ? _.l( 'action.list.lbl_count', null, ~~counts[ cat.name ], cat.count ) : cat.count;
+      } );
+      _( action_list.category_dom[ '' ], 'span' )[ 0 ].textContent = counts ? _.l( 'action.list.lbl_count', null, ~~counts[ '' ], action_list.total_count ) : action_list.total_count;
+   },
+
+   'show_list' : function act_list_show_list ( col, data, counts,  highlight ) {
       var table = _( '#act_list_pnl_list table' )[0];
       var action_list = od.action.list;
+      action_list.show_count( counts );
       table.parentNode.removeChild( table );
       table = _.create('table');
       //table.innerHTML = ''; // Remove a table is 13% faster then clearing it, but both spend major time when list is big

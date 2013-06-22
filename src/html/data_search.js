@@ -45,17 +45,22 @@ od.search = {
       }
 
       function do_search () {
-         var regx = tmp[0];
+         var regx = tmp[0], count = {'':0}, result;
          if ( cat ) {
             _.time( 'Search ' + cat.name + ': ' + options.term );
-            _.call( options.ondone, null, cols, search( cat.list ), tmp[1] );
+            result = search( cat.list );
+            count[ cat.name ] = result.length;
+            _.call( options.ondone, null, cols, search( cat.list ), count, tmp[1] );
          } else {
             _.time( 'Searching all categories: ' + options.term  );
             var data = [];
             od.data.get().forEach( function( c ) {
-               data = data.concat( search( c.list ) );
+               result = search( c.list );
+               count[ c.name ] = result.length;
+               count[ '' ] += result.length;
+               data = data.concat( result );
             } );
-            _.call( options.ondone, null, cols, data, tmp[1] );
+            _.call( options.ondone, null, cols, data, count, tmp[1] );
          }
 
          function search( lst ) {
@@ -88,17 +93,17 @@ search_loop:
          if ( cat ) {
             _.time( 'List ' + cat.title );
             cat.load_listing( function data_search_list_category_load_cat() {
-               _.call( onload, cat, cat.columns, cat.list.concat() );
-            });
+               _.call( onload, null, cat.columns, cat.list.concat(), null, null );
+            } );
          } else {
             _.time( 'List all categories' );
             od.data.load_all_listing( function data_search_list_category_load_all(){
-               var data = []
+               var data = [];
                od.data.get().forEach( function data_search_list_category_each( c ) {
                   data = data.concat( c.list );
                } );
-               _.call( onload, null, ["ID","Name","Category","Type","Level","SourceBook"], data );
-            });
+               _.call( onload, null, ["ID","Name","Category","Type","Level","SourceBook"], data, null, null );
+            } );
          }
       } );
    },
