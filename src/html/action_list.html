@@ -85,17 +85,19 @@ od.action.list = {
 
    'setup': function act_list_setup () {
       _( '#act_list_txt_search' )[0].focus();
-      if ( _('#act_list_pnl_category a').length <= 0 ) this.show_category();
    },
 
    'cleanup': null,
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   '_last_search_type' : 'name',
+   'last_search_type' : 'name',
+   'category_dom' : [],
 
    'search_timeout' : 0,
 
-   'category' : null,
+   'category' : null, // Current category
+
+   // Current category's search result
    'columns' : [],
    'data' : [],
    'highlights' : [],
@@ -103,9 +105,9 @@ od.action.list = {
    'txt_search' : function act_list_txt_search ( search_type ) {
       var action_list = od.action.list;
       if ( search_type === undefined ) {
-         search_type = action_list._last_search_type;
+         search_type = action_list.last_search_type;
       } else {
-         action_list._last_search_type = search_type;
+         action_list.last_search_type = search_type;
       }
       od.search.search({
          'category': action_list.get_search_category(),
@@ -119,6 +121,7 @@ od.action.list = {
       od.action.list.category = cat;
       _.removeClass( '.selected' );
       _.setClass( '#act_list_pnl_list', 'selected' );
+      od.action.list.category_dom[ cat.name ].className = 'selected';
    },
 
    'get_search_category' : function act_list_get_search_category () {
@@ -141,25 +144,27 @@ od.action.list = {
    },
 
    'show_category' : function act_list_show_category () {
-      od.action.list.category = null;
+      var action_list = od.action.list;
+      action_list.category = null;
+      action_list.category_dom = [];
       od.data.load_catalog( function act_list_show_category_load () {
-         _.show( '#act_list_pnl_category' );
-         var div = _('#act_list_pnl_category')[0];
+         var div = _( '#act_list_pnl_category' )[ 0 ];
          var total = 0;
          div.innerHTML = '';
          // Sort and create each category
          var list = od.data.get();
-         list.sort( function (a,b){ return a.name > b.name ? 1 : ( a.name < b.name ? -1 : 0); } );
-         list.forEach(function(cat){
-            var a = _.create( 'a', { 'text' : cat.title, 'onclick' : function (){ od.action.list.a_category( cat.name ); } } );
+         _.sort( list, 'name' ).forEach( function ( cat ) {
+            var a = _.create( 'a', { 'text' : cat.title, 'onclick' : function (){ action_list.a_category( cat.name ); } } );
             a.appendChild( _.create( 'span', cat.count ) );
             div.appendChild( a );
             total += cat.count;
-         });
+            action_list.category_dom[ cat.name ] = a;
+         } );
          // Prepend all category
-         var all = _.create( 'a', { 'text' : _.l( 'action.list.a_all' ), 'onclick' : od.action.list.a_category } );
+         var all = _.create( 'a', { 'text' : _.l( 'action.list.a_all' ), 'onclick' : action_list.a_category } );
          all.appendChild( _.create( 'span', total ) );
          div.insertBefore( all, div.firstChild );
+         _.show( div );
       }, function act_list_show_category_error () {
          od.gui.switch_action( od.action.download );
       });
@@ -192,6 +197,7 @@ od.action.list = {
       }
       _.time( 'Listing ' + data.length + ' results (' + col + ')' );
       action_list.data = data;
+      action_list.highlights = highlight;
       for ( i = 0, l = data.length ; i < l ; i++ ) {
          var line = data[i];
          if ( line ) {

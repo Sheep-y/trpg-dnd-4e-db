@@ -66,6 +66,18 @@ _.col = function _col ( subject, column /* ... */) {
    });
 };
 
+_.sorter = function _sorter ( field, des ){
+   if ( ! des ) {
+      return function _sorter_asc( a, b ) { a[ field ] > b[ field ] ? 1 : ( a[ field ] < b[ field ] ? -1 : 0 ); };
+   } else {
+      return function _sorter_des( a, b ) { a[ field ] > b[ field ] ? -1 : ( a[ field ] < b[ field ] ? 1 : 0 ); };
+   }
+}
+
+_.sort = function _sort  ( data, field, des ) {
+   return data.sort( _.sorter( field, des ) );
+} 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Function Helpers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
