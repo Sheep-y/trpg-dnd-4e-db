@@ -39,6 +39,7 @@
       }
       #act_list_pnl_list {
          clear: left;
+         background-color: rgba( 255, 224, 128, 0.5 );
       }
       /* Big screen: Move search buttons to the right of search box */
       @media (min-width: 768px) {
@@ -118,7 +119,7 @@ od.action.list = {
       od.action.list.category = cat;
       _.removeClass( '.selected' );
       _.addClass( '#act_list_pnl_category', 'selected' );
-      od.action.list.category_dom[ cat ? cat.name : "" ].className = 'selected';
+      _.addClass( od.action.list.category_dom[ cat ? cat.name : "" ], 'selected' );
    },
 
    'get_search_category' : function act_list_get_search_category () {
@@ -173,14 +174,14 @@ od.action.list = {
          // Sort and create each category
          var list = od.data.get();
          _.sort( list, 'name' ).forEach( function ( cat ) {
-            var a = _.create( 'a', { 'text' : cat.title, 'onclick' : function (){ action_list.a_category( cat.name ); } } );
+            var a = _.create( 'a', { 'text' : cat.title, 'class' : 'button', 'onclick' : function (){ action_list.a_category( cat.name ); } } );
             a.appendChild( _.create( 'span', cat.count ) );
             div.appendChild( a );
             total += cat.count;
             action_list.category_dom[ cat.name ] = a;
          } );
          // Prepend all category
-         var all = _.create( 'a', { 'text' : _.l( 'action.list.a_all' ), 'onclick' : action_list.a_category } );
+         var all = _.create( 'a', { 'text' : _.l( 'action.list.a_all' ), 'class' : 'button', 'onclick' : action_list.a_category } );
          all.appendChild( _.create( 'span', total ) );
          action_list.category_dom[""] = all;
          action_list.total_count = total;

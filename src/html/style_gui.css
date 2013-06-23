@@ -12,12 +12,18 @@
 
 .i18n{ /* Dummy class to surpress warning, not actually styled */ }
 
+html {
+   background-color: #ED8;
+   background-size: cover;
+   font: 14px sans-serif;
+}
+
 html, body, div, th, td { margin: 0; padding: 0; }
 
 html, body {
    width: 100%;
-   background-color: #DDD;
-   font: 14px sans-serif;
+   min-height: 100%;
+   /* Pattle: FFD700 - Black - Red */
 }
 
 @media print {
@@ -35,17 +41,12 @@ figure { margin: 0; }
 .left { float: left; }
 .hide { display: none; }
 
-.button {
+button, .button {
    display: inline-block;
    padding: 0.5ex 1ex;
    border-radius: 1ex;
    border: 1px outset #888;
-}
-
-/** Action divs */
-body > div {
-   display: none;
-   width: 100%;
+   background-color: gold;
 }
 
 /*********************** Page header styles *************************/
@@ -89,6 +90,8 @@ header h1 + a {
 /******************* Page content ***********************/
 
 body > div {
+   display: none;
+   width: 100%;
    margin-top: 40px;
 }
 
@@ -96,10 +99,7 @@ body > div > * {
    padding: 10px; /* If use em/ex, will varies by content font size and inconsistent */
 }
 
-header a:hover, input:hover, button:hover, .hover-highlight > *:hover {
+header a:hover, button:hover, .hover-highlight > *:hover {
    color: darkred;
    cursor: pointer;
-}
-input:hover {
-   cursor: text;
 }

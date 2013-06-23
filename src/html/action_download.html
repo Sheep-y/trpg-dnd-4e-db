@@ -135,33 +135,33 @@ od.action.download = {
       var param;
       switch ( command ) {
           case 'reindex' : 
-             param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
+             param = { 'text' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
                 remote.reindex( refreshRemote, refreshRemote );
              }};
              break;
           case 'delete' :
-             param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
+             param = { 'text' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
                 od.updater.delete( remote );
                 od.action.download.refresh(); // Category can be deleted from remote, need full refresh to delete row
              }};
              break;
           case 'list' : 
-             param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_list() {
+             param = { 'text' : _.l( txt ), 'onclick' : function act_download_btn_list() {
                 remote.get_listing( refreshRemote );
              }};
              break;
           case 'update_all':
-             param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_update_all() {
+             param = { 'text' : _.l( txt ), 'onclick' : function act_download_btn_update_all() {
                 remote.update_all( refreshRemote, refreshRemote );
              }};
              break;
           case 'update':
-             param = { 'type' : 'button', 'value' : _.l( txt ), 'onclick' : function act_download_btn_update() {
+             param = { 'text' : _.l( txt ), 'onclick' : function act_download_btn_update() {
                 remote.update_changed( refreshRemote, refreshRemote );
              }};
              break;
       }
-      return _.create( 'input', param );
+      return _.create( 'button', param );
    },
 
    'refresh_func' : function act_download_refresh_func ( remote_cat ) {
