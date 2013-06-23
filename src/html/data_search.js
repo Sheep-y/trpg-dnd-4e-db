@@ -45,7 +45,7 @@ od.search = {
       }
 
       function do_search () {
-         var regx = tmp[0], count = {'':0}, result;
+         var regx = tmp[0], count = {}, result;
          if ( cat ) {
             _.time( 'Search ' + cat.name + ': ' + options.term );
             result = search( cat.list );
@@ -54,6 +54,7 @@ od.search = {
          } else {
             _.time( 'Searching all categories: ' + options.term  );
             var data = [];
+            count[''] = 0;
             od.data.get().forEach( function( c ) {
                result = search( c.list );
                count[ c.name ] = result.length;

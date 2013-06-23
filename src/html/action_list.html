@@ -64,11 +64,11 @@
 
    <div id='act_list_pnl_search'>
       <div id="act_list_pnl_term">
-         <input type='search' id='act_list_txt_search' class='fullw' autocomplete autofocus />
+         <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" class='fullw' autocomplete autofocus />
       </div>
       <table id="act_list_tbl_search"><tr><td
-         ><button class="button i18n" onclick="od.action.list.txt_search('name');"> action.list.bth_search_name </button
-         ><button class="button i18n" onclick="od.action.list.txt_search('full');"> action.list.bth_search_body </button
+         ><button class="button i18n" onclick="od.action.list.search('name');"> action.list.bth_search_name </button
+         ><button class="button i18n" onclick="od.action.list.search('full');"> action.list.bth_search_body </button
       ></td><td
          ><button class="button i18n" onclick=""> action.list.bth_search_advanced </button
       ></td></table>
@@ -110,19 +110,8 @@ od.action.list = {
    'data' : [],
    'highlights' : [],
 
-   'txt_search' : function act_list_txt_search ( search_type ) {
-      var action_list = od.action.list;
-      if ( search_type === undefined ) {
-         search_type = action_list.last_search_type;
-      } else {
-         action_list.last_search_type = search_type;
-      }
-      od.search.search( {
-         'category': action_list.get_search_category(),
-         'term': action_list.get_search_term(),
-         'search_body': search_type === 'full',
-         'ondone'  : action_list.show_list
-      } );
+   'txt_search_down' : function act_list_txt_search_down ( evt ) {
+      if ( evt.keyCode === 13 && ! evt.altKey && ! evt.ctrlKey && !evt.metaKey ) this.search();
    },
 
    'set_search_category' : function act_list_set_search_category ( cat ) {
@@ -151,12 +140,27 @@ od.action.list = {
       }
       action_list.set_search_category( cat ? od.data.get( cat ) : null );
       if ( action_list.get_search_term() !== '' ) {
-         action_list.txt_search();
+         action_list.search();
       } else {
          od.search.list_category( action_list.category, action_list.show_list );
       }
    },
 
+   'search' : function act_list_search ( search_type ) {
+      var action_list = od.action.list;
+      if ( search_type === undefined ) {
+         search_type = action_list.last_search_type;
+      } else {
+         action_list.last_search_type = search_type;
+      }
+      od.search.search( {
+         'category': action_list.get_search_category(),
+         'term': action_list.get_search_term(),
+         'search_body': search_type === 'full',
+         'ondone'  : action_list.show_list
+      } );
+   },
+           
    'show_category' : function act_list_show_category () {
       var action_list = od.action.list;
       action_list.counts = null;
@@ -192,9 +196,11 @@ od.action.list = {
       if ( action_list.counts === counts ) return;
       od.data.get().forEach( function act_list_show_count_each ( cat ) {
          var dom = action_list.category_dom[ cat.name ];
-         _( dom, 'span' )[ 0 ].textContent = counts ? _.l( 'action.list.lbl_count', null, ~~counts[ cat.name ], cat.count ) : cat.count;
+         var c = counts[ cat.name ];
+         _( dom, 'span' )[ 0 ].textContent = counts ? _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, cat.count ) : cat.count;
       } );
-      _( action_list.category_dom[ '' ], 'span' )[ 0 ].textContent = counts ? _.l( 'action.list.lbl_count', null, ~~counts[ '' ], action_list.total_count ) : action_list.total_count;
+      var c = counts[ '' ];
+      _( action_list.category_dom[ '' ], 'span' )[ 0 ].textContent = counts ? _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action_list.total_count ) : action_list.total_count;
    },
 
    'show_list' : function act_list_show_list ( col, data, counts,  highlight ) {
