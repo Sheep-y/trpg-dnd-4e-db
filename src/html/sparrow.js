@@ -501,36 +501,31 @@ _.visible = function _visible ( e, visible ) {
 };
 
 _.hasClass = function _hasClass ( e, className ) {
-   e = _.domlist( e );
-   for ( var i = 0, l = e.length ; i < l ; i++ ) {
-      if ( e[ i ].className.split( /\s+/ ).indexOf( className ) >= 0 ) return true;
-   }
-   return false;
-}
+   return _.domlist( e ).some( function(c){ return c.className.split( /\s+/ ).indexOf( className ) >= 0; } );
+};
+
 _.addClass = function _addClass ( e, className ) {
-   e = _.domlist( e );
-   for ( var i = 0, l = e.length ; i < l ; i++ ) {
-      if ( _.hasClass( e, className ) ) continue;
-      e[ i ].className += ' ' + className;
-   }
-   return e;
-}
+   return _.toggleClass( e, className, true );
+};
 
 _.removeClass = function _removeClass ( e, className ) {
    if ( className === undefined ) className = e.substr( 1 );
+   return _.toggleClass( e, className, false );
+};
+
+_.toggleClass = function _toggleClass ( e, className, toggle ) {
    e = _.domlist( e );
    for ( var i = e.length-1 ; i >= 0 ; i-- ) {
       var lst = e[ i ].className.split( /\s+/ ), pos = lst.indexOf( className );
-      if ( pos < 0 ) continue;
-      lst.splice( pos, 1 );
-      e[ i ].className = lst.join( ' ' );
+      if ( pos < 0 && ( toggle || toggle === undefined ) ) { // Absent and need to add
+         e[ i ].className += ' ' + className;
+      } else if ( pos >= 0 && ( ! toggle || toggle === undefined ) ) { // Exists and need to remove
+         lst.splice( pos, 1 );
+         e[ i ].className = lst.join( ' ' );
+      }
    }
    return e;
-}
-
-_.setClass = function _setClass ( e, className, addClass ) {
-   return addClass ? _.addClass( e, className ) : _.removeClass( e, className );
-}
+};
 
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
