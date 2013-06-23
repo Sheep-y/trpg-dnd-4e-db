@@ -47,6 +47,7 @@
           <replacefilter token="&lt;!--#include file='images.html' --&gt;" value="${images.html}"/>
           <replacefilter token="&lt;!--#include file='license_agpl.html' --&gt;" value="${license_agpl.html}"/>
       </replace>
+      <!-- Removes doctype and end tags from embedded document(s) -->
       <replaceregexp match="(?&lt;!^)&lt;!DOCTYPE[^\n]+\n" replace="" file="${deliverable}" encoding="UTF-8" />
       <replaceregexp match="&lt;/body>&lt;/html>(?!$)" replace="" file="${deliverable}" encoding="UTF-8" />
    </target>

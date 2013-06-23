@@ -1,7 +1,7 @@
 /*
  * sparrow.js
  *
- * Sparrow - light weight JS library.
+ * Sparrow - light weight JS library. Lower level and boarder then JQuery, but less DOM functions.
  */
 
 // Simple check for browser features
@@ -9,8 +9,13 @@ if ( ! document.querySelectorAll || !window.Storage ) {
    alert('Please upgrade browser.');
 }
 
-// CSS select only but very simple and fast.
-// Only guarantees to return an array-like object.
+/**
+ * Select DOM Nodes by CSS selector.
+ * 
+ * @param {Node} subject Optional. Root node to select from. Default to document.
+ * @param {String} selector CSS selector to run. Has shortcut for simple id/class/tag.
+ * @returns {Array-like} Array or NodeList of DOM Node result.
+ */
 function _ ( root, selector ) {
    if ( selector === undefined ) {
       selector = root;
@@ -36,7 +41,7 @@ function _ ( root, selector ) {
 /**
  * Convert an array-like object to be an array. Default to clone or slice.
  *
- * @param {Array-like object} subject Subject to be converted.
+ * @param {Array-like} subject Subject to be converted.
  * @param {Integer} startpos If given, work like Array.slice( startpos ).
  * @param {Integer} length If this and startpos is given, work like Array.slice( startpos, length ).
  * @returns {Array} Clone or slice of subject.
@@ -51,7 +56,7 @@ _.ary = function _ary ( subject, startpos, length ) {
 /**
  * Given an array-like object and one or more columns, extract and return those columns from subject.
  *
- * @param {Array-like object} subject Array-like object to be extracted.
+ * @param {Array-like} subject Array-like object to be extracted.
  * @param {String} column Columns (field) to extract.
  * @returns {Array} Array (if single column) or Array of Array (if multiple columns).
  */
@@ -66,17 +71,32 @@ _.col = function _col ( subject, column /* ... */) {
    });
 };
 
+/**
+ * Returns a sorter function that sort an array of items by given fields.
+ *
+ * @param {String} field Field name to compare
+ * @param {boolean} des   true for a descending sorter. false for ascending sorter.
+ * @returns {function} Sorter function
+ */
 _.sorter = function _sorter ( field, des ){
    if ( ! des ) {
       return function _sorter_asc( a, b ) { a[ field ] > b[ field ] ? 1 : ( a[ field ] < b[ field ] ? -1 : 0 ); };
    } else {
       return function _sorter_des( a, b ) { a[ field ] > b[ field ] ? -1 : ( a[ field ] < b[ field ] ? 1 : 0 ); };
    }
-}
+};
 
+/**
+ * Returns a sorter function that sort an array of items by given fields.
+ *
+ * @param {Array} data Data to sort. Will be modified.
+ * @param {String} field Field name to compare
+ * @param {boolean} des   true for a descending sort. false for ascending sort.
+ * @returns {Array} Sorted data.
+ */
 _.sort = function _sort  ( data, field, des ) {
    return data.sort( _.sorter( field, des ) );
-} 
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Function Helpers
@@ -101,7 +121,7 @@ _.call = function _call ( func, thisObj, param /*...*/ ) {
 
 /**
  * Given a function, return a function that when called multiple times, only the first call will be transferred.
- * Useful for concurrent error callback, so that the first error pass through and subsequency error doesn't.
+ * Useful for concurrent error callback, so that the first error pass through and subsequence error doesn't.
  * Parameters passed to the returned function will be supplied to the callback as is.
  * This function will disregard any additional parameters.
  *
@@ -120,7 +140,7 @@ _.callonce = function _call ( func ) {
 
 /**
  * Capture parameters in a closure and return a callback function
- * that can be called ast a later time.
+ * that can be called at a later time.
  */
 _.callfunc = function _callfunc ( func, thisObj, param /*...*/ ) {
    if ( arguments.length <= 1 ) return func;
@@ -144,7 +164,14 @@ if ( window.setImmediate === undefined ) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Ajax function
+ * Ajax function.
+ *
+ * @param {String} url Url to send get request.
+ * @param {function} onsuccess Callback (responseText, xhr) when the request succeed.
+ * @param {function} onfail Callback (xhr, text statue) when the request failed.
+ * @param {function} ondone Callback (xhr) after success or failure.
+ * @param {Object} xhr XMLHttpRequest object to use. If none is provided the default will be used.
+ * @returns {Object} xhr object
  */
 _.ajax = function _ajax ( url, onsuccess, onfail, ondone, xhr ) {
    if ( xhr === undefined ) xhr = new XMLHttpRequest();
@@ -186,7 +213,11 @@ _.ajax = function _ajax ( url, onsuccess, onfail, ondone, xhr ) {
 };
 
 /**
- * Load a javascript from an url
+ * Load a JavaScript from an url.
+ *
+ * @param {String} url  JS url.
+ * @param {Object} option
+ * @returns {undefined}
  */
 _.js = function _js ( url, option ) {
    if ( option === undefined ) option = {};
@@ -224,7 +255,13 @@ _.js = function _js ( url, option ) {
 };
 
 /**
- * Cross Origin Request function
+ * Cross Origin Request function. Currently only works for IE.
+ *
+ * @param {String} url Url to send get cross-origin request.
+ * @param {function} onsuccess Callback (responseText, xhr) when the request succeed.
+ * @param {function} onfail Callback (xhr, text statue) when the request failed.
+ * @param {function} ondone Callback (xhr) after auccess or failure.
+ * @returns {Object} xhr object
  */
 _.cor = function _cor ( url, onsuccess, onfail, ondone ) {
    if ( window.ActiveXObject !== undefined ) {
@@ -248,8 +285,12 @@ _.cor = function _cor ( url, onsuccess, onfail, ondone ) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * parse xml and return an xml document
-  */
+ * Parse xml and return an xml document.
+ * Will try DOMParser then MSXML 6.0.
+ *
+ * @param {String} txt XML text to parse.
+ * @returns {Document} Parsed xml DOM Document.
+ */
 _.xml = function _xml ( txt ) {
    if ( window.DOMParser !== undefined ) {
       return new DOMParser().parseFromString( txt, 'text/xml' );
@@ -265,7 +306,11 @@ _.xml = function _xml ( txt ) {
 };
 
 /**
- * parse html and return the containing dom node
+ * parse xml and return an xml document.
+ * Will try DOMParser then MSXML 6.0.
+ *
+ * @param {String} txt HTML text to parse.
+ * @returns {Node} A node containing parsed html.
  */
 _.html = function _html ( txt ) {
    var e = _.html.node;
@@ -326,6 +371,13 @@ _.xsl = function _xsl ( xml, xsl ) {
    }
 };
 
+/**
+ * Run XPath on a DOM node.
+ *
+ * @param {Node} node   Node to run XPath on.
+ * @param {String} path XPath to run.
+ * @returns {NodeList} XPath result.
+ */
 _.xpath = function _xpath ( node, path ) {
    var doc = node.ownerDocument;
    if ( doc.evaluate ) {
@@ -339,6 +391,13 @@ _.xpath = function _xpath ( node, path ) {
 // Console logging & timing.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Console log function.
+ *
+ * @param {String} type Optional. Type of console function to run, e.g. 'debug' or 'warn'. If not found then fallback to 'log'.
+ * @param {mixed}  msg  Message objects to pass to console function.
+ * @returns {undefined}
+ */
 _.log = function _info ( type, msg ) {
    if ( msg === undefined ) {
       msg = type;
@@ -350,17 +409,45 @@ _.log = function _info ( type, msg ) {
       console[type]( "["+t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds()+"] ", msg );
    }
 };
+
+/**
+ * Safe console.debug message.
+ *
+ * @param {type} msg Message objects to pass to console.
+ * @returns {undefined}
+ */
 _.debug = function _info ( msg ) { _.log( 'debug', msg ); };
+
+/**
+ * Safe console.info message.
+ *
+ * @param {type} msg Message objects to pass to console.
+ * @returns {undefined}
+ */
 _.info = function _info ( msg ) { _.log( 'info', msg ); };
+
+/**
+ * Safe console.warn message.
+ *
+ * @param {type} msg Message objects to pass to console.
+ * @returns {undefined}
+ */
 _.warn = function _info ( msg ) { _.log( 'warn', msg ); };
+
+/**
+ * Safe console.error message.  It will stack up all errors in a 50ms window and shows them together.
+ * Messages with same string representation as previous one will be ignored rather then stacked.
+ *
+ * @param {type} msg Message objects to pass to console.
+ * @returns {undefined}
+ */
 _.error = function _info ( msg ) {
    if ( ! _.error.timeout ) {
-      // Delay a small period so that errors popup together instead ofone by one
+      // Delay a small period so that errors popup together instead of one by one
       _.error.timeout = setTimeout( function _error_timeout(){
          _.error.timeout = 0;
-         var err = _.error.log;
+         alert( _.error.log );
          _.error.log = [];
-         alert( err );
       }, 50 );
    }
    _.log( 'error', msg );
@@ -372,6 +459,13 @@ _.error = function _info ( msg ) {
 _.error.timeout = 0;
 _.error.log = [];
 
+/**
+ * Coarse timing function. Will show time relative to previous call as well as last reset call.
+ * Time is in unit of ms. This routine is not designed for fine-grain measurement that would justify using high performance timer.
+ *
+ * @param {String} msg Message to display.  If undefined then will reset accumulated time.
+ * @returns {Array} Return [time from last call, accumulated time].
+ */
 _.time = function _time ( msg ) {
    var t = _.time;
    var now = new Date();
@@ -384,32 +478,66 @@ _.time = function _time ( msg ) {
    var fromLast = t.last ? ( 'ms,+' + (now - t.last) ) : '';
    _.debug( msg + ' (+' + fromBase + fromLast + 'ms)' );
    t.last = now;
+   return [now - t.last,fromBase];
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // String helpers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-_.escHtml = function _escHtml ( t ) {
-   if ( ! /[<&'"]/.test( t ) ) return t;
+/**
+ * HTML escape function.
+ *
+ * @param {String} txt  Text to do HTML escape.
+ * @returns {String} Escaped text.
+ */
+_.escHtml = function _escHtml ( txt ) {
+   if ( ! /[<&'"]/.test( txt ) ) return txt;
    //return t.replace( /&/g, '&amp;').replace( /</g, '&lt;').replace( /"/g, '&quot;' ).replace( /'/g, '&#39;' );
-   return t.replace( /[&<"']/g, function ( c ) { return { '&':'&amp;', '<':'&lt;', '"':"&quot;", "'":'&#39;' }[ c ]; });
+   return txt.replace( /[&<"']/g, function ( c ) { return { '&':'&amp;', '<':'&lt;', '"':"&quot;", "'":'&#39;' }[ c ]; });
 };
 
-_.escJs = function _escJs ( t ) {
-   return t.replace( /\r?\n/g, '\\n').replace( /'"/g, '\\$0');
+/**
+ * JavaScript escape function.
+ *
+ * @param {String} txt  Text to do JavaScript escape.
+ * @returns {String} Escaped text.
+ */
+_.escJs = function _escJs ( txt ) {
+   return txt.replace( /\r?\n/g, '\\n').replace( /'"/g, '\\$0');
 };
 
-_.escRegx = function _escRegx ( t ) {
-   return t.replace( /[()?*+.\\{}[\]]/g, '\\$0' );
+/**
+ * Regular expressoin escape function.
+ *
+ * @param {String} txt  Text to do regx escape.
+ * @returns {String} Escaped text.
+ */
+_.escRegx = function _escRegx ( txt ) {
+   return txt.replace( /[()?*+.\\{}[\]]/g, '\\$0' );
 };
 
+/**
+ * Round function with decimal control.
+ *
+ * @param {number} val Number to round.
+ * @param {integer} decimal Optional. Decimal point to round to. Negative will round before decimal point. Default to 0.
+ * @returns {number} Rounded number.
+ */
 _.round = function _round ( val, decimal ) {
    var e = Math.pow( 10, ~~decimal );
    //if ( e === 1 ) return Math.round( val );
    return Math.round( val *= e ) / e;
 };
 
+/**
+ * Convert big number to si unit or vice versa. Case insensitive.
+ * Support k (kilo, 1e3), M, G, T, P (peta, 1e15)
+ *
+ * @param {mixed} val  Number to convert to unit (e.g. 2.3e10) or united text to convert to number (e.g."23k").
+ * @param {integer} decimal Optional. Decimal point of converted unit (if number to text). See _.round.
+ * @returns {mixed} Converted text or number
+ */
 _.si = function _si ( val, decimal ) {
    if ( typeof( val ) === 'string' ) {
       if ( ! /^-?\d+(\.\d+)?[kmgtp]$/i.test( val ) ) return +val;
@@ -435,6 +563,13 @@ _.noDef = function _noDef ( e ) { if ( e && e.preventDefault ) e.preventDefault(
 // DOM manipulation
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Create a DOM element and set its attributes / contents.
+ *
+ * @param {String} tag Tag name of element to create.
+ * @param {mixed} attr Text content String, or object with properties to set. e.g. text, html, class, onclick, disabled, style.
+ * @returns {Element} Created DOM element.
+ */
 _.create = function _create ( tag, attr ) {
    /* Disabled Id/class parsing because just the check would slow down _.create by 6% to 12%, and does not do anything new. *
    if ( typeof( attr ) !== 'object' ) attr = { 'text' : attr }; // Convert text / numeric attribute to proper attribute object
@@ -475,12 +610,24 @@ _.create = function _create ( tag, attr ) {
    return result;
 };
 
+/**
+ * Convert selector / DOM element / NodeList / array of Node to array-like node list.
+ *
+ * @param {mixed} e Selector or element(s).
+ * @returns {Array-like} Array-like list of e.
+ */
 _.domlist = function _domlist ( e ) {
    if ( typeof( e ) === 'string' ) return _( e );
    else if ( e.length === undefined ) return [ e ];
    return e;
 };
 
+/**
+ * Show DOM elements by setting display to ''.
+ *
+ * @param {mixed} e Selector or element(s).
+ * @returns {Array-like} Array-like e
+ */
 _.show = function _show ( e ) {
    e = _.domlist( e );
    for ( var i = 0, l = e.length ; i < l ; i++ ) {
@@ -490,38 +637,83 @@ _.show = function _show ( e ) {
    return e;
 };
 
+/**
+ * Hide DOM elements by setting display to 'none'.
+ *
+ * @param {mixed} e Selector or element(s).
+ * @returns {Array-like} Array-like e
+ */
 _.hide = function _show ( e ) {
    e = _.domlist( e );
    for ( var i = 0, l = e.length ; i < l ; i++ ) e[ i ].style.display = 'none';
    return e;
 };
 
+/**
+ * Set DOM elements visibility by setting display to '' or 'none.
+ *
+ * @param {mixed} e Selector or element(s).
+ * @param {boolean} visible If true then visible, otherwise hide.
+ * @returns {Array-like} Array-like e
+ */
 _.visible = function _visible ( e, visible ) {
    return visible ? _.show( e ) : _.hide( e );
 };
 
+/**
+ * Check whether given DOM element(s) contain a class.
+ *
+ * @param {mixed} e Selector or element(s).
+ * @param {String} className  Class to check.
+ * @returns {boolean} True if any elements belongs to given class.
+ */
 _.hasClass = function _hasClass ( e, className ) {
    return _.domlist( e ).some( function(c){ return c.className.split( /\s+/ ).indexOf( className ) >= 0; } );
 };
 
+/**
+ * Adds class(es) to DOM element(s).
+ *
+ * @param {mixed} e Selector or element(s).
+ * @param {mixed} className  Class(es) to add.  Can be String or Array of String.
+ * @returns {Array-like} Array-like e
+ */
 _.addClass = function _addClass ( e, className ) {
    return _.toggleClass( e, className, true );
 };
 
+/**
+ * Removes class(es) from DOM element(s).
+ *
+ * @param {mixed} e Selector or element(s).
+ * @param {mixed} className  Class(es) to remove.  Can be String or Array of String.
+ * @returns {Array-like} Array-like e
+ */
 _.removeClass = function _removeClass ( e, className ) {
    if ( className === undefined ) className = e.substr( 1 );
    return _.toggleClass( e, className, false );
 };
 
+/**
+ * Adds or removes class(es) from DOM element(s).
+ *
+ * @param {mixed} e Selector or element(s).
+ * @param {mixed} className  Class(es) to toggle.  Can be String or Array of String.
+ * @param {boolean} toggle   True for add, false for remove, undefined for toggle.
+ * @returns {Array-like} Array-like e
+ */
 _.toggleClass = function _toggleClass ( e, className, toggle ) {
    e = _.domlist( e );
+   var c = typeof( className ) === 'string' ? [ className ] : className;
    for ( var i = e.length-1 ; i >= 0 ; i-- ) {
-      var lst = e[ i ].className.split( /\s+/ ), pos = lst.indexOf( className );
-      if ( pos < 0 && ( toggle || toggle === undefined ) ) { // Absent and need to add
-         e[ i ].className += ' ' + className;
-      } else if ( pos >= 0 && ( ! toggle || toggle === undefined ) ) { // Exists and need to remove
-         lst.splice( pos, 1 );
-         e[ i ].className = lst.join( ' ' );
+      for ( var j = c.length-1 ; j >= 0 ; j-- ) {
+         var lst = e[ i ].className.split( /\s+/ ), pos = lst.indexOf( c[ j ] );
+         if ( pos < 0 && ( toggle || toggle === undefined ) ) { // Absent and need to add
+            e[ i ].className += ' ' + c[ j ];
+         } else if ( pos >= 0 && ( ! toggle || toggle === undefined ) ) { // Exists and need to remove
+            lst.splice( pos, 1 );
+            e[ i ].className = lst.join( ' ' );
+         }
       }
    }
    return e;
