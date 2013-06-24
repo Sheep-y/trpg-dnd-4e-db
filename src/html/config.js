@@ -64,6 +64,35 @@ od.config = {
          function url( category, id ) { return od.config.data_write_path + '/'+category+'/'+id.replace( /\.aspx\?id=|\W+/g, '' )+'.js'; }
    },
 
+   "category_order" : [
+        "#LightGray",
+      "{All}",
+      "Glossary",
+        "#LightBlue",
+      "Race",
+      "Background",
+      "Theme",
+        "#Gold",
+      "Class",
+      "ParagonPath",
+      "EpicDestiny",
+        "#Coral",
+      "Power",
+      "Feat",
+      "Item",
+      "Ritual",
+        "#LightPink",
+      "Companion",
+      "Deity",
+      "Poison",
+        "#LightGreen",
+      "Disease",
+      "Monster",
+      "Terrain",
+      "Trap",
+        "#LightGrey"
+   ],
+
    "symbol_conversion" : 'Common',
    "symbols": {
       "Common" : {

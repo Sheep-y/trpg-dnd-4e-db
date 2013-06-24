@@ -4,6 +4,9 @@
   -->
 <div id='action_list' data-role='page'>
    <style scoped>
+      #act_list_pnl_term {
+         margin-bottom: 5px;
+      }
       /* Search buttons */
       #act_list_tbl_search {
          width: 100%;
@@ -47,8 +50,8 @@
          #act_list_txt_search { font-size: 120%; }
          #act_list_tbl_search { width: 300px; float: right; }
       }
-      @media (min-width: 890px) {
-         #act_list_pnl_category a { max-width: 290px; }
+      @media (min-width: 910px) {
+         #act_list_pnl_category a { max-width: 300px; }
       }
       /* Small screen: Show only selected cat */
       @media (max-width: 889px) {
@@ -161,31 +164,56 @@ od.action.list = {
          'ondone'  : action_list.show_list
       } );
    },
-           
+
    'show_category' : function act_list_show_category () {
       var action_list = od.action.list;
       action_list.counts = null;
       action_list.category = null;
       action_list.category_dom = [];
+
+      function create_category_button( div, cat, colour, title, name, count ) {
+         if ( title === undefined ) {
+            title = cat.title;
+            name = cat.name;
+            count = cat.count;
+         }
+         var a = _.create( 'a', { 'text' : title, 'class' : 'button', 'style': 'background-color:'+colour, 'onclick' : function (){ action_list.a_category( name ); } } );
+         a.appendChild( _.create( 'span', count ) );
+         div.appendChild( a );
+         action_list.category_dom[ name ] = a;
+         return count;
+      }
+
       od.data.load_catalog( function act_list_show_category_load () {
          var div = _( '#act_list_pnl_category' )[ 0 ];
          var total = 0;
          div.innerHTML = '';
          // Sort and create each category
-         var list = od.data.get();
-         _.sort( list, 'name' ).forEach( function ( cat ) {
-            var a = _.create( 'a', { 'text' : cat.title, 'class' : 'button', 'onclick' : function (){ action_list.a_category( cat.name ); } } );
-            a.appendChild( _.create( 'span', cat.count ) );
-            div.appendChild( a );
-            total += cat.count;
-            action_list.category_dom[ cat.name ] = a;
+         var list = od.data.get(), colour = "";
+         od.config.category_order.forEach( function act_list_show_category_create ( name ) {
+            if ( name.charAt(0) === '#' ) {
+               // Set button colour
+               colour = name.substr( 1 );
+               
+            } else if ( name === '{All}' ) {
+               // Create all category button
+               create_category_button( div, null, colour, _.l( 'action.list.a_all' ), "", 0 );
+               
+            } else {
+               // Create normal category button
+               var cat = od.data.get( name );
+               if ( cat ) {
+                  total += create_category_button( div, cat, colour );
+                  list.splice( list.indexOf( cat ), 1 );
+               }
+            }
          } );
-         // Prepend all category
-         var all = _.create( 'a', { 'text' : _.l( 'action.list.a_all' ), 'class' : 'button', 'onclick' : action_list.a_category } );
-         all.appendChild( _.create( 'span', total ) );
-         action_list.category_dom[""] = all;
+         // Create unexpected category button
+         for ( var i = 0, l = list.length ; i < l ; i++ ) {
+            total += create_category_button( div, list[i], colour );
+         }
          action_list.total_count = total;
-         div.insertBefore( all, div.firstChild );
+         _( action_list.category_dom[''], 'span' )[0].textContent = total;
          _.show( div );
       }, function act_list_show_category_error () {
          od.gui.switch_action( od.action.download );
