@@ -1,0 +1,2 @@
+Images in these folders are sources for the embedded images in src/html/images.html.
+They are included for reference only, because they are converted to data url manually rather then compiled directly.
