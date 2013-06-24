@@ -31,17 +31,29 @@
          display: block;
          float: left;
          width: 100%;
+         height: 39px;
          border: 1px outset #888;
-         padding: 5px;
+         padding: 2px 5px;
          max-width: 360px;
-         font-weight: bold;
+         font-size: 125%;
+         line-height: 33px;
       }
-      #act_list_pnl_category a span {
+      #act_list_pnl_category a * {
+         float: left;
+         margin-right: 5px;
+      }
+      #act_list_pnl_category a var {
          float: right;
          font-weight: normal;
       }
+      #act_list_pnl_category a.no-result:not(.selected) {
+         color: grey;
+         opacity: 0.8;
+      }
+      /* Result list */
       #act_list_pnl_list {
          clear: left;
+         font-size: 120%;
          background-color: rgba( 255, 224, 128, 0.5 );
       }
       /* Big screen: Move search buttons to the right of search box */
@@ -177,8 +189,10 @@ od.action.list = {
             name = cat.name;
             count = cat.count;
          }
-         var a = _.create( 'a', { 'text' : title, 'class' : 'button', 'style': 'background-color:'+colour, 'onclick' : function (){ action_list.a_category( name ); } } );
-         a.appendChild( _.create( 'span', count ) );
+         var a = _.create( 'a', { 'class' : 'button', 'style': 'background-color:'+colour, 'onclick' : function (){ action_list.a_category( name ); } } );
+         a.appendChild( _.create( 'span', { 'class' : 'rpg ' + name } ) );
+         a.appendChild( _.create( 'b', title ) );
+         a.appendChild( _.create( 'var', count ) );
          div.appendChild( a );
          action_list.category_dom[ name ] = a;
          return count;
@@ -213,7 +227,7 @@ od.action.list = {
             total += create_category_button( div, list[i], colour );
          }
          action_list.total_count = total;
-         _( action_list.category_dom[''], 'span' )[0].textContent = total;
+         _( action_list.category_dom[''], 'var' )[0].textContent = total;
          _.show( div );
       }, function act_list_show_category_error () {
          od.gui.switch_action( od.action.download );
@@ -223,13 +237,21 @@ od.action.list = {
    'show_count' : function act_list_show_count ( counts ) {
       var action_list = od.action.list;
       if ( action_list.counts === counts ) return;
+      _.removeClass( ".no-result" );
       od.data.get().forEach( function act_list_show_count_each ( cat ) {
-         var dom = action_list.category_dom[ cat.name ];
-         var c = counts[ cat.name ];
-         _( dom, 'span' )[ 0 ].textContent = counts ? _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, cat.count ) : cat.count;
+         var txt, dom = action_list.category_dom[ cat.name ];
+         if ( counts ) {
+            var c = counts[ cat.name ];
+            txt = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, cat.count );
+            if ( ! c ) _.addClass( dom, 'no-result' );
+         } else {
+            txt = cat.count;
+         }
+         _( dom, 'var' )[ 0 ].textContent = txt;
       } );
-      var c = counts[ '' ];
-      _( action_list.category_dom[ '' ], 'span' )[ 0 ].textContent = counts ? _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action_list.total_count ) : action_list.total_count;
+      var c = counts[ '' ], dom = action_list.category_dom[ '' ];
+      _( dom, 'var' )[ 0 ].textContent = counts ? _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action_list.total_count ) : action_list.total_count;
+      if ( ! c ) _.addClass( dom, 'no-result' );
    },
 
    'show_list' : function act_list_show_list ( col, data, counts,  highlight ) {
