@@ -22,7 +22,7 @@ od.search = {
       var search_body = options.search_body;
       if ( cat ) {
          // Search in a single category
-         cat.load_listing( function(){
+         cat.load_listing( function search_search_cat (){
             cols = cat.columns;
             if ( ! tmp ) return _.call( options.ondone, null, cols );
             if ( search_body ) {
@@ -35,7 +35,7 @@ od.search = {
          // Search in all categories
          cols = ["ID","Name","Category","Type","Level","SourceBook"];
          if ( ! tmp ) return _.call( options.ondone, null, cols );
-         od.data.load_all_listing( function(){
+         od.data.load_all_listing( function search_search_all (){
             if ( search_body ) {
                od.data.load_all_index( do_search );
             } else {
@@ -55,7 +55,7 @@ od.search = {
             _.time( 'Searching all categories: ' + options.term  );
             var data = [];
             count[''] = 0;
-            od.data.get().forEach( function( c ) {
+            od.data.get().forEach( function search_search_each ( c ) {
                result = search( c.list );
                count[ c.name ] = result.length;
                count[ '' ] += result.length;

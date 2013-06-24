@@ -13,8 +13,9 @@
 .i18n{ /* Dummy class to surpress warning, not actually styled */ }
 
 html {
-   background-color: #ED8;
-   background-size: cover;
+   background-position: 0 40px; /* Skip header */
+   background-color: #ED8;      /* For when background image is not available */
+   background-size: 100% auto;  /* Fill width, repeat-y */
    font: 14px sans-serif;
 }
 
@@ -71,7 +72,7 @@ header h1 {
    font-weight: bold;
 }
 
-header a {
+header a { /* Left header button */
    float: left;
    display: inline-block;
    padding: 0.25em 1ex;
@@ -83,7 +84,7 @@ header a {
    cursor: pointer;
 }
 
-header h1 + a {
+header h1 + a { /* Right header button */
    float: right;
 }
 
@@ -93,6 +94,8 @@ body > div {
    display: none;
    width: 100%;
    margin-top: 40px;
+   background-color: rgba( 255, 224, 128, 0.5 );
+   box-shadow: 0 0 200px 200px rgba( 255, 224, 128, 0.5 );
 }
 
 body > div > * {
@@ -100,6 +103,7 @@ body > div > * {
 }
 
 header a:hover, button:hover, .hover-highlight > *:hover {
-   color: darkred;
+   color: darkred !important; /* Override no result category gray out */
+   opacity: 1 !important;
    cursor: pointer;
 }

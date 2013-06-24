@@ -54,7 +54,6 @@
       #act_list_pnl_list {
          clear: left;
          font-size: 120%;
-         background-color: rgba( 255, 224, 128, 0.5 );
       }
       /* Big screen: Move search buttons to the right of search box */
       @media (min-width: 768px) {
@@ -104,7 +103,7 @@ od.action.list = {
    'initialize' : function act_list_init() {
       _('#act_list_txt_search')[0].setAttribute( 'placeholder', _.l( 'action.list.txt_search_placeholder' ) );
       //_.visible( '#act_list_btn_update', od.config.show_download ); // Download page should be available all times, if just for explaining 'Why you must download with that browser'.
-      this.show_category();
+      this.build_category();
    },
 
    'setup': function act_list_setup () {
@@ -158,12 +157,13 @@ od.action.list = {
       if ( action_list.get_search_term() !== '' ) {
          action_list.search();
       } else {
-         od.search.list_category( action_list.category, action_list.show_list );
+         action_list.show_category();
       }
    },
 
    'search' : function act_list_search ( search_type ) {
       var action_list = od.action.list;
+      if ( action_list.get_search_term() === '' ) return action_list.show_category();
       if ( search_type === undefined ) {
          search_type = action_list.last_search_type;
       } else {
@@ -177,7 +177,7 @@ od.action.list = {
       } );
    },
 
-   'show_category' : function act_list_show_category () {
+   'build_category' : function act_list_build_category () {
       var action_list = od.action.list;
       action_list.counts = null;
       action_list.category = null;
@@ -198,13 +198,13 @@ od.action.list = {
          return count;
       }
 
-      od.data.load_catalog( function act_list_show_category_load () {
+      od.data.load_catalog( function act_list_build_category_load () {
          var div = _( '#act_list_pnl_category' )[ 0 ];
          var total = 0;
          div.innerHTML = '';
          // Sort and create each category
          var list = od.data.get(), colour = "";
-         od.config.category_order.forEach( function act_list_show_category_create ( name ) {
+         od.config.category_order.forEach( function act_list_build_category_create ( name ) {
             if ( name.charAt(0) === '#' ) {
                // Set button colour
                colour = name.substr( 1 );
@@ -229,9 +229,15 @@ od.action.list = {
          action_list.total_count = total;
          _( action_list.category_dom[''], 'var' )[0].textContent = total;
          _.show( div );
-      }, function act_list_show_category_error () {
+      }, function act_list_build_category_error () {
          od.gui.switch_action( od.action.download );
       });
+   },
+   
+   'show_category' : function act_list_show_category ( category ) {
+      var action_list = od.action.list;
+      if ( category === undefined ) category = action_list.category;
+      od.search.list_category( category, action_list.show_list );
    },
 
    'show_count' : function act_list_show_count ( counts ) {
