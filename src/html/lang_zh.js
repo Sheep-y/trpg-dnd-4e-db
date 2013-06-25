@@ -48,9 +48,10 @@ _.l.set( 'data', {
       "Alignment" : '陣營',
       "Cost" : '花費',
       "Tier" : '層級',
+      "TierName" : '層級',
       'ActionType': '動作',
       'ClassName': '職業',
-      'SourceBook': '書目'
+      'SourceBook': '書目',
    }
 });
 

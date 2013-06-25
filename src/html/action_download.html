@@ -15,6 +15,9 @@
          text-decoration: underline;
          color: red;
       }
+      #act_download_tbl_list tr:hover {
+         background-color: gold;
+      }
    </style>
 
    <p class='i18n'> action.download.paragraph.0 </p>
@@ -28,7 +31,7 @@
    <table id='act_download_tbl_list' class="fullw">
       <thead>
          <tr>
-            <th class='i18n'> action.download.th_category </th>
+            <th class='i18n'> </th>
             <th class='i18n'> action.download.th_local </th>
             <th class='i18n'> action.download.th_remote </th>
             <th class='i18n'> action.download.th_new </th>
@@ -96,7 +99,8 @@ od.action.download = {
 
    'list_all' : function act_download_list_all () {
       od.updater.get().forEach( function act_download_list_all_each ( remote ) {
-         if ( remote.state === 'unlisted' ) remote.get_listing( od.action.download.refresh_func( remote ) );
+         var refresh = od.action.download.refresh_func( remote );
+         if ( remote.state === 'unlisted' ) remote.get_listing( refresh, refresh );
       } );
    },
 
@@ -142,7 +146,7 @@ od.action.download = {
    'create_row' : function act_download_create_row( remote ) {
       var local = od.data.get( remote.name );
       var tr = _.create( 'tr', { 'data-name': remote.name } );
-      tr.appendChild( _.create( 'td', remote.name ) );
+      tr.appendChild( _.create( 'th', remote.name ) );
       tr.appendChild( _.create( 'td', local ? local.count : '--' ) ); // 1: Local count
       tr.appendChild( _.create( 'td' ) ); // 2: Remote count
       tr.appendChild( _.create( 'td', { 'onclick': od.action.download.lbl_count( 'added'  , 'lbl_new_item' )   } ) ); // 3: Added count
@@ -224,7 +228,7 @@ od.action.download = {
          var tr = action.tr[ remote.name ];
          if ( tr === undefined ) tr = action.create_row( remote );
          var cells = _( tr, 'td' );
-         var commands = cells[5];
+         var commands = cells[4];
          var local = od.data.get( remote.name );
          //var local = od.data.get( remote.name );
          //cells[1].textContent = local ? local.count : '--'; // Local count may change because of load failure or download update
@@ -234,22 +238,19 @@ od.action.download = {
                commands.textContent = remote.progress;
                break; // Please do not interrupt while working!
             case "absent" :
-               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '--';
-               //cells[5].textContent = 'Local';
+               cells[1].textContent =  cells[2].textContent =  cells[3].textContent = '--';
                commands.innerHTML = '';
                commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
                if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
                break;
             case "local" :
-               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '';
-               //cells[5].textContent = '';
+               cells[1].textContent =  cells[2].textContent =  cells[3].textContent = '';
                commands.innerHTML = '';
                commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
                if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
                break;
             case "unlisted" :
-               cells[2].textContent =  cells[3].textContent =  cells[4].textContent = '??';
-               //cells[5].textContent = 'Unlisted';
+               cells[1].textContent =  cells[2].textContent =  cells[3].textContent = '??';
                commands.innerHTML = '';
                commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_list' ) );
                if ( local ) {
@@ -258,10 +259,9 @@ od.action.download = {
                }
                break;
             case "listed" :
-               cells[2].textContent = remote.count;
-               cells[3].textContent = remote.added.length;
-               cells[4].textContent = remote.changed.length;
-               //cells[5].textContent = remote.progress;
+               cells[1].textContent = remote.count;
+               cells[2].textContent = remote.added.length;
+               cells[3].textContent = remote.changed.length;
                commands.innerHTML = '';
                if ( remote.raw.length )
                   commands.appendChild( action.create_button( 'update_all', remote, 'action.download.btn_update_all' ) );

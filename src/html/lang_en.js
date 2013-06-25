@@ -20,7 +20,8 @@ _.l.set( 'data', {
       "ComponentCost" : 'Component',
       "KeySkillDescription" : 'Key Skill',
       'ClassName': 'Class',
-      'SourceBook': 'Source'
+      'SourceBook': 'Source',
+      'TierName': 'Tier'
    }
 });
 
