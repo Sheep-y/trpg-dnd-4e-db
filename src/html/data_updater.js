@@ -149,7 +149,7 @@ od.updater = {
                         }
                         var index = _.col( remote.raw, 0 ).indexOf( id );
                         local.update( id, remote.raw[index], data  );
-                        if ( remote.dirty.indexOf( id ) < 0 ) remote.dirty.push( true );
+                        if ( remote.dirty.indexOf( id ) < 0 ) remote.dirty.push( id );
                         remote.progress = _.l( 'action.download.lbl_progress', null, ++step, total );
                         exec.finish( threadid );
                         _.call( onstep, remote, id );
@@ -385,6 +385,15 @@ od.updater.RemoteCategory.prototype = {
       }
    },
 
+   /**
+    * Rebuild listing and index from raw data.
+    * Entries are processed in batch to maintain GUI responsiveness.
+    * 
+    * @param {function} onstep  Callback on each update.
+    * @param {function} ondone  Callback on done.
+    * @param {function} onerror Callback on error.
+    * @returns {undefined}
+    */
    "reindex" : function download_Cat_reindex ( onstep, ondone, onerror ) {
       var remote = this, origial_state = remote.state;
       var local = od.data.get( remote.name );
@@ -435,20 +444,19 @@ od.updater.RemoteCategory.prototype = {
          local.ext_columns = local.parse_extended( local.raw_columns, null );
          local.extended = new Array( l );
          local.index = {};
-         latch = new _.Latch( l );
-         download_Cat_reindex_batch( l-1 );
-         latch.ondone = function download_Cat_reindex_done ( ) { // Reindex tasks are wrapped in setImmediate
+         latch = new _.Latch( l, function download_Cat_reindex_done ( ) { // Reindex tasks are wrapped in setImmediate
             remote.state = origial_state;
             remote.reindexed = true;
             local.count = local.raw.length;
             local.build_listing();
             if ( local.count > 0 ) {
-               if ( remote.dirty.length <= 0 ) remote.dirty.push( idList[0] );
+               if ( remote.dirty.indexOf( true ) < 0 ) remote.dirty.push( true );
             } else {
                od.updater.delete( remote );
             }
             _.call( ondone, remote );
-         };
+         } );
+         download_Cat_reindex_batch( l-1 ); // Start first batch of reindex
       }, onerror );
    },
 
@@ -466,7 +474,7 @@ od.updater.RemoteCategory.prototype = {
          local.save( function download_Cat_saved () {
             var latch = new _.Latch( remote.dirty.length+1 );
             remote.dirty.forEach( function download_Cat_save_data ( id ) {
-               if ( id === true ) return latch.count_down();
+               if ( id === true ) return latch.count_down(); // True is used by reindex to indicate a category's list is dirty, actual data is unchanged
                local.save_data( id, latch.count_down_function(), onerror );
             });
             latch.ondone = function download_Cat_saved_data () {

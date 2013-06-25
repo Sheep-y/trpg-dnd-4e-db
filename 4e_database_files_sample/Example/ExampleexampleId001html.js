@@ -1,0 +1,1 @@
+﻿od.reader.jsonp_data(20130616,"Example","Example-exampleId001.html","<div id=detail> <h1 class=player>Example Data 1</h1><p class=flavor>Flavor Text</p><p class=publishedIn>Published in Dungeon Master's Guide, page(s) 47, Rules Compendium, page(s) 999.</p> </div>")
