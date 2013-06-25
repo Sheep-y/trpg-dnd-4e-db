@@ -89,11 +89,11 @@
                It all started with online Character Builder. <br/>
                I was, and still is, spending 3 hours on buses each day.  Sometimes I spent them on the original, offline Character Builder. <br/>
                Until it went online.  Wanting better offline access, the prototype as seen on right was born. <br/>
-               It was a bookmarket that just grabbed entries from online compendium into a popup, applied <a href='http://www.datatables.net/'>DataTables</a> on top of it, and you can then manually save the popup for offline use.
+               It was a bookmarket that just grabbed entries from online compendium into a popup, applied <a href='http://www.datatables.net/'>DataTables</a> on top of it, and then you can manually save the popup for offline use.
             </p>
          </section>
          <section>
-            <h2> 1<sup>st</sup> Generation </h2>
+            <h2> 1<sup>st</sup> Version </h2>
                <figure class='left'>
                   <img alt='' id="action_about_history_1" src=''/>
                   <figcaption>Screenshot version: <time>2012-03-23</time>;<br/>Main development ceased in 2011 March. </figcaption>
@@ -102,37 +102,36 @@
                So I kept working on it. <br/>
                Inspired by DataTables' search code, I coded a search term parser that works with Google like syntax. <br/>
                With the ability to search for feat with <q>"bonus to damage" OR "extra damage" -"feat bonus"</q>, it is now possible to build characters using a goal-oriented approach, instead of choosing from valid options. <br/>
-               New features are also being added.  Preview panel, multi columns, or pick out items and generate a simple sheet. <br/>
+               New features are also being added.  Preview panel, multi columns, or pick out items and generate a simple sheet such as character power list. <br/>
                Look matters, too, so the script will grab a <a href='http://www.wizards.com/default.asp?x=dnd/dnd/20030711x'>nice wallpaper</a> through <a href='http://en.wikipedia.org/wiki/Coral_Content_Distribution_Network'>Coral</a>, output fancy CSS styles, data uri icons etc. <br/>
                It helped me a lot in the two years that follows, both as a DM and as a player.
             </p>
          </section>
          <section>
-            <h2> 2<sup>nd</sup> Generation </h2>
+            <h2> 2<sup>nd</sup> Version </h2>
                <figure class='right'>
                   <img alt='' id="action_about_history_2" src=''/>
                   <figcaption>Screenshot version: <time>2012-02-17</time></figcaption>
                </figure>
             <p>
-               The problem with first generation is that it is designed for computers. <br/>
-               Consider that "Powers" is a 15MB html file, and the browser has to layout all its contents, then create a 8800 rows table.
-               My relatively new (by then) <a href="http://en.wikipedia.org/wiki/Motorola_Milestone_XT720">XT720</a> Android phone can't even load it. <br/>
-               Thus come the second generation, powered by the then prototype <a href="http://jquerymobile.com/‎">jQuery Mobile</a>.
-               It looks really good.  Impressive animation, elegance style, familiar icons.  An index was created from <a href='http://ails.deviantart.com/art/420-Pixel-Art-Icons-for-RPG-129892453'>Ails' RPG icons</a>, data are processed in multiple threads, and appcache used to preload data. <br/>
-               Turns out it is a disaster.  First, Android browser refuse to load local HTML.   Second, cookie and web workers are not supported offline.  Google really want you stay online. <br/>
+               The problem with first version is that it is big and slow even on PC, much less mobile. <br/>
+               "Powers" is a 15MB html file, and the browser has to layout 8800 full item content when it is opened.
+               Thus come the second version, powered by the then prototype <a href="http://jquerymobile.com/‎">jQuery Mobile</a>.
+               It looks good.  Impressive animation, elegance style, familiar icons.  An index was created from <a href='http://ails.deviantart.com/art/420-Pixel-Art-Icons-for-RPG-129892453'>Ails' RPG icons</a>, data are processed in multiple threads, and appcache used to preload data. <br/>
+               Then disaster struck.  Most mobile browser refuse to load local HTML, and cookie and web workers are not supported offline.  Google really wants to keep you online. <br/>
                There are workarounds, but the biggest problem is, jQuery Mobile takes very long time to display entry titles (rightmost screen).  Two to three times longer then displaying their _contents_ in previous version. <br/>
-               This is when I give up.  Well, at least the index were reused for first generation.
+               This is when I give up.  Well, at least the index were reused for first version.
             </p>
          </section>
          <section>
-            <h2> 3<sup>rd</sup> Generation Prototype </h2>
+            <h2> 3<sup>rd</sup> Version Prototype </h2>
                <figure class='left'>
                   <img alt='' id="action_about_history_3" src=''/>
                   <figcaption>Screenshot version: <time>2012-05-16</time></figcaption>
                </figure>
             <p>
-               Third generation development started in 2012-09-09, and is a bold experiment in what can JavaScript do.
-               Instead of letting others do most of the work, the new version do everything by itself. <br/>
+               Third version development started in 2012 Sep, and is a bold experiment in what can JavaScript do.
+               Instead of letting others do most of the work, the new version do download, index, everything by itself. <br/>
                Sadly, when a prototype is working, Firefox <a href="https://blog.mozilla.org/mrbkap/2012/09/12/">pulled the plug on enablePrivilage</a> and killed it with no hope of resurrection. <br/>
                After playtesting D&amp;D Next for a while, work restarted in May when the <a href="http://www.amazon.com/Aspire-V5-171-6422/dp/B009A8KZKS/">notebook</a> has been repaired. <br/>
                With a simplified database structure, the second prototype works like a charm.  From here begins the long journey of turning it into a polished product.
@@ -144,14 +143,20 @@
          <h1 class='i18n'> action.about.h_version_history </h1>
          <p class="i18n"> action.about.lbl_english_only </p>
          <dl>
-            <dt> Alpha <time pubdate>2013-05-xx</time> </dt>
-            <dd> Added help documentation, AGPL license, view source, email, regx terms. </dd>
+            <dt> 3.0 M2 <time pubdate>2013-06-25</time> </dt>
+            <dd> Added local data reindex/delete, navbar, responsive layout, simplify data storage, proper download state tracking, sort &amp; style category, background image, style all entries. </dd>
 
-            <dt> Alpha <time>2013-05-25</time> </dt>
+            <dt> 3.0 M1 <time pubdate>2013-05-29</time> </dt>
+            <dd> Added style for power, content image conversion, help doc, AGPL license, view source, email, regx terms. </dd>
+
+            <dt> 3.0 M0 <time>2013-05-25</time> </dt>
             <dd> Published through Github. Added about page, nav header style. </dd>
 
-            <dt> Alpha <time>2013-05-25</time> </dt>
+            <dt> 3.0 Proto 2 <time>2013-05-25</time> </dt>
             <dd> Prototype complete after testing on full set of compendium data. </dd>
+
+            <dt> 3.0 Design <time>2012-09-09</time> </dt>
+            <dd> Skeleton code outlining program structure. </dd>
          </dl>
       </article>
    </div>
