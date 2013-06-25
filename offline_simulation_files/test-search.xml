@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Data>
+    <Results>
+        <Sample>
+            <ID>sampleId001</ID>
+            <Name>Sample Data 1</Name>
+            <Category>Sample1</Category>
+            <SourceBook>Git</SourceBook>
+        </Sample>
+    </Results>
+    <Totals>
+        <Tab>
+            <Table>Sample</Table>
+            <Total>1</Total>
+        </Tab>
+        <Tab>
+            <Table>Example</Table>
+            <Total>1</Total>
+        </Tab>
+    </Totals>
+</Data>

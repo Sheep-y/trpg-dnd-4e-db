@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="oddi" default="make" basedir=".">
+   <property name="deliverable" value="../4e_database.html" />
+   <property name="datadir" value="../4e_database_files/" />
+   <property name="srcdir" value="html/" />
+
+   <target name="make" description="Compile browsable html">
+      <loadfile property="style_gui.css" srcfile="${srcdir}style_gui.css" encoding="UTF-8" />
+      <loadfile property="style_data.css" srcfile="${srcdir}style_data.css" encoding="UTF-8" />
+      <loadfile property="config.js" srcfile="${srcdir}config.js" encoding="UTF-8" />
+      <loadfile property="sparrow.js" srcfile="${srcdir}sparrow.js" encoding="UTF-8" />
+      <loadfile property="lang_en.js" srcfile="${srcdir}lang_en.js" encoding="UTF-8" />
+      <loadfile property="lang_zh.js" srcfile="${srcdir}lang_zh.js" encoding="UTF-8" />
+      <loadfile property="code_gui.js" srcfile="${srcdir}code_gui.js" encoding="UTF-8" />
+      <loadfile property="data_model.js" srcfile="${srcdir}data_model.js" encoding="UTF-8" />
+      <loadfile property="data_search.js" srcfile="${srcdir}data_search.js" encoding="UTF-8" />
+      <loadfile property="data_updater.js" srcfile="${srcdir}data_updater.js" encoding="UTF-8" />
+      <loadfile property="data_reader.js" srcfile="${srcdir}data_reader.js" encoding="UTF-8" />
+      <loadfile property="data_writer.js" srcfile="${srcdir}data_writer.js" encoding="UTF-8" />
+      <loadfile property="action_download.html" srcfile="${srcdir}action_download.html" encoding="UTF-8" />
+      <loadfile property="action_list.html" srcfile="${srcdir}action_list.html" encoding="UTF-8" />
+      <loadfile property="action_view.html" srcfile="${srcdir}action_view.html" encoding="UTF-8" />
+      <loadfile property="action_about.html" srcfile="${srcdir}action_about.html" encoding="UTF-8" />
+      <loadfile property="images.html" srcfile="${srcdir}images.html" encoding="UTF-8" />
+      <loadfile property="license_agpl.html" srcfile="license_agpl.html" encoding="UTF-8" />      
+
+      <delete file="${deliverable}" failonerror="false" />
+      <copy file="${srcdir}/html_template.html" tofile="${deliverable}" />
+
+      <replace file="${deliverable}" encoding="UTF-8">
+          <replacefilter token="&lt;!--#include file='style_gui.css' --&gt;" value="${style_gui.css}"/>
+          <replacefilter token="&lt;!--#include file='style_data.css' --&gt;" value="${style_data.css}"/>
+          <replacefilter token="&lt;!--#include file='config.js' --&gt;" value="${config.js}"/>
+          <replacefilter token="&lt;!--#include file='sparrow.js' --&gt;" value="${sparrow.js}"/>
+          <replacefilter token="&lt;!--#include file='lang_en.js' --&gt;" value="${lang_en.js}"/>
+          <replacefilter token="&lt;!--#include file='lang_zh.js' --&gt;" value="${lang_zh.js}"/>
+          <replacefilter token="&lt;!--#include file='code_gui.js' --&gt;" value="${code_gui.js}"/>
+          <replacefilter token="&lt;!--#include file='data_model.js' --&gt;" value="${data_model.js}"/>
+          <replacefilter token="&lt;!--#include file='data_search.js' --&gt;" value="${data_search.js}"/>
+          <replacefilter token="&lt;!--#include file='data_updater.js' --&gt;" value="${data_updater.js}"/>
+          <replacefilter token="&lt;!--#include file='data_reader.js' --&gt;" value="${data_reader.js}"/>
+          <replacefilter token="&lt;!--#include file='data_writer.js' --&gt;" value="${data_writer.js}"/>
+          <replacefilter token="&lt;!--#include file='action_download.html' --&gt;" value="${action_download.html}"/>
+          <replacefilter token="&lt;!--#include file='action_list.html' --&gt;" value="${action_list.html}"/>
+          <replacefilter token="&lt;!--#include file='action_view.html' --&gt;" value="${action_view.html}"/>
+          <replacefilter token="&lt;!--#include file='action_about.html' --&gt;" value="${action_about.html}"/>
+          <replacefilter token="&lt;!--#include file='images.html' --&gt;" value="${images.html}"/>
+          <replacefilter token="&lt;!--#include file='license_agpl.html' --&gt;" value="${license_agpl.html}"/>
+      </replace>
+      <!-- Removes doctype and end tags from embedded document(s) -->
+      <replaceregexp match="(?&lt;!^)&lt;!DOCTYPE[^\n]+\n" replace="" file="${deliverable}" encoding="UTF-8" />
+      <replaceregexp match="&lt;/body>&lt;/html>(?!$)" replace="" file="${deliverable}" encoding="UTF-8" />
+   </target>
+
+   <!-- Produce a simulation biuld for testing.  -->
+   <target name="offline_simulate" description="Offline test build" depends="make">
+      <replace file="${deliverable}" token='"simulate" : false' value='"simulate" : true' encoding="UTF-8" />
+      <replace file="${deliverable}" token='"down_interval" : 0' value='"down_interval" : 1000' encoding="UTF-8" />
+   </target>
+
+   <!-- Stripts unnecessary code for deployment. Saves about 11% (34k) so production value is in doubt.  -->
+   <target name="deploy" description="Compress browsable" depends="make">
+      <!-- Remove comments. Start comment with three hypens to preserv license blocks. -->
+      <replaceregexp match=" *&lt;!--(?![\[-])(.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <replaceregexp match=" *(?&lt;=[ ;])//(?!\]).*?\n" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <!-- Remove redundent whitespaces -->
+      <replaceregexp match="   " replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <replaceregexp match="(\n)[\n ]+" replace="\1" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <!-- Concat htmls -->
+      <replaceregexp match=">\n&lt;" replace=">&lt;" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <!-- Concat js -->
+      <replaceregexp match="\n}" replace="}" flags="g" file="${deliverable}" encoding="UTF-8" />
+   </target>
+
+   <target name='javac' description="Compile Java applet">
+      <javac srcdir="java/" destdir="java/" source="1.7" includeantruntime="false" encoding="UTF-8">
+         <compilerarg value="-Xlint"/> 
+      </javac>
+      <zip basedir="java/" includes="*.class,META-INF/MANIFEST.MF" destfile="Sign.jar" level="9" />
+      <signjar jar="Sign.jar" signedjar="Proxy.jar" alias="sign" keystore="cert/keystore.jks" storepass="123456" />
+      <delete><fileset dir="." includes="java/*.class,Sign.jar"/></delete>
+      <echo message="Compiled Java applet; please manually convert to data uri and embed in sparrow.js." />
+   </target>
+
+   <!-- Convert data from UCS2-LE to UTF-8 to save space. Please note there is NO auto encoding detection. -->
+   <target name="utf8data" description="Convert UTF-16 data to UTF-8">
+      <echo message="Converting reterived data."/>
+      <move todir="../tmp">
+         <fileset dir="${datadir}"/>
+      </move>
+      <copy todir="${datadir}" overwrite="true" encoding="UTF-16LE" outputencoding="UTF-8" verbose="true">
+         <fileset dir="../tmp"/>
+      </copy>
+      <delete dir="../tmp" />
+      <echo message="Data converted from UCS2-LE to UTF-8."/>
+   </target>
+
+   <!-- Old make. Simple but component files make less sense.
+target name="make2" description="Compile browsable html">
+      <concat destfile="${deliverable}">
+         <fileset file="${srcdir}html_doctype.html" />
+         <fileset file="${srcdir}style.css" />
+         <fileset file="${srcdir}html_header.html" />
+         <string>&lt;script&gt;'use strict';</string>
+         <fileset file="${srcdir}sparrow.js" />
+         <fileset file="${srcdir}lang_en.js" />
+         <fileset file="${srcdir}lang_zh.js" />
+         <fileset file="${srcdir}code_gui.js" />
+         <fileset file="${srcdir}data_model.js" />
+         <fileset file="${srcdir}data_download.js" />
+         <fileset file="${srcdir}data_reader.js" />
+         <fileset file="${srcdir}data_writer.js" />
+         <string>&lt;/script&gt;</string>
+         <fileset file="${srcdir}action_download.html" />
+         <fileset file="${srcdir}action_list.html" />
+         <fileset file="${srcdir}action_view.html" />
+         <fileset file="${srcdir}html_footer.html" />
+      </concat>
+   </target-->
+</project>

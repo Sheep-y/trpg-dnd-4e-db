@@ -1,0 +1,111 @@
+/*
+ * style_gui.css
+ * Contains CSS styles that applies to general UI (instead of data entries)
+ */
+
+/********************** Baseline **************************/
+* {
+   box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   -webkit-box-sizing: border-box;
+}
+
+.i18n{ /* Dummy class to surpress warning, not actually styled */ }
+
+html {
+   background-position: 0 40px; /* Skip header */
+   background-color: #ED8;      /* For when background image is not available */
+   background-size: 100% auto;  /* Fill width, repeat-y */
+   font: 14px sans-serif;
+}
+
+html, body, div, th, td { margin: 0; padding: 0; }
+
+html, body {
+   width: 100%;
+   min-height: 100%;
+   /* Pattle: FFD700 - Black - Red */
+}
+
+@media print {
+   .no-print { display: none; }
+}
+
+th { text-align: left; }
+
+figure { margin: 0; }
+
+/********************** Custom classes **************************/
+
+.fullw { width: 100%; }
+.right { float: right; }
+.left { float: left; }
+.hide { display: none; }
+
+button, .button {
+   display: inline-block;
+   padding: 0.5ex 1ex;
+   border-radius: 1ex;
+   border: 1px outset #888;
+   background-color: gold;
+}
+
+/*********************** Page header styles *************************/
+
+header {
+   position: fixed;
+   top: 0;
+   width: 100%;
+   height: 40px;
+   background-color: black;
+   text-align: center;
+   padding: 0.5em 1ex !important;
+   overflow: visible;
+   z-index: 1;
+}
+
+header h1 {
+   display: inline-block;
+   padding: 0;
+   margin: 0;
+   color: white;
+   font-size: 150%;
+   font-weight: bold;
+}
+
+header a { /* Left header button */
+   float: left;
+   display: inline-block;
+   padding: 0.25em 1ex;
+   border-radius: 2ex;
+   border: 1px outset #888;
+   font-weight: bold;
+   text-decoration: none;
+   background: gold;
+   cursor: pointer;
+}
+
+header h1 + a { /* Right header button */
+   float: right;
+}
+
+/******************* Page content ***********************/
+
+body > div {
+   display: none;
+   width: 100%;
+   margin-top: 40px;
+   background-color: rgba( 255, 224, 128, 0.5 );
+   box-shadow: 0 0 200px 200px rgba( 255, 224, 128, 0.5 );
+}
+
+body > div > * {
+   padding: 10px; /* If use em/ex, will varies by content font size and inconsistent */
+}
+
+header a:hover, button:hover, .hover-highlight > *:hover {
+   color: FireBrick !important; /* Override no result category gray out */
+   opacity: 1 !important;
+   border-color: red !important;
+   cursor: pointer;
+}

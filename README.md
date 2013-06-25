@@ -1,6 +1,6 @@
 # Offline 4e Database #
 
-**This is download branch. Please see <a href="http://github.com/Sheep-y/trpg-dnd-4e-db/tree/development">development branch</a> for source code.**
+**This is development branch. Please see <a href="http://github.com/Sheep-y/trpg-dnd-4e-db/">main branch</a> for executable code.**
 
 This is the third iteration of a script that ask the browser to reterives entries from official <a href="http://www.wizards.com/dndinsider/compendium/database.aspx">D&D 4e Online Compendium</a> and store them in local files.
  <br/>
@@ -12,10 +12,8 @@ This is not an independent program, nor is it automated.
  <br/>
 The script is in Alpha prototype stage. 
 Basic feature is usable, but is far from stable and mature.
- <br/>
-For release plan please see <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/issues/1">Task List</a>.
 
-To try it out you can save the <a download="4e_database.html" href="http://raw.github.com/Sheep-y/trpg-dnd-4e-db/master/4e_database.html" target='download'>HTML</a> as a **local** file, then open it in **Internet Explorer**.
+The source code is split into multiple files for easy management, and must be put together by the Ant script before it can be run. <br/>
 Due to technical reason the download page only works in Internet Explorer, but browsing would work in any modern browsers, including mobile phones.
 
 <small>

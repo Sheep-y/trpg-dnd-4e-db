@@ -1,0 +1,59 @@
+<!DOCTYPE html><!---
+ Source can be obtained from Github: <https://github.com/Sheep-y/trpg-dnd-4e-db/development/>.
+ -
+ This script is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published
+ by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+ This script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+
+ A copy of the GNU Affero General Public License is built into this script, and is also available from <http://www.gnu.org/licenses/>.
+--><html><head><meta charset="utf-8" />
+  <title> Offline Compendium </title>
+  <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true;IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+<!--#include file='style_gui.css' -->
+<!--#include file='style_data.css' -->
+  </style>
+</head><body>
+<![if gte IE 9]>
+   <div id="loading" class='i18n' style='display:none;'>gui.loading</div>
+   <script>//<![CDATA[
+      'use strict';
+      var od = { action : {} };
+      <!--#include file='config.js' -->
+      <!--#include file='sparrow.js' -->
+      <!--#include file='lang_en.js' -->
+      <!--#include file='lang_zh.js' -->
+      <!--#include file='code_gui.js' -->
+      <!--#include file='data_model.js' -->
+      <!--#include file='data_search.js' -->
+      <!--#include file='data_updater.js' -->
+      <!--#include file='data_reader.js' -->
+      <!--#include file='data_writer.js' -->
+   //]]></script><noscript>
+      <h1> Please enable JavaScript </h1>
+      <h1> 請啟用 JavaScript </h1>
+   </noscript>
+   <!--#include file='action_download.html' -->
+   <!--#include file='action_list.html' -->
+   <!--#include file='action_view.html' -->
+   <!--#include file='action_about.html' -->
+   <!--#include file='images.html' -->
+   <script>//<![CDATA[
+      'use strict';
+      // Init code. Running in a script block is faster then waiting for dom ready.
+      _.time( 'All code loaded.' );
+      _.freeze( _ );
+      for ( var i in od ) _.seal( _.noExt( od[i] ) ); // Seal object to avoid accidents
+      _.l.detectLocale( 'en' );
+      _.l.localise();
+      od.gui.switch_action( od.action.list );
+      _.time( 'Switched to initial page.' );
+   //]]></script>
+<![endif]><!--[if lte IE 8]>
+   <h1> Please upgrade browser. </h1>
+   <h1> 請升級瀏覽器。 </h1>
+<![endif]-->
+</body></html>
