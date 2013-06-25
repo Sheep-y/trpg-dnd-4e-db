@@ -18,7 +18,7 @@
       <loadfile property="data_updater.js" srcfile="${srcdir}data_updater.js" encoding="UTF-8" />
       <loadfile property="data_reader.js" srcfile="${srcdir}data_reader.js" encoding="UTF-8" />
       <loadfile property="data_writer.js" srcfile="${srcdir}data_writer.js" encoding="UTF-8" />
-      <loadfile property="action_download.html" srcfile="${srcdir}action_download.html" encoding="UTF-8" />
+      <loadfile property="action_update.html" srcfile="${srcdir}action_update.html" encoding="UTF-8" />
       <loadfile property="action_list.html" srcfile="${srcdir}action_list.html" encoding="UTF-8" />
       <loadfile property="action_view.html" srcfile="${srcdir}action_view.html" encoding="UTF-8" />
       <loadfile property="action_about.html" srcfile="${srcdir}action_about.html" encoding="UTF-8" />
@@ -41,7 +41,7 @@
           <replacefilter token="&lt;!--#include file='data_updater.js' --&gt;" value="${data_updater.js}"/>
           <replacefilter token="&lt;!--#include file='data_reader.js' --&gt;" value="${data_reader.js}"/>
           <replacefilter token="&lt;!--#include file='data_writer.js' --&gt;" value="${data_writer.js}"/>
-          <replacefilter token="&lt;!--#include file='action_download.html' --&gt;" value="${action_download.html}"/>
+          <replacefilter token="&lt;!--#include file='action_update.html' --&gt;" value="${action_update.html}"/>
           <replacefilter token="&lt;!--#include file='action_list.html' --&gt;" value="${action_list.html}"/>
           <replacefilter token="&lt;!--#include file='action_view.html' --&gt;" value="${action_view.html}"/>
           <replacefilter token="&lt;!--#include file='action_about.html' --&gt;" value="${action_about.html}"/>
@@ -109,13 +109,15 @@ target name="make2" description="Compile browsable html">
          <fileset file="${srcdir}lang_zh.js" />
          <fileset file="${srcdir}code_gui.js" />
          <fileset file="${srcdir}data_model.js" />
-         <fileset file="${srcdir}data_download.js" />
+         <fileset file="${srcdir}data_updater.js" />
          <fileset file="${srcdir}data_reader.js" />
          <fileset file="${srcdir}data_writer.js" />
+         <fileset file="${srcdir}data_search.js" />
          <string>&lt;/script&gt;</string>
-         <fileset file="${srcdir}action_download.html" />
+         <fileset file="${srcdir}action_update.html" />
          <fileset file="${srcdir}action_list.html" />
          <fileset file="${srcdir}action_view.html" />
+         <fileset file="${srcdir}action_about.html" />
          <fileset file="${srcdir}html_footer.html" />
       </concat>
    </target-->

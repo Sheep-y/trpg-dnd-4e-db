@@ -1,11 +1,11 @@
 <!--
-  - action_download.html
+  - action_update.html
   - Query online compendium and shows what can be downloaded / updated.
   -->
-<div id='action_download' data-role='page'>
+<div id='action_update' data-role='page'>
    <header>
       <a class='i18n' onclick='od.gui.switch_action( od.action.list );'> action.list.link_text </a>
-      <h1 class='i18n'>action.download.title</h1>
+      <h1 class='i18n'>action.update.title</h1>
       <a class='i18n' onclick='od.gui.switch_action( od.action.about )'> action.about.link_text </a>
    </header>
 
@@ -20,31 +20,31 @@
       }
    </style>
 
-   <p class='i18n'> action.download.paragraph.0 </p>
-   <p class='i18n'> action.download.paragraph.1 </p>
+   <p class='i18n'> action.update.paragraph.0 </p>
+   <p class='i18n'> action.update.paragraph.1 </p>
    <p>
-      <a class='button i18n' id='act_download_btn_get_catalog' onclick='od.action.download.get_catalog()'> action.download.btn_get_catalog </a>
-      <a class='button i18n' id='act_download_btn_all_list' onclick='od.action.download.list_all()'> action.download.btn_all_list </a>
-      <a class='button i18n' id='act_download_btn_update' onclick='od.action.download.update_all()'> action.download.btn_update_changed </a>
-      <a class='button i18n' id='act_download_btn_save' onclick='od.action.download.save()'> action.download.btn_save </a>
+      <a class='button i18n' id='act_download_btn_get_catalog' onclick='od.action.update.get_catalog()'> action.update.btn_get_catalog </a>
+      <a class='button i18n' id='act_download_btn_all_list' onclick='od.action.update.list_all()'> action.update.btn_all_list </a>
+      <a class='button i18n' id='act_download_btn_update' onclick='od.action.update.update_all()'> action.update.btn_update_changed </a>
+      <a class='button i18n' id='act_download_btn_save' onclick='od.action.update.save()'> action.update.btn_save </a>
    </p>
    <table id='act_download_tbl_list' class="fullw">
       <thead>
          <tr>
             <th class='i18n'> </th>
-            <th class='i18n'> action.download.th_local </th>
-            <th class='i18n'> action.download.th_remote </th>
-            <th class='i18n'> action.download.th_new </th>
-            <th class='i18n'> action.download.th_changed </th>
-            <th class='i18n'> action.download.th_status </th>
-            <th class='i18n'> action.download.th_commands </th>
+            <th class='i18n'> action.update.th_local </th>
+            <th class='i18n'> action.update.th_remote </th>
+            <th class='i18n'> action.update.th_new </th>
+            <th class='i18n'> action.update.th_changed </th>
+            <th class='i18n'> action.update.th_status </th>
+            <th class='i18n'> action.update.th_commands </th>
          </tr>
       </thead>
       <tbody></tbody>
    </table>
-   <!--fieldset id='act_download_lst_status'><legend class='i18n'>action.download.lst_thread</legend></fieldset-->
+   <!--fieldset id='act_download_lst_status'><legend class='i18n'>action.update.lst_thread</legend></fieldset-->
 </div>
-<script type='text/javascript'>'use strict';(function action_download_init(){
+<script type='text/javascript'>'use strict';(function action_update_init(){
 /*
  * Remote category commands by state:
  *  - local / absent: Reindex | Delete
@@ -65,8 +65,8 @@
  *   List / Relist : reset ->  (listing) get_listing -> find_changed (listed)
  *   Download -> schedule_download -> get_data -> local.update, add to dirty
  */
-od.action.download = {
-   'id': 'action_download',
+od.action.update = {
+   'id': 'action_update',
 
    'initialize': function act_download_init () {
       _.hide( '#act_download_tbl_list, #act_download_btn_all_list, #act_download_btn_update, #act_download_btn_save');
@@ -77,10 +77,10 @@ od.action.download = {
       od.data.load_catalog(
          function loadCatalogOk(){
             od.data.get().forEach( function( c ){ od.updater.create( c.name ); } );
-            od.action.download.refresh();
+            od.action.update.refresh();
          },
          function loadCatalogFail(){
-            od.action.download.refresh();
+            od.action.update.refresh();
          }
       );
    },
@@ -94,12 +94,12 @@ od.action.download = {
    'tr': {},
 
    'get_catalog' : function act_download_get_catalog () {
-      od.updater.get_catalog( od.action.download.refresh );
+      od.updater.get_catalog( od.action.update.refresh );
    },
 
    'list_all' : function act_download_list_all () {
       od.updater.get().forEach( function act_download_list_all_each ( remote ) {
-         var refresh = od.action.download.refresh_func( remote );
+         var refresh = od.action.update.refresh_func( remote );
          if ( remote.state === 'unlisted' ) remote.get_listing( refresh, refresh );
       } );
    },
@@ -107,7 +107,7 @@ od.action.download = {
    'update_all' : function act_download_update_all () {
       od.updater.get().forEach( function act_download_update_all_each ( remote ) {
          if ( remote.state === 'listed' && ( remote.added.length || remote.changed.length ) ) {
-            var refresh = od.action.download.refresh_func( remote );
+            var refresh = od.action.update.refresh_func( remote );
             remote.update_changed( refresh, refresh );
          }
       } );
@@ -132,14 +132,14 @@ od.action.download = {
       return function act_download_lbl_count_click () {
          var remote = od.updater.get( this.parentNode.getAttribute('data-name') );
          var count = remote ? remote[list].length : 0;
-         var message = _.l( 'action.download.' + label, null, count, _.escHtml( remote.title ) );
+         var message = _.l( 'action.update.' + label, null, count, _.escHtml( remote.title ) );
          if ( count <= 0 ) return alert( message );
          var win = open(), doc = win.document, listing = remote[list];
          doc.write( '<!DOCTYPE html><html style="background:#ED8"><h1>' + message + '</h1><p>' );
          remote.raw.forEach( function act_download_lbl_added_count_loop ( e ) {
             if ( listing.indexOf( e[0] ) >= 0 ) doc.write( '<b>' + e[1] + '</b><sub>, ' + e.slice(2).join(', ') + '</sub>' + '<br>' );
          } );
-         // doc.write( '<button onclick="close()">' + _.l( 'action.download.btn_close' ) + '</button>' ); // Close button does not work in IE so don't border.
+         // doc.write( '<button onclick="close()">' + _.l( 'action.update.btn_close' ) + '</button>' ); // Close button does not work in IE so don't border.
       }
    },
 
@@ -149,15 +149,15 @@ od.action.download = {
       tr.appendChild( _.create( 'th', remote.name ) );
       tr.appendChild( _.create( 'td', local ? local.count : '--' ) ); // 1: Local count
       tr.appendChild( _.create( 'td' ) ); // 2: Remote count
-      tr.appendChild( _.create( 'td', { 'onclick': od.action.download.lbl_count( 'added'  , 'lbl_new_item' )   } ) ); // 3: Added count
-      tr.appendChild( _.create( 'td', { 'onclick': od.action.download.lbl_count( 'changed', 'lbl_changed_item' ) } ) ); // 4: Changed count
+      tr.appendChild( _.create( 'td', { 'onclick': od.action.update.lbl_count( 'added'  , 'lbl_new_item' )   } ) ); // 3: Added count
+      tr.appendChild( _.create( 'td', { 'onclick': od.action.update.lbl_count( 'changed', 'lbl_changed_item' ) } ) ); // 4: Changed count
       tr.appendChild( _.create( 'td' ) ); // 5: Actions
       _('#act_download_tbl_list tbody')[0].appendChild( tr );
       return this.tr[ remote.name ] = tr;
    },
 
    'create_button' : function act_download_create_button( command, remote, txt ) {
-      var refreshRemote = od.action.download.refresh_func( remote );
+      var refreshRemote = od.action.update.refresh_func( remote );
       var param;
       switch ( command ) {
           case 'reindex' : 
@@ -168,7 +168,7 @@ od.action.download = {
           case 'delete' :
              param = { 'text' : _.l( txt ), 'onclick' : function act_download_btn_reindex() {
                 od.updater.delete( remote );
-                od.action.download.refresh(); // Category can be deleted from remote, need full refresh to delete row
+                od.action.update.refresh(); // Category can be deleted from remote, need full refresh to delete row
              }};
              break;
           case 'list' : 
@@ -193,12 +193,12 @@ od.action.download = {
 
    'refresh_func' : function act_download_refresh_func ( remote_cat ) {
       return function act_download_refresh_func_callback () {
-          od.action.download.refresh( remote_cat );
+          od.action.update.refresh( remote_cat );
       };
     },
 
    'refresh' : function act_download_refresh ( remote_cat ) {
-      var action = od.action.download;
+      var action = od.action.update;
 
       // Find whether there are unlisted (Check all), changed (Get all), Downloading & Dirty (Save all) items
       var unlisted = false, changed = false, downloading = false, dirty = od.updater.dirty_catalog;
@@ -240,22 +240,22 @@ od.action.download = {
             case "absent" :
                cells[1].textContent =  cells[2].textContent =  cells[3].textContent = '--';
                commands.innerHTML = '';
-               commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
-               if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
+               commands.appendChild( action.create_button( 'delete', remote, 'action.update.btn_delete' ) );
+               if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.update.btn_reindex' ) );
                break;
             case "local" :
                cells[1].textContent =  cells[2].textContent =  cells[3].textContent = '';
                commands.innerHTML = '';
-               commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
-               if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
+               commands.appendChild( action.create_button( 'delete', remote, 'action.update.btn_delete' ) );
+               if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.update.btn_reindex' ) );
                break;
             case "unlisted" :
                cells[1].textContent =  cells[2].textContent =  cells[3].textContent = '??';
                commands.innerHTML = '';
-               commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_list' ) );
+               commands.appendChild( action.create_button( 'list', remote, 'action.update.btn_list' ) );
                if ( local ) {
-                  commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
-                  if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
+                  commands.appendChild( action.create_button( 'delete', remote, 'action.update.btn_delete' ) );
+                  if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.update.btn_reindex' ) );
                }
                break;
             case "listed" :
@@ -264,13 +264,13 @@ od.action.download = {
                cells[3].textContent = remote.changed.length;
                commands.innerHTML = '';
                if ( remote.raw.length )
-                  commands.appendChild( action.create_button( 'update_all', remote, 'action.download.btn_update_all' ) );
+                  commands.appendChild( action.create_button( 'update_all', remote, 'action.update.btn_update_all' ) );
                if ( remote.added.length || remote.changed.length )
-                  commands.appendChild( action.create_button( 'update', remote, 'action.download.btn_update_changed' ) );
-               commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_relist' ) );
+                  commands.appendChild( action.create_button( 'update', remote, 'action.update.btn_update_changed' ) );
+               commands.appendChild( action.create_button( 'list', remote, 'action.update.btn_relist' ) );
                if ( local ) {
-                  commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
-                  if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
+                  commands.appendChild( action.create_button( 'delete', remote, 'action.update.btn_delete' ) );
+                  if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.update.btn_reindex' ) );
                }
                break;
          }
@@ -291,7 +291,7 @@ od.action.download = {
       }
 
       if ( changed ) {
-         od.gui.set( '#act_download_btn_update', _.l( 'action.download.btn_update_changed' ) );
+         od.gui.set( '#act_download_btn_update', _.l( 'action.update.btn_update_changed' ) );
       }
       _.visible( '#act_download_btn_save', ( ! downloading ) && dirty );
       _.visible( '#act_download_btn_all_list', unlisted );

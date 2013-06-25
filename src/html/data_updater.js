@@ -105,7 +105,7 @@ od.updater = {
       }
       // Update progress now, because first item may be queued after other category
       var step = 0, total = list.length;
-      remote.progress = _.l( 'action.download.lbl_progress', null, 0, total );
+      remote.progress = _.l( 'action.update.lbl_progress', null, 0, total );
       _.call( onstep );
       function download_schedule_download_run() {
          _.debug( 'Schedule '+ list.length );
@@ -128,7 +128,7 @@ od.updater = {
                            // If need to login, and if we are first, show login dialog in model mode
                            exec.pause();
                            updater.login_check_id = threadid;
-                           if ( confirm( _.l( 'action.download.msg_login' ) ) ) {
+                           if ( confirm( _.l( 'action.update.msg_login' ) ) ) {
                               showModalDialog( od.config.source.data( remote.name, item ) );
                               download_schedule_download_task( threadid );
                            } else {
@@ -150,7 +150,7 @@ od.updater = {
                         var index = _.col( remote.raw, 0 ).indexOf( id );
                         local.update( id, remote.raw[index], data  );
                         if ( remote.dirty.indexOf( id ) < 0 ) remote.dirty.push( id );
-                        remote.progress = _.l( 'action.download.lbl_progress', null, ++step, total );
+                        remote.progress = _.l( 'action.update.lbl_progress', null, ++step, total );
                         exec.finish( threadid );
                         _.call( onstep, remote, id );
                         latch.count_down();
@@ -228,11 +228,11 @@ od.updater.RemoteCategory.prototype = {
       var data, xsl;
       var latch = new _.Latch( 3 );
       var err = _.callonce( onerror );
-      remote.progress = _.l('action.download.lbl_fetching_both');
+      remote.progress = _.l('action.update.lbl_fetching_both');
       this.get_remote( od.config.source.list( this.name ), function(txt){ 
          data = txt; 
          data = data.replace( /’/g, "'" );
-         remote.progress = _.l('action.download.lbl_fetching_xsl');
+         remote.progress = _.l('action.update.lbl_fetching_xsl');
          _.call( onstep );
          latch.count_down(); 
       }, err );
@@ -243,7 +243,7 @@ od.updater.RemoteCategory.prototype = {
          xsl = xsl.replace( /<xsl:sort[^>]+>/g, '' ); // Undo sort so that transformed id match result
          xsl = xsl.replace( /Multiple Sources/g, '<xsl:apply-templates select="SourceBook"/>' ); // Undo multiple source replacement
          xsl = xsl.replace( /\bselect="'20'"\s*\/>/, 'select="\'99999\'"/>' ); // Undo paging so that we get all result
-         remote.progress = _.l( 'action.download.lbl_fetching_xml' );
+         remote.progress = _.l( 'action.update.lbl_fetching_xml' );
          _.call( onstep );
          latch.count_down(); 
       }, err );
@@ -418,7 +418,7 @@ od.updater.RemoteCategory.prototype = {
             --i;
          }
          if ( i > 0 ) setTimeout( _.callfunc( download_Cat_reindex_batch, null, i ), 10 );
-         remote.progress = _.l( 'action.download.lbl_progress', null, count, len );
+         remote.progress = _.l( 'action.update.lbl_progress', null, count, len );
          _.call( onstep, remote, count, len );
       }
 

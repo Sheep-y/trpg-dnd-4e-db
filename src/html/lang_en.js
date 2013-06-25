@@ -64,7 +64,7 @@ _.l.set( 'action.list', {
 _.l.set( 'action.view', {
 });
 
-_.l.set( 'action.download', {
+_.l.set( 'action.update', {
    'title' : "Update",
    'link_text' : "Update",
 

@@ -94,7 +94,7 @@ _.l.set( 'action.list', {
 _.l.set( 'action.view', {
 });
 
-_.l.set( 'action.download', {
+_.l.set( 'action.update', {
    'title' : "更新",
    'link_text' : "更新",
 

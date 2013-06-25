@@ -4,7 +4,7 @@
   -->
 <div id='action_list' data-role='page'>
    <header>
-      <a class='i18n' id='act_list_btn_update' onclick='od.gui.switch_action( od.action.download )'> action.download.link_text </a>
+      <a class='i18n' id='act_list_btn_update' onclick='od.gui.switch_action( od.action.update )'> action.update.link_text </a>
       <h1 class='i18n'>action.list.title</h1>
       <a class='i18n' onclick='od.gui.switch_action( od.action.about )'> action.about.link_text </a>
    </header>
@@ -67,6 +67,7 @@
       #act_list_pnl_list tr:hover {
          background-color: gold;
          cursor: pointer;
+         color: red;
       }
       /* Big screen: Move search buttons to the right of search box */
       @media (min-width: 768px) {
@@ -237,7 +238,7 @@ od.action.list = {
          _( action_list.category_dom[''], 'var' )[0].textContent = total;
          _.show( div );
       }, function act_list_build_category_error () {
-         od.gui.switch_action( od.action.download );
+         od.gui.switch_action( od.action.update );
       });
    },
    
