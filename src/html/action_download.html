@@ -3,12 +3,19 @@
   - Query online compendium and shows what can be downloaded / updated.
   -->
 <div id='action_download' data-role='page'>
-
    <header>
       <a class='i18n' onclick='od.gui.switch_action( od.action.list );'> action.list.link_text </a>
       <h1 class='i18n'>action.download.title</h1>
       <a class='i18n' onclick='od.gui.switch_action( od.action.about )'> action.about.link_text </a>
    </header>
+
+   <style scoped>
+      #act_download_tbl_list td:nth-child(4):hover, #act_download_tbl_list td:nth-child(5):hover {
+         cursor: help; /* Indicate that more info is available */
+         text-decoration: underline;
+         color: red;
+      }
+   </style>
 
    <p class='i18n'> action.download.paragraph.0 </p>
    <p class='i18n'> action.download.paragraph.1 </p>
@@ -117,14 +124,29 @@ od.action.download = {
       latch.count_down();
    },
 
+   lbl_count : function act_download_lbl_count ( list, label ) {
+      return function act_download_lbl_count_click () {
+         var remote = od.updater.get( this.parentNode.getAttribute('data-name') );
+         var count = remote ? remote[list].length : 0;
+         var message = _.l( 'action.download.' + label, null, count, _.escHtml( remote.title ) );
+         if ( count <= 0 ) return alert( message );
+         var win = open(), doc = win.document, listing = remote[list];
+         doc.write( '<!DOCTYPE html><html style="background:#ED8"><h1>' + message + '</h1><p>' );
+         remote.raw.forEach( function act_download_lbl_added_count_loop ( e ) {
+            if ( listing.indexOf( e[0] ) >= 0 ) doc.write( e[1] + ' (' + e.slice(2).join(',') + ')' + '<br>' );
+         } );
+         // doc.write( '<button onclick="close()">' + _.l( 'action.download.btn_close' ) + '</button>' ); // Close button does not work in IE so don't border.
+      }
+   },
+
    'create_row' : function act_download_create_row( remote ) {
       var local = od.data.get( remote.name );
       var tr = _.create( 'tr', { 'data-name': remote.name } );
       tr.appendChild( _.create( 'td', remote.name ) );
       tr.appendChild( _.create( 'td', local ? local.count : '--' ) ); // 1: Local count
       tr.appendChild( _.create( 'td' ) ); // 2: Remote count
-      tr.appendChild( _.create( 'td' ) ); // 3: Added count
-      tr.appendChild( _.create( 'td' ) ); // 4: Changed count
+      tr.appendChild( _.create( 'td', { 'onclick': od.action.download.lbl_count( 'added'  , 'lbl_new_item' )   } ) ); // 3: Added count
+      tr.appendChild( _.create( 'td', { 'onclick': od.action.download.lbl_count( 'changed', 'lbl_changed_item' ) } ) ); // 4: Changed count
       tr.appendChild( _.create( 'td' ) ); // 5: Actions
       _('#act_download_tbl_list tbody')[0].appendChild( tr );
       return this.tr[ remote.name ] = tr;

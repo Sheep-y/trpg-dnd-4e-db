@@ -89,10 +89,14 @@ _.l.set( 'action.download', {
    'th_status'  : " ",
    'th_commands': " ",
 
+   'lbl_new_item'     : 'New item(s) in %2: %1',
+   'lbl_changed_item' : 'Changed item(s) in %2: %1',
+   'btn_close' : 'Close',
+
    'lbl_fetching_both' : "Fetching list and convertor",
    'lbl_fetching_xml' : "Fetching list",
    'lbl_fetching_xsl' : "Fetching convertor",
-   'lbl_progress' : "%1/%2",
+   'lbl_progress' : "%1 / %2",
 
    'msg_login'  : "A login window will pop up.  Please login and then close the login popup to resume download.  Or press Cancel to stop the update process."
 });

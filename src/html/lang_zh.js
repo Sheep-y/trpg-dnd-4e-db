@@ -119,10 +119,14 @@ _.l.set( 'action.download', {
    'th_status'  : " ",
    'th_commands': " ",
 
+   'lbl_new_item'     : '%2 的新增項目：%1',
+   'lbl_changed_item' : '%2 的異動項目：%1',
+   'btn_close' : '關閉',
+
    'lbl_fetching_both' : "提取列表及轉換器中",
    'lbl_fetching_xml' : "提取列表中",
    'lbl_fetching_xsl' : "提取轉換器中",
-   'lbl_progress' : "%1/%2",
+   'lbl_progress' : "%1／%2",
 
    'msg_login'  : "一個登入頁即將彈出。請登入然後關閉登入窗口以繼續下載。或者按\"取消\"終止更新程序。"
 });

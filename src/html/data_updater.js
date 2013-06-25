@@ -323,8 +323,14 @@ od.updater.RemoteCategory.prototype = {
                   var row = raw[ i ], id = row[ 0 ];
                   var pos = idList.indexOf( id );
                   if ( pos >= 0 ) {
-                     if ( JSON.stringify( row ) !== JSON.stringify( local.raw[ pos ] ) ) changed.push( id );
+                     var online  = JSON.stringify( row );
+                     var offline = JSON.stringify( local.raw[ pos ] );
+                     if ( online !== offline ) {
+                        //_.debug( "Mismatch " + id + ": " + online + ' vs. ' + offline );
+                        changed.push( id );
+                     }
                   } else {
+                     //_.debug( "New " + id + ": " +  JSON.stringify( row ) );
                      added.push( id );
                   }
                }
