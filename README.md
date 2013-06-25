@@ -2,7 +2,7 @@
 
 **For full source please see <a href="http://github.com/Sheep-y/trpg-dnd-4e-db/">main branch</a>.**
 
-This is the third iteration of a script that ask the browser to reterives entries from official <a href="http://www.wizards.com/dndinsider/compendium/database.aspx">D&D 4e Online Compendium</a> and store them in local files.
+This script can be used to reterives and locally store entries from online 4e <a href="http://www.wizards.com/dndinsider/compendium/database.aspx">D&D Compendium</a>.
  <br/>
 Stored entries can be browsed and searched using a Google-like index with multi-word term search, wildcast, exclusion, inclusion ("OR"), and even regular expression.
 
