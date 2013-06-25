@@ -229,7 +229,10 @@ od.action.download = {
                //cells[5].textContent = 'Unlisted';
                commands.innerHTML = '';
                commands.appendChild( action.create_button( 'list', remote, 'action.download.btn_list' ) );
-               if ( local ) commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
+               if ( local ) {
+                  commands.appendChild( action.create_button( 'delete', remote, 'action.download.btn_delete' ) );
+                  if ( !remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote, 'action.download.btn_reindex' ) );
+               }
                break;
             case "listed" :
                cells[2].textContent = remote.count;

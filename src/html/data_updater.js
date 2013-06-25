@@ -311,23 +311,25 @@ od.updater.RemoteCategory.prototype = {
       var list = remote.raw;
       if ( local !== null ) {
          // Load local index and find differences
-         local.load_raw( function download_Cat_find_changed_work () {
-            var added = remote.added = [];
-            var changed = remote.changed = [];
-            var raw = remote.raw;
-            var idList = _.col( local.raw );
-            if ( JSON.stringify( remote.raw_columns ) !== JSON.stringify( local.raw_columns ) )
-               return remote.changed = _.col( raw );
-            for ( var i = 0, l = raw.length ; i < l ; i++ ) {
-               var row = raw[ i ], id = row[ 0 ];
-               var pos = idList.indexOf( id );
-               if ( pos >= 0 ) {
-                  if ( JSON.stringify( row ) !== JSON.stringify( local.raw[ pos ] ) ) changed.push( id );
-               } else {
-                  added.push( id );
+         local.load_raw( function download_Cat_find_changed_raw () {
+            local.load_listing( function download_Cat_find_changed_list () {
+               var added = remote.added = [];
+               var changed = remote.changed = [];
+               var raw = remote.raw;
+               var idList = _.col( local.raw );
+               if ( JSON.stringify( remote.raw_columns ) !== JSON.stringify( local.raw_columns ) )
+                  return remote.changed = _.col( raw );
+               for ( var i = 0, l = raw.length ; i < l ; i++ ) {
+                  var row = raw[ i ], id = row[ 0 ];
+                  var pos = idList.indexOf( id );
+                  if ( pos >= 0 ) {
+                     if ( JSON.stringify( row ) !== JSON.stringify( local.raw[ pos ] ) ) changed.push( id );
+                  } else {
+                     added.push( id );
+                  }
                }
-            }
-            _.call( onload, remote );
+               _.call( onload, remote );
+            }, download_Cat_find_changed_addall );
          }, download_Cat_find_changed_addall );
       } else {
          download_Cat_find_changed_addall();
