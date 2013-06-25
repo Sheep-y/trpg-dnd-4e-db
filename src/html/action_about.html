@@ -13,7 +13,7 @@
    </style>
 
    <header>
-      <a class='i18n' onclick='od.gui.switch_action( od.action.list )'> action.list.link_text </a>
+      <a class='i18n' onclick='od.gui.goto("list")'> action.list.link_text </a>
       <h1 class="i18n"> action.about.title </h1>
       <a class='i18n' href='https://github.com/Sheep-y/trpg-dnd-4e-db'> action.about.link_homepage </a>
    </header>
@@ -52,7 +52,7 @@
          <h1 class='i18n'> action.about.h_license </h1>
          <p class='i18n'> action.about.p_license </p>
          <p>
-            <a class='i18n button' onclick='od.gui.switch_action( od.action.license )'> action.license.link_text </a>
+            <a class='i18n button' onclick='od.gui.goto("license")'> action.license.link_text </a>
             <a class='i18n button' onclick='od.action.about.show_source()'> action.about.a_source </a>
             <a class='i18n button' href='mailto:your.sheepy@gmail.com' > action.about.a_email </a>
          </p>
@@ -164,7 +164,7 @@
 
 <div id='action_license' data-role="page">
    <header>
-      <a class='i18n' onclick='od.gui.switch_action( od.action.about )'> action.about.link_text </a>
+      <a class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </a>
       <h1 class="i18n"> action.license.title </h1>
       <a class='i18n' onclick='od.action.about.show_source()'> action.about.a_source </a>
    </header>
@@ -176,9 +176,8 @@
 <script type='text/javascript'>'use strict';(function action_about_init(){
 
 od.action.about = {
-   "id": 'action_about',
 
-   "initialize" : function action_about_init ( lang ) {
+   "initialize" : function action_about_init () {
       _('#action_about_history_0')[0].src = _('#img_about_history_0')[0].src;
       _('#action_about_history_1')[0].src = _('#img_about_history_1')[0].src;
       _('#action_about_history_2')[0].src = _('#img_about_history_2')[0].src;
@@ -186,7 +185,7 @@ od.action.about = {
       _('#action_about_lbl_folder')[0].textContent = od.config.data_read_path; // TODO: Properly hook into i18n.
    },
 
-   "setup": function action_about_setup ( lang ) {
+   "setup": function action_about_setup () {
       od.action.about.change_language( _('#action_about_lst_lang')[0].value );
       od.action.about.change_symbol( _('#action_about_lst_symbol')[0].value );
    },
@@ -203,7 +202,7 @@ od.action.about = {
       _('#action_about_lbl_symbol')[0].innerHTML = od.gui.symbol_safe_convert( _('#action_about_lbl_unicode')[0].innerHTML );
    },
 
-   "show_source" : function action_about_show_source ( ) {
+   "show_source" : function action_about_show_source () {
       // Chrome and Mozilla series (Firefox, SeaMonkey, Web) support view-source.
       if ( ! /\b(Gecko\/|Chrome\/)/.test( navigator.userAgent ) ) return alert( _.l( 'action.about.lbl_source_manual' ) );
       location.href = "view-source:" + location.href;
@@ -211,7 +210,6 @@ od.action.about = {
 };
 
 od.action.license = {
-   "id": 'action_license'
 };
 
 })();</script>

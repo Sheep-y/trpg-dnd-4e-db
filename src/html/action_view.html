@@ -5,7 +5,7 @@
 <div id='action_view' data-role='page'>
 
    <header>
-      <a class='i18n' onclick='od.gui.switch_action( od.action.list );'> action.list.link_text </a>
+      <a class='i18n' onclick='od.gui.goto("list");'> action.list.link_text </a>
       <h1 id="action_view_h_title"></h1>
    </header>
 
@@ -14,13 +14,14 @@
 
 <script type='text/javascript'>'use strict';(function action_view_init(){
 od.action.view = {
-   "id": 'action_view',
 
    "initialize" : null,
 
-   "setup": null,
+   "setup" : null,
 
-   "cleanup": null,
+   "cleanup" : function action_view_cleanup () {
+      this.clear();
+   },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +39,7 @@ od.action.view = {
             _( '#act_view_pnl_content')[0].appendChild( _.create( 'div', {
                html: od.gui.symbol_safe_convert( e[0].data[ e[1] ] )
             } ) );
-            od.gui.switch_action( od.action.view );
+            od.gui.goto( "view" );
          } );
       };
       latch.count_down();

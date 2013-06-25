@@ -49,7 +49,7 @@
       for ( var i in od ) _.seal( _.noExt( od[i] ) ); // Seal object to avoid accidents
       _.l.detectLocale( 'en' );
       _.l.localise();
-      od.gui.switch_action( od.action.list );
+      od.gui.goto( "list" );
       _.time( 'Switched to initial page.' );
    //]]></script>
 <![endif]><!--[if lte IE 8]>

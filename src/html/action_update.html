@@ -4,9 +4,9 @@
   -->
 <div id='action_update' data-role='page'>
    <header>
-      <a class='i18n' onclick='od.gui.switch_action( od.action.list );'> action.list.link_text </a>
+      <a class='i18n' onclick='od.gui.goto("list");'> action.list.link_text </a>
       <h1 class='i18n'>action.update.title</h1>
-      <a class='i18n' onclick='od.gui.switch_action( od.action.about )'> action.about.link_text </a>
+      <a class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </a>
    </header>
 
    <style scoped>
@@ -66,7 +66,6 @@
  *   Download -> schedule_download -> get_data -> local.update, add to dirty
  */
 od.action.update = {
-   'id': 'action_update',
 
    'initialize': function act_download_init () {
       _.hide( '#act_download_tbl_list, #act_download_btn_all_list, #act_download_btn_update, #act_download_btn_save');
@@ -86,7 +85,9 @@ od.action.update = {
    },
 
    'setup': function act_download_setup () {
+      od.action.update.refresh();
    },
+
    'cleanup': null,
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

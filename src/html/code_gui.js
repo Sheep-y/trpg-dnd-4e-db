@@ -9,6 +9,12 @@ od.gui = {
    action: null,
    initialized: [],
 
+   "goto" : function gui_goto ( url ) {
+      var action = od.action[url];
+      if ( action.id === undefined ) action.id = url;
+      this.switch_action( action );
+   },
+
    /**
     * Switch between actions. Would call action object's cleanup method for current action and setup method for next action.
     * An action is {
@@ -20,7 +26,7 @@ od.gui = {
     *
     * @param {Object} action Action to switch to.
     */
-   switch_action : function gui_switch_action( action ) {
+   "switch_action" : function gui_switch_action( action ) {
       var gui = od.gui;
       var currentAction = gui.action;
       if ( !action || action === currentAction ) return;
@@ -33,7 +39,7 @@ od.gui = {
 
       // Hide other actions and show target page
       Array.prototype.forEach.call(_('body > div[id^="action_"]'), function(e){ e.style.display = ''; });
-      var page = _( "#"+action.id )[0];
+      var page = _( "#action_" + action.id )[0];
       page.style.display = 'block';
 
       // Post-switch setup
@@ -44,28 +50,11 @@ od.gui = {
       }
       _.info( "[Action] Setup " + action.id );
       _.call( action.setup, action, currentAction );
-      setImmediate( function gui_switch_action_immediate() {
+      setImmediate( function gui_switch_action_immediate () {
          _('title')[0].textContent = od.config.title_prefix + _( page, 'h1' )[0].textContent;
-      });
+      } );
 
       gui.action = action;
-   },
-
-   /** Show and set message / hide if message is empty */
-   set : function gui_set( id, message ) {
-      if ( !message ) {
-         // Hide element
-         Array.prototype.forEach.call( _(id), function(e){
-            e.style.display = 'none';
-         } );
-
-      } else {
-         // Set message and shows
-         Array.prototype.forEach.call( _(id), function(e){
-            e.innerHTML = message;
-            e.style.display = '';
-         } );
-      }
    },
 
    /**
@@ -74,7 +63,7 @@ od.gui = {
     * @param {String} Input string.
     * @returns {String} Safe version of input converted to common symbols
     */
-   symbol_safe_convert : function gui_symbol_safe_convert( str ) {
+   "symbol_safe_convert" : function gui_symbol_safe_convert ( str ) {
       if ( od.config.symbol_conversion === false ) return str;
       var mapping = od.config.symbols[od.config.symbol_conversion];
       if ( mapping === undefined ) return str;
