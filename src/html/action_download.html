@@ -133,7 +133,7 @@ od.action.download = {
          var win = open(), doc = win.document, listing = remote[list];
          doc.write( '<!DOCTYPE html><html style="background:#ED8"><h1>' + message + '</h1><p>' );
          remote.raw.forEach( function act_download_lbl_added_count_loop ( e ) {
-            if ( listing.indexOf( e[0] ) >= 0 ) doc.write( e[1] + ' (' + e.slice(2).join(',') + ')' + '<br>' );
+            if ( listing.indexOf( e[0] ) >= 0 ) doc.write( '<b>' + e[1] + '</b><sub>, ' + e.slice(2).join(', ') + '</sub>' + '<br>' );
          } );
          // doc.write( '<button onclick="close()">' + _.l( 'action.download.btn_close' ) + '</button>' ); // Close button does not work in IE so don't border.
       }
@@ -169,7 +169,8 @@ od.action.download = {
              break;
           case 'list' : 
              param = { 'text' : _.l( txt ), 'onclick' : function act_download_btn_list() {
-                remote.get_listing( refreshRemote );
+                remote.get_listing( refreshRemote, refreshRemote );
+                refreshRemote();
              }};
              break;
           case 'update_all':
@@ -278,7 +279,7 @@ od.action.download = {
       if ( remote_cat !== undefined ) {
          act_download_refresh_row( remote_cat );
       } else {
-         od.updater.get().forEach( act_download_refresh_row );
+         _.sort( od.updater.get(), 'name' ).forEach( act_download_refresh_row );
          // Remove rows that has been deleted
          Object.keys( action.tr ).forEach( function act_download_check_tr ( name ) {
             if ( od.updater.get( name ) === null ) {

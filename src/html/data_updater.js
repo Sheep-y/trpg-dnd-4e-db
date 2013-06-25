@@ -129,7 +129,7 @@ od.updater = {
                            exec.pause();
                            updater.login_check_id = threadid;
                            if ( confirm( _.l( 'action.download.msg_login' ) ) ) {
-                              window.showModalDialog( od.config.source.data( remote.name, item ) );
+                              showModalDialog( od.config.source.data( remote.name, item ) );
                               download_schedule_download_task( threadid );
                            } else {
                               exec.clear();
@@ -217,22 +217,23 @@ od.updater.RemoteCategory.prototype = {
    /**
     * Get entry listing of this category. Catalog must have been loaded.
     *
-    * @param {type} onload Success load callback.
-    * @param {type} onerror Failed load callback.
-    * @param {type} retry Retry countdown, first call should be undefined.  Will recursively download until negative.
+    * @param {function} onstep Progress callback.
+    * @param {function} onload Success load callback.
+    * @param {function} onerror Failed load callback.
     * @returns {undefined}
     */
-   "get_listing": function download_Cat_get_listing ( onload, onerror ) {
+   "get_listing": function download_Cat_get_listing ( onstep, onload, onerror ) {
       this.state = "listing";
       var remote = this;
       var data, xsl;
       var latch = new _.Latch( 3 );
       var err = _.callonce( onerror );
-      remote.state = _.l('action.download.lbl_fetching_both');
+      remote.progress = _.l('action.download.lbl_fetching_both');
       this.get_remote( od.config.source.list( this.name ), function(txt){ 
          data = txt; 
          data = data.replace( /’/g, "'" );
-         remote.state = _.l('action.download.lbl_fetching_xsl'); 
+         remote.progress = _.l('action.download.lbl_fetching_xsl');
+         _.call( onstep );
          latch.count_down(); 
       }, err );
       this.get_remote( od.config.source.xsl ( this.name ), function(txt){ 
@@ -242,43 +243,45 @@ od.updater.RemoteCategory.prototype = {
          xsl = xsl.replace( /<xsl:sort[^>]+>/g, '' ); // Undo sort so that transformed id match result
          xsl = xsl.replace( /Multiple Sources/g, '<xsl:apply-templates select="SourceBook"/>' ); // Undo multiple source replacement
          xsl = xsl.replace( /\bselect="'20'"\s*\/>/, 'select="\'99999\'"/>' ); // Undo paging so that we get all result
-         remote.state = _.l('action.download.lbl_fetching_xml');
+         remote.progress = _.l( 'action.download.lbl_fetching_xml' );
+         _.call( onstep );
          latch.count_down(); 
       }, err );
       latch.ondone = function download_Cat_get_listing_done () {
-         remote.state = '';
+         remote.progress = '';
          remote.added = [];
          remote.changed = [];
          remote.count = 0;
          var list = remote.raw = [];
-         if ( ! data || ! xsl ) return err('No Data');
+         if ( ! data || ! xsl ) return err( 'No Data' );
 
-         var results = _.xml( data ).querySelectorAll('Results > *');
+         var results = _.xml( data ).querySelectorAll( 'Results > *' );
          var transformed = _.xsl( data, xsl );
          var idList = [];
 
          if ( results.length > 0 && transformed !== null ) {
-            remote.raw_columns = _.col( results[0].getElementsByTagName('*'), 'tagName' );
+            remote.raw_columns = _.col( results[ 0 ].getElementsByTagName( '*' ), 'tagName' );
 
             var ids = _.ary( _.xpath( transformed.documentElement, '//div//td[1]/a' ) ).map( function(e){ return e.getAttribute('href'); } );
-            if ( ids.length !== results.length ) _.error('Error getting listing for ' + remote.title + ': xsl transform rows mismatch' );
+            if ( ids.length !== results.length ) _.error( 'Error getting listing for ' + remote.title + ': xsl transform rows mismatch' );
             for ( var i = 0, l = ids.length ; i < l ; i++ ) {
                var rowId = ids[i];
                if ( rowId ) { // Skip empty and duplicate id - which is download link
                   rowId = rowId.trim();
-                  var row = _.col( results[i].getElementsByTagName('*'), 'textContent' );
+                  var row = _.col( results[i].getElementsByTagName( '*' ), 'textContent' );
                   if ( idList.indexOf( rowId ) >= 0 ) {
-                     _.error( "Duplicate result: " + rowId + " (" + row[1] + ")" );
+                     _.error( "Duplicate result: " + rowId + " (" + row[ 1 ] + ")" );
                      continue;
                   }
                   row[0] = rowId;
-                  for ( var j = 1, rl = row.length ; j < rl ; j++ ) row[j] = row[j].trim(); // Remove unnecessary whitespaces
+                  for ( var j = 1, rl = row.length ; j < rl ; j++ ) row[ j ] = row[ j ].trim(); // Remove unnecessary whitespaces
                   list.push( row );
                   idList.push( rowId );
                }
             }
             remote.state = "listed";
             remote.count = list.length;
+            _.call( onstep );
             remote.find_changed( onload );
          }
       };
