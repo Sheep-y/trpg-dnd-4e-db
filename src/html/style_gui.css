@@ -61,6 +61,7 @@ header {
    text-align: center;
    padding: 0.5em 1ex !important;
    overflow: visible;
+   z-index: 1;
 }
 
 header h1 {
@@ -103,7 +104,8 @@ body > div > * {
 }
 
 header a:hover, button:hover, .hover-highlight > *:hover {
-   color: darkred !important; /* Override no result category gray out */
+   color: FireBrick !important; /* Override no result category gray out */
    opacity: 1 !important;
+   border-color: red !important;
    cursor: pointer;
 }

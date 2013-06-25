@@ -85,7 +85,7 @@ _.l.set( 'action.list', {
    'bth_search_body' : "全文",
    'bth_search_advanced' : "...",
    'a_all' : "全類別",
-   'lbl_count' : '%1/%2',
+   'lbl_count' : '%1／%2',
    
    'lbl_no_result' : "無結果"
 });

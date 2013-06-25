@@ -55,7 +55,7 @@ _.l.set( 'action.list', {
    'bth_search_body' : "Full",
    'bth_search_advanced' : "...",
    'a_all' : "All Category",
-   'lbl_count' : '%1/%2',
+   'lbl_count' : '%1 / %2',
 
    'lbl_no_result' : "No result"
 });
