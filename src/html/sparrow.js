@@ -78,11 +78,11 @@ _.col = function _col ( subject, column /* ... */) {
  * @param {boolean} des   true for a descending sorter. false for ascending sorter.
  * @returns {function} Sorter function
  */
-_.sorter = function _sorter ( field, des ){
+_.sorter = function _sorter ( field, des ) {
    if ( ! des ) {
-      return function _sorter_asc( a, b ) { a[ field ] > b[ field ] ? 1 : ( a[ field ] < b[ field ] ? -1 : 0 ); };
+      return function _sorter_asc( a, b ) { return a[ field ] > b[ field ] ?  1 : ( a[ field ] < b[ field ] ? -1 : 0 ); };
    } else {
-      return function _sorter_des( a, b ) { a[ field ] > b[ field ] ? -1 : ( a[ field ] < b[ field ] ? 1 : 0 ); };
+      return function _sorter_des( a, b ) { return a[ field ] > b[ field ] ? -1 : ( a[ field ] < b[ field ] ?  1 : 0 ); };
    }
 };
 
@@ -94,7 +94,7 @@ _.sorter = function _sorter ( field, des ){
  * @param {boolean} des   true for a descending sort. false for ascending sort.
  * @returns {Array} Sorted data.
  */
-_.sort = function _sort  ( data, field, des ) {
+_.sort = function _sort ( data, field, des ) {
    return data.sort( _.sorter( field, des ) );
 };
 
