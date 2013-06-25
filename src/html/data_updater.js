@@ -408,7 +408,7 @@ od.updater.RemoteCategory.prototype = {
    "reindex" : function download_Cat_reindex ( onstep, ondone, onerror ) {
       var remote = this, origial_state = remote.state;
       var local = od.data.get( remote.name );
-      var idList, l, latch, count = 0;
+      var idList, len, latch, count = 0;
       remote.state = 'downloading';
 
       function download_Cat_reindex_batch ( i ) {
@@ -418,6 +418,8 @@ od.updater.RemoteCategory.prototype = {
             --i;
          }
          if ( i > 0 ) setTimeout( _.callfunc( download_Cat_reindex_batch, null, i ), 10 );
+         remote.progress = _.l( 'action.download.lbl_progress', null, count, len );
+         _.call( onstep, remote, count, len );
       }
 
       // Called once for each id. i is the position in index.
@@ -427,35 +429,31 @@ od.updater.RemoteCategory.prototype = {
                // Re-run local.update for reindex purpose
                local.update( id, local.raw[ i ], local.data[ id ], i );
                if ( remote.dirty.indexOf( id ) < 0 ) delete local.data[ id ]; // Unload to save memory if not dirty data
-               download_Cat_reindex_step();
+               ++count;
+               latch.count_down();
             }, function download_Cat_reindex_error () {
                // Delete item
                local.raw.splice( i, 1 );
                local.extended.splice( i, 1 );
                delete local.index[ id ];
-               download_Cat_reindex_step();
+               ++count;
+               latch.count_down();
             } );
-         }
-      }
-
-      function download_Cat_reindex_step () {
-         remote.progress = _.l( 'action.download.lbl_progress', null, ++count, l );
-         _.call( onstep, remote, count, l );
-         latch.count_down();
+         };
       }
 
       local.load_raw( function download_Cat_reindex_loaded () {
          idList = _.col( local.raw );
-         l = idList.length;
-         if ( l <= 0 ) {
+         len = idList.length;
+         if ( len <= 0 ) {
             // If there is no data, do a delete instead.
             od.updater.delete( remote );
             return _.call( ondone, remote );
          }
          local.ext_columns = local.parse_extended( local.raw_columns, null );
-         local.extended = new Array( l );
+         local.extended = new Array( len );
          local.index = {};
-         latch = new _.Latch( l, function download_Cat_reindex_done ( ) { // Reindex tasks are wrapped in setImmediate
+         latch = new _.Latch( len, function download_Cat_reindex_done ( ) { // Reindex tasks are wrapped in setImmediate
             remote.state = origial_state;
             remote.reindexed = true;
             local.count = local.raw.length;
@@ -467,7 +465,7 @@ od.updater.RemoteCategory.prototype = {
             }
             _.call( ondone, remote );
          } );
-         download_Cat_reindex_batch( l-1 ); // Start first batch of reindex
+         download_Cat_reindex_batch( len-1 ); // Start first batch of reindex
       }, onerror );
    },
 

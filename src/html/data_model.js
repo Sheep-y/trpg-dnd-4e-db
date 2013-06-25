@@ -89,9 +89,10 @@ od.data = {
       if ( data.indexOf( '<body' ) >= 0 ) {
          data = data.match( /<body[^>]*>\s*((?:.|\n)*?)\s*<\/body\s*>/ );
          if ( !data ) return null;
+         data = data[1].trim();
       }
       // Remove script and form tags
-      data = data[1].trim().replace( /<script\b.*?<\/script\s*>/g, '' ).replace( /<input[^>]*>/g, '').replace( /<form[^>]*>|<\/form\s*>/g, '' );
+      data = data.replace( /<script\b.*?<\/script\s*>/g, '' ).replace( /<\/?(input|form)[^>]*>/g, '');
       // Normalise whitespace
       data = data.replace( /[\n\s]+/g, ' ' );
       // Remove empty contents
@@ -239,11 +240,10 @@ od.data.Category.prototype = {
    "update" : function data_Cat_update ( id, listing, data, i ) {
       if ( i === undefined ) i = _.col( this.raw ).indexOf( id );
       data = od.data.preprocess( data );
-      var index = od.data.indexify( data );
       if ( i < 0 ) i = this.count++;
       this.raw[i] = listing;
       this.extended[i] = this.parse_extended( listing, data );
-      this.index[id] = index;
+      this.index[id] = od.data.indexify( data );
       this.data[id] = data;
    },
 
