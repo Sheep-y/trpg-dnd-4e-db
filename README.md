@@ -1,6 +1,6 @@
 # Offline 4e Database #
 
-**This is development branch. Please see <a href="http://github.com/Sheep-y/trpg-dnd-4e-db/">main branch</a> for executable code.**
+**For executable code please see <a href="http://github.com/Sheep-y/trpg-dnd-4e-db/tree/deployment">deployment branch</a>.**
 
 This is the third iteration of a script that ask the browser to reterives entries from official <a href="http://www.wizards.com/dndinsider/compendium/database.aspx">D&D 4e Online Compendium</a> and store them in local files.
  <br/>

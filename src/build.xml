@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="oddi" default="make" basedir=".">
-   <property name="deliverable" value="../4e_database.html" />
-   <property name="datadir" value="../4e_database_files/" />
+   <property name="root" value="../" />
    <property name="srcdir" value="html/" />
+   <property name="deliverable" value="${root}4e_database.html" />
+   <property name="datadir" value="${root}4e_database_files/" />
 
    <target name="make" description="Compile browsable html">
       <loadfile property="style_gui.css" srcfile="${srcdir}style_gui.css" encoding="UTF-8" />
@@ -22,7 +23,7 @@
       <loadfile property="action_view.html" srcfile="${srcdir}action_view.html" encoding="UTF-8" />
       <loadfile property="action_about.html" srcfile="${srcdir}action_about.html" encoding="UTF-8" />
       <loadfile property="images.html" srcfile="${srcdir}images.html" encoding="UTF-8" />
-      <loadfile property="license_agpl.html" srcfile="license_agpl.html" encoding="UTF-8" />      
+      <loadfile property="license_agpl.html" srcfile="${root}license_agpl.html" encoding="UTF-8" />      
 
       <delete file="${deliverable}" failonerror="false" />
       <copy file="${srcdir}/html_template.html" tofile="${deliverable}" />
