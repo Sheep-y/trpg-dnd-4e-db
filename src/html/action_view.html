@@ -31,16 +31,20 @@ od.action.view = {
       this.clear();
       var latch = new _.Latch( data.length+1 );
       _('#action_view_h_title')[0].textContent = title;
-      data.forEach( function(e) {
+      // Load all data
+      data.forEach( function act_view_show_data_load (e) {
          e[0].load_data( e[1], latch.count_down_function() );
       });
-      latch.ondone = function() {
+      // After data load, put them together and switch url
+      latch.ondone = function act_view_show_data_show () {
+         var url = [];
          data.forEach( function(e) {
             _( '#act_view_pnl_content')[0].appendChild( _.create( 'div', {
                html: od.gui.symbol_safe_convert( e[0].data[ e[1] ] )
             } ) );
-            od.gui.goto( "view" );
+            url.push( e[0].name + '.' + od.config.id( e[1] ) );
          } );
+         od.gui.goto( "view=" + url.join( ',' ) );
       };
       latch.count_down();
    }

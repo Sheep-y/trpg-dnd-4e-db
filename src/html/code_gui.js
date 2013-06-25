@@ -10,8 +10,19 @@ od.gui = {
    initialized: [],
 
    "goto" : function gui_goto ( url ) {
-      var action = od.action[url];
-      if ( action.id === undefined ) action.id = url;
+      var action = od.action[url], id = url;
+      // If not simple page, try to find the action to handle this url
+      if ( ! action ) {
+         var firstword = _.ary( url.match( /^\w+/ ) )[ 0 ]; // Parse first word in url
+         for ( id in od.action ) {
+            action = od.action[ id ];
+            // Either firstword is an exact match on id, or match action's url pattern
+            if ( firstword === id || ( action.url && action.url.test( url ) ) ) break;
+         }
+      }
+      // Set id if absent. Then update url and swap page.
+      if ( action.id === undefined ) action.id = id;
+      if ( history.pushState ) history.pushState( null, null, "?" + url );
       this.switch_action( action );
    },
 

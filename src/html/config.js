@@ -16,52 +16,55 @@ od.config = {
    "thread" : 6, // Number of download threads
    "source" : {
       "catalog" :
-         function url() {
+         function url () {
             if ( od.config.simulate ) return od.config.simulated_data_url+'/test-search.xml';
             var keyword = ['jump','prone','dazed','knowledge','acrobatics','endurance','fly','vision','light','cover','concealment','swim','detect magic'];
             keyword = keyword[Math.floor(Math.random()*keyword.length)];
             return 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords='+keyword+'&nameOnly=false&tab=Glossary';
          },
       "list" :
-         function url( category ) {
+         function url ( category ) {
             return od.config.simulate
-               ? ( od.config.simulated_data_url+'/search-'+category+'.xml' )
+               ? ( od.config.simulated_data_url+'/search-' + category + '.xml' )
                : ( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/ViewAll?tab='+category );
          },
       "xsl" :
-         function url( category ) {
+         function url ( category ) {
             return od.config.simulate
-               ? ( od.config.simulated_data_url+'/xsl-'+category+'.xsl' )
-               : ( 'http://www.wizards.com/dndinsider/compendium/xsl/'+category+'.xsl' );
+               ? ( od.config.simulated_data_url+'/xsl-' + category + '.xsl' )
+               : ( 'http://www.wizards.com/dndinsider/compendium/xsl/' + category + '.xsl' );
          },
       "data" :
-         function url( category, itemId ) {
+         function url ( category, itemId ) {
             return ( od.config.simulate ? od.config.simulated_data_url : 'http://www.wizards.com/dndinsider/compendium' ) + '/' + itemId  ;
          }
    },
    "url" : {
       "catalog" :
-         function url() { return od.config.data_read_path + '/catalog.js'; },
+         function url () { return od.config.data_read_path + '/catalog.js'; },
       "raw" :
-         function url( category ) { return od.config.data_read_path + '/'+category+'/_raw.js'; },
+         function url ( category ) { return od.config.data_read_path + '/' + category + '/_raw.js'; },
       "listing" :
-         function url( category ) { return od.config.data_read_path + '/'+category+'/_listing.js'; },
+         function url ( category ) { return od.config.data_read_path + '/' + category + '/_listing.js'; },
       "index" :
-         function url( category ) { return od.config.data_read_path + '/'+category+'/_index.js'; },
+         function url ( category ) { return od.config.data_read_path + '/' + category + '/_index.js'; },
       "data" :
-         function url( category, id ) { return od.config.data_read_path + '/'+category+'/'+id.replace( /\.aspx\?id=|\W+/g, '' )+'.js'; }
+         function url ( category, id ) { return od.config.data_read_path + '/' + category + '/' + od.config.id( id ) + '.js'; }
    },
    "file" : {
       "catalog" :
-         function url() { return od.config.data_write_path+'/catalog.js'; },
+         function url () { return od.config.data_write_path+'/catalog.js'; },
       "raw" :
-         function url( category ) { return od.config.data_write_path + '/'+category+'/_raw.js'; },
+         function url ( category ) { return od.config.data_write_path + '/' + category + '/_raw.js'; },
       "listing" :
-         function url( category ) { return od.config.data_write_path + '/'+category+'/_listing.js'; },
+         function url ( category ) { return od.config.data_write_path + '/' + category + '/_listing.js'; },
       "index" :
-         function url( category ) { return od.config.data_write_path + '/'+category+'/_index.js'; },
+         function url ( category ) { return od.config.data_write_path + '/' + category + '/_index.js'; },
       "data" :
-         function url( category, id ) { return od.config.data_write_path + '/'+category+'/'+id.replace( /\.aspx\?id=|\W+/g, '' )+'.js'; }
+         function url ( category, id ) { return od.config.data_write_path + '/' + category + '/' + od.config.id( id ) + '.js'; }
+   },
+   "id" : function id ( id ) {
+      return id.replace( /\.aspx\?id=|\W+/g, '' );
    },
 
    "category_order" : [
