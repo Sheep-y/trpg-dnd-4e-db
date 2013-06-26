@@ -42,7 +42,7 @@ figure { margin: 0; }
 .left { float: left; }
 .hide { display: none; }
 
-button, .button {
+button {
    display: inline-block;
    padding: 0.5ex 1ex;
    border-radius: 1ex;
@@ -76,7 +76,7 @@ header h1 {
    font-weight: bold;
 }
 
-header a { /* Left header button */
+header button { /* Left header button */
    float: left;
    display: inline-block;
    padding: 0.25em 1ex;
@@ -89,7 +89,7 @@ header a { /* Left header button */
    cursor: pointer;
 }
 
-header h1 + a { /* Right header button */
+header h1 + button { /* Right header button */
    float: right;
 }
 
@@ -107,7 +107,7 @@ body > div > * {
    padding: 10px; /* If use em/ex, will varies by content font size and inconsistent */
 }
 
-header a:hover, button:hover, .button:hover, .hover-highlight > *:hover {
+button:hover, button:focus {
    color: FireBrick !important; /* Override no result category gray out */
    opacity: 1 !important;
    border-color: red !important;

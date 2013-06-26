@@ -4,9 +4,9 @@
   -->
 <div id='action_list' data-role='page'>
    <header>
-      <a class='i18n' id='act_list_btn_update' onclick='od.gui.goto("update")'> action.update.link_text </a>
+      <button class='i18n' id='act_list_btn_update' onclick='od.gui.goto("update")'> action.update.link_text </button>
       <h1 class='i18n'>action.list.title</h1>
-      <a class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </a>
+      <button class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </button>
    </header>
 
    <style scoped>
@@ -33,7 +33,7 @@
       #act_list_pnl_category {
          clear: left;
       }
-      #act_list_pnl_category a {
+      #act_list_pnl_category button {
          display: block;
          float: left;
          width: 100%;
@@ -44,15 +44,15 @@
          font-size: 125%;
          line-height: 33px;
       }
-      #act_list_pnl_category a * {
+      #act_list_pnl_category button * {
          float: left;
          margin-right: 5px;
       }
-      #act_list_pnl_category a var {
+      #act_list_pnl_category button var {
          float: right;
          font-weight: normal;
       }
-      #act_list_pnl_category a.no-result:not(.selected) {
+      #act_list_pnl_category button.no-result:not(.selected) {
          color: darkgrey;
          opacity: 0.7;
       }
@@ -76,12 +76,12 @@
          #act_list_tbl_search { width: 300px; float: right; }
       }
       @media (min-width: 910px) {
-         #act_list_pnl_category a { max-width: 300px; }
+         #act_list_pnl_category button { max-width: 300px; }
       }
       /* Small screen: Show only selected cat */
       @media (max-width: 889px) {
-         #act_list_pnl_category.selected a { display: none; }
-         #act_list_pnl_category.selected a.selected { display: block; }
+         #act_list_pnl_category.selected button { display: none; }
+         #act_list_pnl_category.selected button.selected { display: block; }
       }
    </style>
 
@@ -96,7 +96,7 @@
          ><button class="button i18n" onclick=""> action.list.bth_search_advanced </button
       ></td></table>
 
-      <div id='act_list_pnl_category' class="hover-highlight"></div>
+      <div id='act_list_pnl_category'></div>
 
       <div id='act_list_pnl_list'>
          <table class='fullw'></table>
@@ -107,6 +107,7 @@
 <script type='text/javascript'>'use strict';(function action_list_init(){
 od.action.list = {
    'url' : /^(list|namesearch|fullsearch|advsearch)\b/,
+   'url_current' : 'list',
 
    'initialize' : function act_list_init () {
       _('#act_list_txt_search')[0].setAttribute( 'placeholder', _.l( 'action.list.txt_search_placeholder' ) );
@@ -197,7 +198,7 @@ od.action.list = {
             name = cat.name;
             count = cat.count;
          }
-         var a = _.create( 'a', { 'class' : 'button', 'style': 'background-color:'+colour, 'onclick' : function (){ action_list.a_category( name ); } } );
+         var a = _.create( 'button', { 'style': 'background-color:'+colour, 'onclick' : function (){ action_list.a_category( name ); } } );
          a.appendChild( _.create( 'span', { 'class' : 'rpg ' + name } ) );
          a.appendChild( _.create( 'b', title ) );
          a.appendChild( _.create( 'var', count ) );

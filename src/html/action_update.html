@@ -4,9 +4,9 @@
   -->
 <div id='action_update' data-role='page'>
    <header>
-      <a class='i18n' onclick='od.gui.goto("list");'> action.list.link_text </a>
+      <button class='i18n' onclick='od.gui.goto(od.action.list.url_current);'> action.list.link_text </button>
       <h1 class='i18n'>action.update.title</h1>
-      <a class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </a>
+      <button class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </button>
    </header>
 
    <style scoped>
@@ -23,10 +23,10 @@
    <p class='i18n'> action.update.paragraph.0 </p>
    <p class='i18n'> action.update.paragraph.1 </p>
    <p>
-      <a class='button i18n' id='act_download_btn_get_catalog' onclick='od.action.update.get_catalog()'> action.update.btn_get_catalog </a>
-      <a class='button i18n' id='act_download_btn_all_list' onclick='od.action.update.list_all()'> action.update.btn_all_list </a>
-      <a class='button i18n' id='act_download_btn_update' onclick='od.action.update.update_all()'> action.update.btn_update_changed </a>
-      <a class='button i18n' id='act_download_btn_save' onclick='od.action.update.save()'> action.update.btn_save </a>
+      <button class='i18n' id='act_download_btn_get_catalog' onclick='od.action.update.get_catalog()'> action.update.btn_get_catalog </button>
+      <button class='i18n' id='act_download_btn_all_list' onclick='od.action.update.list_all()'> action.update.btn_all_list </button>
+      <button class='i18n' id='act_download_btn_update' onclick='od.action.update.update_all()'> action.update.btn_update_changed </button>
+      <button class='i18n' id='act_download_btn_save' onclick='od.action.update.save()'> action.update.btn_save </button>
    </p>
    <table id='act_download_tbl_list' class="fullw">
       <thead>
