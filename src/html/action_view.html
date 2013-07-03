@@ -17,36 +17,55 @@ od.action.view = {
 
    "initialize" : null,
 
-   "setup" : null,
+   "setup" : function action_view_setup () {
+      this.clear();
+      var idList = location.search.substr( '?view='.length ).split( ',' );
+      var title = this.title = new Array( idList.length );
+      this.update_title;
+      // Load all data
+      // TODO: Change format to use simplified id, so that we don't need to load index for each cat
+      od.data.load_catalog( function act_view_cat_load () {
+         idList.forEach( function act_view_show_each ( id, i ) {
+            // Parse id
+            id = id.match( /^([^.]+?)\.(.+)$/ ) || ['','',''];
+            var cat = od.data.create( id[ 1 ] );
+            id = id[ 2 ];
+            if ( ! cat || ! id ) return;
+            cat.load_listing( function act_view_list_load () {
+               id = cat.extended[ _.col( cat.extended ).map( od.config.id ).indexOf( id ) ][0];
+               _.debug( "Display " + cat.name + "." + id );
+               // Create div
+               var div = _.create( 'div' );
+               _( '#act_view_pnl_content')[0].appendChild( div );
+               // Load and fill div
+               cat.load_data( id, function act_view_show_load () {
+                  var content = cat.data[ id ];
+                  div.innerHTML = content;
+                  var h1 = content.match( /<h1[^>]*>(.+)<\/h1\s*>/ );
+                  if ( h1 ) title[i] = h1[1];
+                  od.action.view.update_title();
+               } );
+            } );
+         } );
+      } );
+   },
 
    "cleanup" : function action_view_cleanup () {
       this.clear();
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
+   
+   "title" : [],
 
-   "clear" : function act_view_clear() { _( '#act_view_pnl_content')[0].innerHTML = ""; },
-
-   "show_data" : function act_view_show_data( title, data ) {
-      this.clear();
-      var latch = new _.Latch( data.length+1 );
-      _('#action_view_h_title')[0].textContent = title;
-      // Load all data
-      data.forEach( function act_view_show_data_load (e) {
-         e[0].load_data( e[1], latch.count_down_function() );
-      });
-      // After data load, put them together and switch url
-      latch.ondone = function act_view_show_data_show () {
-         var url = [];
-         data.forEach( function(e) {
-            _( '#act_view_pnl_content')[0].appendChild( _.create( 'div', {
-               html: od.gui.symbol_safe_convert( e[0].data[ e[1] ] )
-            } ) );
-            url.push( e[0].name + '.' + od.config.id( e[1] ) );
-         } );
-         od.gui.goto( "view=" + url.join( ',' ) );
-      };
-      latch.count_down();
+   "clear" : function act_view_clear () { _( '#act_view_pnl_content')[0].innerHTML = ""; },
+   
+   "update_title" : function act_view_update_title () {
+      if ( this.title.length === 1 && this.title[0] ) {
+         _('#action_view_h_title')[0].textContent = this.title[0];
+      } else {
+         _('#action_view_h_title')[0].textContent = _.l( 'action,view.title', null, idList.length );
+      }
    }
 };
 

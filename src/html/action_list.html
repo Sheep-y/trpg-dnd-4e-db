@@ -323,9 +323,9 @@ od.action.list = {
    'row_click' : function act_list_row_click () {
        var list = od.action.list;
        var cat = od.action.list.category;
-       if ( ! cat ) cat = this.getAttribute( 'data-category' );
-       var id = this.getAttribute('data-id');
-       od.action.view.show_data( this.querySelector('td').textContent, [ [ cat, id ] ] );
+       if ( ! cat ) cat = od.data.get( this.getAttribute( 'data-category' ) );
+       var id = od.config.id( this.getAttribute('data-id') );
+       od.gui.goto( "view=" + encodeURIComponent( cat.name + '.' +  id ) );
    }
 };
 

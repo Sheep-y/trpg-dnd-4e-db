@@ -62,6 +62,7 @@ _.l.set( 'action.list', {
 });
 
 _.l.set( 'action.view', {
+   'title' : "View %1 Data"
 });
 
 _.l.set( 'action.update', {

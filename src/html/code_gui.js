@@ -11,6 +11,7 @@ od.gui = {
 
    "goto" : function gui_goto ( url ) {
       var action = od.action[url], id = url;
+      _.debug( "[Action] Navigate to " + url );
       // If not simple page, try to find the action to handle this url
       if ( ! action ) {
          var firstword = _.ary( url.match( /^\w+/ ) )[ 0 ]; // Parse first word in url
@@ -22,7 +23,7 @@ od.gui = {
       }
       // Set id if absent. Then update url and swap page.
       if ( action.id === undefined ) action.id = id;
-      if ( history.pushState ) history.pushState( null, null, "?" + url );
+      if ( history.pushState && url !== location.search.substr(1) ) history.pushState( null, null, "?" + url );
       this.switch_action( action );
    },
 
