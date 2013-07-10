@@ -51,10 +51,7 @@
       _.time( 'All code loaded.' );
       // Seal object to avoid accidents
       _.freeze( _ );
-      for ( var i in od ) _.seal( _.noExt( od[i] ) );
-      // Initialise
-      _.l.detectLocale( 'en' );
-      _.l.localise();
-      od.gui.goto();
+      for ( var i in od ) _.seal( _.noExt( od[i] ) ); // Seal object to avoid accidents
+      od.gui.init();
    //]]></script>
 </body></html>

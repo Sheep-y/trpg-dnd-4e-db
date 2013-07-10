@@ -13,6 +13,24 @@ od.gui = {
    /** List of initiated actions. */
    initialized: [], 
 
+   init : function gui_init ( ) {
+      _.l.detectLocale( 'en' );
+      _.l.localise();
+      od.gui.goto( );
+      // Perform navigation on pop state
+      window.addEventListener( 'popstate', function window_popstate () {
+         od.gui.goto();
+      }, false);
+
+      // Monitor url change
+      (function(){
+         var gui = od.gui, get_act_id = gui.get_act_id;
+         setInterval( function window_interval_url_monitor() {
+            if ( get_act_id() != gui.act_id ) od.gui.goto();
+         }, od.config.url_monitor_interval );
+      })();
+   },
+
    /**
     * Navigate to given activity page.
     *
@@ -102,16 +120,3 @@ od.gui = {
    }
 
 };
-
-// Perform navigation on pop state
-window.addEventListener( 'popstate', function window_popstate () {
-   od.gui.goto();
-});
-
-// Monitor url change
-(function(){
-   var gui = od.gui, get_act_id = gui.get_act_id;
-   setInterval( function window_interval_url_monitor() {
-      if ( get_act_id() != gui.act_id ) od.gui.goto();
-   }, od.config.url_monitor_interval );
-})();
