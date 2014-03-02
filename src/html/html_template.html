@@ -17,7 +17,11 @@
 <!--#include file='style_data.css' -->
   </style>
 </head><body>
-<![if gte IE 9]>
+<!--[if lte IE 8]>
+   <h1> Please upgrade browser. </h1>
+   <h1> 請升級瀏覽器。 </h1>
+   <div style="display:none">
+<![endif]-->
    <div id="loading" class='i18n' style='display:none;'>gui.loading</div>
    <script>//<![CDATA[
       'use strict';
@@ -52,8 +56,4 @@
       od.gui.goto( location.search ? location.search.substr(1) : "list" );
       _.time( 'Switched to initial page.' );
    //]]></script>
-<![endif]><!--[if lte IE 8]>
-   <h1> Please upgrade browser. </h1>
-   <h1> 請升級瀏覽器。 </h1>
-<![endif]-->
 </body></html>
