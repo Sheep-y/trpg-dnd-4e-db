@@ -1,22 +1,26 @@
-/*
+/** ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
+ *
  * sparrow.js
  *
- * Sparrow - light weight JS library. Lower level and boarder then JQuery, but less DOM functions.
+ * Sparrow - light weight JS library. Lower level and boarder then JQuery, not DOM oriented.
+ * 
+ * Feature support varies by browser, target is IE 9+, Chrome, Firefox
+ *
  */
 
 // Simple check for browser features
-if ( ! document.querySelectorAll || !window.Storage ) {
-   alert('Please upgrade browser.');
-}
+//if ( ! document.querySelectorAll || !window.Storage ) {
+//   alert('Please upgrade browser or switch to a new one.');
+//}
 
 /**
  * Select DOM Nodes by CSS selector.
- * 
- * @param {Node} subject Optional. Root node to select from. Default to document.
+ *
+ * @param {Node} root Optional. Root node to select from. Default to document.
  * @param {String} selector CSS selector to run. Has shortcut for simple id/class/tag.
  * @returns {Array-like} Array or NodeList of DOM Node result.
  */
-function _ ( root, selector ) {
+window._ = function _ ( root, selector ) {
    if ( selector === undefined ) {
       selector = root;
       root = document;
@@ -39,7 +43,7 @@ function _ ( root, selector ) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Convert an array-like object to be an array. Default to clone or slice.
+ * Convert an array-like object to be an array.
  *
  * @param {Array-like} subject Subject to be converted.
  * @param {Integer} startpos If given, work like Array.slice( startpos ).
@@ -54,6 +58,17 @@ _.ary = function _ary ( subject, startpos, length ) {
 };
 
 /**
+ * Wrap parameter in array if it is not already an one.
+ * Array like (but non-array) subjuct will also be wrapped as if it is non-array.
+ *
+ * @param {mixed} subject Subject to be wrapped in Array
+ * @returns {Array} Array with subject as first item, or subject itself if already array.
+ */
+_.toAry = function _toAry ( subject ) {
+   return subject instanceof Array ? subject : [ subject ];
+}
+
+/**
  * Given an array-like object and one or more columns, extract and return those columns from subject.
  *
  * @param {Array-like} subject Array-like object to be extracted.
@@ -61,7 +76,7 @@ _.ary = function _ary ( subject, startpos, length ) {
  * @returns {Array} Array (if single column) or Array of Array (if multiple columns).
  */
 _.col = function _col ( subject, column /* ... */) {
-   if ( ! ( subject instanceof Array ) ) subject = _.ary( subject );
+   subject = _.ary( subject );
    if ( column === undefined ) return subject.map(function(e){ return e[0]; });
    if ( arguments.length === 2 ) return subject.map(function(e){ return e[column]; });
    return subject.map(function(e){
@@ -154,7 +169,7 @@ if ( window.setImmediate === undefined ) {
       window.setImmediate = window.requestAnimationFrame;
       window.clearImmediate = window.cancelAnimationFrame;
    } else {
-      window.setImmediate = function setImmediate ( func ){ return window.setTimeout(func, 0); };
+      window.setImmediate = function setImmediate ( func ) { return window.setTimeout(func, 0); };
       window.clearImmediate = window.clearTimeout;
    }
 }
@@ -165,37 +180,44 @@ if ( window.setImmediate === undefined ) {
 
 /**
  * Ajax function.
+ * 
+ * Options:
+ *   url - Url to send get request, or an option object.
+ *   onload  - Callback (responseText, xhr) when the request succeed. 
+ *   onerror - Callback (xhr, text status) when the request failed.
+ *   ondone  - Callback (xhr) after success or failure.
+ *   xhr     - XMLHttpRequest object to use. If none is provided the default will be used.
  *
- * @param {String} url Url to send get request.
- * @param {function} onsuccess Callback (responseText, xhr) when the request succeed.
- * @param {function} onfail Callback (xhr, text statue) when the request failed.
- * @param {function} ondone Callback (xhr) after success or failure.
- * @param {Object} xhr XMLHttpRequest object to use. If none is provided the default will be used.
+ * @param {Mixed} option Url to send get request, or an option object.
+ * @param {function} onload Callback (responseText, xhr) when the request succeed.
  * @returns {Object} xhr object
  */
-_.ajax = function _ajax ( url, onsuccess, onfail, ondone, xhr ) {
+_.ajax = function _ajax ( option, onload ) {
+   if ( typeof( option ) === 'string' ) option = { url: option };
+   if ( onload !== undefined ) option.onload = onload;
+
+   var url = option.url, xhr = option.xhr;
    if ( xhr === undefined ) xhr = new XMLHttpRequest();
    _.info( "[AJAX] Ajax: "+url);
    xhr.open( 'GET', url );
-   //xhr.mozBackgroundRequest = true;
    var finished = false;
    xhr.onreadystatechange = function _ajax_onreadystatechange () {
       if ( xhr.readyState === 4 ) {
          _.debug( 'Ajax ready 4, status ' + xhr.status + ', url ' + url );
          // 0 is a possible response code for local file access under IE 9 ActiveX
          if ( [0,200,302].indexOf( xhr.status ) >= 0 && xhr.responseText ) {
-            setImmediate( function _ajax_err_status(){
+            setImmediate( function _ajax_onload_call () {
                if ( finished ) return;
                finished = true;
-               _.call( onsuccess, xhr, xhr.responseText, xhr );
-               _.call( ondone, xhr, xhr );
+               _.call( option.onload, xhr, xhr.responseText, xhr );
+               _.call( option.ondone, xhr, xhr );
             } );
          } else {
-            setImmediate( function _ajax_err_status () {
+            setImmediate( function _ajax_onerror_call () {
                if ( finished ) return;
                finished = true;
-               _.call( onfail, xhr, xhr, "HTTP Response Code " + xhr.status );
-               _.call( ondone, xhr, xhr );
+               _.call( option.onerror, xhr, xhr, "HTTP Response Code " + xhr.status );
+               _.call( option.ondone, xhr, xhr );
             } );
          }
          xhr.onreadystatechange = function(){}; // Avoid repeated call
@@ -206,8 +228,8 @@ _.ajax = function _ajax ( url, onsuccess, onfail, ondone, xhr ) {
    } catch (e) {
       _.error( 'Ajax exception on ' + url + ': ' + e );
       finished = true;
-      _.call( onfail, xhr, xhr, e );
-      _.call( ondone, xhr, xhr );
+      _.call( option.onerror, xhr, xhr, e );
+      _.call( option.ondone, xhr, xhr );
    }
    return xhr;
 };
@@ -215,26 +237,37 @@ _.ajax = function _ajax ( url, onsuccess, onfail, ondone, xhr ) {
 /**
  * Load a JavaScript from an url.
  *
- * @param {String} url  JS url.
- * @param {Object} option
- * @returns {undefined}
+ * Options:
+ *   url - Url to send get request, or an option object.
+ *   charset - Charset to use
+ *   validate - Callback; if it returns true, script will not be loaded,
+ *                        otherwise if still non-true after load then call onerror.
+ *   onload  - Callback (url, option) when the request succeed. 
+ *   onerror - Callback (url, option) when the request failed.
+ *   
+ * @param {Mixed} option Url to send get request, or an option object.
+ * @param {function} onload Overrides option.onload
+ * @returns {Element} Created script tag.
  */
-_.js = function _js ( url, option ) {
-   if ( option === undefined ) option = {};
+_.js = function _js ( option, onload ) {
+   if ( typeof( option ) === 'string' ) option = { url: option };
+   if ( onload !== undefined ) option.onload = onload;
+
    // Validate before doing anything, if pass then we are done
    if ( option.validate && option.validate.call( null, url, option ) ) return _js_done( 'onload' );
 
+   var url = option.url;
    var e = document.createElement( 'script' );
    e.src = url;
    if ( option.charset ) e.charset = option.charset;
    _.info( "[JS] Load script: " + url );
 
    var done = false;
-   function _js_done ( call, log ) {
+   function _js_done ( callback, log ) {
       if ( done ) return;
       done = true;
       if ( log ) _.log( log );
-      _.call( option[call], e, url, option );
+      _.call( callback, e, url, option );
       if ( e && e.parentNode === document.body ) document.body.removeChild(e);
    }
 
@@ -242,31 +275,41 @@ _.js = function _js ( url, option ) {
       // Delay execution to make sure validate/load is called _after_ script has been ran.
       setImmediate( function _js_load_delayed () {
          if ( option.validate && ! _.call( option.validate, e, url, option )  ) {
-            return _js_done( 'onerror', "[JS] Script error: " + url );
+            return _js_done( option.onerror, "[JS] Script error: " + url );
          }
-         _js_done( 'onload', "[JS] Script loaded: " + url );
+         _js_done( option.onload, "[JS] Script loaded: " + url );
       } );
    } );
    e.addEventListener( 'error', function _js_error (){
-      _js_done( 'onerror', "[JS] Script not found: " + url );
+      _js_done( option.onerror, "[JS] Script not found: " + url );
    } );
 
    document.body.appendChild( e );
+   return e;
 };
 
 /**
  * Cross Origin Request function. Currently only works for IE.
  *
- * @param {String} url Url to send get cross-origin request.
- * @param {function} onsuccess Callback (responseText, xhr) when the request succeed.
- * @param {function} onfail Callback (xhr, text statue) when the request failed.
- * @param {function} ondone Callback (xhr) after auccess or failure.
+ * Options:
+ *   url - Url to send get request, or an option object.
+ *   onload  - Callback (responseText, xhr) when the request succeed. 
+ *   onerror - Callback (xhr, text status) when the request failed.
+ *   ondone  - Callback (xhr) after success or failure.
+ *
+ * @param {Mixed} option Url to send get request, or an option object.
+ * @param {function} onload Callback (responseText, xhr) when the request succeed.
  * @returns {Object} xhr object
  */
-_.cor = function _cor ( url, onsuccess, onfail, ondone ) {
+_.cor = function _cor ( option, onload ) {
+   // Normalise option object.
+   if ( typeof( option ) === 'string' )
+      option = { url: option };
+   // Check what we can use to do the cor.
    if ( window.ActiveXObject !== undefined ) {
       // XMLHttp can cross origin.
-      return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
+      option.xhr = new ActiveXObject("Microsoft.XMLHttp");
+      return _.ajax( url, onload );
    } else {
       _.info( "[COR] Cross orig req: "+url );
       alert('Please override Cross Origin Request control (TODO: Explain better)');
@@ -406,7 +449,7 @@ _.log = function _info ( type, msg ) {
    if ( window.console ) {
       if ( console[type] === undefined ) type = 'log';
       var t = new Date();
-      console[type]( "["+t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds()+"] ", msg );
+      console[type]( "["+t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds()+"]", msg );
    }
 };
 
@@ -478,7 +521,7 @@ _.time = function _time ( msg ) {
    var fromLast = t.last ? ( 'ms,+' + (now - t.last) ) : '';
    _.debug( msg + ' (+' + fromBase + fromLast + 'ms)' );
    t.last = now;
-   return [now - t.last,fromBase];
+   return [now - t.last, fromBase];
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -551,11 +594,14 @@ _.si = function _si ( val, decimal ) {
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Object freezing
+// Object helpers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Prevent changing properties
 _.freeze = function _freeze ( o ) { return Object.freeze ? Object.freeze(o) : o; };
+// Prevent adding new properties and removing old properties
 _.seal = function _seal ( o ) { return Object.seal ? Object.seal(o) : o; };
+// Prevent adding new properties
 _.noExt = function _noExt ( o ) { return Object.preventExtensions ? Object.preventExtensions(o) : o; };
 _.noDef = function _noDef ( e ) { if ( e && e.preventDefault ) e.preventDefault(); return false; };
 
@@ -719,15 +765,18 @@ _.toggleClass = function _toggleClass ( e, className, toggle ) {
    return e;
 };
 
-//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Asynchronous programming
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Countdown Latch object
+ *
+ * @param {int} countdown Initial countdown value; optional. Default 0.
+ * @param {function} ondone Callback when count_down reduce count to 0.
+ * @returns {_.Latch} Created Latch object
  */
-_.Latch = function( countdown, ondone ) {
+_.Latch = function _Latch ( countdown, ondone ) {
    if ( typeof( countdown ) === 'function' ) {
       ondone = countdown;
       countdown = 0;
@@ -739,22 +788,34 @@ _.Latch.prototype = {
    "count" : 0,
    "ondone" : null,
 
-   /** Count up. */
-   "count_up" : function _latch_countup( value ) {
+   /**
+    * Count up.
+    * @param {int} value Value to count up.  Default 1.
+    */
+   "count_up" : function _latch_countup ( value ) {
       if ( value === undefined ) value = 1;
       this.count += value;
    },
 
-   /** Count down.  If count reach 0 then run ondone. */
-   "count_down" : function _latch_countdown( value ) {
+   /**
+    * Count down.  If count reach 0 then run ondone.
+    * @param {int} value Value to count down.  Default 1.
+    * @throws {string} If count down will reduce count to below 0.
+    */
+   "count_down" : function _latch_countdown ( value ) {
       if ( value === undefined ) value = 1;
       this.count -= value;
-      if ( this.count < 0 ) throw "IllegalStateException: Latch count below zero";
+      if ( this.count < 0 )
+         throw new Error( "IllegalStateException: Latch count below zero" );
       if ( this.count === 0 ) _.call( this.ondone, this );
    },
 
-   /** Return a function that can be used to countdown this latch */
-   "count_down_function" : function _latch_countdown_function( value ) {
+   /**
+    * Return a function that can be used to countdown this latch.
+    * This function will work on this latch regardless of context.
+    * @param {int} value Value to count down.  Default 1.
+    */
+   "count_down_function" : function _latch_countdown_function ( value ) {
       var latch = this;
       return function _latch_countdown_callback() { latch.count_down( value ); };
    }
@@ -767,7 +828,7 @@ _.Latch.prototype = {
  * @param {type} interval Minimal interval between job start.
  * @returns {_.Executor}  New executor object
  */
-_.Executor = function( thread, interval ) {
+_.Executor = function _Executor ( thread, interval ) {
    if ( thread ) this.thread = thread;
    if ( interval ) this.interval = interval;
    this.running = [];
@@ -847,7 +908,7 @@ _.Executor.prototype = {
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Helper objects
+// Other helper objects
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 _.EventManager = function _EventManager( owner, events ) {
@@ -892,10 +953,10 @@ _.EventManager.prototype = {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Get language string and, if additional parameters are provided, format the parameters */
-_.l = function _l( path, defaultValue, param /*...*/ ) {
+_.l = function _l ( path, defaultValue, param /*...*/ ) {
    var l = _.l;
    var result = l.getset( path, undefined, l.currentLocale );
-   if ( result === undefined ) result = ( defaultValue !== undefined || defaultValue === null ) ? defaultValue : path;
+   if ( result === undefined ) result = defaultValue !== undefined ? defaultValue : path;
    if ( arguments.length > 2 ) {
       if ( arguments.length === 3 ) return l.format( result, param );
       else return l.format.apply( this, [result].concat( _.ary(arguments, 2) ) );
@@ -903,7 +964,7 @@ _.l = function _l( path, defaultValue, param /*...*/ ) {
    return result;
 };
 
-_.l.format = function _l_format( input, param /*...*/ ) {
+_.l.format = function _l_format ( input, param /*...*/ ) {
    for ( var i = 1, l = arguments.length ; i < l ; i++ )
       input = input.replace( '%'+i, arguments[i] );
    return input;
@@ -924,7 +985,7 @@ _.l.data = {};
  * @param {String} lang  Locale to use. Pass in empty string, null, false etc. to use auto-detection
  * @returns {undefined}
  */
-_.l.setLocale = function _l_setLocale( lang ) {
+_.l.setLocale = function _l_setLocale ( lang ) {
     if ( ! lang ) return _.l.detectLocale();
     if ( lang === _.l.currentLocale ) return;
     _.l.currentLocale = lang;
@@ -937,7 +998,7 @@ _.l.setLocale = function _l_setLocale( lang ) {
  * @param {String} lang  Locale to use and save.
  * @returns {undefined}
  */
-_.l.saveLocale = function _l_saveLocale( lang ) {
+_.l.saveLocale = function _l_saveLocale ( lang ) {
     if ( window.localStorage ) {
        if ( lang ) localStorage['_.l.locale'] = lang;
        else delete localStorage['_.l.locale'];
@@ -951,13 +1012,15 @@ _.l.saveLocale = function _l_saveLocale( lang ) {
  * @param {String} defaultLocale  Default locale to use
  * @returns {undefined}
  */
-_.l.detectLocale = function _l_detectLocale( defaultLocale ) {
+_.l.detectLocale = function _l_detectLocale ( defaultLocale ) {
     var l = _.l;
-    var list = Object.keys( l.data );
+    var list = Object.keys( l.data ); // List of available languages
     if ( defaultLocale ) l.fallbackLocale = defaultLocale;
+    // Load and check preference
     var pref = navigator.language || navigator.userLanguage;
     if ( window.localStorage ) pref = localStorage['_.l.locale'] || pref;
     if ( ! pref ) return;
+    // Set locale to preference, if available. If not, try the main language.
     if ( list.indexOf( pref ) >= 0 ) return l.setLocale( pref );
     pref = pref.split( '-' )[0];
     if ( list.indexOf( pref ) >= 0 ) l.setLocale( pref );
@@ -971,7 +1034,7 @@ _.l.detectLocale = function _l_detectLocale( defaultLocale ) {
  * @param {type} locale Locale to use. NO DEFAULT.
  * @returns {varialbe} if set, return undefined.  If get, return the resource.
  */
-_.l.getset = function _l_getset( path, set, locale ) {
+_.l.getset = function _l_getset ( path, set, locale ) {
    var p = path.split( '.' );
    var last = p.pop();
    p.unshift( locale );
@@ -998,7 +1061,7 @@ _.l.getset = function _l_getset( path, set, locale ) {
  * @param {type} data Resource to set
  * @returns {undefined}
  */
-_.l.set = function _l_set( path, data ) {
+_.l.set = function _l_set ( path, data ) {
     _.l.getset( path, data, _.l.currentLocale );
     _.l.event.fire( 'set', path, data );
 };
@@ -1008,19 +1071,18 @@ _.l.set = function _l_set( path, data ) {
  *  e.g. <div class='i18n'> gui.frmCalcluate.lblHelp </div>
  *
  * @param {type} root Root element to localise, default to whole document
- * @returns {undefined}
  */
-_.l.localise = function _l_localise( root ) {
+_.l.localise = function _l_localise ( root ) {
    if ( root === undefined ) root = document.documentElement;
    var _l = _.l;
    var el = root.getElementsByClassName( "i18n" );
    for ( var i = 0, l = el.length ; i < l ; i++ ) {
       var e = el[i];
       var isInput = e.tagName === 'INPUT';
-      var key = e.getAttribute("data-i18n");
+      var key = e.getAttribute( "data-i18n" );
       if ( ! key ) {
           key = ( isInput ? e.value : e.textContent ).trim();
-          e.setAttribute("data-i18n", key );
+          e.setAttribute( "data-i18n", key );
       }
       var val = _l( key, key.split('.').pop() );
       e[ isInput ? 'value' : 'innerHTML' ] = val;

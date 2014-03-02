@@ -63,8 +63,9 @@ od.updater = {
    "get_catalog": function download_get_catalog ( onload, onerror ) {
       var updater = od.updater;
       var address = od.config.source.catalog();
-      _.cor( address,
-         function download_get_catalog_callback( data, xhr ){
+      _.cor({
+         "url" : address,
+         "onload" : function download_get_catalog_callback( data, xhr ){
             // First reset state of all unlisted cat, assuming they are not on remote
             updater.get().forEach( function download_get_catalog_reset( r ){
                 if ( r.state === "unlisted" || r.state === "local" ) r.state = "absent";
@@ -77,8 +78,10 @@ od.updater = {
             }
             _.call( onload );
          },
-         onerror ? onerror : function(){ _.error( "Cannot download catalog from " + address ); }
-      );
+         "onerror" : onerror ? onerror : function download_get_catalog_error(){
+            _.error( "Cannot download catalog from " + address );
+         }
+      });
    },
 
    "executor" : new _.Executor( 1, od.config.down_interval ),
@@ -292,13 +295,16 @@ od.updater.RemoteCategory.prototype = {
       var remote = this;
       if ( retry === undefined ) retry = od.config.retry;
       if ( onerror && typeof( onerror ) === 'string' ) onerror = function() { _.error( _.l.format( onerror, remote.name, url ) ); };
-      _.cor( url, onload, function download_Cat_get_remote_error(){
+      _.cor({
+         "url" : url,
+         "onload" : onload,
+         "onerror" : function download_Cat_get_remote_error(){
             --retry;
             if ( retry <= 0 ) {
                _.call( onerror, remote, remote );
             } else setTimeout( function download_Cat_get_remote_retry(){ remote.get_remote( url, onload, onerror, retry ); }, od.config.retry_interval );
          }
-      );
+      });
    },
 
     /**
@@ -380,13 +386,14 @@ od.updater.RemoteCategory.prototype = {
       var address = od.config.source.data( this.name, id );
       var remote = this;
       if ( retry === undefined ) retry = od.config.retry;
-      _.cor( address,
-         function download_Cat_get_data_callback ( data, xhr ){
+      _.cor({
+         "url" : address,
+         "onload" : function download_Cat_get_data_callback ( data, xhr ){
             if ( ! data ) return downloar_Cat_get_data_retry( xhr, 'No Data' );
             _.call( onload, remote, remote, id, xhr.responseText );
          },
-         downloar_Cat_get_data_retry
-      );
+         "onerror" : downloar_Cat_get_data_retry
+      });
       function downloar_Cat_get_data_retry ( xhr, err ) {
          _.warn( 'downloar_Cat_get_data_retry: ' + retry );
          --retry;
