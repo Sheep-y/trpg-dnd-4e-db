@@ -435,6 +435,19 @@ _.xpath = function _xpath ( node, path ) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * If @check is not true, throw msg.
+ * @param {mixed} check Anything that should not be false, undefined, or null.
+ * @param {string} msg Message to throw if it does happen. Default to 'Assertion failed'.
+ */
+_.assert = function _assert( check, msg ) {
+   if ( check === false || check === undefined || check === null ) {
+      if ( msg === undefined ) msg = '';
+      if ( typeof( msg ) === 'string' ) msg = new Error( 'Assertion failed (' + msg + ')' );
+      throw msg;
+   }
+}
+
+/**
  * Console log function.
  *
  * @param {String} type Optional. Type of console function to run, e.g. 'debug' or 'warn'. If not found then fallback to 'log'.
@@ -596,6 +609,57 @@ _.si = function _si ( val, decimal ) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object helpers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Create a subclass from a base class.
+ * You still need to call super in constructor and methods, if necessary.
+ * 
+ * @param {object} base Base class. Result prototype will inherit base.prototype.
+ * @param {function} constructor Constructor function.
+ * @param {object} prototype Object from which to copy properties to result.prototype.
+ * @returns {function} Result subclass function object.
+ */
+_.inherit = function _inherit ( base, constructor, prototype ) {
+   _.assert( base && constructor, _inherit.name + ': base and constructor must be provided' );
+   var proto = constructor.prototype = Object.create( base.prototype );
+   if ( prototype ) for ( var k in prototype ) proto[k] = prototype[k];
+   _.freeze( proto );
+   return constructor;
+};
+
+_.deepclone = function _clone( base ) {
+   return _.clone( base, deep );
+}
+
+/**
+ * Clone a given object shallowly or deeply.
+ * 
+ * @param {mixed} base Base object
+ * @param {boolean} deep True for deep clone, false for shallow clone.
+ * @returns {mixed} Cloned object
+ */
+_.clone = function _clone( base, deep ) {
+   var result, type = typeof( base );
+   switch ( type ) {
+      case 'object' : 
+         // TODO: Handle RegExp, Date, DOM etc
+         if ( base instanceof Array ) {
+            result = [];
+         } else {
+            result = {};
+            result.prototype = base.prototype;
+         }
+         break;
+      case 'function' :
+         result = function _cloned_function() { return base.apply( this, arguments ); };
+         result.prototype = base.prototype;
+         break;
+      default :
+         result = base;
+   }
+   for ( var k in base ) result[k] = deep ? _.clone( base[k], deep ) : base[k];
+   return result;
+}
 
 // Prevent changing properties
 _.freeze = function _freeze ( o ) { return Object.freeze ? Object.freeze(o) : o; };
@@ -911,36 +975,213 @@ _.Executor.prototype = {
 // Other helper objects
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-_.EventManager = function _EventManager( owner, events ) {
-   this.owner = owner;
-   var lst = {};
-   for ( var i = 0, l = events.length ; i < l ; i++ ) {
-      lst[events[i]] = null;
+/**
+ * Keep an index on specified object fields (field value can be undefined)
+ * and enable simple seeking of objects that fulfill one or more criterias.
+ * 
+ * Indexed fields are not expected to change frequently; the object need to be
+ * removed before the change and re-added after the change.
+ * 
+ * Indexed object's field values can be array, and each values will be indexed.
+ * 
+ * @param {Array} indices Array of name of fields to index.
+ * @returns {Index} Index object
+ */
+_.Index = function _Index ( indices ) {
+   if ( indices === undefined || ! ( indices instanceof Array ) || indices.length <= 0 )
+      throw "[Sparrow] Index(): Invalid parameter, must be array of fields to index.";
+   this.all = [];
+   this.map = {};
+   for ( var i = 0, l = indices.length ; i < l ; i++ ) {
+      this.map[ indices[i] ] = {};
    }
-   this.lst = _.noExt( lst );
+}
+_.Index.prototype = {
+   "all" : [],
+   "map" : {},
+   /**
+    * Add an object and update index.
+    * 
+    * @param {Object} obj Object to add
+    * @returns {undefined}
+    */
+   "add" : function _Index_add ( obj ) {
+      var map = this.map;
+      for ( var i in map ) {
+         var index = map[i], keys = _.toAry( obj[i] );
+         keys.forEach( function _Index_add_each( key ) {
+            key = "" + key;
+            var list = index[key];
+            if ( list === undefined ) index[key] = list = [];
+            list.push( obj );
+         } );
+      }
+      this.all.push( obj );
+   },
+   /**
+    * Remove an object and update index.
+    * 
+    * @param {Object} obj Object to remove
+    * @returns {undefined}
+    */
+   "remove" : function _Index_remove ( obj ) {
+      var map = this.map, pos = this.all.indexOf( obj );
+      if ( pos < 0 ) return;
+      this.all.splice( pos, 1 );
+      for ( var i in map ) {
+         var index = map[i], keys = _.toAry( obj[i] );
+         keys.forEach( function _Index_remove_each( key ) {
+            key = ""+key;
+            var list = index[key];
+            if ( list.length === 1 ) {
+               delete index[key];
+            } else {
+               list.splice( list.indexOf( obj ), 1 );
+            }
+         } );
+      }
+   },
+   /**
+    * Search the index to get a list of objects.
+    *
+    * Each search criterion is normally a string, returned objects will be an exact match in that field.
+    * Alternatively, search criterion can be an array of string, for objects that exactly match any of them. 
+    * A criterion can also be a bounded integer range e.g. { '>=': 1, '<=': 9 } (missing = 0).
+    * 
+    * For more advanced processing, please manually pre-process on index to get the correct filter.
+    * 
+    * @param {Object} criteria An object with each criterion as a field. If unprovided, return a list of all indiced object.
+    * @returns {Array} List of objects that meet all the criteria.
+    */
+   "get" : function _Index_get ( criteria ) {
+      if ( criteria === undefined ) return this.all.concat();
+      var map = this.map, results = [];
+      for ( var i in criteria ) { // Build candidate list for each criterion
+         var index = map[i], criterion = criteria[i];
+         if ( index === undefined ) throw "[Sparrow] Index.get(): Criteria not indexed: " + i;
+         // Convert integer range to bounded list
+         if ( criterion instanceof Object && ( criterion['>='] || criterion['<='] ) ) {
+            var range = [];
+            for ( var k = ~~criterion['>='], sl = ~~criterion['<='] ; k <= sl ; k++ )
+               range.push( ""+k );
+            criterion = range;
+         }
+         if ( criterion instanceof Array ) {
+            // Multiple target values; regard as 'OR'
+            var buffer = [], terms = [];
+            for ( var j = 0, cl = criterion.length ; j < cl ; j++ ) {
+               var val = "" + criterion[j], list = index[val];
+               if ( list === undefined || terms.indexOf( val ) >= 0 ) continue;
+               buffer = buffer.concat( list ); // Each list should contains unique objects!
+               terms.push( val );
+            }
+            if ( buffer.length <= 0 ) return [];
+            results.push( buffer );
+         } else {
+            // Single target value.
+            var val = "" + criterion, list = index[val];
+            if ( list === undefined ) return [];
+            results.push( list );
+         }
+      }
+      // No result, e.g. criteria is empty. Return empty.
+      if ( results.length <= 0 ) return [];
+      // Single criterion, return single list.
+      if ( results.length === 1 ) return results[0];
+      // We have multiple criteria list, find intersection. Start with shortest list.
+      results.sort( function(a,b){ return a.length - b.length; } );
+      var result = results[0].concat();
+      for ( var i = result.length-1 ; i >= 0 ; i-- ) { // For each candidate
+         var obj = result[i];
+         for ( var j = 1, rl = results.length ; j < rl ; j++ ) { // Check whether it is in each other list
+            if ( results[j].indexOf( obj ) < 0 ) {
+               result.splice( i, 1 );
+               break;
+            }
+         }
+      }
+      return result;
+   }
+};
+
+/**
+ * A event manager with either fixed event list or flexible list.
+ *
+ * @param {object} owner Owner of this manager, handlers would be called with this object as the context. Optional.
+ * @param {array} events Array of event names. Optional. e.g. ['click','focus','hierarchy']
+ * @returns {_EventManager}
+ */
+_.EventManager = function _EventManager ( owner, events ) {
+   this.owner = owner;
+   var lst = this.lst = {};
+   if ( events === undefined ) {
+      this.strict = false;
+   } else {
+      for ( var i = 0, l = events.length ; i < l ; i++ ) {
+         lst[events[i]] = null;
+      }
+   }
 };
 _.EventManager.prototype = {
    "lst" : {},
-   "owner" : null,
-   "add" : function _EventManager_add( event, listener ) {
-      if ( this.lst[event] === undefined ) throw new Error("Unknown event");
-      if ( this.lst[event] === null ) this.lst[event] = [];
+   "owner" : null, // Owner, as context of handler calls
+   "strict" : true, // Whether this manager allow arbitary events
+   /**
+    * Register an event handler.  If register twice then it will be called twice.
+    *
+    * @param {string} event Event to register to.
+    * @param {function} listener Event handler.
+    * @returns {undefined}
+    */
+   "add" : function _EventManager_add ( event, listener ) {
+      var thisp = this;
+      if ( event instanceof Array ) return event.forEach( function( e ){ thisp.add( e, listener ) } );
+      if ( listener instanceof Array ) return listener.forEach( function( l ){ thisp.add( event, l ) } );
+      var lst = this.lst[event];
+      if ( ! lst ) {
+         if ( this.strict && lst === undefined )
+            throw new Error( "Cannot add to unknown event '" + event + "'" );
+         lst = this.lst[event] = [];
+      }
       this.lst[event].push( listener );
    },
-   "remove" : function _EventManager_remove( event, listener ) {
+   /**
+    * Un-register an event handler.
+    *
+    * @param {string} event Event to un-register from.
+    * @param {function} listener Event handler.
+    * @returns {undefined}
+    */
+   "remove" : function _EventManager_remove ( event, listener ) {
+      var thisp = this;
+      if ( event instanceof Array ) return event.forEach( function( e ){ thisp.remove( e, listener ) } );
+      if ( listener instanceof Array ) return listener.forEach( function( l ){ thisp.remove( event, l ) } );
       var lst = this.lst[event];
-      if ( lst === undefined ) throw new Error("Unknown event");
-      if ( lst === null ) return;
+      if ( ! lst ) {
+         if ( this.strict && lst === undefined )
+            throw new Error( "Cannot remove from unknown event '" + event + "'" );
+         return;
+      }
       var i = lst.indexOf( listener );
-      if ( i ) {
+      if ( i >= 0 ) {
          lst.splice( i, 1 );
          if ( lst.length < 0 ) this.lst[event] = null;
       }
    },
-   "fire" : function _EventManager_remove( event ) {
+   /**
+    * Fire an event that triggers all registered handler of that type.
+    * Second and subsequence parameters will be passed to handlers.
+    *
+    * @param {string} event Event to call.
+    * @returns {undefined}
+    */
+   "fire" : function _EventManager_remove ( event ) {
       var lst = this.lst[event];
-      if ( lst === undefined ) throw new Error("Unknown event");
-      if ( lst === null ) return;
+      if ( ! lst ) {
+         if ( this.strict && lst === undefined )
+            throw new Error( "Cannot fire unknown event '" + event + "'" );
+         return;
+      }
       var l = lst.length, param = _.ary( arguments, 1 );
       for ( var i = 0 ; i < l ; i++ ) {
          lst[i].apply( this.owner, param );
@@ -1090,6 +1331,38 @@ _.l.localise = function _l_localise ( root ) {
 };
 
 _.l.event = new _.EventManager( _.l, ['set','locale'] );
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Testing
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Run a test suite and write result to document, or check a specific test.
+ * TODO: Rewrite to separate test and presentation.
+ *
+ * @param {mixed} condition Either an assertion or a test suite object.
+ * @param {string} name Name of assertion
+ */
+_.test = function _test ( condition, name ) {
+   if ( name !== undefined ) {
+      document.write( '<tr><td>' + _.escHtml( name ) + '</td><td>' + ( condition ? 'OK' : '<b>FAIL</b>' ) + '</td></tr>' );
+   } else {
+      document.open();
+      document.write( "<!DOCTYPE html><h1 id='sparrow_test'> Testing... </h1>" );
+      for ( var test in condition ) {
+         if ( ! test.match( /^test/ ) ) continue;
+         if ( typeof( condition[test] ) === 'function' ) {
+            document.write( "<table class='sparrow_test_result' border='1'><tr><th colspan='2'>" 
+                            + _.escHtml( test ).replace( /^test_+/, '' ).replace( /_/g, ' ' ) + '</th></tr>' );
+            condition[test]();
+            document.write( "</table>" );
+         }
+      }
+      document.close();
+      var err = _('.sparrow_test_result b'), success = err.length === 0;
+      _( '#sparrow_test' )[0].textContent = success ? 'Test Success' : 'Test FAILED';
+   }
+};
 
 _.debug('Sparrow loaded.');
 _.time();
