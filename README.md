@@ -1,6 +1,6 @@
 # Offline 4e Database #
 
-**For full source please see <a href="http://github.com/Sheep-y/trpg-dnd-4e-db/">main branch</a>.**
+**For full source please see <a href="http://github.com/Sheep-y/trpg-dnd-4e-db/tree/master">master branch</a>.**
 
 This script can be used to reterives and locally store entries from online 4e <a href="http://www.wizards.com/dndinsider/compendium/database.aspx">D&D Compendium</a>.
  <br/>
