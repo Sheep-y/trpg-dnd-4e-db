@@ -5,7 +5,7 @@
    <property name="deliverable" value="${root}4e_database.html" />
    <property name="datadir" value="${root}4e_database_files/" />
 
-   <target name="make" description="Compile browsable html">
+   <target name="make" description="Compile live html at root folder">
       <loadfile property="style_gui.css" srcfile="${srcdir}style_gui.css" encoding="UTF-8" />
       <loadfile property="style_data.css" srcfile="${srcdir}style_data.css" encoding="UTF-8" />
       <loadfile property="config.js" srcfile="${srcdir}config.js" encoding="UTF-8" />
@@ -53,14 +53,21 @@
       <replaceregexp match="&lt;/body>&lt;/html>(?!$|['&quot;])" replace="" file="${deliverable}" encoding="UTF-8" />
    </target>
 
+   <target name="compile" description="Run make target" depends="make" />
+
    <!-- Produce a simulation biuld for testing.  -->
-   <target name="offline_simulate" description="Offline test build" depends="make">
+   <target name="offline_simulate" description="Compile offline test build at root folder" depends="make">
       <replace file="${deliverable}" token='"simulate" : false' value='"simulate" : true' encoding="UTF-8" />
       <replace file="${deliverable}" token='"down_interval" : 0' value='"down_interval" : 1000' encoding="UTF-8" />
    </target>
 
-   <!-- Stripts unnecessary code for deployment. Saves about 11% (34k) so production value is in doubt.  -->
-   <target name="deploy" description="Compress browsable" depends="make">
+   <!-- Clean up.  -->
+   <target name="clean" description="Delete built file">
+      <delete file="${deliverable}" />
+   </target>
+ 
+   <!-- Stripts unnecessary code for deployment. Saves about 11% (34k) so production value is of doubt.  -->
+   <target name="deploy" description="Compress existing build" depends="make">
       <!-- Remove comments. Start comment with three hypens to preserv license blocks. -->
       <replaceregexp match=" *&lt;!--(?![\[-])(.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
       <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
@@ -74,7 +81,8 @@
       <replaceregexp match="\n}" replace="}" flags="g" file="${deliverable}" encoding="UTF-8" />
    </target>
 
-   <target name='javac' description="Compile Java applet">
+   <!-- Compile and sign Cor and file writing applet. -->
+   <target name='javac' description="Compile Java applet in java/">
       <javac srcdir="java/" destdir="java/" source="1.7" includeantruntime="false" encoding="UTF-8">
          <compilerarg value="-Xlint"/> 
       </javac>
@@ -85,7 +93,7 @@
    </target>
 
    <!-- Convert data from UCS2-LE to UTF-8 to save space. Please note there is NO auto encoding detection. -->
-   <target name="utf8data" description="Convert UTF-16 data to UTF-8">
+   <target name="utf8data" description="Convert UTF-16 data files to UTF-8">
       <echo message="Converting reterived data."/>
       <move todir="../tmp">
          <fileset dir="${datadir}"/>
@@ -97,7 +105,7 @@
       <echo message="Data converted from UCS2-LE to UTF-8."/>
    </target>
 
-   <!-- Old make. Simple but component files make less sense.
+   <!-- Old make. Simple but there is no main skeleton file, harder to maintain.
 target name="make2" description="Compile browsable html">
       <concat destfile="${deliverable}">
          <fileset file="${srcdir}html_doctype.html" />
