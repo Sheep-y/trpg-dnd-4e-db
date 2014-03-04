@@ -51,7 +51,8 @@ _.l.set( 'gui', {
 _.l.set( 'action.list', {
    'title' : "Browse",
    'link_text' : "Browse",
-
+   
+   'lbl_select_cat' : "Select a category to see its entries.  You may type search terms and select type of search (optional) before picking the category.",
    'txt_search_placeholder' : "Search keywords. e.g. ranger OR martial   bonus -\"feat bonus\" ",
    'bth_search_name' : "Name",
    'bth_search_body' : "Full",

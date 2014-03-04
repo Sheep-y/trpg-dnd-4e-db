@@ -99,7 +99,7 @@
       <div id='act_list_pnl_category'></div>
 
       <div id='act_list_pnl_list'>
-         <table class='fullw'></table>
+         <table class='fullw'><tr><td class="i18n"> action.list.lbl_select_cat </td><tr></table>
       </div>
    </div>
 </div>
@@ -125,7 +125,7 @@ od.action.list = {
    'last_search_type' : 'name',
    'category_dom' : [],
 
-   'category' : null, // Current category
+   'category' : null, // Current category.  Null = None.  "" = All.
    'counts' : null, // Current result count object
    'total_count' : 0,
 
@@ -146,8 +146,7 @@ od.action.list = {
    },
 
    'get_search_category' : function act_list_get_search_category () {
-      var cat = od.action.list.category;
-      return cat ? cat : null;
+      return od.action.list.category;
    },
 
    'get_search_term' : function act_list_get_search_term () {
@@ -171,19 +170,21 @@ od.action.list = {
    },
 
    'search' : function act_list_search ( search_type ) {
-      var action_list = od.action.list;
+      var action_list = od.action.list, cat = action_list.get_search_category();
       if ( action_list.get_search_term() === '' ) return action_list.show_category();
-      if ( search_type === undefined ) {
+      if ( search_type === undefined ) { // e.g. Pressing Enter in search box.
          search_type = action_list.last_search_type;
       } else {
          action_list.last_search_type = search_type;
       }
-      od.search.search( {
-         'category': action_list.get_search_category(),
-         'term': action_list.get_search_term(),
-         'search_body': search_type === 'full',
-         'ondone'  : action_list.show_list
-      } );
+      if ( cat !== null ) {
+         od.search.search( {
+            'category': cat,
+            'term': action_list.get_search_term(),
+            'search_body': search_type === 'full',
+            'ondone'  : action_list.show_list
+         } );
+      }
    },
 
    'build_category' : function act_list_build_category () {
@@ -198,7 +199,10 @@ od.action.list = {
             name = cat.name;
             count = cat.count;
          }
-         var a = _.create( 'button', { 'style': 'background-color:'+colour, 'onclick' : function (){ action_list.a_category( name ); } } );
+         var a = _.create( 'button', {
+            'style': 'background-color:'+colour,
+            'onclick' : function create_category_button_click(){ action_list.a_category( name ); }
+         } );
          a.appendChild( _.create( 'span', { 'class' : 'rpg ' + name } ) );
          a.appendChild( _.create( 'b', title ) );
          a.appendChild( _.create( 'var', count ) );
@@ -274,8 +278,7 @@ od.action.list = {
       var action_list = od.action.list;
       action_list.show_count( counts );
       table.parentNode.removeChild( table );
-      table = _.create('table');
-      //table.innerHTML = ''; // Remove a table is 13% faster then clearing it, but both spend major time when list is big
+      table = _.create('table'); // Remove a table is 13% faster then clearing it, but both is slow when list is big
       var head = _.create( 'thead' );
       var body = _.create( 'tbody' );
       table.appendChild( head );
