@@ -81,6 +81,8 @@ od.data = {
  
    /**
     * Pre-process data - extract content, remove scripts and forms, normalise symbols and links etc.
+    *
+    * @param {String} data Raw entry data to be processed.
     */
    "preprocess" : function data_preprocess ( data ) {
       // Normalise input
@@ -133,6 +135,8 @@ od.data = {
 
    /**
     * Pre-process data - extract content, remove scripts and forms, normalise symbols and links etc.
+    *
+    * @param {String} data Data to be indexed.
     */
    "indexify" : function data_indexify ( data ) {
       // Remove power and item flavors

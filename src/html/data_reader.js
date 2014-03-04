@@ -12,7 +12,8 @@ od.reader = {
    _read: function reader_read( src, validate, onload, onerror ) {
       var errorHandler = onerror;
       if ( onerror && typeof( onerror ) === 'string' ) errorHandler = function(){ _.error( onerror ); };
-      _.js( src, {
+      _.js({
+         "url"     : src,
          "validate": validate,
          "onload"  : onload,
          "onerror" : errorHandler });

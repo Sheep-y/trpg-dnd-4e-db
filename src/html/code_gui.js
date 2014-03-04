@@ -10,21 +10,26 @@ od.gui = {
    action: null,
    initialized: [],
 
-   "goto" : function gui_goto ( url ) {
-      var action = od.action[url], id = url;
-      _.debug( "[Action] Navigate to " + url );
-      // If not simple page, try to find the action to handle this url
+   /**
+    * Navigate to given activity page.
+    *
+    * @param {String} act_id Action to switch to, with all necessary parameters
+    */
+   "goto" : function gui_goto ( act_id ) {
+      var action = od.action[act_id], id = act_id;
+      _.debug( "[Action] Navigate to " + act_id );
+      // If not a simple page like about/download etc., try to find the action to handle this url
       if ( ! action ) {
-         var firstword = _.ary( url.match( /^\w+/ ) )[ 0 ]; // Parse first word in url
+         var firstword = _.ary( act_id.match( /^\w+/ ) )[ 0 ]; // Parse first word in url
          for ( id in od.action ) {
             action = od.action[ id ];
             // Either firstword is an exact match on id, or match action's url pattern
-            if ( firstword === id || ( action.url && action.url.test( url ) ) ) break;
+            if ( firstword === id || ( action.url && action.url.test( act_id ) ) ) break;
          }
       }
       // Set id if absent. Then update url and swap page.
       if ( action.id === undefined ) action.id = id;
-      if ( history.pushState && url !== location.search.substr(1) ) history.pushState( null, null, "?" + url );
+      if ( history.pushState && act_id !== location.search.substr(1) ) history.pushState( null, null, "?" + act_id );
       this.switch_action( action );
    },
 
