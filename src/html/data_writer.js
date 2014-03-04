@@ -1,7 +1,8 @@
-/*
+/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
  * data_writer.js
- * Write data model to persistent storage.
- * This part needs file permission and currently only works with Firefox
+ *
+ * Write data model to local files.
+ * This part needs file permission and currently only works with Internet Explorer (non-metro)
  */
 
 od.writer = {

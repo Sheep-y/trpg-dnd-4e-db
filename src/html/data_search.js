@@ -1,6 +1,8 @@
-/*
+/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
  * data_search.js
- * Search data model to get a list of result.
+ *
+ * Handle search logic, including parsing search pattern, marking highlight terms,
+ * and actually searching the data model.
  */
 
 od.search = {

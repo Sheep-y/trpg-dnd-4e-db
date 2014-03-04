@@ -1,5 +1,6 @@
-/*
+/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
  * lang_zh.js
+ *
  * Chinese localization resources
  */
 

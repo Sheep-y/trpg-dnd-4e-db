@@ -1,4 +1,4 @@
-/*
+/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
  * data_updater.js
  *
  * Core (non-ui) logic of entry downloading and higher level data updating such as reindex and deletion.

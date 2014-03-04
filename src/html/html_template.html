@@ -1,4 +1,4 @@
-<!DOCTYPE html><!---
+<!DOCTYPE html><!---                                                            ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
  Source can be obtained from Github: <https://github.com/Sheep-y/trpg-dnd-4e-db/development/>.
  -
  This script is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published
@@ -19,7 +19,7 @@
 </head><body>
 <!--[if lte IE 8]>
    <h1> Please upgrade browser. </h1>
-   <h1> 請升級瀏覽器。 </h1>
+   <h1> 請升級瀏覽器，只支援 IE 9 或以上。 </h1>
    <div style="display:none">
 <![endif]-->
    <div id="loading" class='i18n' style='display:none;'>gui.loading</div>
@@ -47,10 +47,12 @@
    <!--#include file='images.html' -->
    <script>//<![CDATA[
       'use strict';
-      // Init code. Running in a script block is faster then waiting for dom ready.
+      // Init code. Running in a script block is faster then waiting for dom ready - everything should be embedded anyway!
       _.time( 'All code loaded.' );
+      // Seal object to avoid accidents
       _.freeze( _ );
-      for ( var i in od ) _.seal( _.noExt( od[i] ) ); // Seal object to avoid accidents
+      for ( var i in od ) _.seal( _.noExt( od[i] ) );
+      // Initialise
       _.l.detectLocale( 'en' );
       _.l.localise();
       od.gui.goto( location.search ? location.search.substr(1) : "list" );

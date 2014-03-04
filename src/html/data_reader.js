@@ -1,6 +1,7 @@
-/*
+/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
  * data_reader.js
- * Read data from persistent storage
+ *
+ * Read data from files written by data_writter.
  */
 
 od.reader = {
