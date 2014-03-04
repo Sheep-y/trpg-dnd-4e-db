@@ -795,12 +795,12 @@ _.addClass = function _addClass ( e, className ) {
 /**
  * Removes class(es) from DOM element(s).
  *
- * @param {mixed} e Selector or element(s).
+ * @param {mixed} e Selector or element(s). If ends with a class selector, it will become default for className.
  * @param {mixed} className  Class(es) to remove.  Can be String or Array of String.
  * @returns {Array-like} Array-like e
  */
 _.removeClass = function _removeClass ( e, className ) {
-   if ( className === undefined ) className = e.substr( 1 );
+   if ( className === undefined ) className = e.match(/\.[^. :#>+~()\[\]]+$/)[0].substr( 1 );
    return _.toggleClass( e, className, false );
 };
 
@@ -816,14 +816,18 @@ _.toggleClass = function _toggleClass ( e, className, toggle ) {
    e = _.domlist( e );
    var c = typeof( className ) === 'string' ? [ className ] : className;
    for ( var i = e.length-1 ; i >= 0 ; i-- ) {
+      var className = e[ i ].className, cls = className, lst = cls.split( /\s+/ );
       for ( var j = c.length-1 ; j >= 0 ; j-- ) {
-         var lst = e[ i ].className.split( /\s+/ ), pos = lst.indexOf( c[ j ] );
+         var thisClass = c[ j ], pos = lst.indexOf( thisClass );
          if ( pos < 0 && ( toggle || toggle === undefined ) ) { // Absent and need to add
-            e[ i ].className += ' ' + c[ j ];
+            lst.push( thisClass )
          } else if ( pos >= 0 && ( ! toggle || toggle === undefined ) ) { // Exists and need to remove
             lst.splice( pos, 1 );
-            e[ i ].className = lst.join( ' ' );
          }
+      }
+      cls = lst.join( ' ' );
+      if ( className != cls ) {
+         e[ i ].className = cls;
       }
    }
    return e;
