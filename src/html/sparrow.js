@@ -254,7 +254,7 @@ _.js = function _js ( option, onload ) {
    if ( onload !== undefined ) option.onload = onload;
 
    // Validate before doing anything, if pass then we are done
-   if ( option.validate && option.validate.call( null, url, option ) ) return _js_done( 'onload' );
+   if ( option.validate && option.validate.call( null, url, option ) ) return _js_done( option.onload );
 
    var url = option.url;
    var e = document.createElement( 'script' );
@@ -275,7 +275,7 @@ _.js = function _js ( option, onload ) {
       // Delay execution to make sure validate/load is called _after_ script has been ran.
       setImmediate( function _js_load_delayed () {
          if ( option.validate && ! _.call( option.validate, e, url, option )  ) {
-            return _js_done( option.onerror, "[JS] Script loaded but fail validation: " + url );
+            return _js_done( option.onerror, "[JS] Script loaded but fails validation: " + url );
          }
          _js_done( option.onload, "[JS] Script loaded: " + url );
       } );
