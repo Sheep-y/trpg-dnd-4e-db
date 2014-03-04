@@ -78,15 +78,8 @@ header h1 {
 
 header button { /* Left header button */
    float: left;
-   display: inline-block;
-   padding: 0.25em 1ex;
    border-radius: 2ex;
-   border: 1px outset #888;
    font-weight: bold;
-   text-decoration: none;
-   background: gold;
-   color: black;
-   cursor: pointer;
 }
 
 header h1 + button { /* Right header button */
@@ -112,4 +105,14 @@ button:hover, button:focus {
    opacity: 1 !important;
    border-color: red !important;
    cursor: pointer;
+}
+
+button.activable {
+   color: darkgrey;
+   opacity: 0.7;
+}
+
+button.activable.active {
+   color: black;
+   opacity: 1;
 }

@@ -52,10 +52,6 @@
          float: right;
          font-weight: normal;
       }
-      #act_list_pnl_category button.no-result:not(.selected) {
-         color: darkgrey;
-         opacity: 0.7;
-      }
       /* Result list */
       #act_list_pnl_list {
          clear: left;
@@ -64,8 +60,8 @@
       #act_list_pnl_list td {
          padding: 0 5px;
       }
-      #act_list_pnl_list tr:hover {
-         background-color: gold;
+      #act_list_pnl_list tbody tr:hover {
+         background: gold;
          cursor: pointer;
          color: red;
       }
@@ -80,8 +76,8 @@
       }
       /* Small screen: Show only selected cat */
       @media (max-width: 889px) {
-         #act_list_pnl_category.selected button { display: none; }
-         #act_list_pnl_category.selected button.selected { display: block; }
+         #act_list_pnl_category.active button { display: none; }
+         #act_list_pnl_category.active button.active { display: block; }
       }
    </style>
 
@@ -90,8 +86,8 @@
          <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" class='fullw' autocomplete autofocus />
       </div>
       <table id="act_list_tbl_search"><tr><td
-         ><button class="button i18n" onclick="od.action.list.search('name');"> action.list.bth_search_name </button
-         ><button class="button i18n" onclick="od.action.list.search('full');"> action.list.bth_search_body </button
+         ><button id='act_list_btn_search_name' class="button activable i18n active" onclick="od.action.list.search('name');"> action.list.bth_search_name </button
+         ><button id='act_list_btn_search_full' class="button activable i18n" onclick="od.action.list.search('full');"> action.list.bth_search_body </button
       ></td><td
          ><button class="button i18n" onclick=""> action.list.bth_search_advanced </button
       ></td></table>
@@ -99,7 +95,7 @@
       <div id='act_list_pnl_category'></div>
 
       <div id='act_list_pnl_list'>
-         <table class='fullw'><tr><td class="i18n"> action.list.lbl_select_cat </td><tr></table>
+         <table class='fullw'><thead><tr><td class="i18n"> action.list.lbl_select_cat </td><tr></thead></table>
       </div>
    </div>
 </div>
@@ -125,7 +121,7 @@ od.action.list = {
    'last_search_type' : 'name',
    'category_dom' : [],
 
-   'category' : null, // Current category.  Null = None.  "" = All.
+   'category' : undefined, // Current category.  undefined = None.  "" = All.
    'counts' : null, // Current result count object
    'total_count' : 0,
 
@@ -140,9 +136,9 @@ od.action.list = {
 
    'set_search_category' : function act_list_set_search_category ( cat ) {
       od.action.list.category = cat;
-      _.removeClass( '.selected' );
-      _.addClass( '#act_list_pnl_category', 'selected' );
-      _.addClass( od.action.list.category_dom[ cat ? cat.name : "" ], 'selected' );
+      _.removeClass( '#act_list_pnl_category, #act_list_pnl_category .activable.active' );
+      _.addClass( '#act_list_pnl_category', 'active' );
+      _.addClass( od.action.list.category_dom[ cat ? cat.name : "" ], 'active' );
    },
 
    'get_search_category' : function act_list_get_search_category () {
@@ -155,42 +151,50 @@ od.action.list = {
 
    'a_category' : function act_list_a_category ( cat ) {
       var action_list = od.action.list;
-      if ( document.body.clientWidth <= 980 && _.hasClass( '#act_list_pnl_category', 'selected') ) {
+      if ( document.body.clientWidth <= 980 && _.hasClass( '#act_list_pnl_category', 'active') ) {
          // Hide results and show category list
          _.hide( '#act_list_pnl_list' );
-         _.removeClass( '.selected' );
+         _.removeClass( '#act_list_pnl_category, #act_list_pnl_category .activable.active' );
          return;
       }
-      action_list.set_search_category( cat ? od.data.get( cat ) : null );
+      action_list.set_search_category( cat ? od.data.get( cat ) : "" );
       if ( action_list.get_search_term() !== '' ) {
          action_list.search();
       } else {
          action_list.show_category();
       }
+      _( '#act_list_txt_search' )[0].focus();
    },
 
    'search' : function act_list_search ( search_type ) {
       var action_list = od.action.list, cat = action_list.get_search_category();
-      if ( action_list.get_search_term() === '' ) return action_list.show_category();
       if ( search_type === undefined ) { // e.g. Pressing Enter in search box.
          search_type = action_list.last_search_type;
       } else {
+         _.removeClass( '#act_list_tbl_search .active' );
+         _.addClass( '#act_list_btn_search_' + search_type, 'active' );
          action_list.last_search_type = search_type;
       }
-      if ( cat !== null ) {
-         od.search.search( {
-            'category': cat,
-            'term': action_list.get_search_term(),
-            'search_body': search_type === 'full',
-            'ondone'  : action_list.show_list
-         } );
+      if ( action_list.get_search_term() === '' ) {
+         action_list.show_category();
+      } else {
+         if ( cat !== undefined ) {
+            od.search.search( {
+               'category': cat,
+               'term': action_list.get_search_term(),
+               'search_body': search_type === 'full',
+               'ondone'  : action_list.show_list
+            } );
+         }
       }
+      _( '#act_list_txt_search' )[0].focus();
    },
 
    'build_category' : function act_list_build_category () {
+      // Category order and colour is defined at od.config in config.js
       var action_list = od.action.list;
       action_list.counts = null;
-      action_list.category = null;
+      action_list.category = undefined;
       action_list.category_dom = [];
 
       function create_category_button( div, cat, colour, title, name, count ) {
@@ -200,8 +204,9 @@ od.action.list = {
             count = cat.count;
          }
          var a = _.create( 'button', {
-            'style': 'background-color:'+colour,
-            'onclick' : function create_category_button_click(){ action_list.a_category( name ); }
+            'class': 'activable',
+            'style': 'background-color:'+colour, 
+            'onclick' : function create_category_button_click () { action_list.a_category( name ); }
          } );
          a.appendChild( _.create( 'span', { 'class' : 'rpg ' + name } ) );
          a.appendChild( _.create( 'b', title ) );
@@ -250,19 +255,17 @@ od.action.list = {
    'show_category' : function act_list_show_category ( category ) {
       var action_list = od.action.list;
       if ( category === undefined ) category = action_list.category;
-      od.search.list_category( category, action_list.show_list );
+      if ( category !== undefined ) od.search.list_category( category, action_list.show_list );
    },
 
    'show_count' : function act_list_show_count ( counts ) {
       var action_list = od.action.list;
       if ( action_list.counts === counts ) return;
-      _.removeClass( ".no-result" );
       od.data.get().forEach( function act_list_show_count_each ( cat ) {
          var txt, dom = action_list.category_dom[ cat.name ];
          if ( counts ) {
             var c = counts[ cat.name ];
             txt = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, cat.count );
-            if ( ! c ) _.addClass( dom, 'no-result' );
          } else {
             txt = cat.count;
          }
@@ -270,7 +273,6 @@ od.action.list = {
       } );
       var c = counts[ '' ], dom = action_list.category_dom[ '' ];
       _( dom, 'var' )[ 0 ].textContent = counts ? _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action_list.total_count ) : action_list.total_count;
-      if ( ! c ) _.addClass( dom, 'no-result' );
    },
 
    'show_list' : function act_list_show_list ( col, data, counts,  highlight ) {
