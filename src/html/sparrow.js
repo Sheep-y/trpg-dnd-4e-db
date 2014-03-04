@@ -271,17 +271,17 @@ _.js = function _js ( option, onload ) {
       if ( e && e.parentNode === document.body ) document.body.removeChild(e);
    }
 
-   e.addEventListener( 'load', function _js_load (){
+   e.addEventListener( 'load', function _js_load () {
       // Delay execution to make sure validate/load is called _after_ script has been ran.
       setImmediate( function _js_load_delayed () {
          if ( option.validate && ! _.call( option.validate, e, url, option )  ) {
-            return _js_done( option.onerror, "[JS] Script error: " + url );
+            return _js_done( option.onerror, "[JS] Script loaded but fail validation: " + url );
          }
          _js_done( option.onload, "[JS] Script loaded: " + url );
       } );
    } );
-   e.addEventListener( 'error', function _js_error (){
-      _js_done( option.onerror, "[JS] Script not found: " + url );
+   e.addEventListener( 'error', function _js_error ( e ) {
+      _js_done( option.onerror, "[JS] Script error or not found: " + url );
    } );
 
    document.body.appendChild( e );
