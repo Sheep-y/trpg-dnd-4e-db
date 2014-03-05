@@ -183,7 +183,7 @@ od.action.list = {
          od.search.list_category( action_list.get_search_category(), action_list.show_list );
       } else {
          var cat = action_list.get_search_category();
-         if ( search_type === undefined ) { // e.g. Pressing Enter in search box.
+         if ( search_type === undefined ) { // e.g. Pressing Enter in search box or clicked filter button.
             search_type = action_list.last_search_type;
          }
          if ( cat !== undefined ) {
@@ -276,12 +276,35 @@ od.action.list = {
       var cl = col.length;
       var idField = col[ 0 ];
       var i, l;
+
+      // Headers
       for ( i = 1 ; i < cl ; i++ ) {
-         head.appendChild( _.create( 'th', {
-            'text': _.l( 'data.field.' + col[i], col[i] ),
-            'onclick': function(){ alert('sorting unimplemented (target M3)'); } // TODO
+         // Data field column
+         var th = _.create( 'th' ), label = _.l( 'data.field.' + col[i], col[i] );
+         th.appendChild( _.create( 'input', { 'type': 'search', 'class' : 'list_filter', 'placeholder': 'Unimplemented' } ) );
+         th.appendChild( _.create( 'br' ) );
+         th.appendChild( _.create( 'span', {
+            'text': label,
+            'onclick': function act_list_header_click(){ alert('Sorting unimplemented'); } // TODO
          } ) );
+         head.appendChild( th );
       }
+      // Action column
+      var th = _.create( 'th' );
+      th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_clear_filter', '×' ), onclick: function () {
+         _.set( '.list_filter', 'value', '' );
+         action_list.search();
+      } } ) );
+      th.appendChild( _.create( 'input', { 'type': 'checkbox', 'title': _.l( 'action.list.chk_all', 'Check/Uncheck all' ), onchange: function () {
+         this.indeterminate = false;
+         var checked = this.checked;
+         _.set( '.list_sel', 'checked', checked );
+      } } ) );
+      th.appendChild( _.create( 'br' ) );
+      th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_filter', 'Filter' ), 'onclick': action_list.search } ) );
+      head.appendChild( th );
+
+      // Show data
       if ( ! data || data.length <= 0 ) {
          _( '#act_list_pnl_list' )[0].appendChild( table );
          return body.appendChild( _.create( 'td', { 'rowspan' : cl, 'align' : 'center', 'etxt' : _.l( 'action.list.lbl_no_result' ) } ) );
@@ -304,6 +327,9 @@ od.action.list = {
                if ( d ) td.textContent = d.text ? d.text : d;
                row.appendChild( td );
             }
+            var td = document.createElement('td');
+            td.innerHTML = '<input type="checkbox" class="list_sel">';
+            row.appendChild( td );
             body.appendChild( row );
          }
       }
@@ -332,12 +358,13 @@ od.action.list = {
       }
    },
 
-   'row_click' : function act_list_row_click () {
-       var list = od.action.list;
-       var cat = od.action.list.category;
-       if ( ! cat ) cat = od.data.get( this.getAttribute( 'data-category' ) );
-       var id = od.config.id( this.getAttribute('data-id') );
-       od.gui.goto( "view=" + encodeURIComponent( cat.name + '.' +  id ) );
+   'row_click' : function act_list_row_click ( evt ) {
+      if ( evt && evt.target.tagName === 'INPUT' ) return;
+      var list = od.action.list;
+      var cat = od.action.list.category;
+      if ( ! cat ) cat = od.data.get( this.getAttribute( 'data-category' ) );
+      var id = od.config.id( this.getAttribute('data-id') );
+      od.gui.goto( "view=" + encodeURIComponent( cat.name + '.' +  id ) );
    }
 };
 
