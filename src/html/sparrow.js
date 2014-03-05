@@ -699,20 +699,26 @@ _.create = function _create ( tag, attr ) {
          result.textContent = attr; 
       } else {
          for ( var name in attr ) {
-            if ( name === 'text' ) {
-               result.textContent = attr.text;
-               
-            } else if ( name === 'html' ) {
-               result.innerHTML = attr.html;
-               
-            } else if ( name === 'class' || name === 'className' ) {
-               result.className = attr[ name ];
-               
-            } else if ( name.indexOf('on') === 0 ) {
-               result.addEventListener( name.substr( 2 ), attr[ name ] );
-               
-            } else {
-               result.setAttribute( name, attr[ name ] );
+            switch ( name ) {
+               case 'text':
+                  result.textContent = attr.text;
+                  break;
+
+               case 'html':
+                  result.innerHTML = attr.html;
+                  break;
+
+               case 'class' :
+               case 'className' :
+                  result.className = attr[ name ];
+                  break;
+
+               default:
+                  if ( name.substr( 0, 2 ) === 'on' ) {
+                     result.addEventListener( name.substr( 2 ), attr[ name ] );
+                  } else {
+                     result.setAttribute( name, attr[ name ] );
+                  }
             }
          }
       }
@@ -733,31 +739,56 @@ _.domlist = function _domlist ( e ) {
 };
 
 /**
+ * Set a list of object's same attribute/property to same value
+ *
+ * @param {mixed} ary Element selcetor, dom list, or Array of JS objects.
+ * @param {String} attr Attribute to set.
+ * @param {mixed} value Value to set.
+ * @returns {Array} Array-ifed ary
+ */
+_.set = function _set ( ary, attr, value ) {
+   if ( typeof( ary ) === 'string' ) ary =_( ary ); 
+   ary = _.ary( ary );
+   ary.forEach( function _setEach ( e ) { e[attr] = value; } );
+   return ary;
+}
+
+/**
+ * Set a list of object's style's attribute/property to same value
+ *
+ * @param {mixed} ary Element selcetor, dom list, or Array of JS objects.
+ * @param {String} attr Style attribute to set.
+ * @param {mixed} value Value to set.  If 'undefined' then will also delete the style attribute.
+ * @returns {Array} Array-ifed ary
+ */
+_.style = function _style ( ary, attr, value ) {
+   if ( typeof( ary ) === 'string' ) ary =_( ary ); 
+   ary = _.ary( ary );
+   if ( value !== undefined ) {
+      ary.forEach( function _styleEach ( e ) { e.style[attr] = value; } );
+   } else {
+      ary.forEach( function _styleEachDelete ( e ) { e.style[attr] = ''; delete e.style[attr]; } );
+   }
+   return ary;
+}
+
+/**
  * Show DOM elements by setting display to ''.
+ * Equals to _.style( e, 'display', undefined )
  *
  * @param {mixed} e Selector or element(s).
  * @returns {Array-like} Array-like e
  */
-_.show = function _show ( e ) {
-   e = _.domlist( e );
-   for ( var i = 0, l = e.length ; i < l ; i++ ) {
-      e[ i ].style.display = '';
-      delete e[ i ].style.display;
-   }
-   return e;
-};
+_.show = function _show ( e ) { return _.style( e, 'display', undefined ); };
 
 /**
  * Hide DOM elements by setting display to 'none'.
+ * Equals to _.style( e, 'display', 'none' )
  *
  * @param {mixed} e Selector or element(s).
  * @returns {Array-like} Array-like e
  */
-_.hide = function _show ( e ) {
-   e = _.domlist( e );
-   for ( var i = 0, l = e.length ; i < l ; i++ ) e[ i ].style.display = 'none';
-   return e;
-};
+_.hide = function _show ( e ) { return _.style( e, 'display', 'none' ); };
 
 /**
  * Set DOM elements visibility by setting display to '' or 'none.
