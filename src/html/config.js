@@ -1,6 +1,7 @@
-/*
+/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
  * config.js
- * System Configurations
+ *
+ * System Configurations. Most are not configurable during runtime.
  */
 
 od.config = {
@@ -14,6 +15,9 @@ od.config = {
    "retry_interval" : 30 * 1000, // (ms) Interval between retry.
    "down_interval" : 0, // (ms) Interval between download, but unlikely to work......
    "thread" : 6, // Number of download threads
+
+   "url_monitor_interval" : 500, // Duration between checking url change, in ms.
+
    "source" : {
       "catalog" :
          function url () {

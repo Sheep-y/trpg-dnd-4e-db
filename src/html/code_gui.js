@@ -6,9 +6,12 @@
 
 // GUI namespace
 od.gui = {
-   /** Current action */
+   /** Current action id. */
+   act_id: null,
+   /** Current action. */
    action: null,
-   initialized: [],
+   /** List of initiated actions. */
+   initialized: [], 
 
    /**
     * Navigate to given activity page.
@@ -16,8 +19,9 @@ od.gui = {
     * @param {String} act_id Action to switch to, with all necessary parameters
     */
    "goto" : function gui_goto ( act_id ) {
+      if ( act_id === undefined ) act_id = od.gui.get_act_id();
       var action = od.action[act_id], id = act_id;
-      _.debug( "[Action] Navigate to " + act_id );
+      _.time( "[Action] Navigate to " + act_id );
       // If not a simple page like about/download etc., try to find the action to handle this url
       if ( ! action ) {
          var firstword = _.ary( act_id.match( /^\w+/ ) )[ 0 ]; // Parse first word in url
@@ -30,7 +34,12 @@ od.gui = {
       // Set id if absent. Then update url and swap page.
       if ( action.id === undefined ) action.id = id;
       if ( history.pushState && act_id !== location.search.substr(1) ) history.pushState( null, null, "?" + act_id );
+      od.gui.act_id = act_id;
       this.switch_action( action );
+   },
+
+   "get_act_id" : function gui_get_act_id () {
+      return location.search ? location.search.substr(1) : "list";
    },
 
    /**
@@ -49,9 +58,10 @@ od.gui = {
       var currentAction = gui.action;
       if ( !action || action === currentAction ) return;
 
+      _.time();
       // Pre-switch validation & cleanup
       if ( currentAction ) {
-         _.debug( "[Action] Cleanup " + currentAction.id );
+         _.time( "[Action] Cleanup " + currentAction.id );
          if ( _.call( currentAction.cleanup, currentAction, action ) === false ) return false;
       }
 
@@ -62,23 +72,24 @@ od.gui = {
 
       // Post-switch setup
       if ( gui.initialized.indexOf( action ) < 0 ) {
-         _.info( "[Action] Initialize " + action.id );
+         _.time( "[Action] Initialize " + action.id );
          gui.initialized.push( action );
          _.call( action.initialize, action );
       }
-      _.info( "[Action] Setup " + action.id );
+      _.time( "[Action] Setup " + action.id );
       _.call( action.setup, action, currentAction );
       setImmediate( function gui_switch_action_immediate () {
          _('title')[0].textContent = od.config.title_prefix + _( page, 'h1' )[0].textContent;
       } );
 
       gui.action = action;
+      _.time( 'Switched to ' + action.id );
    },
 
    /**
     * Convert special unicode symbols to common symbols for safe display.
     *
-    * @param {String} Input string.
+    * @param {String} str Input string.
     * @returns {String} Safe version of input converted to common symbols
     */
    "symbol_safe_convert" : function gui_symbol_safe_convert ( str ) {
@@ -91,3 +102,16 @@ od.gui = {
    }
 
 };
+
+// Perform navigation on pop state
+window.addEventListener( 'popstate', function window_popstate () {
+   od.gui.goto();
+});
+
+// Monitor url change
+(function(){
+   var gui = od.gui, get_act_id = gui.get_act_id;
+   setInterval( function window_interval_url_monitor() {
+      if ( get_act_id() != gui.act_id ) od.gui.goto();
+   }, od.config.url_monitor_interval );
+})();
