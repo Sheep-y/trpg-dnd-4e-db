@@ -149,6 +149,11 @@ od.action.list = {
       return _( '#act_list_txt_search' )[0].value;
    },
 
+   /**
+    * Event handler for category buttons
+    *
+    * @param {String} cat Name of category. Empty = all categories.
+    */
    'a_category' : function act_list_a_category ( cat ) {
       var action_list = od.action.list;
       if ( document.body.clientWidth <= 980 && _.hasClass( '#act_list_pnl_category', 'active') ) {
@@ -158,26 +163,29 @@ od.action.list = {
          return;
       }
       action_list.set_search_category( cat ? od.data.get( cat ) : "" );
-      if ( action_list.get_search_term() !== '' ) {
-         action_list.search();
-      } else {
-         action_list.show_category();
-      }
+      action_list.search();
       _( '#act_list_txt_search' )[0].focus();
    },
 
+   /**
+    * Called by search button click event or search field key event to do a search
+    *
+    * @param {String} search_type Type of search, may be undefined, 'full', or 'name'.
+    */
    'search' : function act_list_search ( search_type ) {
-      var action_list = od.action.list, cat = action_list.get_search_category();
-      if ( search_type === undefined ) { // e.g. Pressing Enter in search box.
-         search_type = action_list.last_search_type;
-      } else {
+      var action_list = od.action.list;
+      if ( search_type !== undefined ) { // Pressed search button; update state.
          _.removeClass( '#act_list_tbl_search .active' );
          _.addClass( '#act_list_btn_search_' + search_type, 'active' );
          action_list.last_search_type = search_type;
       }
       if ( action_list.get_search_term() === '' ) {
-         action_list.show_category();
+         od.search.list_category( action_list.get_search_category(), action_list.show_list );
       } else {
+         var cat = action_list.get_search_category();
+         if ( search_type === undefined ) { // e.g. Pressing Enter in search box.
+            search_type = action_list.last_search_type;
+         }
          if ( cat !== undefined ) {
             od.search.search( {
                'category': cat,
@@ -190,6 +198,7 @@ od.action.list = {
       _( '#act_list_txt_search' )[0].focus();
    },
 
+   /** Called after category is loaded to build category buttons */
    'build_category' : function act_list_build_category () {
       // Category order and colour is defined at od.config in config.js
       var action_list = od.action.list;
@@ -252,33 +261,11 @@ od.action.list = {
       });
    },
    
-   'show_category' : function act_list_show_category ( category ) {
-      var action_list = od.action.list;
-      if ( category === undefined ) category = action_list.category;
-      if ( category !== undefined ) od.search.list_category( category, action_list.show_list );
-   },
-
-   'show_count' : function act_list_show_count ( counts ) {
-      var action_list = od.action.list;
-      if ( action_list.counts === counts ) return;
-      od.data.get().forEach( function act_list_show_count_each ( cat ) {
-         var txt, dom = action_list.category_dom[ cat.name ];
-         if ( counts ) {
-            var c = counts[ cat.name ];
-            txt = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, cat.count );
-         } else {
-            txt = cat.count;
-         }
-         _( dom, 'var' )[ 0 ].textContent = txt;
-      } );
-      var c = counts[ '' ], dom = action_list.category_dom[ '' ];
-      _( dom, 'var' )[ 0 ].textContent = counts ? _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action_list.total_count ) : action_list.total_count;
-   },
-
+   /** Callback for search / list, to display the results */
    'show_list' : function act_list_show_list ( col, data, counts,  highlight ) {
       var table = _( '#act_list_pnl_list table' )[0];
       var action_list = od.action.list;
-      action_list.show_count( counts );
+      show_count( counts );
       table.parentNode.removeChild( table );
       table = _.create('table'); // Remove a table is 13% faster then clearing it, but both is slow when list is big
       var head = _.create( 'thead' );
@@ -292,11 +279,10 @@ od.action.list = {
       for ( i = 1 ; i < cl ; i++ ) {
          head.appendChild( _.create( 'th', {
             'text': _.l( 'data.field.' + col[i], col[i] ),
-            'onclick': function(){ alert('sorting unimplemented (target M3)'); }
+            'onclick': function(){ alert('sorting unimplemented (target M3)'); } // TODO
          } ) );
       }
       if ( ! data || data.length <= 0 ) {
-         _.time( 'Search yielded empty results' );
          _( '#act_list_pnl_list' )[0].appendChild( table );
          return body.appendChild( _.create( 'td', { 'rowspan' : cl, 'align' : 'center', 'etxt' : _.l( 'action.list.lbl_no_result' ) } ) );
       }
@@ -322,8 +308,29 @@ od.action.list = {
          }
       }
       _.show( '#act_list_pnl_list' )[0].appendChild( table );
-      _.time('Listed ' + data.length + ' results.' );
-    },
+      _.time( 'Listed ' + data.length + ' results.' );
+
+      /** Display result counts */
+      function show_count ( counts ) {
+         if ( action_list.counts === counts ) return;
+         if ( counts ) {
+            od.data.get().forEach( function act_list_show_count_each ( cat ) {
+               var txt, dom = action_list.category_dom[ cat.name ];
+               if ( counts ) {
+                  var c = counts[ cat.name ];
+                  txt = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, cat.count );
+               } else {
+                  txt = cat.count;
+               }
+               _( dom, 'var' )[ 0 ].textContent = txt;
+            } );
+            var c = counts[ '' ], dom = action_list.category_dom[ '' ];
+            _( dom, 'var' )[ 0 ].textContent = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action_list.total_count );
+         } else {
+            _( dom, 'var' )[ 0 ].textContent = action_list.total_count;
+         }
+      }
+   },
 
    'row_click' : function act_list_row_click () {
        var list = od.action.list;

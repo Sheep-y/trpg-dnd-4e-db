@@ -97,7 +97,7 @@ od.config = {
       "Monster",
       "Terrain",
       "Trap",
-        "#LightGrey"
+        "#LightGrey" // Default for remaining categories undefined here
    ],
 
    "symbol_conversion" : 'Common',

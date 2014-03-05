@@ -84,6 +84,7 @@ search_loop:
                   result.push( row );
                }
             }
+            _.time( 'Search done, ' + result.length + ' result(s).' );
             return result;
          }
       }
