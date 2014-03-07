@@ -9,10 +9,10 @@ od.search = {
    /**
     * Call to do a search.  Will do a search after required lising and indices are loaded.
     * @param {Object} options Options: {
-    *    category : category object, null for all categories,
-    *    term : terms to search for,
-    *    search_body : if false, search listing only, otherwise search both listing and content,
-    *    ondone : callback after search is finished with search result { columns, list }, which may be zero rows
+    *    category : category object, empty for all categories.
+    *    term : terms to search for.
+    *    search_body : if false, search listing only, otherwise search both listing and content.
+    *    ondone : callback after search is finished with search result { columns, list }, which may be zero rows.
     * }
     */
 
@@ -30,7 +30,7 @@ od.search = {
             if ( search_body ) {
                cat.load_index( do_search );
             } else {
-               do_search( );
+               do_search();
             }
          });
       } else {
@@ -41,11 +41,12 @@ od.search = {
             if ( search_body ) {
                od.data.load_all_index( do_search );
             } else {
-               do_search( );
+               do_search();
             }
          });
       }
 
+      /** Called after all data needed for search is properly loaded. */
       function do_search () {
          var regx = tmp[0], count = {}, result;
          if ( cat ) {
