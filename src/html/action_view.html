@@ -39,7 +39,7 @@ od.action.view = {
                var content = cat.data[ id ];
                div.innerHTML = content;
                var h1 = content.match( /<h1[^>]*>(.+)<\/h1\s*>/ );
-               if ( h1 ) title[i] = h1[1];
+               if ( h1 ) title[i] = h1[1].replace( /<span[^>]*>.*<\/span>|<br\/?>/g, '' );
                od.action.view.update_title();
             } );
          } );
