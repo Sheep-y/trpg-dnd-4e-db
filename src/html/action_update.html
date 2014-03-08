@@ -20,14 +20,19 @@
       }
    </style>
 
-   <p class='i18n'> action.update.paragraph.0 </p>
-   <p class='i18n'> action.update.paragraph.1 </p>
-   <p>
-      <button class='i18n' id='act_download_btn_get_catalog' onclick='od.action.update.get_catalog()'> action.update.btn_get_catalog </button>
-      <button class='i18n' id='act_download_btn_all_list' onclick='od.action.update.list_all()'> action.update.btn_all_list </button>
-      <button class='i18n' id='act_download_btn_update' onclick='od.action.update.update_all()'> action.update.btn_update_changed </button>
-      <button class='i18n' id='act_download_btn_save' onclick='od.action.update.save()'> action.update.btn_save </button>
-   </p>
+   <div>
+      <p class='i18n'> action.update.paragraph.0 </p>
+      <p class='i18n'> action.update.paragraph.1 </p>
+      <p class='i18n hide' id='act_donwload_err_online'> action.update.err_online </p>
+      <p class='i18n hide' id='act_donwload_err_nonie'> action.update.err_nonie </p>
+      <p class='i18n hide' id='act_donwload_err_activex'> action.update.err_activex </p>
+      <p>
+         <button class='i18n' id='act_download_btn_get_catalog' onclick='od.action.update.get_catalog()'> action.update.btn_get_catalog </button>
+         <button class='i18n' id='act_download_btn_all_list' onclick='od.action.update.list_all()'> action.update.btn_all_list </button>
+         <button class='i18n' id='act_download_btn_update' onclick='od.action.update.update_all()'> action.update.btn_update_changed </button>
+         <button class='i18n' id='act_download_btn_save' onclick='od.action.update.save()'> action.update.btn_save </button>
+      </p>
+   </div>
    <table id='act_download_tbl_list' class="fullw">
       <thead>
          <tr>
@@ -69,7 +74,18 @@ od.action.update = {
 
    'initialize': function act_download_init () {
       _.hide( '#act_download_tbl_list, #act_download_btn_all_list, #act_download_btn_update, #act_download_btn_save');
-      if ( location.protocol !== 'file:' || ! window.ActiveXObject || ! /\bMSIE (9|\d\d+)\./.test(navigator.userAgent) ) {
+      var online = location.protocol !== 'file:';
+      var nonie = ! /\bMSIE (9|10)\.|\bTrident\b.+\brv:\d\d\./.test(navigator.userAgent);
+      var activex = true;
+      if ( ! nonie ) {
+         try { // Active X disabled?
+            activex = !!new ActiveXObject("htmlfile")
+         } catch ( ignored ) {}
+      }
+      if ( online || nonie || ! activex ) {
+         if ( nonie ) _.removeClass( '#act_donwload_err_nonie.hide' );
+         if ( ! activex ) _.removeClass( '#act_donwload_err_activex.hide' );
+         if ( online ) _.removeClass( '#act_donwload_err_online.hide' );
          _.hide( '#act_download_btn_get_catalog' );
          //alert( _.l( 'error.file_no_api' ) );
       }

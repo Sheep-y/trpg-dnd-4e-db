@@ -72,8 +72,8 @@ _.l.set( 'action.update', {
    'link_text' : "Update",
 
    'paragraph' : [
-      "This browser script allows you to download and save compendium entries, then search and list them offline using advanced Google-like syntax.",
-      "<b>Requires an active DDI subscription to download any data.</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates' target='_blank'>Official Rules Updates</a>"
+      "This web page allows you to download and save <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>compendium entries</a>, then search and list them online or offline using advanced Google-like syntax.",
+      "<b>Requires an active <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI subscription</a> to download or update any data.</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates'>Official Rules Updates</a>"
    ],
    'btn_get_catalog' : "Refresh catalog",
    'btn_all_list' : "Check all",
@@ -102,7 +102,14 @@ _.l.set( 'action.update', {
    'lbl_fetching_xsl' : "Fetching convertor",
    'lbl_progress' : "%1 / %2",
 
-   'msg_login'  : "A login window will pop up.  Please login and then close the login popup to resume download.  Or press Cancel to stop the update process."
+   'err_online':
+      "<b class='red'>Please save this web page as a file and open the file to do download/update.</b>",
+   'err_nonie':
+      "<b class='red'>Download/update is only available in <a href='http://ie.microsoft.com/'>Internet Explorer (9+)</a>.</b>",
+   'err_activex':
+      "<b class='red'>Please use non-Metro IE and enable ActiveX to do download/update.</b>",
+ 
+   'msg_login'  : "A login window will pop up.  Please *Login and Close* the login window to resume download."
 });
 
 _.l.set( 'action.about', {

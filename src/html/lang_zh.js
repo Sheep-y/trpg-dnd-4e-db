@@ -102,8 +102,8 @@ _.l.set( 'action.update', {
    'link_text' : "更新",
 
    'paragraph' : [
-      "This browser script allows you to download and save compendium entries, then search and list them offline using advanced Google-like syntax.",
-      "<b>Requires an active DDI subscription to download any data.</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates' target='_blank'>Official Rules Updates</a>"
+      "此網頁讓您得以下載和儲存<a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>數據庫</a的條目，然後不論在線離線皆可以用強力的類谷哥語法去搜尋和列出它們。",
+      "<b>需要有效的 <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI 賬戶</a>才能下載或更新任何數據。</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates' target='_blank'>官方規則更新</a>"
    ],
    'btn_get_catalog' : "刷新列表",
    'btn_all_list' : "全部檢查",
@@ -132,7 +132,14 @@ _.l.set( 'action.update', {
    'lbl_fetching_xsl' : "提取轉換器中",
    'lbl_progress' : "%1／%2",
 
-   'msg_login'  : "一個登入頁即將彈出。請登入然後關閉登入窗口以繼續下載。或者按\"取消\"終止更新程序。"
+   'err_online':
+      "<b class='red'>請先將此網頁儲存成本機檔案，開啟它，才可以進行下載或更新。</b>",
+   'err_nonie':
+      "<b class='red'>限使用 <a href='http://ie.microsoft.com/'>Internet Explorer (9+)</a> 才可以進行下載或更新。</b>",
+   'err_activex':
+      "<b class='red'>限使用非 Metro IE 及需啟用 ActiveX 才可以進行下載或更新。</b>",
+
+   'msg_login'  : "一個登入頁即將彈出。請*登入並關閉*登入窗口以繼續下載。"
 });
 
 _.l.set( 'action.about', {
