@@ -76,9 +76,8 @@ od.reader = {
          return _.error( _.l( 'error.need_reget' ) );
       if ( version < 20130703 ) {
          // 20130616 format use full id instead of simplified id
-         data.map( function reader_jsonp_data_listing_20130616 ( item ) {
+         data.forEach( function reader_jsonp_data_listing_20130616 ( item ) {
             item[ 0 ] = od.config.id( item[ 0 ] );
-            return item;
          } );
       }
       var cat = od.data.get( category );
@@ -106,9 +105,8 @@ od.reader = {
    jsonp_data_index: function reader_jsonp_data_index( version, category, data ) {
       if ( version < 20130703 ) {
          // 20130616 format use full id instead of simplified id
-         data.map( function reader_jsonp_data_index_20130616 ( item ) {
+         data.forEach( function reader_jsonp_data_index_20130616 ( item ) {
             item[ 0 ] = od.config.id( item );
-            return item;
          } );
       }
       var cat = od.data.get(category);
@@ -129,6 +127,10 @@ od.reader = {
    },
 
    jsonp_data: function reader_jsonp_data( version, category, id, data ) {
+      if ( version < 20130703 ) {
+         // 20130616 format use full id instead of simplified id
+         id = od.config.id( id );
+      }
       var cat = od.data.get(category);
       cat.data[id] = data;
    }
