@@ -127,11 +127,9 @@ _.sort = function _sort ( data, field, des ) {
  */
 _.call = function _call ( func, thisObj, param /*...*/ ) {
    if ( func === undefined || func === null ) return undefined;
-   try {
-      if ( arguments.length <= 1 ) return func();
-      else if ( arguments.length <= 3 ) return func.call( thisObj, param );
-      else return func.apply( thisObj, _.ary(arguments, 2) );
-   } catch ( e ) { _.error( [ e, func, arguments ] ); }
+   if ( arguments.length <= 1 ) return func();
+   else if ( arguments.length <= 3 ) return func.call( thisObj, param );
+   else return func.apply( thisObj, _.ary(arguments, 2) );
 };
 
 /**
