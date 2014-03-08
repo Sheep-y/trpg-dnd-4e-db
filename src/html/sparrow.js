@@ -52,9 +52,8 @@ window._ = function _ ( root, selector ) {
  */
 _.ary = function _ary ( subject, startpos, length ) {
    if ( subject.length <= 0 ) return [];
-   var s = Array.prototype.slice;
-   if ( startpos === undefined ) return subject instanceof Array ? subject : s.call( subject, 0 );
-   return s.call( subject, startpos, length );
+   if ( startpos === undefined ) return subject instanceof Array ? subject : Array.prototype.slice.call( subject, 0 );
+   return Array.prototype.slice.call( subject, startpos, length );
 };
 
 /**
