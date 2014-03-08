@@ -27,6 +27,16 @@ html, body {
    /* Pattle: FFD700 - Black - Red */
 }
 
+a {
+   color: darkred;
+   text-decoration: none;
+}
+
+a:hover {
+   color: red;
+   text-decoration: underline;
+}
+
 @media print {
    .no-print { display: none; }
 }
@@ -41,6 +51,7 @@ figure { margin: 0; }
 .right { float: right; }
 .left { float: left; }
 .hide { display: none; }
+.red { color: red; }
 
 button {
    display: inline-block;
