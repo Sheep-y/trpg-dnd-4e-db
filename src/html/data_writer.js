@@ -82,35 +82,34 @@ od.writer = {
 
    // Writing is instantaneous, but let's use callback for future compatibility
    write_catalog : function writer_write_catalog ( ondone, onerror ) {
-      // od.reader.jsonp_index( 20120915, {
       var object = {}, data = od.data.category;
       for ( var cat in data ) object[cat] = data[cat].count;
-      this._write( od.config.file.catalog(), 'od.reader.jsonp_catalog(20130616,' + JSON.stringify( object ) + ')', ondone, onerror );
+      this._write( od.config.file.catalog(), 'od.reader.jsonp_catalog(20130703,' + JSON.stringify( object ) + ')', ondone, onerror );
    },
 
    write_data_raw : function writer_write_data_raw ( category, ondone, onerror ) {
       this._write( od.config.file.raw( category.name ),
-         'od.reader.jsonp_data_raw(20130616,"' + _.escJs( category.name ) + '",'
+         'od.reader.jsonp_data_raw(20130703,"' + _.escJs( category.name ) + '",'
          +JSON.stringify( category.raw_columns ) + ','
          +JSON.stringify( category.raw ) + ')', ondone, onerror );
    },
 
    write_data_listing : function writer_write_data_listing ( category, ondone, onerror ) {
       this._write( od.config.file.listing( category.name ),
-         'od.reader.jsonp_data_listing(20130616,"' + _.escJs( category.name ) + '",'
+         'od.reader.jsonp_data_listing(20130703,"' + _.escJs( category.name ) + '",'
          +JSON.stringify( category.ext_columns ) + ','
          +JSON.stringify( category.extended ) + ')', ondone, onerror );
    },
 
    write_data_index : function writer_write_data_index ( category, ondone, onerror ) {
       this._write( od.config.file.index( category.name ),
-       'od.reader.jsonp_data_index(20130616,"' + _.escJs( category.name ) + '",'
+       'od.reader.jsonp_data_index(20130703,"' + _.escJs( category.name ) + '",'
        +JSON.stringify( category.index ) + ')', ondone );
    },
 
    write_data : function writer_write_data ( category, id, data, ondone, onerror ) {
       this._write( od.config.file.data( category.name, id ),
-       'od.reader.jsonp_data(20130616,"' + _.escJs( category.name ) + '","' + _.escJs( id )+'",'+
+       'od.reader.jsonp_data(20130703,"' + _.escJs( category.name ) + '","' + _.escJs( id )+'",'+
        JSON.stringify( data ) + ')', ondone );
    }
 

@@ -73,8 +73,15 @@ od.reader = {
       if ( version < 20130616 )
          // Milestone 1 data, file name changed, not worth trouble to support.
          // Can manually rename _listing.js to _raw.js and run reindex.
-         return _.error( _.l( 'error.need_reget' ) ); 
-      var cat = od.data.get(category);
+         return _.error( _.l( 'error.need_reget' ) );
+      if ( version < 20130703 ) {
+         // 20130616 format use full id instead of simplified id
+         data.map( function reader_jsonp_data_listing_20130616 ( item ) {
+            item[ 0 ] = od.config.id( item[ 0 ] );
+            return item;
+         } );
+      }
+      var cat = od.data.get( category );
       cat.ext_columns = columns;
       cat.extended = data;
    },
@@ -97,6 +104,13 @@ od.reader = {
    },
 
    jsonp_data_index: function reader_jsonp_data_index( version, category, data ) {
+      if ( version < 20130703 ) {
+         // 20130616 format use full id instead of simplified id
+         data.map( function reader_jsonp_data_index_20130616 ( item ) {
+            item[ 0 ] = od.config.id( item );
+            return item;
+         } );
+      }
       var cat = od.data.get(category);
       cat.index = data;
    },

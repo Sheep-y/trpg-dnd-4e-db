@@ -2,6 +2,7 @@
  * data_updater.js
  *
  * Core (non-ui) logic of entry downloading and higher level data updating such as reindex and deletion.
+ * This part manage resource by real id instead of simplified id used by saved category.
  */
 
 // GUI namespace
@@ -431,18 +432,19 @@ od.updater.RemoteCategory.prototype = {
 
       // Called once for each id. i is the position in index.
       function download_Cat_reindex_func ( i, id ) {
+         var sid = od.config.id( id );
          return function download_Cat_reindex_task () {
             local.load_data( id, function download_Cat_reindex_loaded() {
                // Re-run local.update for reindex purpose
                local.update( id, local.raw[ i ], local.data[ id ], i );
-               if ( remote.dirty.indexOf( id ) < 0 ) delete local.data[ id ]; // Unload to save memory if not dirty data
+               if ( remote.dirty.indexOf( id ) < 0 ) delete local.data[ sid ]; // Unload to save memory if not dirty data
                ++count;
                latch.count_down();
             }, function download_Cat_reindex_error () {
                // Delete item
                local.raw.splice( i, 1 );
                local.extended.splice( i, 1 );
-               delete local.index[ id ];
+               delete local.index[ sid ];
                ++count;
                latch.count_down();
             } );
@@ -491,7 +493,7 @@ od.updater.RemoteCategory.prototype = {
             var latch = new _.Latch( remote.dirty.length+1 );
             remote.dirty.forEach( function download_Cat_save_data ( id ) {
                if ( id === true ) return latch.count_down(); // True is used by reindex to indicate a category's list is dirty, actual data is unchanged
-               local.save_data( id, latch.count_down_function(), onerror );
+               local.save_data( od.config.id( id ), latch.count_down_function(), onerror );
             });
             latch.ondone = function download_Cat_saved_data () {
                remote.dirty = [];

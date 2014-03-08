@@ -22,8 +22,7 @@ od.action.view = {
       var idList = location.search.substr( '?view='.length ).split( ',' );
       var title = this.title = new Array( idList.length );
       this.update_title;
-      // Load all data
-      // TODO: Change format to use simplified id, so that we don't need to load index for each cat
+      // Load main data listing, so that ?list will not think we already loaded
       od.data.load_catalog( function act_view_cat_load () {
          idList.forEach( function act_view_show_each ( id, i ) {
             // Parse id
@@ -31,20 +30,17 @@ od.action.view = {
             var cat = od.data.create( id[ 1 ] );
             id = id[ 2 ];
             if ( ! cat || ! id ) return;
-            cat.load_listing( function act_view_list_load () {
-               id = cat.extended[ _.col( cat.extended ).map( od.config.id ).indexOf( id ) ][0];
-               _.debug( "Display " + cat.name + "." + id );
-               // Create div
-               var div = _.create( 'div' );
-               _( '#act_view_pnl_content')[0].appendChild( div );
-               // Load and fill div
-               cat.load_data( id, function act_view_show_load () {
-                  var content = cat.data[ id ];
-                  div.innerHTML = content;
-                  var h1 = content.match( /<h1[^>]*>(.+)<\/h1\s*>/ );
-                  if ( h1 ) title[i] = h1[1];
-                  od.action.view.update_title();
-               } );
+            _.debug( "Display " + cat.name + "." + id );
+            // Create div
+            var div = _.create( 'div' );
+            _( '#act_view_pnl_content')[0].appendChild( div );
+            // Load and fill div
+            cat.load_data( id, function act_view_show_load () {
+               var content = cat.data[ id ];
+               div.innerHTML = content;
+               var h1 = content.match( /<h1[^>]*>(.+)<\/h1\s*>/ );
+               if ( h1 ) title[i] = h1[1];
+               od.action.view.update_title();
             } );
          } );
       } );

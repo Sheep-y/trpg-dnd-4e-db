@@ -235,6 +235,7 @@ od.data.Category.prototype = {
       var result = listing.concat();
       // Data is null = listing columns
       if ( data ) {
+         result[ 0 ] = od.config.id( result[ 0 ] );
          var pos = this.ext_columns.indexOf( 'SourceBook' );
          if ( pos && listing[ pos ] && listing[ pos ].indexOf(',') >= 0 ) result[ pos ] = [ listing[pos] ].concat( listing[pos].split(',') );
       }
@@ -242,6 +243,7 @@ od.data.Category.prototype = {
    },
 
    "update" : function data_Cat_update ( id, listing, data, i ) {
+      id = od.config.id( id );
       if ( i === undefined ) i = _.col( this.raw ).indexOf( id );
       data = od.data.preprocess( data );
       if ( i < 0 ) i = this.count++;
