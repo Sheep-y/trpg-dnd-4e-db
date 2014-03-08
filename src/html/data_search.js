@@ -25,7 +25,7 @@ od.search = {
       if ( cat ) {
          // Search in a single category
          cat.load_listing( function search_search_cat () {
-            cols = cat.columns;
+            cols = od.config.display_columns( cat.columns );
             if ( ! tmp ) return _.call( options.ondone, null, cols );
             if ( search_body ) {
                cat.load_index( do_search );
@@ -75,6 +75,7 @@ search_loop:
                for ( var prop in row ) {
                   if ( prop !== '_category' ) {
                      var p = row[ prop ];
+                     // Bug: Exclude filter is not applied
                      if ( regx.test( p.text ? p.text : p ) ) {
                         result.push( row );
                         continue search_loop;
@@ -98,7 +99,7 @@ search_loop:
          if ( cat ) {
             _.time( 'List ' + cat.title );
             cat.load_listing( function data_search_list_category_load_cat() {
-               _.call( onload, null, cat.columns, cat.list.concat(), null, null );
+               _.call( onload, null, od.config.display_columns( cat.columns ), cat.list.concat(), null, null );
             } );
          } else {
             _.time( 'List all categories' );

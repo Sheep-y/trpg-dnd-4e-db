@@ -20,55 +20,59 @@ od.config = {
 
    "source" : {
       "catalog" :
-         function url () {
+         function config_source_catalog () {
             if ( od.config.simulate ) return od.config.simulated_data_url+'/test-search.xml';
             var keyword = ['jump','prone','dazed','knowledge','acrobatics','endurance','fly','vision','light','cover','concealment','swim','detect magic'];
             keyword = keyword[Math.floor(Math.random()*keyword.length)];
             return 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/KeywordSearch?Keywords='+keyword+'&nameOnly=false&tab=Glossary';
          },
       "list" :
-         function url ( category ) {
+         function config_source_list ( category ) {
             return od.config.simulate
                ? ( od.config.simulated_data_url+'/search-' + category + '.xml' )
                : ( 'http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/ViewAll?tab='+category );
          },
       "xsl" :
-         function url ( category ) {
+         function config_source_xsl ( category ) {
             return od.config.simulate
                ? ( od.config.simulated_data_url+'/xsl-' + category + '.xsl' )
                : ( 'http://www.wizards.com/dndinsider/compendium/xsl/' + category + '.xsl' );
          },
       "data" :
-         function url ( category, itemId ) {
+         function config_source_data ( category, itemId ) {
             return ( od.config.simulate ? od.config.simulated_data_url : 'http://www.wizards.com/dndinsider/compendium' ) + '/' + itemId  ;
          }
    },
    "url" : {
       "catalog" :
-         function url () { return od.config.data_read_path + '/catalog.js'; },
+         function config_url () { return od.config.data_read_path + '/catalog.js'; },
       "raw" :
-         function url ( category ) { return od.config.data_read_path + '/' + category + '/_raw.js'; },
+         function config_url ( category ) { return od.config.data_read_path + '/' + category + '/_raw.js'; },
       "listing" :
-         function url ( category ) { return od.config.data_read_path + '/' + category + '/_listing.js'; },
+         function config_url ( category ) { return od.config.data_read_path + '/' + category + '/_listing.js'; },
       "index" :
-         function url ( category ) { return od.config.data_read_path + '/' + category + '/_index.js'; },
+         function config_url ( category ) { return od.config.data_read_path + '/' + category + '/_index.js'; },
       "data" :
-         function url ( category, id ) { return od.config.data_read_path + '/' + category + '/' + od.config.id( id ) + '.js'; }
+         function config_url ( category, id ) { return od.config.data_read_path + '/' + category + '/' + od.config.id( id ) + '.js'; }
    },
    "file" : {
       "catalog" :
-         function url () { return od.config.data_write_path+'/catalog.js'; },
+         function config_file () { return od.config.data_write_path+'/catalog.js'; },
       "raw" :
-         function url ( category ) { return od.config.data_write_path + '/' + category + '/_raw.js'; },
+         function config_file ( category ) { return od.config.data_write_path + '/' + category + '/_raw.js'; },
       "listing" :
-         function url ( category ) { return od.config.data_write_path + '/' + category + '/_listing.js'; },
+         function config_file ( category ) { return od.config.data_write_path + '/' + category + '/_listing.js'; },
       "index" :
-         function url ( category ) { return od.config.data_write_path + '/' + category + '/_index.js'; },
+         function config_file ( category ) { return od.config.data_write_path + '/' + category + '/_index.js'; },
       "data" :
-         function url ( category, id ) { return od.config.data_write_path + '/' + category + '/' + od.config.id( id ) + '.js'; }
+         function config_file ( category, id ) { return od.config.data_write_path + '/' + category + '/' + od.config.id( id ) + '.js'; }
    },
-   "id" : function id ( id ) {
+   "id" : function config_id ( id ) {
       return id.replace( /\.aspx\?id=|\W+/g, '' );
+   },
+   "display_columns" : function  config_display_columns ( cols ) {
+      if ( typeof( cols ) === 'string' ) return cols.substr( cols.length - 4 ) !== 'Sort';
+      return cols.filter( od.config.display_columns );
    },
 
    "category_order" : [
