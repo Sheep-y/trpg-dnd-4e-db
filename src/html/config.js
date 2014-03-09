@@ -74,6 +74,15 @@ od.config = {
       if ( typeof( cols ) === 'string' ) return cols.substr( cols.length - 4 ) !== 'Sort';
       return cols.filter( od.config.display_columns );
    },
+   "level_to_int" : function config_level_to_int ( data ) {
+      if ( ! data ) return 0;
+      switch ( data ) {
+         case 'Heroic' : return 1;
+         case 'Paragon': return 11;
+         case 'Epic'   : return 21;
+      }
+      return +a.replace( /\D+/g, '' );
+   },
 
    "category_order" : [
         "#LightGray",

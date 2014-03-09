@@ -157,19 +157,25 @@ od.action.list = {
    'get_search_term' : function act_list_get_search_term () {
       return _( '#act_list_txt_search' )[0].value;
    },
-   
+
    'update_action_id' : function act_list_get_action_id ( ) {
       var action_list = od.action.list, term = action_list.get_search_term();
       var id = 'list.' + action_list.search_type;
       if ( action_list.category ) id += '.' + encodeURIComponent( action_list.category.name );
       else if ( action_list.category !== undefined ) id += '.All';
       if ( term ) id += '=' + encodeURIComponent( term );
+      if ( action_list.sort_field ) {
+         id += "&sort=" + encodeURIComponent( action_list.sort_field );
+         if ( ! action_list.sort_asc )
+            id += "&reverse=1";
+      }
       od.gui.pushState( id );
    },
-   
+
    'parse_action_id' : function act_list_parse_action_id ( ) {
+      // TODO: Add error handling when parsed info is incorrect
       var id = od.gui.act_id, action_list = od.action.list;
-      var parts = id.match( /^list(?:\.(name|full)?\.([^.=]+)?)?(=[^&]+)?(.*)$/ );
+      var parts = id.match( /^list(?:\.(name|full)?\.([^.=]+)?)?(=[^&]+)?(?:&sort=([^&]+)(&reverse=1)?)?(.*)$/ );
       if ( parts ) {
          if ( parts[2] ) {
             action_list.set_search_category( parts[2] === 'All' ? "" : od.data.get( parts[2] ) );
@@ -177,10 +183,12 @@ od.action.list = {
             action_list.set_search_category( undefined );
          }
          _( '#act_list_txt_search' )[0].value = parts[3] ? parts[3].substr(1) : "";
+         action_list.sort_field = parts[4] ? parts[4] : undefined;
+         action_list.sort_asc = !!parts[5];
          action_list.search( parts[1] );
       }
    },
-   
+
    /**
     * Event handler for category buttons
     *
@@ -336,14 +344,16 @@ od.action.list = {
          var th = _.create( 'th' ), label = _.l( 'data.field.' + col[i], col[i] );
          th.appendChild( _.create( 'input', { 'type': 'search', 'class' : 'list_filter', 'placeholder': label } ) );
          //th.appendChild( _.create( 'br' ) );
-         th.appendChild( _.create( 'span', {
-            'text': '⇅',
-            'onclick': function act_list_header_click(){
-               action_list.sort_asc = action_list.sort_field === i ? ! action_list.sort_asc : true;
-               action_list.sort_field = i;
-               alert('Sorting unimplemented');
-            }
-         } ) );
+         var sorter = _.create( 'span', '⇅' );
+         sorter.addEventListener( 'click', ( function ( f, lbl ) { return function act_list_header_click(){
+               action_list.sort_asc = action_list.sort_field === f ? ! action_list.sort_asc : true;
+               _.set( '#act_list_pnl_list th span', 'textContent', '⇅' );
+               lbl.textContent = action_list.sort_asc ? '↓' : '↑';
+               action_list.sort_field = f;
+               action_list.show_list();
+               action_list.update_action_id();
+            }; } )( col[ i ], sorter ) );
+         th.appendChild( sorter );
          head.appendChild( th );
       }
       // Action column
@@ -368,7 +378,31 @@ od.action.list = {
       _.show( '#act_list_pnl_list' )[0].appendChild( table );
    },
 
-   /** List the current result, e.g. after changing sorting. */
+   /** Copy and sort given data. */
+   'sort_data' : function act_list_sort_data ( data ) {
+      var action_list = od.action.list, sorter, sort = action_list.sort_field;
+      var ab = action_list.sort_asc ? 1 : -1, ba = ab * -1;
+      _.time( 'Sorting ' + data.length + ' results by ' + action_list.sort_field );
+      switch( sort ) {
+         case 'Cost':
+         case 'Level':
+            sorter = function (a,b) {
+               a = od.config.level_to_int( a[ sort ] );
+               b = od.config.level_to_int( b[ sort ] );
+               return a > b ? ab : ( a < b ? ba : 0 );
+            };
+            break;
+         default:
+            sorter = function (a,b) {
+               a = a[ sort ];
+               b = b[ sort ];
+               return a > b ? ab : ( a < b ? ba : 0 );
+            };
+      }
+      return data.concat().sort( sorter );
+   },
+
+      /** List the current result, e.g. after changing sorting. */
    'show_list' : function act_list_show_list ( table ) {
       var action_list = od.action.list;
       var data = action_list.data, col = action_list.columns;
@@ -383,6 +417,11 @@ od.action.list = {
       if ( ! data || data.length <= 0 ) {
          return body.appendChild( _.create( 'td', { 'rowspan' : cl, 'align' : 'center', 'text' : _.l( 'action.list.lbl_no_result' ) } ) );
       }
+
+      if ( action_list.sort_field && data[0][ action_list.sort_field ] !== undefined ) {
+         data = action_list.sort_data( data );
+      }
+
       _.time( 'Listing ' + data.length + ' results (' + col + ')' );
       for ( var i = 0, l = data.length ; i < l ; i++ ) {
          var line = data[i];
