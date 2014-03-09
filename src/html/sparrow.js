@@ -674,11 +674,11 @@ _.noDef = function _noDef ( e ) { if ( e && e.preventDefault ) e.preventDefault(
  * Create a DOM element and set its attributes / contents.
  *
  * @param {String} tag Tag name of element to create.
- * @param {mixed} attr Text content String, or object with properties to set. e.g. text, html, class, onclick, disabled, style.
+ * @param {mixed} attr Text content String, or object with properties to set. e.g. text, html, class, onclick, disabled, style, etc.
  * @returns {Element} Created DOM element.
  */
 _.create = function _create ( tag, attr ) {
-   /* Disabled Id/class parsing because just the check would slow down _.create by 6% to 12%, and does not do anything new. *
+   /* Disabled Id/class parsing because just the check cause slow down of 6% to 12%, and does not do anything new. *
    if ( typeof( attr ) !== 'object' ) attr = { 'text' : attr }; // Convert text / numeric attribute to proper attribute object
    if ( tag.indexOf( '#' ) > 0  || tag.indexOf( '.' ) > 0 ) { // Parse 'table.noprint.fullwidth#nav' into tag, class, id
       if ( ! attr ) attr = {}; // Create attribute object if not given
