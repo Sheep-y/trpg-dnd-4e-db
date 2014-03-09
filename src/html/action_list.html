@@ -107,18 +107,23 @@ od.action.list = {
 
    'initialize' : function act_list_init () {
       _('#act_list_txt_search')[0].setAttribute( 'placeholder', _.l( 'action.list.txt_search_placeholder' ) );
-      //_.visible( '#act_list_btn_update', od.config.show_download ); // Download page should be available all times, if just for explaining 'Why you must download with that browser'.
-      this.build_category();
    },
 
    'setup': function act_list_setup () {
-      _( '#act_list_txt_search' )[0].focus();
+      if ( _( '#act_list_pnl_category button' ).length <= 0 )
+         this.build_category( od.action.list.parse_action_id );
+      else
+         od.data.load_catalog( od.action.list.parse_action_id );
+   },
+
+   'navigate': function act_list_navigate () {
+      od.data.load_catalog( od.action.list.parse_action_id );
    },
 
    'cleanup': null,
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   'last_search_type' : 'name',
+   'search_type' : 'name', // Either 'name' or 'full'
    'category' : undefined, // Active category.  undefined = None.  "" = All.
    'category_dom' : {},   // Category button list.
    'sort_field' : undefined, // Field currently being sorted. Empty means use natural sort.
@@ -139,8 +144,10 @@ od.action.list = {
    'set_search_category' : function act_list_set_search_category ( cat ) {
       od.action.list.category = cat;
       _.removeClass( '#act_list_pnl_category, #act_list_pnl_category .activable.active' );
-      _.addClass( '#act_list_pnl_category', 'active' );
-      _.addClass( od.action.list.category_dom[ cat ? cat.name : "" ], 'active' );
+      if ( cat !== undefined ) {
+         _.addClass( '#act_list_pnl_category', 'active' );
+         _.addClass( od.action.list.category_dom[ cat ? cat.name : "" ], 'active' );
+      }
    },
 
    'get_search_category' : function act_list_get_search_category () {
@@ -150,7 +157,30 @@ od.action.list = {
    'get_search_term' : function act_list_get_search_term () {
       return _( '#act_list_txt_search' )[0].value;
    },
-
+   
+   'update_action_id' : function act_list_get_action_id ( ) {
+      var action_list = od.action.list, term = action_list.get_search_term();
+      var id = 'list.' + action_list.search_type;
+      if ( action_list.category ) id += '.' + encodeURIComponent( action_list.category.name );
+      else if ( action_list.category !== undefined ) id += '.All';
+      if ( term ) id += '=' + encodeURIComponent( term );
+      od.gui.pushState( id );
+   },
+   
+   'parse_action_id' : function act_list_parse_action_id ( ) {
+      var id = od.gui.act_id, action_list = od.action.list;
+      var parts = id.match( /^list(?:\.(name|full)?\.([^.=]+)?)?(=[^&]+)?(.*)$/ );
+      if ( parts ) {
+         if ( parts[2] ) {
+            action_list.set_search_category( parts[2] === 'All' ? "" : od.data.get( parts[2] ) );
+         } else {
+            action_list.set_search_category( undefined );
+         }
+         _( '#act_list_txt_search' )[0].value = parts[3] ? parts[3].substr(1) : "";
+         action_list.search( parts[1] );
+      }
+   },
+   
    /**
     * Event handler for category buttons
     *
@@ -179,15 +209,16 @@ od.action.list = {
       if ( search_type !== undefined ) { // Pressed search button; update state.
          _.removeClass( '#act_list_tbl_search .active' );
          _.addClass( '#act_list_btn_search_' + search_type, 'active' );
-         action_list.last_search_type = search_type;
+         action_list.search_type = search_type;
       }
+      action_list.update_action_id();
       var cat = action_list.get_search_category();
       if ( cat !== undefined ) {
          if ( action_list.get_search_term() === '' ) {
             od.search.list_category( action_list.get_search_category(), action_list.build_list );
          } else {
             if ( search_type === undefined ) { // e.g. Pressing Enter in search box or clicked filter button.
-               search_type = action_list.last_search_type;
+               search_type = action_list.search_type;
             }
             od.search.search( {
                'category': cat,
@@ -201,7 +232,7 @@ od.action.list = {
    },
 
    /** Called after category is loaded to build category buttons */
-   'build_category' : function act_list_build_category () {
+   'build_category' : function act_list_build_category ( ondone ) {
       // Category order and colour is defined at od.config in config.js
       var action_list = od.action.list;
       action_list.counts = null;
@@ -258,6 +289,7 @@ od.action.list = {
          action_list.total_count = total;
          _( action_list.category_dom[''], 'var' )[0].textContent = total;
          _.show( div );
+         if ( ondone ) _.call( ondone );
       }, function act_list_build_category_error () {
          od.gui.goto( "update" );
       });

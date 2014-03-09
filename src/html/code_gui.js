@@ -37,7 +37,8 @@ od.gui = {
     * @param {String} act_id Action to switch to, with all necessary parameters
     */
    "goto" : function gui_goto ( act_id ) {
-      if ( act_id === undefined ) act_id = od.gui.get_act_id();
+      var gui = od.gui;
+      if ( act_id === undefined ) act_id = gui.get_act_id();
       var action = od.action[act_id], id = act_id;
       _.time( "[Action] Navigate to " + act_id );
       // If not a simple page like about/download etc., try to find the action to handle this url
@@ -51,9 +52,19 @@ od.gui = {
       }
       // Set id if absent. Then update url and swap page.
       if ( action.id === undefined ) action.id = id;
-      if ( history.pushState && act_id !== location.search.substr(1) ) history.pushState( null, null, "?" + act_id );
+      gui.pushState( act_id );
+      gui.switch_action( action );
+   },
+   
+   /**
+    * Call history.pushState
+    *
+    * @param {String} act_id location.search part (without '?')
+    */
+   "pushState" : function gui_push_state ( act_id ) {
+      if ( act_id !== location.search.substr(1) ) 
+         if ( history.pushState ) history.pushState( null, null, "?" + act_id );
       od.gui.act_id = act_id;
-      this.switch_action( action );
    },
 
    "get_act_id" : function gui_get_act_id () {
@@ -74,7 +85,10 @@ od.gui = {
    "switch_action" : function gui_switch_action( action ) {
       var gui = od.gui;
       var currentAction = gui.action;
-      if ( !action || action === currentAction ) return;
+      if ( !action || action === currentAction ) {
+         if ( action.navigate ) action.navigate( od.gui.act_id );
+         return;
+      }
 
       _.time();
       // Pre-switch validation & cleanup
