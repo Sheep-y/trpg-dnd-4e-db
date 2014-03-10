@@ -25,7 +25,7 @@ od.search = {
    "search" : function search_search ( options ) {
       _.time();
       var cache = od.search.cache, cat = options.category, term = options.term, cols;
-      if ( term !== options.term ) {
+      if ( term !== cache.term ) {
          cache = od.search.cache = {
             category : {},
             count : {},
@@ -76,11 +76,11 @@ od.search = {
             result = cache[ '' ];
             if ( ! result ) {
                _.time( 'Searching all categories: ' + options.term  );
-               var data = [];
+               result = [];
                count[''] = 0;
                od.data.get().forEach( function search_search_each ( c ) {
                   var data = cache[ cat.name ];
-                  if ( ! result ) {
+                  if ( ! data ) {
                      data = search( c.list );
                      count[ c.name ] = data.length;
                   }
