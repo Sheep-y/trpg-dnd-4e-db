@@ -125,12 +125,12 @@ body > div > * {
    padding: 10px; /* If use em/ex, will varies by content font size and inconsistent */
 }
 
-button.activable {
+button.pressable {
    color: darkgrey;
    opacity: 0.7;
 }
 
-button.activable.active {
+button.pressable[aria-pressed="true"] {
    color: black;
    opacity: 1;
 }

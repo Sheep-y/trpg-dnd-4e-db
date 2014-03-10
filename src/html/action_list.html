@@ -3,7 +3,7 @@
   - List and search downloaded entries
   -->
 <div id='action_list' data-role='page'>
-   <header>
+   <header role="navigation">
       <button class='i18n' id='act_list_btn_update' onclick='od.gui.goto("update")'> action.update.link_text </button>
       <h1 class='i18n'>action.list.title</h1>
       <button class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </button>
@@ -77,22 +77,22 @@
       /* Small screen: Show only selected cat */
       @media (max-width: 889px) {
          #act_list_pnl_category.active button { display: none; }
-         #act_list_pnl_category.active button.active { display: block; }
+         #act_list_pnl_category.active button[aria-pressed="true"] { display: block; }
       }
    </style>
 
    <div id='act_list_pnl_search'>
-      <div id="act_list_pnl_term">
+      <div id="act_list_pnl_term" role="search">
          <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" class='fullw' autocomplete />
       </div>
       <table id="act_list_tbl_search"><tr><td
-         ><button id='act_list_btn_search_name' class="button activable i18n active" onclick="od.action.list.search('name');"> action.list.bth_search_name </button
-         ><button id='act_list_btn_search_full' class="button activable i18n" onclick="od.action.list.search('full');"> action.list.bth_search_body </button
+         ><button id='act_list_btn_search_name' class="button pressable i18n" onclick="od.action.list.search('name');" aria-pressed="true"> action.list.bth_search_name </button
+         ><button id='act_list_btn_search_full' class="button pressable i18n" onclick="od.action.list.search('full');" aria-pressed="false"> action.list.bth_search_body </button
       ></td><td
          ><button class="button i18n" onclick=""> action.list.bth_search_advanced </button
       ></td></table>
 
-      <div id='act_list_pnl_category'></div>
+      <div id='act_list_pnl_category' role="tablist"></div>
 
       <div id='act_list_pnl_list'>
          <table class='fullw'><thead><tr><td class="i18n"> action.list.lbl_select_cat </td><tr></thead></table>
@@ -141,10 +141,11 @@ od.action.list = {
 
    'set_search_category' : function act_list_set_search_category ( cat ) {
       od.action.list.category = cat;
-      _.removeClass( '#act_list_pnl_category, #act_list_pnl_category .activable.active' );
+      _.removeClass( '#act_list_pnl_category.active' );
+      _.attr( '#act_list_pnl_category .pressable', 'aria-pressed', 'false' );
       if ( cat !== undefined ) {
          _.addClass( '#act_list_pnl_category', 'active' );
-         _.addClass( od.action.list.category_dom[ cat ? cat.name : "" ], 'active' );
+         _.attr( od.action.list.category_dom[ cat ? cat.name : "" ], 'aria-pressed', 'true' );
       }
    },
 
@@ -197,7 +198,8 @@ od.action.list = {
       if ( document.body.clientWidth <= 980 && _.hasClass( '#act_list_pnl_category', 'active') ) {
          // Hide results and show category list
          _.hide( '#act_list_pnl_list' );
-         _.removeClass( '#act_list_pnl_category, #act_list_pnl_category .activable.active' );
+         _.removeClass( '#act_list_pnl_category.active' );
+         _.attr( '#act_list_pnl_category .pressable', 'aria-pressed', 'false' );
          return;
       }
       action_list.set_search_category( cat ? od.data.get( cat ) : "" );
@@ -213,8 +215,8 @@ od.action.list = {
    'search' : function act_list_search ( search_type ) {
       var action_list = od.action.list;
       if ( search_type !== undefined ) { // Pressed search button; update state.
-         _.removeClass( '#act_list_tbl_search .active' );
-         _.addClass( '#act_list_btn_search_' + search_type, 'active' );
+         _.attr( '#act_list_tbl_search button', 'aria-pressed', 'false' );
+         _.attr( '#act_list_btn_search_' + search_type, 'aria-pressed', 'true' );
          action_list.search_type = search_type;
       }
       action_list.update_action_id();
@@ -251,8 +253,10 @@ od.action.list = {
             count = cat.count;
          }
          var a = _.create( 'button', {
-            'class': 'activable',
+            'class': 'pressable',
+            'aria-pressed' : 'false',
             'style': 'background-color:'+colour,
+            'role' : 'tab',
             'onclick' : function create_category_button_click () { action_list.a_category( name ); }
          } );
          a.appendChild( _.create( 'span', { 'class' : 'rpg ' + name } ) );
@@ -310,7 +314,7 @@ od.action.list = {
       // Remove old table and create a new one.
       var table = _( '#act_list_pnl_list table' )[0];
       table.parentNode.removeChild( table ); // Remove a table is 13% faster then clearing it, but both is slow when list is big
-      table = _.create('table');
+      table = _.create( 'table', { 'role' : 'menubar', 'aria-label' : 'Result' } );
       var head = _.create( 'thead' );
       table.appendChild( head );
 
@@ -340,13 +344,13 @@ od.action.list = {
          //th.appendChild( _.create( 'br' ) );
          var sorter = _.create( 'span', '⇅' );
          sorter.addEventListener( 'click', ( function ( f, lbl ) { return function act_list_header_click(){
-               action_list.sort_asc = action_list.sort_field === f ? ! action_list.sort_asc : true;
-               _.set( '#act_list_pnl_list th span', 'textContent', '⇅' );
-               lbl.textContent = action_list.sort_asc ? '↓' : '↑';
-               action_list.sort_field = f;
-               action_list.show_list();
-               action_list.update_action_id();
-            }; } )( col[ i ], sorter ) );
+            action_list.sort_asc = action_list.sort_field === f ? ! action_list.sort_asc : true;
+            _.attr( '#act_list_pnl_list th span', 'text', '⇅' );
+            lbl.textContent = action_list.sort_asc ? '↓' : '↑';
+            action_list.sort_field = f;
+            action_list.show_list();
+            action_list.update_action_id();
+         }; } )( col[ i ], sorter ) );
          th.appendChild( sorter );
          head.appendChild( th );
       }
@@ -362,13 +366,16 @@ od.action.list = {
       */
       th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_filter', 'Filter' ), 'onclick': action_list.search } ) );
       th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_clear_filter', '×' ), onclick: function () {
-         _.set( '.list_filter', 'value', '' );
+         _.attr( '.list_filter', 'value', '' );
          action_list.search();
       } } ) );
       head.appendChild( th );
 
       action_list.show_list( table );
       table.addEventListener( 'click', action_list.table_click );
+      table.addEventListener( 'keypress', function act_list_table_keypressed( evt ) {
+         if ( evt.keyCode === 13 ) action_list.table_click( evt ); // Trigger a click when pressing Enter
+      });
       _.show( '#act_list_pnl_list' )[0].appendChild( table );
    },
 
@@ -421,6 +428,9 @@ od.action.list = {
          var line = data[i];
          if ( line ) { // Create row; intensive (up to tens of thousands).  Creating it by DOM is about 18% faster then _.create.
             var row = document.createElement( 'tr' );
+            row.setAttribute( 'role', 'menuitem' );
+            row.setAttribute( 'aria-label', line.Name );
+            //row.setAttribute( 'tabindex', 0 );
             row.setAttribute( 'data-id', line[ idField ] );
             if ( action_list.category === null ) row.setAttribute( 'data-category', line._category.name );
             /* Building row by string is not supported by IE http://www.ericvasilik.com/2006/07/code-karma.html */// TODO: Reconsider and retest speed!
