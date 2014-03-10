@@ -3,12 +3,6 @@
   - List and search downloaded entries
   -->
 <div id='action_list' data-role='page'>
-   <header role="navigation">
-      <button class='i18n' id='act_list_btn_update' onclick='od.gui.goto("update")'> action.update.link_text </button>
-      <h1 class='i18n'>action.list.title</h1>
-      <button class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </button>
-   </header>
-
    <style scoped>
       #act_list_pnl_term {
          margin-bottom: 5px;
@@ -98,6 +92,13 @@
          <table class='fullw'><thead><tr><td class="i18n"> action.list.lbl_select_cat </td><tr></thead></table>
       </div>
    </div>
+
+   <header role="navigation">
+      <button class='i18n' id='act_list_btn_update' onclick='od.gui.goto("update")'> action.update.link_text </button>
+      <h1 class='i18n'>action.list.title</h1>
+      <button class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </button>
+   </header>
+
 </div>
 
 <script type='text/javascript'>'use strict';(function action_list_init(){

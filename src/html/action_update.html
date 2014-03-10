@@ -3,12 +3,6 @@
   - Query online compendium and shows what can be downloaded / updated.
   -->
 <div id='action_update' data-role='page'>
-   <header role="navigation">
-      <button class='i18n' onclick='od.gui.goto(od.action.list.url_current);'> action.list.link_text </button>
-      <h1 class='i18n'>action.update.title</h1>
-      <button class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </button>
-   </header>
-
    <style scoped>
       #act_download_tbl_list td:nth-child(4):hover, #act_download_tbl_list td:nth-child(5):hover {
          cursor: help; /* Indicate that more info is available */
@@ -48,6 +42,13 @@
       <tbody></tbody>
    </table>
    <!--fieldset id='act_download_lst_status'><legend class='i18n'>action.update.lst_thread</legend></fieldset-->
+
+   <header role="navigation">
+      <button class='i18n' onclick='od.gui.goto(od.action.list.url_current);'> action.list.link_text </button>
+      <h1 class='i18n'>action.update.title</h1>
+      <button class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </button>
+   </header>
+
 </div>
 <script type='text/javascript'>'use strict';(function action_update_init(){
 /*

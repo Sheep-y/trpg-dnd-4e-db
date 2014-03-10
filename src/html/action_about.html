@@ -12,12 +12,6 @@
       #action_about figure.left  { margin-right: 1em; }
    </style>
 
-   <header role="navigation">
-      <button class='i18n' onclick='od.gui.goto(od.action.list.url_current)'> action.list.link_text </button>
-      <h1 class="i18n"> action.about.title </h1>
-      <button class='i18n' href='https://github.com/Sheep-y/trpg-dnd-4e-db'> action.about.link_homepage </button>
-   </header>
-
    <div>
       <article class='left'>
          <h1 class='i18n'> action.about.h_language </h1>
@@ -165,17 +159,24 @@
          </dl>
       </article>
    </div>
+
+   <header role="navigation">
+      <button class='i18n' onclick='od.gui.goto(od.action.list.url_current)'> action.list.link_text </button>
+      <h1 class="i18n"> action.about.title </h1>
+      <button class='i18n' href='https://github.com/Sheep-y/trpg-dnd-4e-db'> action.about.link_homepage </button>
+   </header>
+
 </div>
 
 <div id='action_license' data-role="page">
+   <article id="txt_license">
+      <!--#include file='license_agpl.html' -->
+   </article>
    <header role="navigation">
       <button class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </button>
       <h1 class="i18n"> action.license.title </h1>
       <button class='i18n' onclick='od.action.about.show_source()'> action.about.a_source </button>
    </header>
-   <article id="txt_license">
-      <!--#include file='license_agpl.html' -->
-   </article>
 </div>
 
 <script type='text/javascript'>'use strict';(function action_about_init(){
