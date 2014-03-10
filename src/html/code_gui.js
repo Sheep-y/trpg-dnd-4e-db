@@ -11,7 +11,11 @@ od.gui = {
    /** Current action. */
    action: null,
    /** List of initiated actions. */
-   initialized: [], 
+   initialized: [],
+   /** Array of words to highlight */
+   hl: null,
+   /** RegExp pattern used in highlight */
+   hlp : null,
 
    init : function gui_init ( ) {
       _.l.detectLocale( 'en' );
@@ -116,6 +120,33 @@ od.gui = {
 
       gui.action = action;
       _.time( 'Switched to ' + action.id );
+   },
+
+   /**
+    * Set highlight terms.
+    * Terms will be processed for faster highlight processing.
+    *
+    * @param {Array} highlights Array of terms to highlight.
+    */
+   "set_highlight" : function gui_set_highlight( highlights ) {
+      od.gui.hl = highlights;
+      if ( ! highlights ) return;
+      highlights = highlights.map( function ( e ) { return _.escRegx( _.escHtml( e ) ); } );
+      // Join as alternatives and add a negative lookahead to prevent changing HTML tag.
+      highlights = '(' + highlights.join( '|' ) + ')(?![^<]*>)';
+      od.gui.hlp = new RegExp( highlights, 'ig' );
+   },
+
+   /**
+    * Highlight text in given html using current highlight pattern.
+    *
+    * @param {String} html source html
+    * @returns {String} result html
+    */
+   "highlight" : function gui_highlight( html ) {
+      var hl = od.gui.hl;
+      if ( ! hl ) return html; // Nothing to highlight (e.g. all exclude search)
+      return html.replace( od.gui.hlp, '<span class="highlight">$1</span>' );
    },
 
    /**

@@ -61,6 +61,11 @@ th { text-align: left; }
 
 figure { margin: 0; }
 
+/** Search term highlight */
+.highlight {
+   background: yellow;
+}
+
 /********************** Utility classes **************************/
 
 .fullw { width: 100%; }

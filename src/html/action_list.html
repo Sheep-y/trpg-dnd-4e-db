@@ -134,7 +134,6 @@ od.action.list = {
    // Current category's search result
    'columns' : [],
    'data' : [],  // Current result list (unsorted). Sorting will use this list instead of reapplying search.
-   'highlights' : [],
 
    'txt_search_down' : function act_list_txt_search_down ( evt ) {
       if ( evt.keyCode === 13 && ! evt.altKey && ! evt.ctrlKey && !evt.metaKey ) this.search();
@@ -306,7 +305,7 @@ od.action.list = {
       var action_list = od.action.list, cl = col.length;
       action_list.columns = col;
       action_list.data = data;
-      action_list.highlights = highlight;
+      od.gui.set_highlight( highlight );
 
       // Remove old table and create a new one.
       var table = _( '#act_list_pnl_list table' )[0];
@@ -330,7 +329,7 @@ od.action.list = {
          var c = counts[ '' ], dom = action_list.category_dom[ '' ];
          _( dom, 'var' )[ 0 ].textContent = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action_list.total_count );
       } else {
-         _( dom, 'var' )[ 0 ].textContent = action_list.total_count;
+         // _( dom, 'var' )[ 0 ].textContent = action_list.total_count;
       }
 
       // Headers
@@ -399,7 +398,7 @@ od.action.list = {
 
       /** List the current result, e.g. after changing sorting. */
    'show_list' : function act_list_show_list ( table ) {
-      var action_list = od.action.list;
+      var action_list = od.action.list, gui = od.gui;
       var data = action_list.data, col = action_list.columns;
       var cl = col.length, idField = col[ 0 ];
 
@@ -428,7 +427,7 @@ od.action.list = {
             for ( var j = 1 ; j < cl ; j++ ) { // Note: VERY intensive loop - hundred thousands if user click 'all'.
                var td = document.createElement('td');
                var d = line[ col[ j ] ];
-               if ( d ) td.textContent = d.text ? d.text : d;
+               if ( d ) td.innerHTML = gui.highlight( d.text ? d.text : d );
                row.appendChild( td );
             }
             var td = document.createElement('td');
