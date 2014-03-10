@@ -83,7 +83,7 @@
 
    <div id='act_list_pnl_search'>
       <div id="act_list_pnl_term">
-         <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" class='fullw' autocomplete autofocus />
+         <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" class='fullw' autocomplete />
       </div>
       <table id="act_list_tbl_search"><tr><td
          ><button id='act_list_btn_search_name' class="button activable i18n active" onclick="od.action.list.search('name');"> action.list.bth_search_name </button
@@ -129,7 +129,6 @@ od.action.list = {
    'sort_field' : undefined, // Field currently being sorted. Empty means use natural sort.
    'sort_asc' : true,   // Whether current sort is ascending or decending.
 
-   'counts' : null, // Current result count object.
    'total_count' : 0,
 
    // Current category's search result
@@ -243,7 +242,6 @@ od.action.list = {
    'build_category' : function act_list_build_category ( ondone ) {
       // Category order and colour is defined at od.config in config.js
       var action_list = od.action.list;
-      action_list.counts = null;
       action_list.category = undefined;
       action_list.category_dom = {};
 
@@ -318,24 +316,21 @@ od.action.list = {
       table.appendChild( head );
 
       // Show result counts
-      if ( action_list.counts !== counts ) {
-         if ( counts ) {
-            od.data.get().forEach( function act_list_show_count_each ( cat ) {
-               var txt, dom = action_list.category_dom[ cat.name ];
-               if ( counts ) {
-                  var c = counts[ cat.name ];
-                  txt = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, cat.count );
-               } else {
-                  txt = cat.count;
-               }
-               _( dom, 'var' )[ 0 ].textContent = txt;
-            } );
-            var c = counts[ '' ], dom = action_list.category_dom[ '' ];
-            _( dom, 'var' )[ 0 ].textContent = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action_list.total_count );
-         } else {
-            _( dom, 'var' )[ 0 ].textContent = action_list.total_count;
-         }
-         action_list.counts = counts;
+      if ( counts ) {
+         od.data.get().forEach( function act_list_show_count_each ( cat ) {
+            var txt, dom = action_list.category_dom[ cat.name ];
+            if ( counts ) {
+               var c = counts[ cat.name ];
+               txt = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, cat.count );
+            } else {
+               txt = cat.count;
+            }
+            _( dom, 'var' )[ 0 ].textContent = txt;
+         } );
+         var c = counts[ '' ], dom = action_list.category_dom[ '' ];
+         _( dom, 'var' )[ 0 ].textContent = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action_list.total_count );
+      } else {
+         _( dom, 'var' )[ 0 ].textContent = action_list.total_count;
       }
 
       // Headers

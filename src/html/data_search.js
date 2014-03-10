@@ -6,6 +6,13 @@
  */
 
 od.search = {
+   /** Search cache */
+   cache : {
+      category : {}, // Result map by category
+      count: {}, // Count for other category is not overritten until term changes.
+      term : 'global search term' // By-field search happens after global.
+   },
+
    /**
     * Call to do a search.  Will do a search after required lising and indices are loaded.
     * @param {Object} options Options: {
@@ -15,11 +22,16 @@ od.search = {
     *    ondone : callback after search is finished with search result { columns, list }, which may be zero rows.
     * }
     */
-
    "search" : function search_search ( options ) {
       _.time();
-      var cat = options.category;
-      var cols;
+      var cache = od.search.cache, cat = options.category, term = options.term, cols;
+      if ( term !== options.term ) {
+         cache = od.search.cache = {
+            category : {},
+            count : {},
+            term : term
+         };
+      }
       var pattern = options.term ? this.gen_search( options.term ) : null;
       var search_body = options.search_body;
       if ( cat ) {
@@ -46,26 +58,39 @@ od.search = {
          });
       }
 
+      function done ( result, count ) {
+         _.call( options.ondone, null, cols, result, count, pattern.highlight );
+      }
+
       /** Called after all data needed for search is properly loaded. */
-      function do_search () {
-         var count = {}, result;
+      function do_search ( ) {
+         var count = cache.count, result;
          if ( cat ) {
-            _.time( 'Search ' + cat.name + ': ' + options.term );
-            result = search( cat.list );
-            count[ cat.name ] = result.length;
-            _.call( options.ondone, null, cols, search( cat.list ), count, pattern.highlight );
+            result = cache[ cat.name ];
+            if ( ! result ) {
+               _.time( 'Search ' + cat.name + ': ' + options.term );
+               cache[ cat.name ] = result = search( cat.list );
+               count[ cat.name ] = result.length;
+            }
          } else {
-            _.time( 'Searching all categories: ' + options.term  );
-            var data = [];
-            count[''] = 0;
-            od.data.get().forEach( function search_search_each ( c ) {
-               result = search( c.list );
-               count[ c.name ] = result.length;
-               count[ '' ] += result.length;
-               data = data.concat( result );
-            } );
-            _.call( options.ondone, null, cols, data, count, pattern.highlight );
+            result = cache[ '' ];
+            if ( ! result ) {
+               _.time( 'Searching all categories: ' + options.term  );
+               var data = [];
+               count[''] = 0;
+               od.data.get().forEach( function search_search_each ( c ) {
+                  var data = cache[ cat.name ];
+                  if ( ! result ) {
+                     data = search( c.list );
+                     count[ c.name ] = data.length;
+                  }
+                  result = result.concat( data );
+                  count[ '' ] += data.length;
+               } );
+               cache[ '' ] = result;
+            }
          }
+         done( result, count );
 
          function search( lst ) {
             var regx = pattern.regexp;
