@@ -84,7 +84,8 @@ _.l.set( 'action.list', {
    'result_summary' : "結果",
 
    'lbl_select_cat' : "選擇類別以查看條目。你也可以先輸入搜尋關鍵詞和選擇搜尋類型（可選）然後才選擇類別。",
-   'txt_search_placeholder' : "搜尋關鍵詞。例：ranger OR martial   bonus -\"feat bonus\" ",
+   'txt_search_name_placeholder' : "搜尋關鍵詞。例： wizard OR sorcerer -hybrid ",
+   'txt_search_full_placeholder' : "搜尋關鍵詞。例： ranger OR martial bonus -\"feat bonus\" ",
    'btn_search_name' : "名字",
    'btn_search_body' : "全文",
    'btn_search_advanced' : "...",

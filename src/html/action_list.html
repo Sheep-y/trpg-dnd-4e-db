@@ -80,8 +80,8 @@
          <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" class='fullw' accesskey='s' autocomplete />
       </div>
       <table id="act_list_tbl_search" summary=""><tr><td
-         ><button id='act_list_btn_search_name' class="button pressable i18n" onclick="od.action.list.search('name');" aria-pressed="true" accesskey='n'> action.list.btn_search_name </button
-         ><button id='act_list_btn_search_full' class="button pressable i18n" onclick="od.action.list.search('full');" aria-pressed="false" accesskey='f'> action.list.btn_search_body </button
+         ><button id='act_list_btn_search_name' class="button pressable i18n" onclick="od.action.list.search('name');" accesskey='n'> action.list.btn_search_name </button
+         ><button id='act_list_btn_search_full' class="button pressable i18n" onclick="od.action.list.search('full');" accesskey='f'> action.list.btn_search_body </button
       ></td><td
          ><button class="button i18n" onclick=""> action.list.btn_search_advanced </button
       ></td></table>
@@ -103,11 +103,11 @@
 
 <script type='text/javascript'>'use strict';(function action_list_init(){
 od.action.list = {
-   'url' : /^(list|namesearch|fullsearch|advsearch)\b/,
+   'url' : /^list\b/,
    'url_current' : 'list',
 
    'initialize' : function act_list_init () {
-      _('#act_list_txt_search')[0].setAttribute( 'placeholder', _.l( 'action.list.txt_search_placeholder' ) );
+      od.action.list.search( 'name' );
    },
 
    'setup': function act_list_setup () {
@@ -169,6 +169,7 @@ od.action.list = {
          if ( ! action_list.sort_asc )
             id += "&reverse=1";
       }
+      action_list.url_current = id;
       od.gui.pushState( id );
    },
 
@@ -216,6 +217,7 @@ od.action.list = {
    'search' : function act_list_search ( search_type ) {
       var action_list = od.action.list;
       if ( search_type !== undefined ) { // Pressed search button; update state.
+         _.attr( '#act_list_txt_search', 'placeholder', _.l( 'action.list.txt_search_' + search_type + '_placeholder' ) );
          _.attr( '#act_list_tbl_search button', 'aria-pressed', 'false' );
          _.attr( '#act_list_btn_search_' + search_type, 'aria-pressed', 'true' );
          action_list.search_type = search_type;
@@ -226,7 +228,7 @@ od.action.list = {
          if ( action_list.get_search_term() === '' ) {
             od.search.list_category( action_list.get_search_category(), action_list.build_list );
          } else {
-            if ( search_type === undefined ) { // e.g. Pressing Enter in search box or clicked filter button.
+            if ( search_type === undefined ) { // e.g. Pressing Enter in search box.
                search_type = action_list.search_type;
             }
             od.search.search( {
@@ -365,7 +367,7 @@ od.action.list = {
       } } ) );
       th.appendChild( _.create( 'br' ) );
       */
-      th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_filter', 'Filter' ), 'onclick': action_list.search } ) );
+      //th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_filter', 'Filter' ), 'onclick': action_list.search } ) );
       th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_clear_filter', '×' ), onclick: function () {
          _.attr( '.list_filter', 'value', '' );
          action_list.search();

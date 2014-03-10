@@ -54,7 +54,8 @@ _.l.set( 'action.list', {
    'result_summary' : "Result",
    
    'lbl_select_cat' : "Select a category to see its entries.  You may type search terms and select type of search (optional) before picking the category.",
-   'txt_search_placeholder' : "Search keywords. e.g. ranger OR martial   bonus -\"feat bonus\" ",
+   'txt_search_name_placeholder' : "Search keywords. e.g. wizard OR sorcerer -hybrid ",
+   'txt_search_full_placeholder' : "Search keywords. e.g. ranger OR martial bonus -\"feat bonus\" ",
    'btn_search_name' : "<u>N</u>ame",
    'btn_search_body' : "<u>F</u>ull",
    'btn_search_advanced' : "...",
