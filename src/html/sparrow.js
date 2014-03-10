@@ -1385,6 +1385,7 @@ _.l.set = function _l_set ( path, data ) {
  */
 _.l.localise = function _l_localise ( root ) {
    if ( root === undefined ) root = document.documentElement;
+   root.setAttribute( 'lang', _.l.currentLocale );
    var _l = _.l;
    var el = root.getElementsByClassName( "i18n" );
    for ( var i = 0, l = el.length ; i < l ; i++ ) {
