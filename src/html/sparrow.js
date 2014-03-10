@@ -695,29 +695,7 @@ _.create = function _create ( tag, attr ) {
       if ( typeof( attr ) !== 'object' ) {
          result.textContent = attr; 
       } else {
-         for ( var name in attr ) {
-            switch ( name ) {
-               case 'text':
-                  result.textContent = attr.text;
-                  break;
-
-               case 'html':
-                  result.innerHTML = attr.html;
-                  break;
-
-               case 'class' :
-               case 'className' :
-                  result.className = attr[ name ];
-                  break;
-
-               default:
-                  if ( name.substr( 0, 2 ) === 'on' ) {
-                     result.addEventListener( name.substr( 2 ), attr[ name ] );
-                  } else {
-                     result.setAttribute( name, attr[ name ] );
-                  }
-            }
-         }
+         _.attr( result, attr );
       }
    }
    return result;
@@ -739,14 +717,65 @@ _.domlist = function _domlist ( e ) {
  * Set a list of object's same attribute/property to same value
  *
  * @param {mixed} ary Element selcetor, dom list, or Array of JS objects.
- * @param {String} attr Attribute to set.
+ * @param {mixed} obj Attribute or attribute object to set.
  * @param {mixed} value Value to set.
  * @returns {Array} Array-ifed ary
  */
-_.set = function _set ( ary, attr, value ) {
+_.set = function _set ( ary, obj, value ) {
+   var attr = obj;
+   if ( typeof( attr ) === 'string' ) {
+      attr = {};
+      attr[ obj ] = value;
+   }
    if ( typeof( ary ) === 'string' ) ary =_( ary ); 
    ary = _.ary( ary );
-   ary.forEach( function _setEach ( e ) { e[attr] = value; } );
+   ary.forEach( function _setEach ( e ) {
+      for ( var name in attr )
+         e[ name ] = attr[ name ];
+   } );
+   return ary;
+}
+
+/**
+ * Set a list of object's DOM attribute/property to same value
+ *
+ * @param {mixed} ary Element selcetor, dom list, or Array of JS objects.
+ * @param {mixed} obj DOM attribute or attribute object to set.  text = textContent, html = innerHTML, class = className, onXXX = XXX addEventListener.
+ * @param {mixed} value Value to set.  If 'undefined' then will also delete the style attribute.
+ * @returns {Array} Array-ifed ary
+ */
+_.attr = function _attr( ary, obj, value ) {
+   var attr = obj;
+   if ( typeof( attr ) === 'string' ) {
+      attr = {};
+      attr[ obj ] = value;
+   }
+   ary = _.ary( _.domlist( ary ) );
+   ary.forEach( function _attr_each( e ) {
+      for ( var name in attr ) {
+         switch ( name ) {
+            case 'text':
+               e.textContent = attr.text;
+               break;
+
+            case 'html':
+               e.innerHTML = attr.html;
+               break;
+
+            case 'class' :
+            case 'className' :
+               e.className = attr[ name ];
+               break;
+
+            default:
+               if ( name.substr( 0, 2 ) === 'on' ) {
+                  e.addEventListener( name.substr( 2 ), attr[ name ] );
+               } else {
+                  e.setAttribute( name, attr[ name ] );
+               }
+         }
+      }
+   } );
    return ary;
 }
 
@@ -754,18 +783,27 @@ _.set = function _set ( ary, attr, value ) {
  * Set a list of object's style's attribute/property to same value
  *
  * @param {mixed} ary Element selcetor, dom list, or Array of JS objects.
- * @param {String} attr Style attribute to set.
+ * @param {mixed} obj Style attribute or attribute object to set.
  * @param {mixed} value Value to set.  If 'undefined' then will also delete the style attribute.
  * @returns {Array} Array-ifed ary
  */
-_.style = function _style ( ary, attr, value ) {
+_.style = function _style ( ary, obj, value ) {
+   var attr = obj;
+   if ( typeof( attr ) === 'string' ) {
+      attr = {};
+      attr[ obj ] = value;
+   }
    if ( typeof( ary ) === 'string' ) ary =_( ary ); 
    ary = _.ary( ary );
-   if ( value !== undefined ) {
-      ary.forEach( function _styleEach ( e ) { e.style[attr] = value; } );
-   } else {
-      ary.forEach( function _styleEachDelete ( e ) { e.style[attr] = ''; delete e.style[attr]; } );
-   }
+   ary.forEach( function _styleEach ( e ) { 
+      for ( var name in attr ) {
+         if ( attr[name] !== 'undefined' ) {
+            e.style[attr] = value; 
+         } else {
+            delete e.style[attr];
+         }
+      }
+   } );
    return ary;
 }
 
