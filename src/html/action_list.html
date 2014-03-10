@@ -77,19 +77,19 @@
 
    <div id='act_list_pnl_search'>
       <div id="act_list_pnl_term" role="search">
-         <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" class='fullw' autocomplete />
+         <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" class='fullw' accesskey='s' autocomplete />
       </div>
-      <table id="act_list_tbl_search"><tr><td
-         ><button id='act_list_btn_search_name' class="button pressable i18n" onclick="od.action.list.search('name');" aria-pressed="true"> action.list.bth_search_name </button
-         ><button id='act_list_btn_search_full' class="button pressable i18n" onclick="od.action.list.search('full');" aria-pressed="false"> action.list.bth_search_body </button
+      <table id="act_list_tbl_search" summary=""><tr><td
+         ><button id='act_list_btn_search_name' class="button pressable i18n" onclick="od.action.list.search('name');" aria-pressed="true" accesskey='n'> action.list.btn_search_name </button
+         ><button id='act_list_btn_search_full' class="button pressable i18n" onclick="od.action.list.search('full');" aria-pressed="false" accesskey='f'> action.list.btn_search_body </button
       ></td><td
-         ><button class="button i18n" onclick=""> action.list.bth_search_advanced </button
+         ><button class="button i18n" onclick=""> action.list.btn_search_advanced </button
       ></td></table>
 
       <div id='act_list_pnl_category' role="tablist"></div>
 
       <div id='act_list_pnl_list'>
-         <table class='fullw'><thead><tr><td class="i18n"> action.list.lbl_select_cat </td><tr></thead></table>
+         <table class='fullw' summary=""><thead><tr><td class="i18n"> action.list.lbl_select_cat </td><tr></thead></table>
       </div>
    </div>
 
@@ -315,7 +315,7 @@ od.action.list = {
       // Remove old table and create a new one.
       var table = _( '#act_list_pnl_list table' )[0];
       table.parentNode.removeChild( table ); // Remove a table is 13% faster then clearing it, but both is slow when list is big
-      table = _.create( 'table', { 'role' : 'menubar', 'aria-label' : 'Result' } );
+      table = _.create( 'table', { 'role' : 'menubar', 'aria-label' : _.l( 'action.list.search_result', 'Result' } );
       var head = _.create( 'thead' );
       table.appendChild( head );
 

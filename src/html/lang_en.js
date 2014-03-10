@@ -51,12 +51,13 @@ _.l.set( 'gui', {
 _.l.set( 'action.list', {
    'title' : "Browse",
    'link_text' : "Browse",
+   'result_summary' : "Result",
    
    'lbl_select_cat' : "Select a category to see its entries.  You may type search terms and select type of search (optional) before picking the category.",
    'txt_search_placeholder' : "Search keywords. e.g. ranger OR martial   bonus -\"feat bonus\" ",
-   'bth_search_name' : "Name",
-   'bth_search_body' : "Full",
-   'bth_search_advanced' : "...",
+   'btn_search_name' : "<u>N</u>ame",
+   'btn_search_body' : "<u>F</u>ull",
+   'btn_search_advanced' : "...",
    'a_all' : "All Category",
    'lbl_count' : '%1 / %2',
 
@@ -73,7 +74,7 @@ _.l.set( 'action.update', {
 
    'paragraph' : [
       "This web page allows you to download and save <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>compendium entries</a>, then search and list them online or offline using advanced Google-like syntax.",
-      "<b>Requires an active <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI subscription</a> to download or update any data.</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates'>Official Rules Updates</a>"
+      "<b>Requires an active <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI subscription</a> to download or update any data.</b>"
    ],
    'btn_get_catalog' : "Refresh catalog",
    'btn_all_list' : "Check all",

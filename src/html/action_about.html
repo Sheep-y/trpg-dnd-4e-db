@@ -48,7 +48,7 @@
          <p>
             <button class='i18n' onclick='od.gui.goto("license")'> action.license.link_text </button>
             <button class='i18n' onclick='od.action.about.show_source()'> action.about.a_source </button>
-            <button class='i18n' href='mailto:your.sheepy@gmail.com' > action.about.a_email </button>
+            <button class='i18n' href='mailto:your.sheepy@gmail.com' accesskey="9" > action.about.a_email </button>
          </p>
       </article>
 
@@ -97,7 +97,7 @@
                Inspired by DataTables' search code, I coded a search term parser that works with Google like syntax. <br/>
                With the ability to search for feat with <q>"bonus to damage" OR "extra damage" -"feat bonus"</q>, it is now possible to build characters using a goal-oriented approach, instead of choosing from valid options. <br/>
                New features are also being added.  Preview panel, multi columns, or pick out items and generate a simple sheet such as character power list. <br/>
-               Look matters, too, so the script will grab a <a href='http://www.wizards.com/default.asp?x=dnd/dnd/20030711x'>nice wallpaper</a> through <a href='http://en.wikipedia.org/wiki/Coral_Content_Distribution_Network'>Coral</a>, output fancy CSS styles, data uri icons etc. <br/>
+               Look matters, too, so the script will grab a <a title='Official D&D wallpaper' href='http://www.wizards.com/default.asp?x=dnd/dnd/20030711x'>nice wallpaper</a> through <a href='http://en.wikipedia.org/wiki/Coral_Content_Distribution_Network'>Coral</a>, output fancy CSS styles, data uri icons etc. <br/>
                It helped me a lot in the two years that follows, both as a DM and as a player.
             </p>
          </section>
@@ -126,7 +126,7 @@
             <p>
                Third version development started in 2012 Sep, and is a bold experiment in what can JavaScript do.
                Instead of letting others do most of the work, the new version do download, index, everything by itself. <br/>
-               Sadly, when first prototype is working, Firefox <a href="https://blog.mozilla.org/mrbkap/2012/09/12/">killed file writing</a>, undermining it.<br/>
+               Sadly, when first prototype is working, Firefox <a title="Security Checks and enablePrivilege in Gecko, part 1" href="https://blog.mozilla.org/mrbkap/2012/09/12/">killed file writing</a> permanently.<br/>
                After playtesting D&amp;D Next (5th edition) for a few months, work restarted in May 2013. <br/>
                With a simplified database structure, the second prototype works like a charm.  Development continued for two months until a new Next project demanded full attention. <br/>
                It concluded beautifully on Feb 2014, so we are back, but you can figure out this project's on and off development by now. <br/>
@@ -161,7 +161,7 @@
    </div>
 
    <header role="navigation">
-      <button class='i18n' onclick='od.gui.goto(od.action.list.url_current)'> action.list.link_text </button>
+      <button class='i18n' onclick='od.gui.goto(od.action.list.url_current)' accesskey='1'> action.list.link_text </button>
       <h1 class="i18n"> action.about.title </h1>
       <button class='i18n' href='https://github.com/Sheep-y/trpg-dnd-4e-db'> action.about.link_homepage </button>
    </header>
@@ -173,7 +173,7 @@
       <!--#include file='license_agpl.html' -->
    </article>
    <header role="navigation">
-      <button class='i18n' onclick='od.gui.goto("about")'> action.about.link_text </button>
+      <button class='i18n' onclick='od.gui.goto("about")' accesskey='1'> action.about.link_text </button>
       <h1 class="i18n"> action.license.title </h1>
       <button class='i18n' onclick='od.action.about.show_source()'> action.about.a_source </button>
    </header>

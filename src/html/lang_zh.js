@@ -81,12 +81,13 @@ _.l.set( 'gui', {
 _.l.set( 'action.list', {
    'title' : "瀏覽",
    'link_text' : "瀏覽",
+   'result_summary' : "結果",
 
    'lbl_select_cat' : "選擇類別以查看條目。你也可以先輸入搜尋關鍵詞和選擇搜尋類型（可選）然後才選擇類別。",
    'txt_search_placeholder' : "搜尋關鍵詞。例：ranger OR martial   bonus -\"feat bonus\" ",
-   'bth_search_name' : "名字",
-   'bth_search_body' : "全文",
-   'bth_search_advanced' : "...",
+   'btn_search_name' : "名字",
+   'btn_search_body' : "全文",
+   'btn_search_advanced' : "...",
    'a_all' : "全類別",
    'lbl_count' : '%1／%2',
    
@@ -103,7 +104,7 @@ _.l.set( 'action.update', {
 
    'paragraph' : [
       "此網頁讓您得以下載和儲存<a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>數據庫</a的條目，然後不論在線離線皆可以用強力的類谷哥語法去搜尋和列出它們。",
-      "<b>需要有效的 <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI 賬戶</a>才能下載或更新任何數據。</b> <a href='http://www.wizards.com/DnD/Article.aspx?x=dnd/updates' target='_blank'>官方規則更新</a>"
+      "<b>需要有效的 <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI 賬戶</a>才能下載或更新任何數據。</b>"
    ],
    'btn_get_catalog' : "刷新列表",
    'btn_all_list' : "全部檢查",
