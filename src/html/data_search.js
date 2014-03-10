@@ -20,13 +20,13 @@ od.search = {
       _.time();
       var cat = options.category;
       var cols;
-      var tmp = options.term ? this.gen_search( options.term ) : null;
+      var pattern = options.term ? this.gen_search( options.term ) : null;
       var search_body = options.search_body;
       if ( cat ) {
          // Search in a single category
          cat.load_listing( function search_search_cat () {
             cols = od.config.display_columns( cat.columns );
-            if ( ! tmp ) return _.call( options.ondone, null, cols );
+            if ( ! pattern ) return _.call( options.ondone, null, cols );
             if ( search_body ) {
                cat.load_index( do_search );
             } else {
@@ -36,7 +36,7 @@ od.search = {
       } else {
          // Search in all categories
          cols = ["ID","Name","Category","Type","Level","SourceBook"];
-         if ( ! tmp ) return _.call( options.ondone, null, cols );
+         if ( ! pattern ) return _.call( options.ondone, null, cols );
          od.data.load_all_listing( function search_search_all () {
             if ( search_body ) {
                od.data.load_all_index( do_search );
@@ -48,12 +48,12 @@ od.search = {
 
       /** Called after all data needed for search is properly loaded. */
       function do_search () {
-         var regx = tmp[0], count = {}, result;
+         var count = {}, result;
          if ( cat ) {
             _.time( 'Search ' + cat.name + ': ' + options.term );
             result = search( cat.list );
             count[ cat.name ] = result.length;
-            _.call( options.ondone, null, cols, search( cat.list ), count, tmp[1] );
+            _.call( options.ondone, null, cols, search( cat.list ), count, pattern.highlight );
          } else {
             _.time( 'Searching all categories: ' + options.term  );
             var data = [];
@@ -64,28 +64,16 @@ od.search = {
                count[ '' ] += result.length;
                data = data.concat( result );
             } );
-            _.call( options.ondone, null, cols, data, count, tmp[1] );
+            _.call( options.ondone, null, cols, data, count, pattern.highlight );
          }
 
          function search( lst ) {
-            var result = [];
-search_loop:
-            for ( var i = 0, l = lst.length ; i < l ; i++ ) {
-               var row = lst[i];
-               for ( var prop in row ) {
-                  if ( prop !== '_category' ) {
-                     var p = row[ prop ];
-                     // Bug: Exclude filter is not applied
-                     if ( regx.test( p.text ? p.text : p ) ) {
-                        result.push( row );
-                        continue search_loop;
-                     }
-                  }
-               }
-               if ( search_body && regx.test( row._category.index[row.ID] ) ) {
-                  result.push( row );
-               }
-            }
+            var regx = pattern.regexp;
+            var result = lst.filter( function search_search_filter ( row ) {
+               if ( ! regx.test( row.Name ) ) return false; // Stop if name check failed.
+               if ( ! search_body || ! pattern.hasExclude ) return true; // OK if not searching body or there is no exluding terms.
+               return regx.test( row._category.index[ row.ID ] ); // Full body search.
+            } );
             _.time( 'Search done, ' + result.length + ' result(s).' );
             return result;
          }
@@ -128,10 +116,11 @@ search_loop:
     * Example : javascript OR ecmascript "bug database"
     *
     * @param {String} terms  Terms to search for
-    * @return {Array} [ RegExp, ["highlight 1", "highlight 2", ... ] ] OR null (if terms turn out to be empty conditions)
+    * @return {Array} return { 'regexp': RegExp for searching, 'highlight': ["highlight 1", "highlight 2", ... ], 'hasExclude': true/false }
+    *                        OR null (if terms turn out to be empty conditions)
     */
    "gen_search" : function search_gen_search ( terms ) {
-      var hl = [];
+      var hl = [], hasExclude = false;
       var regx = "^";
       // Break down search input into tokens
       var parts = terms.match( /[+-]?(?:"[^"]+"|\S+)/g );
@@ -151,10 +140,11 @@ search_loop:
             // Detect whether to include or exclude term
             if ( term.indexOf('-') === 0 ) {
                term = term.substr(1);
-               part += '(?!.*';
+               part += '(?!.*'; // Include
             } else {
                if ( term.indexOf('+') === 0 ) term = term.substr(1);
-               part += '(?=.*';
+               part += '(?=.*'; // Exclude
+               hasExclude = true;
             }
             if ( term ) {
                // Regular expression is used as is.
@@ -162,14 +152,16 @@ search_loop:
                   part += term.substr( 1, term.length-2 );
                   term = ''; // prevent term highlight
 
-               // Terms need to be unquoted first
+               // Quoted terms need to be unquoted first
                } else if ( /^"[^"]+"$/.test( term ) ) {
                   term = term.substr( 1, term.length-2 );
                   part += _.escRegx( term );
 
                // Otherwise is normal word, just need to unescape
                } else {
-                  part += _.escRegx(term);
+                  // Remove leading double quote for incomplete terms
+                  if ( term.charAt(0) === '"' ) term = term.substr( 1 );
+                  if ( term ) part += _.escRegx(term);
                }
 
                // If not exclude, add term to highlight
@@ -193,7 +185,7 @@ search_loop:
          }
       }
       if ( regx === '^' ) return null;
-      _.debug( [ regx, hl ] );
-      return [ new RegExp( regx, 'i' ), hl ];
+      return { 'regexp': RegExp( regx, 'i' ), 'highlight': hl, 'hasExclude': hasExclude };
    }
+
 };
