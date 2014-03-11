@@ -117,10 +117,6 @@ od.action.list = {
          od.data.load_catalog( od.action.list.parse_action_id );
    },
 
-   'navigate': function act_list_navigate () {
-      od.data.load_catalog( od.action.list.parse_action_id );
-   },
-
    'cleanup': null,
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,10 +130,58 @@ od.action.list = {
 
    // Current category's search result
    'columns' : [],
-   'data' : [],  // Current result list (unsorted). Sorting will use this list instead of reapplying search.
+   'data' : [],  // Current result list (unsorted & unfiltered). Sorting will use this list instead of reapplying search.
 
    'txt_search_down' : function act_list_txt_search_down ( evt ) {
       if ( evt.keyCode === 13 && ! evt.altKey && ! evt.ctrlKey && !evt.metaKey ) this.search();
+   },
+
+   'txt_filter_input' : function act_list_txt_filter_input ( evt ) {
+      console.log( evt.target.value );
+   },
+
+   /**
+    * Event handler for category buttons
+    *
+    * @param {String} cat Name of category. Empty = all categories.
+    */
+   'a_category' : function act_list_a_category ( cat ) {
+      var action_list = od.action.list;
+      if ( document.body.clientWidth <= 980 && _.hasClass( '#act_list_pnl_category', 'active') ) {
+         // Hide results and show category list
+         _.hide( '#act_list_pnl_list' );
+         _.removeClass( '#act_list_pnl_category.active' );
+         _.attr( '#act_list_pnl_category .pressable', 'aria-pressed', 'false' );
+         return;
+      }
+      action_list.set_search_category( cat ? od.data.get( cat ) : "" );
+      action_list.search();
+      _( '#act_list_txt_search' )[0].focus();
+   },
+
+   /**
+    * When user clicked in the result table,
+    * we try to detect the clicked row and do some preparation before showing the entry.
+    *
+    * This is much more efficient then adding an event handler to every row.
+    *
+    * @param {Event} evt Event object.
+    */
+   'table_click' : function act_list_table_click ( evt ) {
+      // If user clicked on check box, ignore.
+      if ( ! evt || evt.target.tagName === 'INPUT' ) return;
+
+      // Find the row that user clicked.
+      var e = evt.target;
+      while ( e && e.tagName !== 'TR' ) e = e.parentNode;
+      if ( ! e ) return;
+
+      // Find category and id and trigger navigation
+      var list = od.action.list;
+      var cat = od.action.list.category;
+      if ( ! cat ) cat = od.data.get( e.getAttribute( 'data-category' ) );
+      var id = od.config.id( e.getAttribute('data-id') );
+      od.gui.goto( "view=" + encodeURIComponent( cat.name + '.' +  id ) );
    },
 
    'set_search_category' : function act_list_set_search_category ( cat ) {
@@ -149,6 +193,8 @@ od.action.list = {
          _.attr( od.action.list.category_dom[ cat ? cat.name : "" ], 'aria-pressed', 'true' );
       }
    },
+
+   /*************************************************************************/
 
    'get_search_category' : function act_list_get_search_category () {
       return od.action.list.category;
@@ -188,25 +234,6 @@ od.action.list = {
          action_list.sort_asc = !!parts[5];
          action_list.search( parts[1] );
       }
-   },
-
-   /**
-    * Event handler for category buttons
-    *
-    * @param {String} cat Name of category. Empty = all categories.
-    */
-   'a_category' : function act_list_a_category ( cat ) {
-      var action_list = od.action.list;
-      if ( document.body.clientWidth <= 980 && _.hasClass( '#act_list_pnl_category', 'active') ) {
-         // Hide results and show category list
-         _.hide( '#act_list_pnl_list' );
-         _.removeClass( '#act_list_pnl_category.active' );
-         _.attr( '#act_list_pnl_category .pressable', 'aria-pressed', 'false' );
-         return;
-      }
-      action_list.set_search_category( cat ? od.data.get( cat ) : "" );
-      action_list.search();
-      _( '#act_list_txt_search' )[0].focus();
    },
 
    /**
@@ -343,7 +370,7 @@ od.action.list = {
       for ( var i = 1 ; i < cl ; i++ ) {
          // Data field column
          var th = _.create( 'th' ), label = _.l( 'data.field.' + col[i], col[i] );
-         th.appendChild( _.create( 'input', { 'type': 'search', 'class' : 'list_filter', 'placeholder': label } ) );
+         th.appendChild( _.create( 'input', { 'type': 'search', 'class' : 'list_filter', 'placeholder': label, 'oninput': action_list.txt_filter_input } ) );
          //th.appendChild( _.create( 'br' ) );
          var sorter = _.create( 'span', '⇅' );
          sorter.addEventListener( 'click', ( function ( f, lbl ) { return function act_list_header_click(){
@@ -453,31 +480,6 @@ od.action.list = {
       table.appendChild( body );
 
       _.time( 'Listed ' + data.length + ' results.' );
-   },
-
-   /**
-    * When user clicked in the result table,
-    * we try to detect the clicked row and do some preparation before showing the entry.
-    *
-    * This is much more efficient then adding an event handler to every row.
-    *
-    * @param {Event} evt Event object.
-    */
-   'table_click' : function act_list_table_click ( evt ) {
-      // If user clicked on check box, ignore.
-      if ( ! evt || evt.target.tagName === 'INPUT' ) return;
-
-      // Find the row that user clicked.
-      var e = evt.target;
-      while ( e && e.tagName !== 'TR' ) e = e.parentNode;
-      if ( ! e ) return;
-
-      // Find category and id and trigger navigation
-      var list = od.action.list;
-      var cat = od.action.list.category;
-      if ( ! cat ) cat = od.data.get( e.getAttribute( 'data-category' ) );
-      var id = od.config.id( e.getAttribute('data-id') );
-      od.gui.goto( "view=" + encodeURIComponent( cat.name + '.' +  id ) );
    }
 };
 

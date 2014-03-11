@@ -90,7 +90,7 @@ od.gui = {
       var gui = od.gui;
       var currentAction = gui.action;
       if ( !action || action === currentAction ) {
-         if ( action.navigate ) action.navigate( od.gui.act_id );
+         action.setup( od.gui.act_id );
          return;
       }
 
