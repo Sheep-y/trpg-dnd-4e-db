@@ -145,7 +145,7 @@ od.action.list = {
    },
 
    'txt_filter_input' : function act_list_txt_filter_input ( evt ) {
-      console.log( evt.target.value );
+      od.action.list.show_list();
    },
 
    /**
@@ -403,7 +403,7 @@ od.action.list = {
       th.appendChild( _.create( 'br' ) );
       */
       //th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_filter', 'Filter' ), 'onclick': action_list.search } ) );
-      th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_clear_filter', '×' ), onclick: function () {
+      th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_clear_filter', '×' ), 'onclick': function () {
          _.attr( '.txt_filter', 'value', '' );
          action_list.search();
       } } ) );
@@ -441,7 +441,7 @@ od.action.list = {
       return data.concat().sort( sorter );
    },
 
-      /** List the current result, e.g. after changing sorting. */
+   /** List the current result, e.g. after changing sorting. */
    'show_list' : function act_list_show_list ( table ) {
       var action_list = od.action.list, gui = od.gui;
       var data = action_list.data, col = action_list.columns;
@@ -452,15 +452,25 @@ od.action.list = {
       if ( body.length ) body[0].parentNode.removeChild( body[0] );
       body = _.create( 'tbody' );
 
-      // Show data
       if ( ! data || data.length <= 0 ) {
-         return body.appendChild( _.create( 'td', { 'rowspan' : cl, 'align' : 'center', 'text' : _.l( 'action.list.lbl_no_result' ) } ) );
+         return body.appendChild( _.create( 'td', { 'rowspan' : cl+1, 'align' : 'center', 'text' : _.l( 'action.list.lbl_no_result' ) } ) );
       }
 
+      // Fitler and sort data
+      _.ary( _( '.txt_filter' ) ).forEach( function act_list_show_list_filter( e, i ) {
+         var pattern = e.value ? od.search.gen_search( e.value ) : null;
+         if ( pattern ) {
+            var c = col[ i+1 ];
+            data = data.filter( function act_list_show_list_filter_each( e ) {
+               return pattern.regexp.test( e[ c ] );
+            } );
+         }
+      } );
       if ( action_list.sort_field && data[0][ action_list.sort_field ] !== undefined ) {
          data = action_list.sort_data( data );
       }
 
+      // Show data
       _.time( 'Listing ' + data.length + ' results (' + col + ')' );
       for ( var i = 0, l = data.length ; i < l ; i++ ) {
          var line = data[i];
