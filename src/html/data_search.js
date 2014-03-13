@@ -3,6 +3,8 @@
  *
  * Handle search logic, including parsing search pattern, marking highlight terms,
  * and actually searching the data model.
+ * 
+ * Can also list unfiltered entry list in same format as search result.
  */
 
 od.search = {
@@ -107,24 +109,22 @@ od.search = {
 
    "list_category" : function data_search_list_category ( cat, onload ) {
       _.time();
-      od.data.load_catalog( function data_search_list_category_load() {
-         var list = { "columns":[], "data":[] };
-         if ( cat ) {
-            _.time( 'List ' + cat.title );
-            cat.load_listing( function data_search_list_category_load_cat() {
-               _.call( onload, null, od.config.display_columns( cat.columns ), cat.list.concat(), null, null );
+      var list = { "columns":[], "data":[] };
+      if ( cat ) {
+         _.time( 'List ' + cat.title );
+         cat.load_listing( function data_search_list_category_load_cat() {
+            _.call( onload, null, od.config.display_columns( cat.columns ), cat.list.concat(), null, null );
+         } );
+      } else {
+         _.time( 'List all categories' );
+         od.data.load_all_listing( function data_search_list_category_load_all(){
+            var data = [];
+            od.data.get().forEach( function data_search_list_category_each( c ) {
+               data = data.concat( c.list );
             } );
-         } else {
-            _.time( 'List all categories' );
-            od.data.load_all_listing( function data_search_list_category_load_all(){
-               var data = [];
-               od.data.get().forEach( function data_search_list_category_each( c ) {
-                  data = data.concat( c.list );
-               } );
-               _.call( onload, null, ["ID","Name","Category","Type","Level","SourceBook"], data, null, null );
-            } );
-         }
-      } );
+            _.call( onload, null, ["ID","Name","Category","Type","Level","SourceBook"], data, null, null );
+         } );
+      }
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

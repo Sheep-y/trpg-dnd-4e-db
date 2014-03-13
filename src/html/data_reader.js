@@ -27,13 +27,15 @@ od.reader = {
       var path = od.config.url.catalog();
       this._read(
         path,
-        function(){ return od.data.list().length > 0; },
+        // Detecting data length is insufficient to know whether catalog is really loaded.
+        function(){ return od.reader.read_catalog.read && od.data.list().length > 0; },
         onload,
         onerror ? onerror : 'Cannot read data catalog from ' + path );
    },
 
    jsonp_catalog: function reader_jsonp_catalog( version, data ) {
       for ( var cat in data ) od.data.create( cat ).count = data[cat];
+      od.reader.read_catalog.read = true;
    },
 
    /////////////////////////////////////////////////////////
