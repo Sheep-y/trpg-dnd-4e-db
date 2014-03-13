@@ -797,10 +797,10 @@ _.style = function _style ( ary, obj, value ) {
    ary = _.ary( ary );
    ary.forEach( function _styleEach ( e ) { 
       for ( var name in attr ) {
-         if ( attr[name] !== 'undefined' ) {
-            e.style[attr] = value; 
+         if ( attr[ name ] !== undefined ) {
+            e.style[ name ] = attr[ name ]; 
          } else {
-            delete e.style[attr];
+            delete e.style[ attr ];
          }
       }
    } );
