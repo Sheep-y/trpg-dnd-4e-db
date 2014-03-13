@@ -102,7 +102,7 @@ od.gui = {
       }
 
       // Hide other actions and show target page
-      Array.prototype.forEach.call(_('body > div[id^="action_"]'), function(e){ e.style.display = ''; });
+      Array.prototype.forEach.call(_('body > section[id^="action_"]'), function(e){ e.style.display = ''; });
       var page = _( "#action_" + action.id )[0];
       page.style.display = 'block';
 

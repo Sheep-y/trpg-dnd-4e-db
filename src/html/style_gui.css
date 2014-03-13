@@ -113,7 +113,7 @@ header h1 + button { /* Right header button */
 
 /******************* Page content ***********************/
 
-body > div {
+body > section {
    display: none;
    width: 100%;
    margin-top: 40px;
@@ -121,7 +121,7 @@ body > div {
    box-shadow: 0 0 200px 200px rgba( 255, 224, 128, 0.5 );
 }
 
-body > div > * {
+body > section > * {
    padding: 10px; /* If use em/ex, will varies by content font size and inconsistent */
 }
 
