@@ -800,7 +800,8 @@ _.style = function _style ( ary, obj, value ) {
          if ( attr[ name ] !== undefined ) {
             e.style[ name ] = attr[ name ]; 
          } else {
-            delete e.style[ attr ];
+            e.style[ name ] = '';
+            delete e.style[ name ];
          }
       }
    } );
