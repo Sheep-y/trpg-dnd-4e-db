@@ -115,6 +115,7 @@ od.action.list = {
    'url_current' : 'list',
 
    'initialize' : function act_list_init () {
+      // Set initial search state (e.g. search box placeholder)
       od.action.list.search( 'name' );
    },
 
@@ -485,15 +486,16 @@ od.action.list = {
       var ab = action_list.sort_asc ? 1 : -1, ba = ab * -1;
       _.time( 'Sorting ' + data.length + ' results by ' + action_list.sort_field );
       switch( sort ) {
-         case 'Cost':
-         case 'Level':
+         case 'Cost' :
+         case 'Level' :
+         case 'Price' :
             sorter = function (a,b) {
                a = od.config.level_to_int( a[ sort ] );
                b = od.config.level_to_int( b[ sort ] );
                return a > b ? ab : ( a < b ? ba : 0 );
             };
             break;
-         default:
+         default :
             sorter = function (a,b) {
                a = a[ sort ];
                b = b[ sort ];
@@ -526,30 +528,33 @@ od.action.list = {
 
       // Show data
       _.time( 'Listing ' + data.length + ' results (' + col + ')' );
+      var list = [], doc = document;
       for ( var i = 0, l = data.length ; i < l ; i++ ) {
          var line = data[i];
          if ( line ) { // Create row; intensive (up to tens of thousands).  Creating it by DOM is about 18% faster then _.create.
-            var row = document.createElement( 'tr' );
+            var row = doc.createElement( 'tr' ), cat_name = line._category.name, id = line[ idField ];
             row.setAttribute( 'role', 'menuitem' );
             row.setAttribute( 'aria-label', line.Name );
             //row.setAttribute( 'tabindex', 0 );
-            row.setAttribute( 'data-id', line[ idField ] );
-            if ( action_list.category === null ) row.setAttribute( 'data-category', line._category.name );
+            row.setAttribute( 'data-id', id );
+            if ( action_list.category === null ) row.setAttribute( 'data-category', cat_name );
             /* Building row by string is not supported by IE http://www.ericvasilik.com/2006/07/code-karma.html */// TODO: Reconsider and retest speed!
             for ( var j = 1 ; j < cl ; j++ ) { // Note: VERY intensive loop - hundred thousands if user click 'all'.
-               var td = document.createElement('td');
+               var td = doc.createElement('td');
                var d = line[ col[ j ] ];
                if ( d ) td.innerHTML = gui.highlight( d.text ? d.text : d );
                row.appendChild( td );
             }
-            var td = document.createElement('td');
+            var td = doc.createElement('td');
             td.innerHTML = '<input type="checkbox" class="list_sel">';
             td.className = 'hide';
             row.appendChild( td );
             body.appendChild( row );
+            list.push( cat_name + "." + id );
          }
       }
       table.appendChild( body );
+      od.action.view.siblings = list;
 
       _.time( 'Listed ' + data.length + ' results.' );
    }

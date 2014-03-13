@@ -3,6 +3,34 @@
   - View content of an entry / multiple entries
   -->
 <div id='action_view' data-role='page'>
+   <style scoped>
+      .btn_prevnext {
+         position: absolute;
+         margin: auto;
+         top: 0; left: 1ex; bottom: 0; right: 1ex;
+         height: 2cm; width: 2cm;
+         border-radius: 1cm;
+         font-size: 1cm;
+         opacity: 0.3;
+      }
+      @media (max-width: 12cm) {
+         .btn_prevnext {
+            height: 1cm; width: 1cm;
+            border-radius: 0.5cm;
+            font-size: 0.5cm;
+         }
+      }
+      #action_view_btn_prev {
+         margin-left: 0;
+      }
+      #action_view_btn_next {
+         margin-right: 0;
+      }
+   </style>
+   <nav>
+      <button id="action_view_btn_prev" class="btn_prevnext" title="action.view.btn_prev" class="i18n">&lt;</button>
+      <button id="action_view_btn_next" class="btn_prevnext" title="action.view.btn_next" class="i18n">&gt;</button>
+   </nav>
    <article id="act_view_pnl_content"></article>
    <header role="navigation">
       <button class='i18n' onclick='od.gui.goto(od.action.list.url_current);' accesskey='1'> action.list.link_text </button>
@@ -17,7 +45,16 @@ od.action.view = {
 
    "setup" : function action_view_setup () {
       this.clear();
-      var idList = location.search.substr( '?view='.length ).split( ',' );
+      this.parse_action_id();
+   },
+
+   "cleanup" : function action_view_cleanup () {
+      this.clear();
+   },
+
+   'parse_action_id' : function act_list_parse_action_id ( ) {
+      var id = od.gui.act_id, action_list = od.action.list;
+      var idList = id.substr( 'view='.length ).split( ',' );
       var title = this.title = new Array( idList.length );
       this.update_title;
       idList.forEach( function act_view_show_each ( id, i ) {
@@ -35,19 +72,26 @@ od.action.view = {
             var content = cat.data[ id ];
             div.innerHTML = od.gui.highlight( content );
             var h1 = content.match( /<h1[^>]*>(.+)<\/h1\s*>/ );
-            if ( h1 ) title[i] = h1[1].replace( /<span[^>]*>.*<\/span>|<br\/?>/g, '' );
+            if ( h1 ) title[i] = h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' );
             od.action.view.update_title();
          } );
       } );
-   },
 
-   "cleanup" : function action_view_cleanup () {
-      this.clear();
+      this.act_id = idList && idList.length > 0 ? ( idList.length > 1 ? idList[ 0 ] : idList ) : null;
+      this.update_nav_button();
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
    
    "title" : [],
+
+   "act_id" : null, // Current view id, an array of or a single "cat.id"
+
+   /**
+    * List of siblings, plus current entry, in "cat.id" and in display order.
+    * Used to find prev / next entry.
+    */
+   "siblings" : [],
 
    "clear" : function act_view_clear () { _( '#act_view_pnl_content')[0].innerHTML = ""; },
    
@@ -57,6 +101,16 @@ od.action.view = {
       } else {
          _('#action_view_h_title')[0].textContent = _.l( 'action,view.title', null, idList.length );
       }
+   },
+
+   "update_nav_button" : function update_nav_button () {
+      var action = od.action.view;
+      _.hide( '.btn_prevnext' );
+      if ( ! action.siblings || action.siblings.length <= 1 || ! action.act_id ) return;
+      var pos = action.siblings.indexOf( action.act_id );
+      if ( pos < 0 ) return;
+      if ( pos > 0 ) _.show( '#action_view_btn_prev' );
+      if ( pos < action.siblings.length-1 ) _.show( '#action_view_btn_next' );
    }
 };
 
