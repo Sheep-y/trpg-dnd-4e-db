@@ -208,6 +208,14 @@ od.updater.RemoteCategory.prototype = {
    "added": [],
    "reindexed" : false,
    
+   /**
+    * Return localised title/
+    * @returns {_L8.data_Cat_unload}
+    */
+   "getTitle" : function data_Cat_getTitle() {
+      return _.l( 'data.category.' + this.name, this.name );
+   },
+
    "reset" : function download_Cat_reset () {
       this.raw_columns = [];
       this.raw = [];
@@ -267,7 +275,7 @@ od.updater.RemoteCategory.prototype = {
             remote.raw_columns = _.col( results[ 0 ].getElementsByTagName( '*' ), 'tagName' );
 
             var ids = _.ary( _.xpath( transformed.documentElement, '//div//td[1]/a' ) ).map( function(e){ return e.getAttribute('href'); } );
-            if ( ids.length !== results.length ) _.error( 'Error getting listing for ' + remote.title + ': xsl transform rows mismatch' );
+            if ( ids.length !== results.length ) _.error( 'Error getting listing for ' + remote.getTitle() + ': xsl transform rows mismatch' );
             for ( var i = 0, l = ids.length ; i < l ; i++ ) {
                var rowId = ids[i];
                if ( rowId ) { // Skip empty and duplicate id - which is download link

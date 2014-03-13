@@ -90,7 +90,7 @@ od.gui = {
       var gui = od.gui;
       var currentAction = gui.action;
       if ( !action || action === currentAction ) {
-         action.setup( od.gui.act_id );
+         _.call( action.setup, action, od.gui.act_id );
          return;
       }
 
@@ -108,12 +108,13 @@ od.gui = {
 
       // Post-switch setup
       if ( gui.initialized.indexOf( action ) < 0 ) {
-         _.time( "[Action] Initialize " + action.id );
+         _.time( "[Action] Initialize & l10n " + action.id );
          gui.initialized.push( action );
          _.call( action.initialize, action );
+         _.call( action.l10n, action );
       }
       _.time( "[Action] Setup " + action.id );
-      _.call( action.setup, action, currentAction );
+      _.call( action.setup, action );
       setImmediate( function gui_switch_action_immediate () {
          _('title')[0].textContent = od.config.title_prefix + _( page, 'h1' )[0].textContent;
       } );

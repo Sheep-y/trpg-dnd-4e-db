@@ -111,7 +111,7 @@ od.search = {
       _.time();
       var list = { "columns":[], "data":[] };
       if ( cat ) {
-         _.time( 'List ' + cat.title );
+         _.time( 'List ' + cat.name );
          cat.load_listing( function data_search_list_category_load_cat() {
             _.call( onload, null, od.config.display_columns( cat.columns ), cat.list.concat(), null, null );
          } );

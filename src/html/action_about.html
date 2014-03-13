@@ -183,7 +183,7 @@
 
 od.action.about = {
 
-   "initialize" : function action_about_init () {
+   "initialize" : function act_about_init () {
       _('#action_about_history_0')[0].src = _('#img_about_history_0')[0].src;
       _('#action_about_history_1')[0].src = _('#img_about_history_1')[0].src;
       _('#action_about_history_2')[0].src = _('#img_about_history_2')[0].src;
@@ -191,24 +191,27 @@ od.action.about = {
       _('#action_about_lbl_folder')[0].textContent = od.config.data_read_path; // TODO: Properly hook into i18n.
    },
 
-   "setup": function action_about_setup () {
+   "l10n" : function act_list_l10n() {
+   },
+
+   "setup": function act_about_setup () {
       od.action.about.change_language( _('#action_about_lst_lang')[0].value );
       od.action.about.change_symbol( _('#action_about_lst_symbol')[0].value );
    },
 
    "cleanup": null,
 
-   "change_language" : function action_about_change_language ( lang ) {
+   "change_language" : function act_about_change_language ( lang ) {
       _.l.saveLocale( lang );
       _.l.localise();
    },
 
-   "change_symbol" : function action_about_change_symbol ( symbol ) {
+   "change_symbol" : function act_about_change_symbol ( symbol ) {
       od.config.symbol_conversion = symbol ? symbol : false;
       _('#action_about_lbl_symbol')[0].innerHTML = od.gui.symbol_safe_convert( _('#action_about_lbl_unicode')[0].innerHTML );
    },
 
-   "show_source" : function action_about_show_source () {
+   "show_source" : function act_about_show_source () {
       // Chrome and Mozilla series (Firefox, SeaMonkey, Web) support view-source.
       if ( ! /\b(Gecko\/|Chrome\/)/.test( navigator.userAgent ) ) return alert( _.l( 'action.about.lbl_source_manual' ) );
       location.href = "view-source:" + location.href;

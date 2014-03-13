@@ -45,7 +45,7 @@
 
    <header role="navigation">
       <button class='i18n' onclick='od.gui.goto(od.action.list.url_current);' accesskey='1'> action.list.link_text </button>
-      <h1 class='i18n'>action.update.title</h1>
+      <h1 class='i18n'> action.update.title </h1>
       <button class='i18n' onclick='od.gui.goto("about")' accesskey='9'> action.about.link_text </button>
    </header>
 
@@ -101,6 +101,9 @@ od.action.update = {
       );
    },
 
+   "l10n" : function act_download_l10n() {
+   },
+
    'setup': function act_download_setup () {
       od.action.update.refresh();
    },
@@ -150,7 +153,7 @@ od.action.update = {
       return function act_download_lbl_count_click () {
          var remote = od.updater.get( this.parentNode.getAttribute('data-name') );
          var count = remote ? remote[list].length : 0;
-         var message = _.l( 'action.update.' + label, null, count, _.escHtml( remote.title ) );
+         var message = _.l( 'action.update.' + label, null, count, _.escHtml( remote.getTitle() ) );
          if ( count <= 0 ) return alert( message );
          var win = open(), doc = win.document, listing = remote[list];
          doc.write( '<!DOCTYPE html><html style="background:#ED8"><h1>' + message + '</h1><p>' );

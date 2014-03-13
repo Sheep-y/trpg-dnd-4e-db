@@ -151,7 +151,6 @@ od.data = {
 
 od.data.Category = function Category ( name ) {
    this.name = name;
-   this.title = _.l( 'data.category.' + name, name );
    this.unload();
 };
 od.data.Category.prototype = {
@@ -170,6 +169,14 @@ od.data.Category.prototype = {
    "list" : [],   // e.g. [ {ID:"sampleId001", SourceBook": { "text":"Multiple", "set": ["Git","Csv"] }, ... ]
    "map" : {},   // e.g. { "sampleId001": (point to same item in list), ... }
    "data" : {},   // e.g. { "sampleId001": "<h1 class='player'>Sample Data 1</h1><p class='flavor'>..." }, ... }
+
+   /**
+    * Return localised title/
+    * @returns {_L8.data_Cat_unload}
+    */
+   "getTitle" : function data_Cat_getTitle() {
+      return _.l( 'data.category.' + this.name, this.name );
+   },
 
    /**
     * Clear all loaded data and columns.

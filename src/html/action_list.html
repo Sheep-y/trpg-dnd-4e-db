@@ -115,8 +115,12 @@ od.action.list = {
    'url_current' : 'list',
 
    'initialize' : function act_list_init () {
-      // Set initial search state (e.g. search box placeholder)
-      od.action.list.search( 'name' );
+      // Set initial search state (e.g. button pressed status)
+      od.action.list.search( od.action.list.search_type );
+   },
+
+   "l10n" : function act_list_l10n() {
+      _.attr( '#act_list_txt_search', 'placeholder', _.l( 'action.list.txt_search_' + od.action.list.search_type + '_placeholder' ) );
    },
 
    'setup': function act_list_setup () {
@@ -253,10 +257,10 @@ od.action.list = {
    'search' : function act_list_search ( search_type ) {
       var action_list = od.action.list;
       if ( search_type !== undefined ) { // Pressed search button; update state.
-         _.attr( '#act_list_txt_search', 'placeholder', _.l( 'action.list.txt_search_' + search_type + '_placeholder' ) );
          _.attr( '#act_list_tbl_search button', 'aria-pressed', 'false' );
          _.attr( '#act_list_btn_search_' + search_type, 'aria-pressed', 'true' );
          action_list.search_type = search_type;
+         action_list.l10n();
       }
       action_list.update_action_id();
       var cat = action_list.get_search_category();
@@ -285,11 +289,17 @@ od.action.list = {
       action_list.category = undefined;
       action_list.category_dom = {};
 
-      function create_category_button( div, cat, colour, title, name, count ) {
-         if ( title === undefined ) {
-            title = cat.title;
+      function create_category_button( div, cat, colour ) {
+         var title, name, count;
+         if ( cat ) {
+            title = cat.getTitle();
             name = cat.name;
             count = cat.count;
+         } else {
+            // All categories
+            title = _.l( 'action.list.a_all' );
+            name = "";
+            count = 0;
          }
          var a = _.create( 'button', {
             'class': 'pressable',
@@ -319,7 +329,7 @@ od.action.list = {
 
             } else if ( name === '{All}' ) {
                // Create all category button
-               create_category_button( div, null, colour, _.l( 'action.list.a_all' ), "", 0 );
+               create_category_button( div, null, colour );
 
             } else {
                // Create normal category button

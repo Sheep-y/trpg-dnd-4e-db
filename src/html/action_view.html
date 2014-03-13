@@ -28,8 +28,8 @@
       }
    </style>
    <nav>
-      <button id="action_view_btn_prev" class="btn_prevnext" title="action.view.btn_prev" class="i18n">&lt;</button>
-      <button id="action_view_btn_next" class="btn_prevnext" title="action.view.btn_next" class="i18n">&gt;</button>
+      <button id="action_view_btn_prev" class="btn_prevnext" onclick="od.action.view.btn_prev_click()">&lt;</button>
+      <button id="action_view_btn_next" class="btn_prevnext" onclick="od.action.view.btn_next_click()">&gt;</button>
    </nav>
    <article id="act_view_pnl_content"></article>
    <header role="navigation">
@@ -43,12 +43,15 @@ od.action.view = {
 
    "initialize" : null,
 
-   "setup" : function action_view_setup () {
+   "l10n" : function act_view_l10n() {
+   },
+
+   "setup" : function act_view_setup () {
       this.clear();
       this.parse_action_id();
    },
 
-   "cleanup" : function action_view_cleanup () {
+   "cleanup" : function act_view_cleanup () {
       this.clear();
    },
 
@@ -80,6 +83,9 @@ od.action.view = {
       this.act_id = idList && idList.length > 0 ? ( idList.length > 1 ? idList[ 0 ] : idList ) : null;
       this.update_nav_button();
    },
+
+   "btn_prev_click" : function act_view_btn_prev_click(){},
+   "btn_next_click" : function act_view_btn_next_click(){},
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
    
