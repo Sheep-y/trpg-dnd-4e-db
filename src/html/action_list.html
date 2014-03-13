@@ -262,9 +262,9 @@ od.action.list = {
          action_list.search_type = search_type;
          action_list.l10n();
       }
-      action_list.update_action_id();
       var cat = action_list.get_search_category();
       if ( cat !== undefined ) {
+         action_list.update_action_id();
          if ( action_list.get_search_term() === '' ) {
             od.search.list_category( action_list.get_search_category(), action_list.build_list );
          } else {

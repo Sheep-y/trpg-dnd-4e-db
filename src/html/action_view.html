@@ -47,7 +47,6 @@ od.action.view = {
    },
 
    "setup" : function act_view_setup () {
-      this.clear();
       this.parse_action_id();
    },
 
@@ -55,11 +54,20 @@ od.action.view = {
       this.clear();
    },
 
+   'update_action_id' : function act_list_update_action_id ( ) {
+      var action = od.action.view;
+      if ( action.act_id instanceof Array ) {
+         od.gui.pushState( "view=" + action.act_id.join( ',' ) );
+      } else {
+         od.gui.pushState( "view=" + action.act_id );
+      }
+   },
+
    'parse_action_id' : function act_list_parse_action_id ( ) {
-      var id = od.gui.act_id, action_list = od.action.list;
+      var id = od.gui.act_id, action = od.action.view;
       var idList = id.substr( 'view='.length ).split( ',' );
-      var title = this.title = new Array( idList.length );
-      this.update_title;
+      var title = action.title = [];
+      action.clear();
       idList.forEach( function act_view_show_each ( id, i ) {
          // Parse id
          id = id.match( /^([^.]+?)\.(.+)$/ ) || ['','',''];
@@ -75,17 +83,32 @@ od.action.view = {
             var content = cat.data[ id ];
             div.innerHTML = od.gui.highlight( content );
             var h1 = content.match( /<h1[^>]*>(.+)<\/h1\s*>/ );
-            if ( h1 ) title[i] = h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' );
-            od.action.view.update_title();
+            if ( h1 ) title.push( h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' ) );
+            action.update_title();
          } );
       } );
 
-      this.act_id = idList && idList.length > 0 ? ( idList.length > 1 ? idList[ 0 ] : idList ) : null;
-      this.update_nav_button();
+      action.act_id = idList && idList.length > 0 ? ( idList.length === 1 ? idList[ 0 ] : idList ) : null;
+      action.update_nav_button();
    },
 
-   "btn_prev_click" : function act_view_btn_prev_click(){},
-   "btn_next_click" : function act_view_btn_next_click(){},
+   "btn_prev_click" : function act_view_btn_prev_click(){
+      var action = od.action.view;
+      var pos = action.siblings.indexOf( action.act_id );
+      if ( pos <= 0 ) return _.hide( '#action_view_btn_prev' );
+      action.act_id = action.siblings[ pos-1 ];
+      action.update_action_id();
+      action.parse_action_id();
+   },
+
+   "btn_next_click" : function act_view_btn_next_click(){
+      var action = od.action.view;
+      var pos = action.siblings.indexOf( action.act_id );
+      if ( pos >= action.siblings.length-1 ) return _.hide( '#action_view_btn_next' );
+      action.act_id = action.siblings[ pos+1 ];
+      action.update_action_id();
+      action.parse_action_id();
+   },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
    
@@ -105,14 +128,14 @@ od.action.view = {
       if ( this.title.length === 1 && this.title[0] ) {
          _('#action_view_h_title')[0].textContent = this.title[0];
       } else {
-         _('#action_view_h_title')[0].textContent = _.l( 'action,view.title', null, idList.length );
+         _('#action_view_h_title')[0].textContent = _.l( 'action.view.title', null, this.title.length );
       }
    },
 
    "update_nav_button" : function update_nav_button () {
       var action = od.action.view;
       _.hide( '.btn_prevnext' );
-      if ( ! action.siblings || action.siblings.length <= 1 || ! action.act_id ) return;
+      if ( ! action.siblings || action.siblings.length <= 1 || ! action.act_id || action.act_id instanceof Array ) return;
       var pos = action.siblings.indexOf( action.act_id );
       if ( pos < 0 ) return;
       if ( pos > 0 ) _.show( '#action_view_btn_prev' );
