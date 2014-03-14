@@ -65,7 +65,7 @@ od.search = {
       }
 
       /** Called after all data needed for search is properly loaded. */
-      function do_search ( ) {
+      function do_search () {
          var count = cache.count, result;
          if ( cat ) {
             result = cache[ cat.name ];

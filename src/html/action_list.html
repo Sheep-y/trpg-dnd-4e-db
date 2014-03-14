@@ -217,7 +217,7 @@ od.action.list = {
       return _( '#act_list_txt_search' )[0].value;
    },
 
-   'update_action_id' : function act_list_get_action_id ( ) {
+   'update_action_id' : function act_list_get_action_id () {
       var action_list = od.action.list, term = action_list.get_search_term();
       var id = 'list.' + action_list.search_type;
       if ( action_list.category ) id += '.' + encodeURIComponent( action_list.category.name );
@@ -232,7 +232,7 @@ od.action.list = {
       od.gui.pushState( id );
    },
 
-   'parse_action_id' : function act_list_parse_action_id ( ) {
+   'parse_action_id' : function act_list_parse_action_id () {
       // TODO: Add error handling when parsed info is incorrect
       var id = od.gui.act_id, action_list = od.action.list;
       var parts = id.match( /^list(?:\.(name|full)?\.([^.=]+)?)?(=[^&]+)?(?:&sort=([^&]+)(&reverse=1)?)?(.*)$/ );

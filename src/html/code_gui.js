@@ -17,10 +17,10 @@ od.gui = {
    /** RegExp pattern used in highlight */
    hlp : null,
 
-   init : function gui_init ( ) {
+   init : function gui_init () {
       _.l.detectLocale( 'en' );
       _.l.localise();
-      od.gui.goto( );
+      od.gui.goto();
       // Perform navigation on pop state
       window.addEventListener( 'popstate', function window_popstate () {
          od.gui.goto();

@@ -2,7 +2,7 @@
   - action_view.html
   - View content of an entry / multiple entries
   -->
-<section id='action_view'>
+<section id='action_view' ontouchstart="od.action.view.touch_start(event)" ontouchend="od.action.view.touch_end(event)">
    <style scoped>
       .btn_prevnext {
          position: absolute;
@@ -54,7 +54,7 @@ od.action.view = {
       this.clear();
    },
 
-   'update_action_id' : function act_list_update_action_id ( ) {
+   'update_action_id' : function act_list_update_action_id () {
       var action = od.action.view;
       if ( action.act_id instanceof Array ) {
          od.gui.pushState( "view=" + action.act_id.join( ',' ) );
@@ -63,7 +63,7 @@ od.action.view = {
       }
    },
 
-   'parse_action_id' : function act_list_parse_action_id ( ) {
+   'parse_action_id' : function act_list_parse_action_id () {
       var id = od.gui.act_id, action = od.action.view;
       var idList = id.substr( 'view='.length ).split( ',' );
       var title = action.title = [];
@@ -92,7 +92,7 @@ od.action.view = {
       action.update_nav_button();
    },
 
-   "btn_prev_click" : function act_view_btn_prev_click(){
+   "btn_prev_click" : function act_view_btn_prev_click () {
       var action = od.action.view;
       var pos = action.siblings.indexOf( action.act_id );
       if ( pos <= 0 ) return _.hide( '#action_view_btn_prev' );
@@ -101,13 +101,27 @@ od.action.view = {
       action.parse_action_id();
    },
 
-   "btn_next_click" : function act_view_btn_next_click(){
+   "btn_next_click" : function act_view_btn_next_click () {
       var action = od.action.view;
       var pos = action.siblings.indexOf( action.act_id );
       if ( pos >= action.siblings.length-1 ) return _.hide( '#action_view_btn_next' );
       action.act_id = action.siblings[ pos+1 ];
       action.update_action_id();
       action.parse_action_id();
+   },
+
+   "touch_start" : function act_view_touch_start ( evt ) {
+      od.action.view.touch_start.point = evt.touches[0];
+   },
+
+   "touch_end" : function act_view_touch_end ( evt ) {
+      var start = od.action.view.touch_start.point, end = evt.touches[0];
+      if ( ! start || ! end ) return;
+      var dy = end.screenY - start.screenY, dx = Math.abs( end.screenX - start.screenX ), slope = Math.abs( dy ) / dx;
+      if ( slope < 0.2 && Math.abs( dy ) > 70 ) {
+         od.action.view[ "btn_" + ( dy < 0 ? "left" : "right" ) + "_click" ]();
+         evt.preventDefault();
+      }
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
