@@ -66,8 +66,8 @@ od.action.view = {
    'parse_action_id' : function act_list_parse_action_id () {
       var id = od.gui.act_id, action = od.action.view;
       var idList = id.substr( 'view='.length ).split( ',' );
-      var title = action.title = [];
       action.clear();
+      action.set_title( _.l( 'action.view.title', '%1 entries', idList.length ) );
       idList.forEach( function act_view_show_each ( id, i ) {
          // Parse id
          id = id.match( /^([^.]+?)\.(.+)$/ ) || ['','',''];
@@ -82,9 +82,10 @@ od.action.view = {
          cat.load_data( id, function act_view_show_load () {
             var content = cat.data[ id ];
             div.innerHTML = od.gui.highlight( content );
-            var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
-            if ( h1 ) title[i] = h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' );
-            action.update_title();
+            if ( idList.length === 1 ) {
+               var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
+               action.set_title( h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' ) );
+            }
          } );
       } );
 
@@ -125,8 +126,6 @@ od.action.view = {
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
-   
-   "title" : [],
 
    "act_id" : null, // Current view id, an array of or a single "cat.id"
 
@@ -138,12 +137,8 @@ od.action.view = {
 
    "clear" : function act_view_clear () { _( '#act_view_pnl_content')[0].innerHTML = ""; },
    
-   "update_title" : function act_view_update_title () {
-      if ( this.title.length === 1 && this.title[0] ) {
-         _('#action_view_h_title')[0].textContent = this.title[0];
-      } else {
-         _('#action_view_h_title')[0].textContent = _.l( 'action.view.title', null, this.title.length );
-      }
+   "set_title" : function act_view_set_title ( title ) {
+      _('#action_view_h_title')[0].textContent = title;
       od.gui.update_title();
    },
 
