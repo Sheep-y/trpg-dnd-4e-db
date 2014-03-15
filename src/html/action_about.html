@@ -203,7 +203,7 @@ od.action.about = {
 
    "change_language" : function act_about_change_language ( lang ) {
       _.l.saveLocale( lang );
-      _.l.localise();
+      od.gui.l10n();
    },
 
    "change_symbol" : function act_about_change_symbol ( symbol ) {

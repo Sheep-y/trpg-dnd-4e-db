@@ -19,7 +19,7 @@ od.gui = {
 
    init : function gui_init () {
       _.l.detectLocale( 'en' );
-      _.l.localise();
+      od.gui.l10n();
       od.gui.goto();
       // Perform navigation on pop state
       window.addEventListener( 'popstate', function window_popstate () {
@@ -33,6 +33,14 @@ od.gui = {
             if ( get_act_id() != gui.act_id ) od.gui.goto();
          }, od.config.url_monitor_interval );
       })();
+   },
+   
+   /**
+    * Localise current action.
+    */
+   l10n : function gui_l10n () {
+      _.l.localise();
+      if ( od.gui.action ) od.gui.action.l10n();
    },
 
    /**

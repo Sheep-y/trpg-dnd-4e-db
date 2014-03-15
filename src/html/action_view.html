@@ -44,6 +44,10 @@ od.action.view = {
    "initialize" : null,
 
    "l10n" : function act_view_l10n() {
+      var action = od.action.view, id = action.act_id;
+      if ( id && id.length ) {
+         action.set_title( _.l( 'action.view.title', '%1 entries', action.id.length ) );
+      }
    },
 
    "setup" : function act_view_setup () {
@@ -67,7 +71,6 @@ od.action.view = {
       var id = od.gui.act_id, action = od.action.view;
       var idList = id.substr( 'view='.length ).split( ',' );
       action.clear();
-      action.set_title( _.l( 'action.view.title', '%1 entries', idList.length ) );
       idList.forEach( function act_view_show_each ( id, i ) {
          // Parse id
          id = id.match( /^([^.]+?)\.(.+)$/ ) || ['','',''];
@@ -90,6 +93,7 @@ od.action.view = {
       } );
 
       action.act_id = idList && idList.length > 0 ? ( idList.length === 1 ? idList[ 0 ] : idList ) : null;
+      action.l10n();
       action.update_nav_button();
    },
 
