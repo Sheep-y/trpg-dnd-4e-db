@@ -5,8 +5,6 @@
  */
 
 od.config = {
-   "title_prefix" : "Compendium - ",
-
    "simulate" : false, // If true, load data from local file instead of live url
    "simulated_data_url" : 'offline_simulation_files',
    "data_read_path" : '4e_database_files',

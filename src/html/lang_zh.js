@@ -73,7 +73,7 @@ _.l.set( 'error', {
 });
 
 _.l.set( 'gui', {
-   'title'   : '離線四版資料庫',
+   'title'   : '四版資料庫 - ',
    'loading' : 'Loading...',
    'loading1': 'Loading %1'
 });

@@ -43,7 +43,7 @@ _.l.set( 'error', {
 });
 
 _.l.set( 'gui', {
-   'title'   : 'Offline 4e Database',
+   'title'   : '4e Database - ',
    'loading' : 'Loading...',
    'loading1': 'Loading %1'
 });

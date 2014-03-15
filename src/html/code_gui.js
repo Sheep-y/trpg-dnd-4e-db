@@ -115,12 +115,15 @@ od.gui = {
       }
       _.time( "[Action] Setup " + action.id );
       _.call( action.setup, action );
-      setImmediate( function gui_switch_action_immediate () {
-         _('title')[0].textContent = od.config.title_prefix + _( page, 'h1' )[0].textContent;
-      } );
-
       gui.action = action;
+
+      gui.update_title();
       _.time( 'Switched to ' + action.id );
+   },
+   
+   update_title : function gui_update_title () {
+      _('title')[0].textContent = _.l( 'gui.title', 'Offline 4e database - ' )
+                                + _( "#action_" + od.gui.action.id + ' h1' )[0].textContent;
    },
 
    /**
