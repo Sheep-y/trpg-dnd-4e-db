@@ -120,7 +120,11 @@ od.action.list = {
    },
 
    "l10n" : function act_list_l10n() {
-      _.attr( '#act_list_txt_search', 'placeholder', _.l( 'action.list.txt_search_' + od.action.list.search_type + '_placeholder' ) );
+      var action = od.action.list, data = od.data;
+      _.attr( '#act_list_txt_search', 'placeholder', _.l( 'action.list.txt_search_' + action.search_type + '_placeholder' ) );
+      for ( var name in action.category_dom ) {
+         _.attr( _( action.category_dom[ name ], 'b' ), 'text', name ? data.get( name ).getTitle() : _.l( 'action.list.a_all' ) );
+      }
    },
 
    'setup': function act_list_setup () {
@@ -292,12 +296,10 @@ od.action.list = {
       function create_category_button( div, cat, colour ) {
          var title, name, count;
          if ( cat ) {
-            title = cat.getTitle();
             name = cat.name;
             count = cat.count;
          } else {
             // All categories
-            title = _.l( 'action.list.a_all' );
             name = "";
             count = 0;
          }
@@ -309,7 +311,7 @@ od.action.list = {
             'onclick' : function create_category_button_click () { action_list.a_category( name ); }
          } );
          a.appendChild( _.create( 'span', { 'class' : 'rpg ' + name } ) );
-         a.appendChild( _.create( 'b', title ) );
+         a.appendChild( _.create( 'b', name ) );
          a.appendChild( _.create( 'var', count ) );
          div.appendChild( a );
          action_list.category_dom[ name ] = a;
@@ -340,6 +342,7 @@ od.action.list = {
                }
             }
          } );
+         action_list.l10n();
          // Create unexpected category button
          for ( var i = 0, l = list.length ; i < l ; i++ ) {
             total += create_category_button( div, list[i], colour );

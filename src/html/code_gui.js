@@ -119,10 +119,10 @@ od.gui = {
          _.time( "[Action] Initialize & l10n " + action.id );
          gui.initialized.push( action );
          _.call( action.initialize, action );
-         _.call( action.l10n, action );
       }
       _.time( "[Action] Setup " + action.id );
       _.call( action.setup, action );
+      _.call( action.l10n, action );
       gui.action = action;
 
       gui.update_title();
