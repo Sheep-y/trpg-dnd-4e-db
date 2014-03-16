@@ -163,7 +163,7 @@ od.action.list = {
     * @param {String} cat Name of category. Empty = all categories.
     */
    'a_category' : function act_list_a_category ( cat ) {
-      var action_list = od.action.list;
+      var action = od.action.list;
       if ( document.body.clientWidth <= 980 && _.hasClass( '#act_list_pnl_category', 'active') ) {
          // Hide results and show category list
          _.hide( '#act_list_pnl_list' );
@@ -171,8 +171,8 @@ od.action.list = {
          _.attr( '#act_list_pnl_category .pressable', 'aria-pressed', 'false' );
          return;
       }
-      action_list.set_search_category( cat ? od.data.get( cat ) : "" );
-      action_list.search();
+      action.set_search_category( cat ? od.data.get( cat ) : "" );
+      action.search();
       _( '#act_list_txt_search' )[0].focus();
    },
 
@@ -222,17 +222,17 @@ od.action.list = {
    },
 
    'update_action_id' : function act_list_get_action_id () {
-      var action_list = od.action.list, term = action_list.get_search_term();
-      var id = 'list.' + action_list.search_type;
-      if ( action_list.category ) id += '.' + encodeURIComponent( action_list.category.name );
-      else if ( action_list.category !== undefined ) id += '.All';
+      var action = od.action.list, term = action.get_search_term();
+      var id = 'list.' + action.search_type;
+      if ( action.category ) id += '.' + encodeURIComponent( action.category.name );
+      else if ( action.category !== undefined ) id += '.All';
       if ( term ) id += '=' + encodeURIComponent( term );
-      if ( action_list.sort_field ) {
-         id += "&sort=" + encodeURIComponent( action_list.sort_field );
-         if ( ! action_list.sort_asc )
+      if ( action.sort_field ) {
+         id += "&sort=" + encodeURIComponent( action.sort_field );
+         if ( ! action.sort_asc )
             id += "&reverse=1";
       }
-      action_list.url_current = id;
+      action.url_current = id;
       od.gui.pushState( id );
    },
 
@@ -259,27 +259,27 @@ od.action.list = {
     * @param {String} search_type Type of search, may be undefined, 'full', or 'name'.
     */
    'search' : function act_list_search ( search_type ) {
-      var action_list = od.action.list;
+      var action = od.action.list;
       if ( search_type !== undefined ) { // Pressed search button; update state.
          _.attr( '#act_list_tbl_search button', 'aria-pressed', 'false' );
          _.attr( '#act_list_btn_search_' + search_type, 'aria-pressed', 'true' );
-         action_list.search_type = search_type;
-         action_list.l10n();
+         action.search_type = search_type;
+         action.l10n();
       }
-      var cat = action_list.get_search_category();
+      var cat = action.get_search_category();
       if ( cat !== undefined ) {
-         action_list.update_action_id();
-         if ( action_list.get_search_term() === '' ) {
-            od.search.list_category( action_list.get_search_category(), action_list.build_list );
+         action.update_action_id();
+         if ( action.get_search_term() === '' ) {
+            od.search.list_category( action.get_search_category(), action.build_list );
          } else {
             if ( search_type === undefined ) { // e.g. Pressing Enter in search box.
-               search_type = action_list.search_type;
+               search_type = action.search_type;
             }
             od.search.search( {
                'category': cat,
-               'term': action_list.get_search_term(),
+               'term': action.get_search_term(),
                'search_body': search_type === 'full',
-               'ondone'  : action_list.build_list
+               'ondone'  : action.build_list
             } );
          }
       }
@@ -289,9 +289,9 @@ od.action.list = {
    /** Called after category is loaded to build category buttons */
    'build_category' : function act_list_build_category ( ondone ) {
       // Category order and colour is defined at od.config in config.js
-      var action_list = od.action.list;
-      action_list.category = undefined;
-      action_list.category_dom = {};
+      var action = od.action.list;
+      action.category = undefined;
+      action.category_dom = {};
 
       function create_category_button( div, cat, colour ) {
          var title, name, count;
@@ -308,13 +308,13 @@ od.action.list = {
             'aria-pressed' : 'false',
             'style': 'background-color:'+colour,
             'role' : 'tab',
-            'onclick' : function create_category_button_click () { action_list.a_category( name ); }
+            'onclick' : function create_category_button_click () { action.a_category( name ); }
          } );
          a.appendChild( _.create( 'span', { 'class' : 'rpg ' + name } ) );
          a.appendChild( _.create( 'b', name ) );
          a.appendChild( _.create( 'var', count ) );
          div.appendChild( a );
-         action_list.category_dom[ name ] = a;
+         action.category_dom[ name ] = a;
          return count;
       }
 
@@ -342,13 +342,13 @@ od.action.list = {
                }
             }
          } );
-         action_list.l10n();
+         action.l10n();
          // Create unexpected category button
          for ( var i = 0, l = list.length ; i < l ; i++ ) {
             total += create_category_button( div, list[i], colour );
          }
-         action_list.total_count = total;
-         _( action_list.category_dom[''], 'var' )[0].textContent = total;
+         action.total_count = total;
+         _( action.category_dom[''], 'var' )[0].textContent = total;
          _.show( div );
          if ( ondone ) _.call( ondone );
       }, function act_list_build_category_error () {
@@ -358,9 +358,9 @@ od.action.list = {
 
    /** Callback for search / list, to display the results */
    'build_list' : function act_list_build_list ( col, data, counts, highlight ) {
-      var action_list = od.action.list, cl = col.length;
-      action_list.columns = col;
-      action_list.data = data;
+      var action = od.action.list, cl = col.length;
+      action.columns = col;
+      action.data = data;
       od.gui.set_highlight( highlight );
 
       // Remove old table and create a new one.
@@ -373,7 +373,7 @@ od.action.list = {
       // Show result counts
       if ( counts ) {
          od.data.get().forEach( function act_list_show_count_each ( cat ) {
-            var txt, dom = action_list.category_dom[ cat.name ];
+            var txt, dom = action.category_dom[ cat.name ];
             if ( counts ) {
                var c = counts[ cat.name ];
                txt = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, cat.count );
@@ -382,8 +382,8 @@ od.action.list = {
             }
             _( dom, 'var' )[ 0 ].textContent = txt;
          } );
-         var c = counts[ '' ], dom = action_list.category_dom[ '' ];
-         _( dom, 'var' )[ 0 ].textContent = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action_list.total_count );
+         var c = counts[ '' ], dom = action.category_dom[ '' ];
+         _( dom, 'var' )[ 0 ].textContent = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action.total_count );
       } else {
          // _( dom, 'var' )[ 0 ].textContent = action_list.total_count;
       }
@@ -392,16 +392,16 @@ od.action.list = {
       for ( var i = 1 ; i < cl ; i++ ) {
          // Data field column
          var th = _.create( 'th' ), label = _.l( 'data.field.' + col[i], col[i] );
-         th.appendChild( _.create( 'input', { 'type': 'search', 'class' : 'txt_filter', 'placeholder': label, 'oninput': action_list.txt_filter_input } ) );
+         th.appendChild( _.create( 'input', { 'type': 'search', 'class' : 'txt_filter', 'placeholder': label, 'oninput': action.txt_filter_input } ) );
          //th.appendChild( _.create( 'br' ) );
          var sorter = _.create( 'span', '⇅' );
          sorter.addEventListener( 'click', ( function ( f, lbl ) { return function act_list_header_click(){
-            action_list.sort_asc = action_list.sort_field === f ? ! action_list.sort_asc : true;
+            action.sort_asc = action.sort_field === f ? ! action.sort_asc : true;
             _.attr( '#act_list_pnl_list th span', 'text', '⇅' );
-            lbl.textContent = action_list.sort_asc ? '↓' : '↑';
-            action_list.sort_field = f;
-            action_list.show_list();
-            action_list.update_action_id();
+            lbl.textContent = action.sort_asc ? '↓' : '↑';
+            action.sort_field = f;
+            action.show_list();
+            action.update_action_id();
          }; } )( col[ i ], sorter ) );
          th.appendChild( sorter );
          head.appendChild( th );
@@ -419,14 +419,14 @@ od.action.list = {
       //th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_filter', 'Filter' ), 'onclick': action_list.search } ) );
       th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_clear_filter', '×' ), 'onclick': function () {
          _.attr( '.txt_filter', 'value', '' );
-         action_list.search();
+         action.search();
       } } ) );
       head.appendChild( th );
 
-      action_list.show_list( table );
-      table.addEventListener( 'click', action_list.table_click );
+      action.show_list( table );
+      table.addEventListener( 'click', action.table_click );
       table.addEventListener( 'keypress', function act_list_table_keypressed( evt ) {
-         if ( evt.keyCode === 13 ) action_list.table_click( evt ); // Trigger a click when pressing Enter
+         if ( evt.keyCode === 13 ) action.table_click( evt ); // Trigger a click when pressing Enter
       });
       _.show( '#act_list_pnl_list' )[0].appendChild( table );
    },
@@ -495,9 +495,9 @@ od.action.list = {
 
    /** Sort given data and returns a copy. */
    'sort_data' : function act_list_sort_data ( data ) {
-      var action_list = od.action.list, sorter, sort = action_list.sort_field;
-      var ab = action_list.sort_asc ? 1 : -1, ba = ab * -1;
-      _.time( 'Sorting ' + data.length + ' results by ' + action_list.sort_field );
+      var action = od.action.list, sorter, sort = action.sort_field;
+      var ab = action.sort_asc ? 1 : -1, ba = ab * -1;
+      _.time( 'Sorting ' + data.length + ' results by ' + action.sort_field );
       switch( sort ) {
          case 'Cost' :
          case 'Level' :
@@ -520,8 +520,8 @@ od.action.list = {
 
    /** List the current result, e.g. after changing sorting. */
    'show_list' : function act_list_show_list ( table ) {
-      var action_list = od.action.list, gui = od.gui;
-      var data = action_list.data, col = action_list.columns;
+      var action = od.action.list, gui = od.gui;
+      var data = action.data, col = action.columns;
       var cl = col.length, idField = col[ 0 ];
 
       if ( ! table ) table = _( '#act_list_pnl_list table' )[0];
@@ -534,9 +534,9 @@ od.action.list = {
       }
 
       // Fitler and sort data
-      data = action_list.filter_data( col, data );
-      if ( action_list.sort_field && data[0][ action_list.sort_field ] !== undefined ) {
-         data = action_list.sort_data( data );
+      data = action.filter_data( col, data );
+      if ( action.sort_field && data[0][ action.sort_field ] !== undefined ) {
+         data = action.sort_data( data );
       }
 
       // Show data
@@ -550,7 +550,7 @@ od.action.list = {
             row.setAttribute( 'aria-label', line.Name );
             //row.setAttribute( 'tabindex', 0 );
             row.setAttribute( 'data-id', id );
-            if ( action_list.category === null ) row.setAttribute( 'data-category', cat_name );
+            if ( action.category === null ) row.setAttribute( 'data-category', cat_name );
             /* Building row by string is not supported by IE http://www.ericvasilik.com/2006/07/code-karma.html */// TODO: Reconsider and retest speed!
             for ( var j = 1 ; j < cl ; j++ ) { // Note: VERY intensive loop - hundred thousands if user click 'all'.
                var td = doc.createElement('td');
