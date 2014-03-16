@@ -246,7 +246,7 @@ od.action.list = {
          } else {
             action_list.set_search_category( undefined );
          }
-         _( '#act_list_txt_search' )[0].value = parts[3] ? parts[3].substr(1) : "";
+         _( '#act_list_txt_search' )[0].value = parts[3] ? decodeURIComponent( parts[3].substr(1) ) : "";
          action_list.sort_field = parts[4] ? parts[4] : undefined;
          action_list.sort_asc = !!parts[5];
          action_list.search( parts[1] );
