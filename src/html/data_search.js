@@ -73,6 +73,7 @@ od.search = {
                _.time( 'Search ' + cat.name + ': ' + options.term );
                cache[ cat.name ] = result = search( cat.list );
                count[ cat.name ] = result.length;
+               _.time( 'Search done, ' + result.length + ' result(s).' );
             }
          } else {
             result = cache[ '' ];
@@ -80,16 +81,17 @@ od.search = {
                _.time( 'Searching all categories: ' + options.term  );
                result = [];
                count[''] = 0;
-               od.data.get().forEach( function search_search_each ( c ) {
+               od.data.get().forEach( function search_search_each ( cat ) {
                   var data = cache[ cat.name ];
                   if ( ! data ) {
-                     data = search( c.list );
-                     count[ c.name ] = data.length;
+                     cache[ cat.name ] = data = search( cat.list );
+                     count[ cat.name ] = data.length;
                   }
                   result = result.concat( data );
                   count[ '' ] += data.length;
                } );
                cache[ '' ] = result;
+               _.time( 'Search done, ' + result.length + ' result(s).' );
             }
          }
          done( result, count );
@@ -101,7 +103,6 @@ od.search = {
                if ( ! search_body || ! pattern.hasExclude ) return true; // OK if not searching body or there is no exluding terms.
                return regx.test( row._category.index[ row.ID ] ); // Full body search.
             } );
-            _.time( 'Search done, ' + result.length + ' result(s).' );
             return result;
          }
       }
