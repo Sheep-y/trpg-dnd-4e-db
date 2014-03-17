@@ -26,11 +26,18 @@ od.gui = {
          od.gui.goto();
       }, false);
 
+      // Show / Hide 'top' buttons when scrolled
+      window.addEventListener( 'scroll', function window_scroll () {
+         var isTop = window.pageYOffset === 0;
+         _.visible( '.btn_top', ! isTop );
+         _.visible( '.btn_non_top', isTop );
+      }, false );
+
       // Monitor url change
       (function(){
          var gui = od.gui, get_act_id = gui.get_act_id;
          setInterval( function window_interval_url_monitor() {
-            if ( get_act_id() != gui.act_id ) od.gui.goto();
+            if ( get_act_id() !== gui.act_id ) od.gui.goto();
          }, od.config.url_monitor_interval );
       })();
    },
