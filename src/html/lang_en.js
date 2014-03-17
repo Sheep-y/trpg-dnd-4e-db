@@ -44,6 +44,7 @@ _.l.set( 'error', {
 
 _.l.set( 'gui', {
    'title'   : '4e Database - ',
+   'top'   : 'Top',
    'loading' : 'Loading...',
    'loading1': 'Loading %1'
 });
@@ -133,7 +134,8 @@ _.l.set( 'action.about', {
 
    'h_license' : "License",
    'p_license' : "This script is free software and licensed under GNU AGPL v3.",
-   'a_source'  : "Source",
+   'a_source'  : "View Source",
+   'a_github'  : "Githib Source",
    'a_email'  : "Email",
    'lbl_source_manual' : "Please right click and select 'View Source' after closing this message, since your browser does not let us do it programmatically.",
 
@@ -146,7 +148,7 @@ _.l.set( 'action.about', {
       " <li> Get listing of one or more categories "+
       " <li> Get data (may prompt login) "+
       " <li> Save data "+
-      "</ol> More information is availble from the download page.",
+      "</ol> More information is availble from the update page.",
 
    'h_search_data' : "How to Search data",
    'p_search_data' :

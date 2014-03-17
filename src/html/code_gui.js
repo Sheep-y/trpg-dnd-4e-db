@@ -27,11 +27,13 @@ od.gui = {
       }, false);
 
       // Show / Hide 'top' buttons when scrolled
-      window.addEventListener( 'scroll', function window_scroll () {
+      function window_scroll () {
          var isTop = window.pageYOffset === 0;
          _.visible( '.btn_top', ! isTop );
          _.visible( '.btn_non_top', isTop );
-      }, false );
+      }
+      window.addEventListener( 'scroll', window_scroll, false );
+      window_scroll();
 
       // Monitor url change
       (function(){

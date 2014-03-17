@@ -39,7 +39,7 @@ a:hover {
    text-decoration: underline;
 }
 
-button {
+button, .button {
    display: inline-block;
    padding: 0.5ex 1ex;
    border-radius: 1ex;
@@ -50,7 +50,7 @@ button {
    text-decoration: none;
 }
 
-button:hover, button:focus {
+.button:hover, .button:focus, button:hover, button:focus {
    color: FireBrick !important; /* Override no result category gray out */
    opacity: 1 !important;
    border-color: red !important;
@@ -101,13 +101,13 @@ header h1 {
    font-weight: bold;
 }
 
-header button { /* Left header button */
+header button, header .button { /* Left header button */
    float: left;
    border-radius: 2ex;
    font-weight: bold;
 }
 
-header h1 + button { /* Right header button */
+header h1 ~ button, header h1 ~ .button { /* Right header button */
    float: right;
 }
 

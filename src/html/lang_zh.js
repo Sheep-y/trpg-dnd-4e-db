@@ -163,7 +163,8 @@ _.l.set( 'action.about', {
 
    'h_license' : "授權",
    'p_license' : "此文本是免費軟件，以 GNU AGPL v3 授權發佈。",
-   'a_source' : "源碼",
+   'a_source' : "檢視源碼",
+   'a_github'  : "Github 源碼",
    'a_email'  : "電郵",
    'lbl_source_manual' : "請在關閉此提示後右按並點選'顯示源碼'，因為 IE 不支援，因為您的瀏覽器不能用程序呼叫這功能。",
 
@@ -176,7 +177,7 @@ _.l.set( 'action.about', {
       " <li> 下載一類或多類的列表 "+
       " <li> 下載數據（可能會要求登入）"+
       " <li> 儲存數據 "+
-      "</ol> 下載頁有更多的詳情。",
+      "</ol> 更新頁有更多的詳情。",
 
    'h_search_data' : "如何搜尋數據",
    'p_search_data' :
