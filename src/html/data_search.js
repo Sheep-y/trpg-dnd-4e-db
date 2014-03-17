@@ -99,9 +99,14 @@ od.search = {
          function search( lst ) {
             var regx = pattern.regexp;
             var result = lst.filter( function search_search_filter ( row ) {
-               if ( ! regx.test( row.Name ) ) return false; // Stop if name check failed.
-               if ( ! search_body || ! pattern.hasExclude ) return true; // OK if not searching body or there is no exluding terms.
-               return regx.test( row._category.index[ row.ID ] ); // Full body search.
+               if ( ! search_body ) {
+                  // Name search. Just try to match name.
+                  return regx.test( row.Name );
+               } else {
+                  // Full body search.  If does not have exclude term, try name first. If fail or otherwise do full body.
+                  if ( ! pattern.hasExclude && regx.test( row.Name ) ) return true;
+                  return regx.test( row._category.index[ row.ID ] ); 
+               }
             } );
             return result;
          }
