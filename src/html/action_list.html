@@ -148,7 +148,11 @@ od.action.list = {
    'data' : [],  // Current result list (unsorted & unfiltered). Sorting will use this list instead of reapplying search.
 
    'txt_search_down' : function act_list_txt_search_down ( evt ) {
-      if ( evt.keyCode === 13 && ! evt.altKey && ! evt.ctrlKey && !evt.metaKey ) this.search();
+      if ( evt.keyCode === 13 && ! evt.altKey && ! evt.ctrlKey && !evt.metaKey ) {
+         // If nothing is selected, assume a full catalog search
+         if ( this.cat === undefined ) this.set_search_category( "" );
+         this.search();
+      }
    },
 
    'txt_filter_input' : function act_list_txt_filter_input ( evt ) {
