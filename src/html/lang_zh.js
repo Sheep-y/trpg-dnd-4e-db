@@ -57,14 +57,14 @@ _.l.set( 'data', {
 });
 
 _.l.set( 'error', {
-   'updating_data' : 'Error when updating %1 of %2 (%3)',
+   'updating_data' : '更新 %2 的 %1 時發生錯誤 (%3)',
 
    // 'no_cross_origin' : 'Cross Origin' // TODO: implement proper cross origin alert
-   'ajax_error' : 'Cannot load content (%1) from %2',
+   'ajax_error' : '無法載入 %2 的 %1 的內容。',
 
-   'com_file_security' : 'Cannot save data due to browser security settings. Go to Tools > Internet Options > Security > Custom Level. Enable "Initialize and script ActiveX controls not marked as safe".',
-   'file_grant_permission' : 'You may see a prompt. Please grant us the permission update data files.',
-   'file_no_api' : 'Only support saving in IE, because JavaScript has no standard for saving portable offline data.',
+   'com_file_security' : '瀏覽器安全等級過高，無法儲存數據。請到 Tools > Internet Options > Security > Custom Level 啟用 "Initialize and script ActiveX controls not marked as safe".',
+   'file_grant_permission' : '你可能會看見一個警示。請給予我們更新數據檔案的權限。',
+   'file_no_api' : '需要用 IE 才能更新，因為 JavaScript 不支援寫入本機檔案。',
    'file_cannot_delete' : '無法覆寫 %1',
 
    'wrong_ext': 'Extended list different from raw list, please re-index from download screen: %1.',

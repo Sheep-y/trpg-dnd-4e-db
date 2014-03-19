@@ -34,7 +34,7 @@ _.l.set( 'error', {
 
    'com_file_security' : 'Cannot save data due to browser security settings. Go to Tools > Internet Options > Security > Custom Level. Enable "Initialize and script ActiveX controls not marked as safe".',
    'file_grant_permission' : 'You may see a prompt. Please grant us the permission update data files.',
-   'file_no_api' : 'Only support saving in IE, because JavaScript has no standard for saving portable offline data.',
+   'file_no_api' : 'Only support saving in IE, because JavaScript cannot save to portable offline data file.',
    'file_cannot_delete' : 'Cannot overwrite %1',
 
    'wrong_ext': 'Extended list different from raw list, please re-index from download screen: %1.',
@@ -131,7 +131,7 @@ _.l.set( 'action.about', {
    'hint_aura'   : "Aura",
 
    'h_license' : "License",
-   'p_license' : "This script is free software and licensed under GNU AGPL v3.<br/>This script does not collect any personally identifiable information.",
+   'p_license' : "This script is free software and is licensed under GNU AGPL v3.<br/>This script does not collect any personally identifiable information.",
    'a_source'  : "View Source",
    'a_github'  : "Githib Source",
    'a_email'  : "Email",
