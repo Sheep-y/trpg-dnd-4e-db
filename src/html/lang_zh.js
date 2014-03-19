@@ -74,8 +74,9 @@ _.l.set( 'error', {
 
 _.l.set( 'gui', {
    'title'   : '四版資料庫 - ',
-   'loading' : 'Loading...',
-   'loading1': 'Loading %1'
+   'loading' : '載入中...',
+   'loading1': '載入 %1 中',
+   'top'     : '頂部'
 });
 
 _.l.set( 'action.list', {
@@ -159,8 +160,8 @@ _.l.set( 'action.about', {
    'hint_dice'   : "骰面（充能） 1 2 3 4 5 6",
    'hint_aura'   : "氣場",
 
-   'h_license' : "授權",
-   'p_license' : "此文本是免費軟件，以 GNU AGPL v3 授權發佈。",
+   'h_license' : "授權及私隱聲明",
+   'p_license' : "此程式稿免費開源，以 GNU AGPL v3 授權發佈。<br/>本程式稿不收集任何可以辨認個人的資訊。",
    'a_source' : "檢視源碼",
    'a_github'  : "Github 源碼",
    'a_email'  : "電郵",
@@ -219,5 +220,5 @@ _.l.set( 'action.about', {
 
 _.l.set( 'action.license', {
    'title' : "授權協議",
-   'link_text' : "授權"
+   'link_text' : "查看授權"
 });

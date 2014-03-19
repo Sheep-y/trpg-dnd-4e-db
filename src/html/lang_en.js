@@ -131,7 +131,7 @@ _.l.set( 'action.about', {
    'hint_aura'   : "Aura",
 
    'h_license' : "License",
-   'p_license' : "This script is free software and licensed under GNU AGPL v3.",
+   'p_license' : "This script is free software and licensed under GNU AGPL v3.<br/>This script does not collect any personally identifiable information.",
    'a_source'  : "View Source",
    'a_github'  : "Githib Source",
    'a_email'  : "Email",
@@ -190,5 +190,5 @@ _.l.set( 'action.about', {
 
 _.l.set( 'action.license', {
    'title' : "License",
-   'link_text' : "License"
+   'link_text' : "View License"
 });
