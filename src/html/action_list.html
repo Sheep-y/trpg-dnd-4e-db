@@ -526,6 +526,7 @@ od.action.list = {
       var cl = col.length, idField = col[ 0 ];
 
       if ( ! table ) table = _( '#act_list_pnl_list table' )[0];
+      _.hide( table );
       var body = _( table, 'tbody' );
       if ( body.length ) body[0].parentNode.removeChild( body[0] );
       body = _.create( 'tbody' );
@@ -553,7 +554,7 @@ od.action.list = {
             row.setAttribute( 'data-id', id );
             if ( action.category === null ) row.setAttribute( 'data-category', cat_name );
             /* Building row by string is not supported by IE http://www.ericvasilik.com/2006/07/code-karma.html */// TODO: Reconsider and retest speed!
-            for ( var j = 1 ; j < cl ; j++ ) { // Note: VERY intensive loop - hundred thousands if user click 'all'.
+            for ( var j = 1 ; j < cl ; j++ ) { // Note: VERY intensive loop - a hundred thousand if user click 'all'.
                var td = doc.createElement('td');
                var d = line[ col[ j ] ];
                if ( d ) td.innerHTML = gui.highlight( d.text ? d.text : d );
@@ -567,8 +568,10 @@ od.action.list = {
             list.push( cat_name + "." + id );
          }
       }
-      table.appendChild( body );
       od.action.view.siblings = list;
+
+      table.appendChild( body );
+      _.show( table ); // Android Firefox v27 needs an extra kick to trigger redraw
 
       _.time( 'Listed ' + data.length + ' results.' );
    }
