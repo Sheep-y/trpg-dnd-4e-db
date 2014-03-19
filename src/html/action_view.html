@@ -2,7 +2,9 @@
   - action_view.html
   - View content of an entry / multiple entries
   -->
-<section id='action_view' ontouchstart="od.action.view.touch_start(event)" ontouchend="od.action.view.touch_end(event)">
+<section id='action_view'><!-- // Disabled because touch event behaviour is not universal. Button is good.
+         ontouchstart="od.action.view.touch_start(event)" ontouchmove="od.action.view.touch_move(event)" 
+         ontouchend="od.action.view.touch_end()" ontouchleave="od.action.view.touch_end()" ontouchcancel="od.action.view.touch_cancel()"-->
    <style scoped>
       .btn_prevnext {
          position: absolute;
@@ -116,19 +118,36 @@ od.action.view = {
       action.parse_action_id();
    },
 
+/*
    "touch_start" : function act_view_touch_start ( evt ) {
-      od.action.view.touch_start.point = evt.touches[0];
+      var pt = evt.touches[0];
+      od.action.view.touch_start.point = { "screenX" : pt.screenX, "screenY" : pt.screenY };
    },
 
-   "touch_end" : function act_view_touch_end ( evt ) {
-      var start = od.action.view.touch_start.point, end = evt.touches[0];
+   "touch_move" : function act_view_touch_move ( evt ) {
+      var pt = evt.touches[0];
+      od.action.view.touch_move.point = { "screenX" : pt.screenX, "screenY" : pt.screenY };
+   },
+
+   "touch_end" : function act_view_touch_end () {
+      var action = od.action.view;
+      var start = action.touch_start.point, end = action.touch_move.point;
       if ( ! start || ! end ) return;
+      _('#act_view_pnl_content')[0].appendChild( _.create( 'p', 'Touch ended: [' + start.screenX + ',' + start.screenY + '], [' + end.screenX + ',' + end.screenY + ']' ) );
+      action.touch_cancel(); // Reset touch record
       var dy = end.screenY - start.screenY, dx = Math.abs( end.screenX - start.screenX ), slope = Math.abs( dy ) / dx;
       if ( slope < 0.2 && Math.abs( dy ) > 70 ) {
-         od.action.view[ "btn_" + ( dy < 0 ? "left" : "right" ) + "_click" ]();
+         _('#act_view_pnl_content')[0].appendChild( _.create( 'p', 'Swipe detected: ' + dy ) );
+         action[ "btn_" + ( dy < 0 ? "left" : "right" ) + "_click" ]();
          evt.preventDefault();
       }
    },
+
+   "touch_cancel" : function act_view_touch_cancel () {
+      var action = od.action.view;
+      action.touch_start.point = action.touch_move.point = null;
+   },
+*/
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
 
