@@ -3,7 +3,7 @@
  * sparrow.js
  *
  * Sparrow - light weight JS library. Lower level and boarder then JQuery, not DOM oriented.
- * 
+ *
  * Feature support varies by browser, target is IE 9+, Chrome, Firefox
  *
  */
@@ -16,11 +16,12 @@
 /**
  * Select DOM Nodes by CSS selector.
  *
- * @param {Node} root Optional. Root node to select from. Default to document.
- * @param {String} selector CSS selector to run. Has shortcut for simple id/class/tag.
- * @returns {Array-like} Array or NodeList of DOM Node result.
+ * @expose
+ * @param {(string|Node)} root Optional. Root node to select from. Default to document.
+ * @param {string=} selector CSS selector to run. Has shortcut for simple id/class/tag.
+ * @returns {Array|NodeList} Array or NodeList of DOM Node result.
  */
-window._ = function _ ( root, selector ) {
+window._ = function sparrow ( root, selector ) {
    if ( selector === undefined ) {
       selector = root;
       root = document;
@@ -28,7 +29,7 @@ window._ = function _ ( root, selector ) {
    if ( ! selector ) return [ root ];
    // Test for simple id / class / tag, if fail then use querySelectorAll
    if ( selector.indexOf(' ') > 0 || ! /^[#.]?\w+$/.test( selector ) ) return root.querySelectorAll( selector );
-   
+
    // Get Element series is many times faster then querySelectorAll
    if ( selector.charAt(0) === '#' ) {
       var result = root.getElementById( selector.substr(1) );
@@ -45,9 +46,9 @@ window._ = function _ ( root, selector ) {
 /**
  * Convert an array-like object to be an array.
  *
- * @param {Array-like} subject Subject to be converted.
- * @param {Integer} startpos If given, work like Array.slice( startpos ).
- * @param {Integer} length If this and startpos is given, work like Array.slice( startpos, length ).
+ * @param {(Array|NodeList|*)} subject Subject to be converted.
+ * @param {integer=} startpos If given, work like Array.slice( startpos ).
+ * @param {integer=} length If this and startpos is given, work like Array.slice( startpos, length ).
  * @returns {Array} Clone or slice of subject.
  */
 _.ary = function _ary ( subject, startpos, length ) {
@@ -60,7 +61,7 @@ _.ary = function _ary ( subject, startpos, length ) {
  * Wrap parameter in array if it is not already an one.
  * Array like (but non-array) subjuct will also be wrapped as if it is non-array.
  *
- * @param {mixed} subject Subject to be wrapped in Array
+ * @param {(Array|*)} subject Subject to be wrapped in Array
  * @returns {Array} Array with subject as first item, or subject itself if already array.
  */
 _.toAry = function _toAry ( subject ) {
@@ -70,8 +71,8 @@ _.toAry = function _toAry ( subject ) {
 /**
  * Given an array-like object and one or more columns, extract and return those columns from subject.
  *
- * @param {Array-like} subject Array-like object to be extracted.
- * @param {String} column Columns (field) to extract.
+ * @param {(Array|NodeList|Object)} subject Array-like object to be extracted.
+ * @param {string=} column Columns (field) to extract.
  * @returns {Array} Array (if single column) or Array of Array (if multiple columns).
  */
 _.col = function _col ( subject, column /* ... */) {
@@ -88,9 +89,9 @@ _.col = function _col ( subject, column /* ... */) {
 /**
  * Returns a sorter function that sort an array of items by given fields.
  *
- * @param {String} field Field name to compare
- * @param {boolean} des   true for a descending sorter. false for ascending sorter.
- * @returns {function} Sorter function
+ * @param {string} field Field name to compare
+ * @param {boolean=} des true for a descending sorter. false for ascending sorter (default).
+ * @returns {function(*,*)} Sorter function
  */
 _.sorter = function _sorter ( field, des ) {
    if ( ! des ) {
@@ -104,8 +105,8 @@ _.sorter = function _sorter ( field, des ) {
  * Returns a sorter function that sort an array of items by given fields.
  *
  * @param {Array} data Data to sort. Will be modified.
- * @param {String} field Field name to compare
- * @param {boolean} des   true for a descending sort. false for ascending sort.
+ * @param {string} field Field name to compare
+ * @param {boolean=} des   true for a descending sort. false for ascending sort (default).
  * @returns {Array} Sorted data.
  */
 _.sort = function _sort ( data, field, des ) {
@@ -121,8 +122,8 @@ _.sort = function _sort ( data, field, des ) {
  *
  * @param {Function} func   function to call. Must be function, null, or undefined.
  * @param {Object} thisObj  'this' to be passed to the function
- * @param {any} param       call parameters, can have multiple.
- * @returns {any}           Return value of called function, or undefined if function is not called or has error.
+ * @param {...*} param      call parameters, can have multiple.
+ * @returns {*}             Return value of called function, or undefined if function is not called or has error.
  */
 _.call = function _call ( func, thisObj, param /*...*/ ) {
    if ( func === undefined || func === null ) return undefined;
@@ -137,8 +138,8 @@ _.call = function _call ( func, thisObj, param /*...*/ ) {
  * Parameters passed to the returned function will be supplied to the callback as is.
  * This function will disregard any additional parameters.
  *
- * @param {type} func  Function to call.
- * @returns {function} Function that can be safely called multiple times without calling func more then once
+ * @param {Function} func  Function to call.
+ * @returns {Function} Function that can be safely called multiple times without calling func more then once
  */
 _.callonce = function _call ( func ) {
    if ( ! func ) return function () {};
@@ -153,6 +154,11 @@ _.callonce = function _call ( func ) {
 /**
  * Capture parameters in a closure and return a callback function
  * that can be called at a later time.
+ *
+ * @param {Function} func   function to call. Must be function, null, or undefined.
+ * @param {Object} thisObj  'this' to be passed to the function
+ * @param {...*} param      call parameters, can have multiple.
+ * @returns {Function}      A callback function that, when called, will call func with given this and parameters.
  */
 _.callfunc = function _callfunc ( func, thisObj, param /*...*/ ) {
    if ( arguments.length <= 1 ) return func;
@@ -166,6 +172,12 @@ if ( window.setImmediate === undefined ) {
       window.setImmediate = window.requestAnimationFrame;
       window.clearImmediate = window.cancelAnimationFrame;
    } else {
+      /**
+       * Call a callback immediately after current stack is resolved.
+       *
+       * @param {function()} Function to call
+       * @returns {integer} Id of callback.
+       */
       window.setImmediate = function setImmediate ( func ) { return window.setTimeout(func, 0); };
       window.clearImmediate = window.clearTimeout;
    }
@@ -177,16 +189,16 @@ if ( window.setImmediate === undefined ) {
 
 /**
  * Ajax function.
- * 
+ *
  * Options:
  *   url - Url to send get request, or an option object.
- *   onload  - Callback (responseText, xhr) when the request succeed. 
+ *   onload  - Callback (responseText, xhr) when the request succeed.
  *   onerror - Callback (xhr, text status) when the request failed.
  *   ondone  - Callback (xhr) after success or failure.
  *   xhr     - XMLHttpRequest object to use. If none is provided the default will be used.
  *
- * @param {Mixed} option Url to send get request, or an option object.
- * @param {function} onload Callback (responseText, xhr) when the request succeed.
+ * @param {(string|Object)} option Url to send get request, or an option object.
+ * @param {function(string,XMLHttpRequest)=} onload Callback (responseText, xhr) when the request succeed.
  * @returns {Object} xhr object
  */
 _.ajax = function _ajax ( option, onload ) {
@@ -239,12 +251,12 @@ _.ajax = function _ajax ( option, onload ) {
  *   charset - Charset to use
  *   validate - Callback; if it returns true, script will not be loaded,
  *                        otherwise if still non-true after load then call onerror.
- *   onload  - Callback (url, option) when the request succeed. 
+ *   onload  - Callback (url, option) when the request succeed.
  *   onerror - Callback (url, option) when the request failed.
- *   
- * @param {Mixed} option Url to send get request, or an option object.
- * @param {function} onload Overrides option.onload
- * @returns {Element} Created script tag.
+ *
+ * @param {(string|Object)} option Url to send get request, or an option object.
+ * @param {function(string,Object)=} onload Overrides option.onload
+ * @returns {Element|undefined} Created script tag.
  */
 _.js = function _js ( option, onload ) {
    if ( typeof( option ) === 'string' ) option = { url: option };
@@ -290,12 +302,12 @@ _.js = function _js ( option, onload ) {
  *
  * Options:
  *   url - Url to send get request, or an option object.
- *   onload  - Callback (responseText, xhr) when the request succeed. 
+ *   onload  - Callback (responseText, xhr) when the request succeed.
  *   onerror - Callback (xhr, text status) when the request failed.
  *   ondone  - Callback (xhr) after success or failure.
  *
- * @param {Mixed} option Url to send get request, or an option object.
- * @param {function} onload Callback (responseText, xhr) when the request succeed.
+ * @param {(string|Object)} option Url to send get request, or an option object.
+ * @param {function(string,XMLHttpRequest)=} onload Callback (responseText, xhr) when the request succeed.
  * @returns {Object} xhr object
  */
 _.cor = function _cor ( option, onload ) {
@@ -309,7 +321,7 @@ _.cor = function _cor ( option, onload ) {
       return _.ajax( url, onload );
    } else {
       _.info( "[COR] Cross orig req: "+url );
-      alert('Please override Cross Origin Request control (TODO: Explain better)');
+      return alert('Please override Cross Origin Request control (TODO: Explain better)');
       // enablePrivilege is disabled since Firefox 15
       //try {
       //   netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
@@ -328,7 +340,7 @@ _.cor = function _cor ( option, onload ) {
  * Parse xml and return an xml document.
  * Will try DOMParser then MSXML 6.0.
  *
- * @param {String} txt XML text to parse.
+ * @param {string} txt XML text to parse.
  * @returns {Document} Parsed xml DOM Document.
  */
 _.xml = function _xml ( txt ) {
@@ -340,16 +352,15 @@ _.xml = function _xml ( txt ) {
       xml.loadXML( txt );
       return xml;
 
-   } else {
-      _.error('XML Parser not supported');
    }
+   throw 'XML Parser not supported';
 };
 
 /**
  * parse xml and return an xml document.
  * Will try DOMParser then MSXML 6.0.
  *
- * @param {String} txt HTML text to parse.
+ * @param {string} txt HTML text to parse.
  * @returns {Node} A node containing parsed html.
  */
 _.html = function _html ( txt ) {
@@ -368,8 +379,8 @@ _.html.node = null;
 /**
  * Apply an xsl to xml and return the result of transform
  *
- * @param {type} xml XML String or document to be transformed.
- * @param {type} xsl XSL String or document to transform xml.
+ * @param {(string|Document)} xml XML String or document to be transformed.
+ * @param {(string|Document)} xsl XSL String or document to transform xml.
  * @returns {Document} Transformed fragment root or null if XSL is unsupported.
  */
 _.xsl = function _xsl ( xml, xsl ) {
@@ -415,7 +426,7 @@ _.xsl = function _xsl ( xml, xsl ) {
  * Run XPath on a DOM node.
  *
  * @param {Node} node   Node to run XPath on.
- * @param {String} path XPath to run.
+ * @param {string} path XPath to run.
  * @returns {NodeList} XPath result.
  */
 _.xpath = function _xpath ( node, path ) {
@@ -433,13 +444,13 @@ _.xpath = function _xpath ( node, path ) {
 
 /**
  * If @check is not true, throw msg.
- * @param {mixed} check Anything that should not be false, undefined, or null.
- * @param {string} msg Message to throw if it does happen. Default to 'Assertion failed'.
+ * @param {*} check Anything that should not be false, undefined, or null.
+ * @param {string=} msg Message to throw if it does happen. Default to 'Assertion failed'.
  */
 _.assert = function _assert( check, msg ) {
    if ( check === false || check === undefined || check === null ) {
       if ( msg === undefined ) msg = '';
-      if ( typeof( msg ) === 'string' ) msg = new Error( 'Assertion failed (' + msg + ')' );
+      if ( typeof( msg ) === 'string' ) msg = 'Assertion failed (' + msg + ')';
       throw msg;
    }
 }
@@ -447,9 +458,8 @@ _.assert = function _assert( check, msg ) {
 /**
  * Console log function.
  *
- * @param {String} type Optional. Type of console function to run, e.g. 'debug' or 'warn'. If not found then fallback to 'log'.
- * @param {mixed}  msg  Message objects to pass to console function.
- * @returns {undefined}
+ * @param {string} type Optional. Type of console function to run, e.g. 'debug' or 'warn'. If not found then fallback to 'log'.
+ * @param {*=}  msg  Message objects to pass to console function.
  */
 _.log = function _info ( type, msg ) {
    if ( msg === undefined ) {
@@ -466,24 +476,21 @@ _.log = function _info ( type, msg ) {
 /**
  * Safe console.debug message.
  *
- * @param {type} msg Message objects to pass to console.
- * @returns {undefined}
+ * @param {*} msg Message objects to pass to console.
  */
 _.debug = function _info ( msg ) { _.log( 'debug', msg ); };
 
 /**
  * Safe console.info message.
  *
- * @param {type} msg Message objects to pass to console.
- * @returns {undefined}
+ * @param {*} msg Message objects to pass to console.
  */
 _.info = function _info ( msg ) { _.log( 'info', msg ); };
 
 /**
  * Safe console.warn message.
  *
- * @param {type} msg Message objects to pass to console.
- * @returns {undefined}
+ * @param {*} msg Message objects to pass to console.
  */
 _.warn = function _info ( msg ) { _.log( 'warn', msg ); };
 
@@ -491,8 +498,7 @@ _.warn = function _info ( msg ) { _.log( 'warn', msg ); };
  * Safe console.error message.  It will stack up all errors in a 50ms window and shows them together.
  * Messages with same string representation as previous one will be ignored rather then stacked.
  *
- * @param {type} msg Message objects to pass to console.
- * @returns {undefined}
+ * @param {*} msg Message objects to pass to console.
  */
 _.error = function _info ( msg ) {
    if ( ! _.error.timeout ) {
@@ -516,8 +522,8 @@ _.error.log = [];
  * Coarse timing function. Will show time relative to previous call as well as last reset call.
  * Time is in unit of ms. This routine is not designed for fine-grain measurement that would justify using high performance timer.
  *
- * @param {String} msg Message to display.  If undefined then will reset accumulated time.
- * @returns {Array} Return [time from last call, accumulated time].
+ * @param {string} msg Message to display.  If undefined then will reset accumulated time.
+ * @returns {Array|undefined} Return [time from last call, accumulated time].
  */
 _.time = function _time ( msg ) {
    var t = _.time;
@@ -541,8 +547,8 @@ _.time = function _time ( msg ) {
 /**
  * HTML escape function.
  *
- * @param {String} txt  Text to do HTML escape.
- * @returns {String} Escaped text.
+ * @param {string} txt  Text to do HTML escape.
+ * @returns {string} Escaped text.
  */
 _.escHtml = function _escHtml ( txt ) {
    if ( ! /[<&'"]/.test( txt ) ) return txt;
@@ -553,8 +559,8 @@ _.escHtml = function _escHtml ( txt ) {
 /**
  * JavaScript escape function.
  *
- * @param {String} txt  Text to do JavaScript escape.
- * @returns {String} Escaped text.
+ * @param {string} txt  Text to do JavaScript escape.
+ * @returns {string} Escaped text.
  */
 _.escJs = function _escJs ( txt ) {
    return txt.replace( /\r?\n/g, '\\n').replace( /'"/g, '\\$0');
@@ -563,8 +569,8 @@ _.escJs = function _escJs ( txt ) {
 /**
  * Regular expressoin escape function.
  *
- * @param {String} txt  Text to do regx escape.
- * @returns {String} Escaped text.
+ * @param {string} txt  Text to do regx escape.
+ * @returns {string} Escaped text.
  */
 _.escRegx = function _escRegx ( txt ) {
    return txt.replace( /[()?*+.\\{}[\]]/g, '\\$0' );
@@ -574,8 +580,8 @@ _.escRegx = function _escRegx ( txt ) {
  * Round function with decimal control.
  *
  * @param {number} val Number to round.
- * @param {integer} decimal Optional. Decimal point to round to. Negative will round before decimal point. Default to 0.
- * @returns {number} Rounded number.
+ * @param {integer=} decimal Optional. Decimal point to round to. Negative will round before decimal point. Default to 0.
+ * @returns {integer} Rounded number.
  */
 _.round = function _round ( val, decimal ) {
    var e = Math.pow( 10, ~~decimal );
@@ -587,9 +593,9 @@ _.round = function _round ( val, decimal ) {
  * Convert big number to si unit or vice versa. Case insensitive.
  * Support k (kilo, 1e3), M, G, T, P (peta, 1e15)
  *
- * @param {mixed} val  Number to convert to unit (e.g. 2.3e10) or united text to convert to number (e.g."23k").
- * @param {integer} decimal Optional. Decimal point of converted unit (if number to text). See _.round.
- * @returns {mixed} Converted text or number
+ * @param {(string|number)} val  Number to convert to unit (e.g. 2.3e10) or united text to convert to number (e.g."23k").
+ * @param {integer=} decimal Optional. Decimal point of converted unit (if number to text). See _.round.
+ * @returns {(string|number)} Converted text or number
  */
 _.si = function _si ( val, decimal ) {
    if ( typeof( val ) === 'string' ) {
@@ -603,6 +609,27 @@ _.si = function _si ( val, decimal ) {
    }
 };
 
+/**
+ * Count the number of half width of a string.
+ * CJK characters and symbols are often full width, double the width of latin characters and symbols which are half width.
+ *
+ * @param {string} src Text to calculate width of.
+ * @returns {integer}  Character width.
+ */
+_.halfwidth = function _halfwidth( src ) {
+   // A copy of PHP's mb_strwidth: http://www.php.net/manual/en/function.mb-strwidth.php
+   var result = 0;
+   for ( var i = 0, l = src.length ; i < l ; i++ ) {
+      var code = src.charCodeAt( i );
+      if ( code < 0x19 ) continue;
+      else if ( code < 0x1FF ) result += 1;
+      else if ( code < 0xFF60 ) result += 2;
+      else if ( code < 0xFF9F ) result += 1;
+      else result += 2;
+   }
+   return result;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object helpers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -610,11 +637,11 @@ _.si = function _si ( val, decimal ) {
 /**
  * Create a subclass from a base class.
  * You still need to call super in constructor and methods, if necessary.
- * 
- * @param {object} base Base class. Result prototype will inherit base.prototype.
- * @param {function} constructor Constructor function.
- * @param {object} prototype Object from which to copy properties to result.prototype.
- * @returns {function} Result subclass function object.
+ *
+ * @param {Object} base Base class. Result prototype will inherit base.prototype.
+ * @param {Function} constructor Constructor function.
+ * @param {Object=} prototype Object from which to copy properties to result.prototype. Optional.
+ * @returns {Function} Result subclass function object.
  */
 _.inherit = function _inherit ( base, constructor, prototype ) {
    _.assert( base && constructor, _inherit.name + ': base and constructor must be provided' );
@@ -630,15 +657,15 @@ _.deepclone = function _clone( base ) {
 
 /**
  * Clone a given object shallowly or deeply.
- * 
- * @param {mixed} base Base object
- * @param {boolean} deep True for deep clone, false for shallow clone.
- * @returns {mixed} Cloned object
+ *
+ * @param {Object} base Base object
+ * @param {boolean=} deep True for deep clone, false for shallow clone (default).
+ * @returns {Object} Cloned object
  */
 _.clone = function _clone( base, deep ) {
    var result, type = typeof( base );
    switch ( type ) {
-      case 'object' : 
+      case 'object' :
          // TODO: Handle RegExp, Date, DOM etc
          if ( base instanceof Array ) {
             result = [];
@@ -673,8 +700,8 @@ _.noDef = function _noDef ( e ) { if ( e && e.preventDefault ) e.preventDefault(
 /**
  * Create a DOM element and set its attributes / contents.
  *
- * @param {String} tag Tag name of element to create.
- * @param {mixed} attr Text content String, or object with properties to set. e.g. text, html, class, onclick, disabled, style, etc.
+ * @param {string} tag Tag name of element to create.
+ * @param {(Object|string)=} attr Text content String, or object with properties to set. e.g. text, html, class, onclick, disabled, style, etc.
  * @returns {Element} Created DOM element.
  */
 _.create = function _create ( tag, attr ) {
@@ -693,7 +720,7 @@ _.create = function _create ( tag, attr ) {
    var result = document.createElement( tag );
    if ( attr ) {
       if ( typeof( attr ) !== 'object' ) {
-         result.textContent = attr; 
+         result.textContent = attr;
       } else {
          _.attr( result, attr );
       }
@@ -704,8 +731,8 @@ _.create = function _create ( tag, attr ) {
 /**
  * Convert selector / DOM element / NodeList / array of Node to array-like node list.
  *
- * @param {mixed} e Selector or element(s).
- * @returns {Array-like} Array-like list of e.
+ * @param {(string|Node|NodeList|Array)} e Selector or element(s).
+ * @returns {(NodeList|Array)} Array-like list of e.
  */
 _.domlist = function _domlist ( e ) {
    if ( typeof( e ) === 'string' ) return _( e );
@@ -716,9 +743,9 @@ _.domlist = function _domlist ( e ) {
 /**
  * Set a list of object's same attribute/property to same value
  *
- * @param {mixed} ary Element selcetor, dom list, or Array of JS objects.
- * @param {mixed} obj Attribute or attribute object to set.
- * @param {mixed} value Value to set.
+ * @param {(string|Node|NodeList|Array|Object)} ary Element selcetor, dom list, or Array of JS objects.
+ * @param {(Object|string)} obj Attribute or attribute object to set.
+ * @param {*=} value Value to set.
  * @returns {Array} Array-ifed ary
  */
 _.set = function _set ( ary, obj, value ) {
@@ -727,7 +754,7 @@ _.set = function _set ( ary, obj, value ) {
       attr = {};
       attr[ obj ] = value;
    }
-   if ( typeof( ary ) === 'string' ) ary =_( ary ); 
+   if ( typeof( ary ) === 'string' ) ary =_( ary );
    ary = _.ary( ary );
    ary.forEach( function _setEach ( e ) {
       for ( var name in attr )
@@ -739,9 +766,9 @@ _.set = function _set ( ary, obj, value ) {
 /**
  * Set a list of object's DOM attribute/property to same value
  *
- * @param {mixed} ary Element selcetor, dom list, or Array of JS objects.
- * @param {mixed} obj DOM attribute or attribute object to set.  text = textContent, html = innerHTML, class = className, onXXX = XXX addEventListener.
- * @param {mixed} value Value to set.  If 'undefined' then will also delete the style attribute.
+ * @param {(string|Node|NodeList|Array)} ary Element selcetor, dom list, or Array of JS objects.
+ * @param {(Object|string)} obj DOM attribute or attribute object to set.  text = textContent, html = innerHTML, class = className, onXXX = XXX addEventListener.
+ * @param {*=} value Value to set.  If 'undefined' then will also delete the style attribute.
  * @returns {Array} Array-ifed ary
  */
 _.attr = function _attr( ary, obj, value ) {
@@ -782,9 +809,9 @@ _.attr = function _attr( ary, obj, value ) {
 /**
  * Set a list of object's style's attribute/property to same value
  *
- * @param {mixed} ary Element selcetor, dom list, or Array of JS objects.
- * @param {mixed} obj Style attribute or attribute object to set.
- * @param {mixed} value Value to set.  If 'undefined' then will also delete the style attribute.
+ * @param {(string|NodeList|Array)} ary Element selcetor, dom list, or Array of JS objects.
+ * @param {(Object|string)} obj Style attribute or attribute object to set.
+ * @param {*=} value Value to set.  If 'undefined' then will also delete the style attribute.
  * @returns {Array} Array-ifed ary
  */
 _.style = function _style ( ary, obj, value ) {
@@ -793,12 +820,12 @@ _.style = function _style ( ary, obj, value ) {
       attr = {};
       attr[ obj ] = value;
    }
-   if ( typeof( ary ) === 'string' ) ary =_( ary ); 
+   if ( typeof( ary ) === 'string' ) ary =_( ary );
    ary = _.ary( ary );
-   ary.forEach( function _styleEach ( e ) { 
+   ary.forEach( function _styleEach ( e ) {
       for ( var name in attr ) {
          if ( attr[ name ] !== undefined ) {
-            e.style[ name ] = attr[ name ]; 
+            e.style[ name ] = attr[ name ];
          } else {
             e.style[ name ] = '';
             delete e.style[ name ];
@@ -812,8 +839,8 @@ _.style = function _style ( ary, obj, value ) {
  * Show DOM elements by setting display to ''.
  * Equals to _.style( e, 'display', undefined )
  *
- * @param {mixed} e Selector or element(s).
- * @returns {Array-like} Array-like e
+ * @param {(string|Node|NodeList)} e Selector or element(s).
+ * @returns {Array} Array-ifed e
  */
 _.show = function _show ( e ) { return _.style( e, 'display', undefined ); };
 
@@ -821,17 +848,17 @@ _.show = function _show ( e ) { return _.style( e, 'display', undefined ); };
  * Hide DOM elements by setting display to 'none'.
  * Equals to _.style( e, 'display', 'none' )
  *
- * @param {mixed} e Selector or element(s).
- * @returns {Array-like} Array-like e
+ * @param {(string|Node|NodeList)} e Selector or element(s).
+ * @returns {Array} Array-ifed e
  */
 _.hide = function _show ( e ) { return _.style( e, 'display', 'none' ); };
 
 /**
  * Set DOM elements visibility by setting display to '' or 'none.
  *
- * @param {mixed} e Selector or element(s).
+ * @param {(string|Node|NodeList)} e Selector or element(s).
  * @param {boolean} visible If true then visible, otherwise hide.
- * @returns {Array-like} Array-like e
+ * @returns {Array} Array-ifed e
  */
 _.visible = function _visible ( e, visible ) {
    return visible ? _.show( e ) : _.hide( e );
@@ -840,20 +867,21 @@ _.visible = function _visible ( e, visible ) {
 /**
  * Check whether given DOM element(s) contain a class.
  *
- * @param {mixed} e Selector or element(s).
- * @param {String} className  Class to check.
+ * @param {(string|Node|NodeList)} e Selector or element(s).
+ * @param {string} className  Class to check.
  * @returns {boolean} True if any elements belongs to given class.
  */
 _.hasClass = function _hasClass ( e, className ) {
+   // TODO: May fail when e returns a domlist, e.g. if passed a selector?
    return _.domlist( e ).some( function(c){ return c.className.split( /\s+/ ).indexOf( className ) >= 0; } );
 };
 
 /**
  * Adds class(es) to DOM element(s).
  *
- * @param {mixed} e Selector or element(s).
- * @param {mixed} className  Class(es) to add.  Can be String or Array of String.
- * @returns {Array-like} Array-like e
+ * @param {(string|Node|NodeList)} e Selector or element(s).
+ * @param {(string|Array)} className  Class(es) to add.  Can be String or Array of String.
+ * @returns {Array|NodeList} Array-ifed e
  */
 _.addClass = function _addClass ( e, className ) {
    return _.toggleClass( e, className, true );
@@ -862,9 +890,9 @@ _.addClass = function _addClass ( e, className ) {
 /**
  * Removes class(es) from DOM element(s).
  *
- * @param {mixed} e Selector or element(s). If ends with a class selector, it will become default for className.
- * @param {mixed} className  Class(es) to remove.  Can be String or Array of String.
- * @returns {Array-like} Array-like e
+ * @param {(string|Node|NodeList)} e Selector or element(s). If ends with a class selector, it will become default for className.
+ * @param {(string|Array)} className  Class(es) to remove.  Can be String or Array of String.
+ * @returns {Array|NodeList} Array-ifed e
  */
 _.removeClass = function _removeClass ( e, className ) {
    if ( className === undefined ) className = e.match(/\.[^. :#>+~()\[\]]+$/)[0].substr( 1 );
@@ -874,10 +902,10 @@ _.removeClass = function _removeClass ( e, className ) {
 /**
  * Adds or removes class(es) from DOM element(s).
  *
- * @param {mixed} e Selector or element(s).
- * @param {mixed} className  Class(es) to toggle.  Can be String or Array of String.
+ * @param {(string|Node|NodeList)} e Selector or element(s).
+ * @param {(string|Array)} className  Class(es) to toggle.  Can be String or Array of String.
  * @param {boolean} toggle   True for add, false for remove, undefined for toggle.
- * @returns {Array-like} Array-like e
+ * @returns {Array|NodeList} Array-ifed e
  */
 _.toggleClass = function _toggleClass ( e, className, toggle ) {
    e = _.domlist( e );
@@ -907,8 +935,9 @@ _.toggleClass = function _toggleClass ( e, className, toggle ) {
 /**
  * Countdown Latch object
  *
- * @param {int} countdown Initial countdown value; optional. Default 0.
- * @param {function} ondone Callback when count_down reduce count to 0.
+ * @constructor
+ * @param {integer} countdown Initial countdown value; optional. Default 0.
+ * @param {function()} ondone Callback when count_down reduce count to 0.
  * @returns {_.Latch} Created Latch object
  */
 _.Latch = function _Latch ( countdown, ondone ) {
@@ -925,7 +954,7 @@ _.Latch.prototype = {
 
    /**
     * Count up.
-    * @param {int} value Value to count up.  Default 1.
+    * @param {integer} value Value to count up.  Default 1.
     */
    "count_up" : function _latch_countup ( value ) {
       if ( value === undefined ) value = 1;
@@ -934,7 +963,7 @@ _.Latch.prototype = {
 
    /**
     * Count down.  If count reach 0 then run ondone.
-    * @param {int} value Value to count down.  Default 1.
+    * @param {integer} value Value to count down.  Default 1.
     * @throws {string} If count down will reduce count to below 0.
     */
    "count_down" : function _latch_countdown ( value ) {
@@ -948,7 +977,7 @@ _.Latch.prototype = {
    /**
     * Return a function that can be used to countdown this latch.
     * This function will work on this latch regardless of context.
-    * @param {int} value Value to count down.  Default 1.
+    * @param {integer} value Value to count down.  Default 1.
     */
    "count_down_function" : function _latch_countdown_function ( value ) {
       var latch = this;
@@ -958,9 +987,10 @@ _.Latch.prototype = {
 
 /**
  * Create a new executor
- * 
- * @param {type} thread   Max. number of parallel jobs.
- * @param {type} interval Minimal interval between job start.
+ *
+ * @constructor
+ * @param {integer} thread   Max. number of parallel jobs.
+ * @param {integer} interval Minimal interval between job start.
  * @returns {_.Executor}  New executor object
  */
 _.Executor = function _Executor ( thread, interval ) {
@@ -1002,8 +1032,8 @@ _.Executor.prototype = {
    /**
     * Check state of threads and schedule tasks to fill the threads.
     * This method always return immediately; tasks will run after current script finish.
-    * 
-    * @returns {_executor_notice}
+    *
+    * @returns {_.Executor}
     */
    "notice" : function _executor_notice () {
       this._timer = 0;
@@ -1049,14 +1079,15 @@ _.Executor.prototype = {
 /**
  * Keep an index on specified object fields (field value can be undefined)
  * and enable simple seeking of objects that fulfill one or more criterias.
- * 
+ *
  * Indexed fields are not expected to change frequently; the object need to be
  * removed before the change and re-added after the change.
- * 
+ *
  * Indexed object's field values can be array, and each values will be indexed.
- * 
+ *
+ * @constructor
  * @param {Array} indices Array of name of fields to index.
- * @returns {Index} Index object
+ * @returns {_.Index} Index object
  */
 _.Index = function _Index ( indices ) {
    if ( indices === undefined || ! ( indices instanceof Array ) || indices.length <= 0 )
@@ -1072,9 +1103,8 @@ _.Index.prototype = {
    "map" : {},
    /**
     * Add an object and update index.
-    * 
+    *
     * @param {Object} obj Object to add
-    * @returns {undefined}
     */
    "add" : function _Index_add ( obj ) {
       var map = this.map;
@@ -1091,9 +1121,8 @@ _.Index.prototype = {
    },
    /**
     * Remove an object and update index.
-    * 
+    *
     * @param {Object} obj Object to remove
-    * @returns {undefined}
     */
    "remove" : function _Index_remove ( obj ) {
       var map = this.map, pos = this.all.indexOf( obj );
@@ -1116,11 +1145,11 @@ _.Index.prototype = {
     * Search the index to get a list of objects.
     *
     * Each search criterion is normally a string, returned objects will be an exact match in that field.
-    * Alternatively, search criterion can be an array of string, for objects that exactly match any of them. 
+    * Alternatively, search criterion can be an array of string, for objects that exactly match any of them.
     * A criterion can also be a bounded integer range e.g. { '>=': 1, '<=': 9 } (missing = 0).
-    * 
+    *
     * For more advanced processing, please manually pre-process on index to get the correct filter.
-    * 
+    *
     * @param {Object} criteria An object with each criterion as a field. If unprovided, return a list of all indiced object.
     * @returns {Array} List of objects that meet all the criteria.
     */
@@ -1178,9 +1207,10 @@ _.Index.prototype = {
 /**
  * A event manager with either fixed event list or flexible list.
  *
- * @param {object} owner Owner of this manager, handlers would be called with this object as the context. Optional.
- * @param {array} events Array of event names. Optional. e.g. ['click','focus','hierarchy']
- * @returns {_EventManager}
+ * @constructor
+ * @param {Object} owner Owner of this manager, handlers would be called with this object as the context. Optional.
+ * @param {Array=} events Array of event names. Optional. e.g. ['click','focus','hierarchy']
+ * @returns {_.EventManager}
  */
 _.EventManager = function _EventManager ( owner, events ) {
    this.owner = owner;
@@ -1200,9 +1230,8 @@ _.EventManager.prototype = {
    /**
     * Register an event handler.  If register twice then it will be called twice.
     *
-    * @param {string} event Event to register to.
-    * @param {function} listener Event handler.
-    * @returns {undefined}
+    * @param {(string|Array)} event Event to register to.
+    * @param {(Function|Array)} listener Event handler.
     */
    "add" : function _EventManager_add ( event, listener ) {
       var thisp = this;
@@ -1219,9 +1248,8 @@ _.EventManager.prototype = {
    /**
     * Un-register an event handler.
     *
-    * @param {string} event Event to un-register from.
-    * @param {function} listener Event handler.
-    * @returns {undefined}
+    * @param {(string|Array)} event Event to un-register from.
+    * @param {(Function|Array)} listener Event handler.
     */
    "remove" : function _EventManager_remove ( event, listener ) {
       var thisp = this;
@@ -1244,9 +1272,9 @@ _.EventManager.prototype = {
     * Second and subsequence parameters will be passed to handlers.
     *
     * @param {string} event Event to call.
-    * @returns {undefined}
+    * @param {...*} param Parameters to pass to event handlers.
     */
-   "fire" : function _EventManager_remove ( event ) {
+   "fire" : function _EventManager_remove ( event, param ) {
       var lst = this.lst[event];
       if ( ! lst ) {
          if ( this.strict && lst === undefined )
@@ -1264,18 +1292,31 @@ _.EventManager.prototype = {
 // Internationalisation and localisation
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/** Get language string and, if additional parameters are provided, format the parameters */
+/**
+ * Get language string and, if additional parameters are provided, format the parameters
+ *
+ * @param {string} path Path of resource to get
+ * @param {*=} defaultValue Default value to use if target resource is unavailable.
+ * @param {...*} param Parameters to replace %1 %2 %3 etc.
+ */
 _.l = function _l ( path, defaultValue, param /*...*/ ) {
    var l = _.l;
    var result = l.getset( path, undefined, l.currentLocale );
    if ( result === undefined ) result = defaultValue !== undefined ? defaultValue : path;
    if ( arguments.length > 2 ) {
-      if ( arguments.length === 3 ) return l.format( result, param );
+      if ( arguments.length === 3 ) return l.format( ""+result, param );
       else return l.format.apply( this, [result].concat( _.ary(arguments, 2) ) );
    }
    return result;
 };
 
+/**
+ * Format a string by replacing %1 with first parameter, %2 with second parameter, etc.
+ *
+ * @param {string} input String to format
+ * @param {...*} param Parameters
+ * @returns {string}
+ */
 _.l.format = function _l_format ( input, param /*...*/ ) {
    for ( var i = 1, l = arguments.length ; i < l ; i++ )
       input = input.replace( '%'+i, arguments[i] );
@@ -1294,8 +1335,7 @@ _.l.data = {};
 /**
  * Set current locale.
  *
- * @param {String} lang  Locale to use. Pass in empty string, null, false etc. to use auto-detection
- * @returns {undefined}
+ * @param {string} lang  Locale to use. Pass in empty string, null, false etc. to use auto-detection
  */
 _.l.setLocale = function _l_setLocale ( lang ) {
     if ( ! lang ) return _.l.detectLocale();
@@ -1307,8 +1347,7 @@ _.l.setLocale = function _l_setLocale ( lang ) {
 /**
  * Override auto detect locale.
  *
- * @param {String} lang  Locale to use and save.
- * @returns {undefined}
+ * @param {string} lang  Locale to use and save.
  */
 _.l.saveLocale = function _l_saveLocale ( lang ) {
     if ( window.localStorage ) {
@@ -1321,8 +1360,7 @@ _.l.saveLocale = function _l_saveLocale ( lang ) {
 /**
  * Detect user locale.  First check local session then check language setting.
  *
- * @param {String} defaultLocale  Default locale to use
- * @returns {undefined}
+ * @param {string=} defaultLocale  Default locale to use
  */
 _.l.detectLocale = function _l_detectLocale ( defaultLocale ) {
     var l = _.l;
@@ -1341,10 +1379,10 @@ _.l.detectLocale = function _l_detectLocale ( defaultLocale ) {
 /**
  * Get/set l10n resource on given path
  *
- * @param {type} path Path to get/set resource.
- * @param {type} set  Resource to set.  If null then regarded as get.
- * @param {type} locale Locale to use. NO DEFAULT.
- * @returns {varialbe} if set, return undefined.  If get, return the resource.
+ * @param {string} path Path to get/set resource.
+ * @param {*} set  Resource to set.  If null then regarded as get.
+ * @param {string} locale Locale to use. NO DEFAULT.
+ * @returns {*} if set, return undefined.  If get, return the resource.
  */
 _.l.getset = function _l_getset ( path, set, locale ) {
    var p = path.split( '.' );
@@ -1369,9 +1407,8 @@ _.l.getset = function _l_getset ( path, set, locale ) {
 /**
  * Set l10n resource on given path
  *
- * @param {type} path Path to set resource
- * @param {type} data Resource to set
- * @returns {undefined}
+ * @param {string} path Path to set resource
+ * @param {*} data Resource to set
  */
 _.l.set = function _l_set ( path, data ) {
     _.l.getset( path, data, _.l.currentLocale );
@@ -1382,7 +1419,7 @@ _.l.set = function _l_set ( path, data ) {
  * Localise all child elements with a class name of 'i18n' using its initial textContent or value as resource path.
  *  e.g. <div class='i18n'> gui.frmCalcluate.lblHelp </div>
  *
- * @param {type} root Root element to localise, default to whole document
+ * @param {Node=} root Root element to localise, default to whole document
  */
 _.l.localise = function _l_localise ( root ) {
    if ( root === undefined ) root = document.documentElement;
@@ -1412,7 +1449,7 @@ _.l.event = new _.EventManager( _.l, ['set','locale'] );
  * Run a test suite and write result to document, or check a specific test.
  * TODO: Rewrite to separate test and presentation.
  *
- * @param {mixed} condition Either an assertion or a test suite object.
+ * @param {*} condition Either an assertion or a test suite object.
  * @param {string} name Name of assertion
  */
 _.test = function _test ( condition, name ) {
@@ -1424,7 +1461,7 @@ _.test = function _test ( condition, name ) {
       for ( var test in condition ) {
          if ( ! test.match( /^test/ ) ) continue;
          if ( typeof( condition[test] ) === 'function' ) {
-            document.write( "<table class='sparrow_test_result' border='1'><tr><th colspan='2'>" 
+            document.write( "<table class='sparrow_test_result' border='1'><tr><th colspan='2'>"
                             + _.escHtml( test ).replace( /^test_+/, '' ).replace( /_/g, ' ' ) + '</th></tr>' );
             condition[test]();
             document.write( "</table>" );

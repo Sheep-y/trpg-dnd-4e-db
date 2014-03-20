@@ -52,7 +52,7 @@ _.l.set( 'data', {
       "TierName" : '層級',
       'ActionType': '動作',
       'ClassName': '職業',
-      'SourceBook': '書目',
+      'SourceBook': '書目'
    }
 });
 
