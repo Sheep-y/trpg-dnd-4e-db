@@ -366,8 +366,10 @@ od.action.list = {
       od.gui.set_highlight( highlight );
 
       // Remove old table and create a new one.
-      var table = _( '#act_list_pnl_list table' )[0];
-      table.parentNode.removeChild( table ); // Remove a table is 13% faster then clearing it, but both is slow when list is big
+      var table = _( '#act_list_pnl_list table' );
+      if ( table.length ) {
+         table[0].parentNode.removeChild( table[0] ); // Remove a table is 13% faster then clearing it, but both is slow when list is big
+      }
       table = _.create( 'table', { 'role' : 'menubar', 'aria-label' : _.l( 'action.list.search_result', 'Result' ) } );
       var head = _.create( 'thead' );
       table.appendChild( head );
