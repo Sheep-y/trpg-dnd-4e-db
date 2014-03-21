@@ -7,17 +7,24 @@
 
 // GUI namespace
 od.updater = {
-   /** Remote listing. Just for finding out what needs to be updated, does not contain index or details. */
+   /** Remote listing. Only contains raw data and status, does not contain index or details. */
    "category": {
-      // Sample: {
+      // Sample: od.updater.RemoteCategory = {
       //    name: "Sample",
       //    count: 32,
+      //    state: "local"  = we only know it exists on local.
+      //           "absent" = we know it does not exist on remote.
+      //           "unlisted" = we know it exists on remote, but we don't know what is in it.
+      //           "listing" = exists on remote, and we are getting entry list.
+      //           "listed"  = exists on remote, and we have updated list.
+      //           "downloading" = we are updating some entries.
       //    columns: [ "Id", "Name", "Category", "Source" ],
       //    listing: [ [,,,], [,,,] ],
-      //    dirty: [ "id1","id2" ]
+      //    dirty: [ "id1","id2" ] // Entries that are updated but not saved.
       // }
    },
-   dirty_catalog : false, // Mark whether master catalog is dirty, e.g. a category is deleted. Note that a dirty category always imply dirty catalog.
+   dirty_catalog : false, // Mark whether master catalog is dirty, e.g. a category is deleted. 
+                          // Note that a dirty category always imply dirty catalog, because item count is likely different.
    "get" : function download_get ( name ) {
       var result;
       if ( name === undefined ) {
@@ -195,7 +202,7 @@ od.updater.RemoteCategory.prototype = {
    "name": "",
    "title": "",
    "state" : "local", // "local" -> "unlisted" OR "absent" -> "listing" <-> "listed" <-> "downloading"
-   "progress" : "", // Text statue progress
+   "progress" : "", // Text status progress
 
    /** Raw data used to compose list property */
    "raw_columns": [],  // e.g. ["ID","Name","Category","SourceBook", ... ]
@@ -241,13 +248,15 @@ od.updater.RemoteCategory.prototype = {
       var latch = new _.Latch( 3 );
       var err = _.callonce( onerror );
       remote.progress = _.l('action.update.lbl_fetching_both');
+      // Get the data list which is in XML.
       this.get_remote( od.config.source.list( this.name ), function(txt){ 
          data = txt; 
          data = data.replace( /’/g, "'" );
-         remote.progress = _.l('action.update.lbl_fetching_xsl');
+         remote.progress = _.l('action.update.lbl_fetching_xsl'); // We got xml, so that leaves xsl
          _.call( onstep );
          latch.count_down(); 
       }, err );
+      // Get compendium's XSL, required to convert the XML into table form.
       this.get_remote( od.config.source.xsl ( this.name ), function(txt){ 
          xsl = txt; 
          xsl = xsl.replace( /\n\s+/g, '\n' );
@@ -255,12 +264,13 @@ od.updater.RemoteCategory.prototype = {
          xsl = xsl.replace( /<xsl:sort[^>]+>/g, '' ); // Undo sort so that transformed id match result
          xsl = xsl.replace( /Multiple Sources/g, '<xsl:apply-templates select="SourceBook"/>' ); // Undo multiple source replacement
          xsl = xsl.replace( /\bselect="'20'"\s*\/>/, 'select="\'99999\'"/>' ); // Undo paging so that we get all result
-         remote.progress = _.l( 'action.update.lbl_fetching_xml' );
+         remote.progress = _.l( 'action.update.lbl_fetching_xml' );  // We got xsl, so that leaves xml
          _.call( onstep );
          latch.count_down(); 
       }, err );
+      // When we get both, we can process them.
       latch.ondone = function download_Cat_get_listing_done () {
-         remote.progress = '';
+         remote.progress = ''; // Clear progress.
          remote.added = [];
          remote.changed = [];
          remote.count = 0;
