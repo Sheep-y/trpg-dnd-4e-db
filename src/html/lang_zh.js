@@ -112,7 +112,7 @@ _.l.set( 'action.update', {
    'btn_relist' : "再檢查",
    'btn_delete' : "刪除",
    'btn_reindex': "重建索引",
-   'btn_update_changed' : "獲取新/改變條目",
+   'btn_update' : "獲取新/改變條目",
    'btn_update_all' : "獲取所有條目",
    'btn_save' : "儲存",
 

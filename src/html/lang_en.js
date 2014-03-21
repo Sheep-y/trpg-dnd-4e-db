@@ -82,7 +82,7 @@ _.l.set( 'action.update', {
    'btn_relist' : "Re-check",
    'btn_delete' : "Delete",
    'btn_reindex': "Re-index",
-   'btn_update_changed' : "Get new + changed",
+   'btn_update' : "Get new + changed",
    'btn_update_all' : "Get all items",
    'btn_save' : "Save",
 

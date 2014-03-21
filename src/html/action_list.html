@@ -295,7 +295,7 @@ od.action.list = {
       action.category = undefined;
       action.category_dom = {};
 
-      function create_category_button( div, cat, colour ) {
+      function create_category_button ( div, cat, colour ) {
          var title, name, count;
          if ( cat ) {
             name = cat.name;
@@ -429,7 +429,7 @@ od.action.list = {
 
       action.show_list( table );
       table.addEventListener( 'click', action.table_click );
-      table.addEventListener( 'keypress', function act_list_table_keypressed( evt ) {
+      table.addEventListener( 'keypress', function act_list_table_keypressed ( evt ) {
          if ( evt.keyCode === 13 ) action.table_click( evt ); // Trigger a click when pressing Enter
       });
       _.show( '#act_list_pnl_list' )[0].appendChild( table );
@@ -477,7 +477,7 @@ od.action.list = {
                      max = i;
                   }
                }
-               data = data.filter( function act_list_filter_data_num_filter( e ) {
+               data = data.filter( function act_list_filter_data_num_filter ( e ) {
                   console.log( 'Num check ' + e[c] + ' [' + min + ',' + max + ']' );
                   var val = ~~e[ c ].replace( /\Dg/, '' );
                   if ( val === 0 ) {
