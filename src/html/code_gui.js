@@ -49,7 +49,7 @@ od.gui = {
     */
    l10n : function gui_l10n () {
       _.l.localise();
-      if ( od.gui.action ) od.gui.action.l10n();
+      if ( od.gui.action ) _.call( od.gui.action.l10n );
    },
 
    /**
@@ -125,11 +125,11 @@ od.gui = {
 
       // Post-switch setup
       if ( gui.initialized.indexOf( action ) < 0 ) {
-         _.time( "[Action] Initialize & l10n " + action.id );
+         _.time( "[Action] Initialize " + action.id );
          gui.initialized.push( action );
          _.call( action.initialize, action );
       }
-      _.time( "[Action] Setup " + action.id );
+      _.time( "[Action] Setup & l10n " + action.id );
       _.call( action.setup, action );
       _.call( action.l10n, action );
       gui.action = action;

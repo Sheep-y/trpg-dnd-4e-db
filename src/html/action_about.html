@@ -192,15 +192,10 @@ od.action.about = {
       _('#action_about_lbl_folder')[0].textContent = od.config.data_read_path; // TODO: Properly hook into i18n.
    },
 
-   "l10n" : function act_list_l10n() {
-   },
-
    "setup": function act_about_setup () {
       od.action.about.change_language( _('#action_about_lst_lang')[0].value );
       od.action.about.change_symbol( _('#action_about_lst_symbol')[0].value );
    },
-
-   "cleanup": null,
 
    "change_language" : function act_about_change_language ( lang ) {
       _.l.saveLocale( lang );

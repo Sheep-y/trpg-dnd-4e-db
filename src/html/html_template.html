@@ -11,7 +11,7 @@
 --><html id="top"><head><meta charset="utf-8" />
   <title> Offline Compendium </title>
   <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true;IE=edge" />
-  <meta http-equiv="P3P" content='CP="NOI NID CURa STP PRE"' /> <!-- nonident , non-identifiable, to support current activity (always), retent for stated purpose, preference data -->
+  <meta http-equiv="P3P" content='CP="NOI NID CURa STP PRE"' /> <!-- nonident , non-identifiable, to support current activity (always), keep for stated purpose, preference data -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="author" href="https://github.com/Sheep-y/trpg-dnd-4e-db/" />
   <link rel="license" href="?license#action_license" hreflang="en" />
@@ -24,7 +24,7 @@
 </head><body>
 <!--[if lte IE 8]>
    <h1> Please upgrade browser. </h1>
-   <h1> 請升級瀏覽器，只支援 IE 9 或以上。 </h1>
+   <h1> 請升級瀏覽器，只支援 IE 11 或以上。 </h1>
    <div style="display:none">
 <![endif]-->
    <div id="loading" class='i18n' style='display:none;'>gui.loading</div>
@@ -54,8 +54,6 @@
       'use strict';
       // Init code. Running in a script block is faster then waiting for dom ready - everything should be embedded anyway!
       _.time( 'All code loaded.' );
-      // Seal object to avoid accidents
-      _.freeze( _ );
       for ( var i in od ) _.seal( _.noExt( od[i] ) ); // Seal object to avoid accidents
       od.gui.init();
    //]]></script>
