@@ -212,7 +212,7 @@ _.ajax = function _ajax ( option, onload ) {
    var finished = false;
    xhr.onreadystatechange = function _ajax_onreadystatechange () {
       if ( xhr.readyState === 4 ) {
-         _.debug( 'Ajax ready 4, status ' + xhr.status + ', url ' + url );
+         _.debug( '[AJAX] Complete, status ' + xhr.status + ': ' + url );
          // 0 is a possible response code for local file access under IE 9 ActiveX
          if ( [0,200,302].indexOf( xhr.status ) >= 0 && xhr.responseText ) {
             setImmediate( function _ajax_onload_call () {

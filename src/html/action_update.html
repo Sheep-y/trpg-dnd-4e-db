@@ -140,11 +140,12 @@ od.action.update = {
          od.data.save_catalog();
          od.updater.dirty_catalog = false;
          _.hide( '#act_download_btn_save' );
+         od.action.update.refresh( null, true );
       };
       latch.count_down();
    },
 
-   lbl_count : function act_download_lbl_count ( list, label ) {
+   lbl_count : function act_download_lbl_count ( list, label ) { 
       return function act_download_lbl_count_click () {
          var remote = od.updater.get( this.parentNode.getAttribute('data-name') );
          var count = remote ? remote[list].length : 0;
@@ -163,7 +164,7 @@ od.action.update = {
       var local = od.data.get( remote.name );
       var tr = _.create( 'tr', { 'data-name': remote.name } );
       tr.appendChild( _.create( 'th', remote.name ) );
-      tr.appendChild( _.create( 'td', local ? local.count : '--' ) ); // 1: Local count
+      tr.appendChild( _.create( 'td' ) );
       tr.appendChild( _.create( 'td' ) ); // 2: Remote count
       tr.appendChild( _.create( 'td', { 'onclick': od.action.update.lbl_count( 'added'  , 'lbl_new_item' )   } ) ); // 3: Added count
       tr.appendChild( _.create( 'td', { 'onclick': od.action.update.lbl_count( 'changed', 'lbl_changed_item' ) } ) ); // 4: Changed count
@@ -211,7 +212,7 @@ od.action.update = {
       return _.callfunc( od.action.update.refresh, od.action.update, remote_cat );
     },
 
-   'refresh' : function act_download_refresh ( remote_cat ) {
+   'refresh' : function act_download_refresh ( remote_cat, update_local ) {
       var action = od.action.update;
 
       // Find whether there are unlisted items (Check all), changed items (Get all), downloading items (hide all buttons), and dirty items (Save all)
@@ -239,13 +240,14 @@ od.action.update = {
 
       // Update specified rows's state and commands
       function act_download_refresh_row ( remote ) {
-         var tr = action.tr[ remote.name ];
-         if ( tr === undefined ) tr = action.create_row( remote );
+         var tr = action.tr[ remote.name ], newtr;
+         if ( tr === undefined ) newtr = tr = action.create_row( remote );
          var cells = _( tr, 'td' ), remote_stats = [ cells[1], cells[2], cells[3] ];
          var commands = cells[4];
          var local = od.data.get( remote.name );
-         //var local = od.data.get( remote.name );
-         //cells[1].textContent = local ? local.count : '--'; // Local count may change because of load failure or download update
+         if ( update_local || newtr ) {
+            cells[0].textContent = local ? local.count : '--'; // Local count may change because of load failure or download update
+         }
          commands.innerHTML = '';
          switch ( remote.state ) {
             case "listing":
@@ -288,18 +290,18 @@ od.action.update = {
          }
       }
 
-      if ( remote_cat !== undefined ) {
+      if ( remote_cat ) {
          act_download_refresh_row( remote_cat );
       } else {
          _.sort( od.updater.get(), 'name' ).forEach( act_download_refresh_row );
          // Remove rows that has been deleted
-         Object.keys( action.tr ).forEach( function act_download_check_tr ( name ) {
+         for ( var name in action.tr ) {
             if ( od.updater.get( name ) === null ) {
                var row = action.tr[ name ];
                row.parentNode.removeChild( row );
                delete action.tr[ name ];
             }
-         });
+         };
       }
 
       if ( changed ) {
