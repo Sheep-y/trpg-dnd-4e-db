@@ -303,7 +303,7 @@ od.action.update = {
       }
 
       if ( changed ) {
-         od.gui.set( '#act_download_btn_update', _.l( 'action.update.btn_update_changed' ) );
+         _.set( '#act_download_btn_update', _.l( 'action.update.btn_update_changed' ) );
       }
       _.visible( '#act_download_btn_save', ( ! downloading ) && dirty );
       _.visible( '#act_download_btn_all_list', unlisted );

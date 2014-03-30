@@ -250,15 +250,15 @@ od.updater.RemoteCategory.prototype = {
       remote.progress = _.l('action.update.lbl_fetching_both');
       // Get the data list which is in XML.
       this.get_remote( od.config.source.list( this.name ), function(txt){ 
-         data = txt; 
+         data = txt;
          data = data.replace( /’/g, "'" );
          remote.progress = _.l('action.update.lbl_fetching_xsl'); // We got xml, so that leaves xsl
          _.call( onstep );
-         latch.count_down(); 
+         latch.count_down();
       }, err );
       // Get compendium's XSL, required to convert the XML into table form.
       this.get_remote( od.config.source.xsl ( this.name ), function(txt){ 
-         xsl = txt; 
+         xsl = txt;
          xsl = xsl.replace( /\n\s+/g, '\n' );
          xsl = xsl.replace( /<script(.*\r?\n)+?<\/script>/g, '' ); // Remove scripts so that xsl can run
          xsl = xsl.replace( /<xsl:sort[^>]+>/g, '' ); // Undo sort so that transformed id match result
@@ -266,7 +266,7 @@ od.updater.RemoteCategory.prototype = {
          xsl = xsl.replace( /\bselect="'20'"\s*\/>/, 'select="\'99999\'"/>' ); // Undo paging so that we get all result
          remote.progress = _.l( 'action.update.lbl_fetching_xml' );  // We got xsl, so that leaves xml
          _.call( onstep );
-         latch.count_down(); 
+         latch.count_down();
       }, err );
       // When we get both, we can process them.
       latch.ondone = function download_Cat_get_listing_done () {
@@ -309,7 +309,7 @@ od.updater.RemoteCategory.prototype = {
       };
       latch.count_down();
    },
-           
+
    "get_remote": function download_Cat_get_remote ( url, onload, onerror, retry ) {
       var remote = this;
       if ( retry === undefined ) retry = od.config.retry;
