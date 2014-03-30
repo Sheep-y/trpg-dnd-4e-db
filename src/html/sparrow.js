@@ -371,7 +371,7 @@ _.xml = function _xml ( txt ) {
    if ( window.DOMParser !== undefined ) {
       return new DOMParser().parseFromString( txt, 'text/xml' );
 
-   } else if ( window.ActiveXObject !== undefined )  {
+   } else if ( _.is.activeX() )  {
       var xml = new ActiveXObject('Msxml2.DOMDocument.6.0');
       xml.loadXML( txt );
       return xml;
@@ -418,7 +418,7 @@ _.xsl = function _xsl ( xml, xsl ) {
    } else if ( xmlDom.transformNode ) {
       return xmlDom.transformNode( xslDom );
 
-   } else if ( window.ActiveXObject )  {
+   } else if ( _.is.activeX() )  {
          /* // This code has problem with special characters
          var xslt = new ActiveXObject("Msxml2.XSLTemplate");
          if ( typeof( xsl === 'string' ) ) { // Must use ActiveX free thread document as source.
