@@ -315,10 +315,10 @@ _.cor = function _cor ( option, onload ) {
    if ( typeof( option ) === 'string' )
       option = { url: option };
    // Check what we can use to do the cor.
-   if ( window.ActiveXObject !== undefined ) {
+   if ( _.is.activeX() ) {
       // XMLHttp can cross origin.
       option.xhr = new ActiveXObject("Microsoft.XMLHttp");
-      return _.ajax( url, onload );
+      return _.ajax( option, onload );
    } else {
       _.info( "[COR] Cross orig req: "+url );
       return alert('Please override Cross Origin Request control (TODO: Explain better)');
@@ -329,6 +329,30 @@ _.cor = function _cor ( option, onload ) {
       //   alert(e);
       //}
       //return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
+   }
+};
+
+_.is = {
+   /**
+    * Detect whether browser ie IE.
+    * @returns {boolean} True if ActiveX is enabled, false otherwise.
+    */
+   ie : function _is_ie () {
+      var result = /\bMSIE \d|\bTrident\/\d\b./.test( navigator.userAgent );
+      _.is.ie = function _is_ie_result() { return result; }
+      return result;
+   },
+   /**
+    * Detect whether browser has Active X. Works with IE 11.
+    * @returns {boolean} True if ActiveX is enabled, false otherwise.
+    */
+   activeX : function _is_activeX () {
+      var result = false;
+      try {
+         result = !! new ActiveXObject( 'htmlfile' );
+      } catch ( ignored ) {}
+      _.is.activeX = function _is_activeX_result() { return result; }
+      return result;
    }
 };
 
