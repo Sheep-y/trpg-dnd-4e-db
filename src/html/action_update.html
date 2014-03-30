@@ -17,9 +17,9 @@
    <div>
       <p class='i18n'> action.update.paragraph.0 </p>
       <p class='i18n'> action.update.paragraph.1 </p>
-      <p class='i18n hide' id='act_donwload_err_online'> action.update.err_online </p>
-      <p class='i18n hide' id='act_donwload_err_nonie'> action.update.err_nonie </p>
-      <p class='i18n hide' id='act_donwload_err_activex'> action.update.err_activex </p>
+      <p class='i18n' id='act_donwload_err_online'> action.update.err_online </p>
+      <p class='i18n' id='act_donwload_err_nonie'> action.update.err_nonie </p>
+      <p class='i18n' id='act_donwload_err_activex'> action.update.err_activex </p>
       <p>
          <button class='i18n' id='act_download_btn_get_catalog' onclick='od.action.update.get_catalog()'> action.update.btn_get_catalog </button>
          <button class='i18n' id='act_download_btn_all_list' onclick='od.action.update.list_all()'> action.update.btn_all_list </button>
@@ -59,10 +59,10 @@
  *  - listed: Recheck | Reindex | Delete | Update All | Update changed
  *  - downloading: Stop
  *
- * Top buttons: List categories | Check all | Update changed | Stop all | Save | Reindex all
+ * Top buttons: List categories | Check all | Update changed | Stop all | Save all | Reindex all
  *
  * If any remote category has dirty data, save button may be available.
- * If any category is downloading, reindex/save is not available for all cat, since data is being updated.
+ * If any category is downloading, reindex/save is not available for all categories, since data is being updated.
  * A check will reload listing but will not reset dirty (copied to local) data.
  * Reindex and delete will erase any dirty data.  Both are non-stopable.
  *
@@ -74,42 +74,36 @@
 od.action.update = {
 
    'initialize': function act_download_init () {
-      _.hide( '#act_download_tbl_list, #act_download_btn_all_list, #act_download_btn_update, #act_download_btn_save');
+      _.hide( '#act_download_tbl_list, #act_download_btn_get_catalog, #act_download_btn_all_list, #act_download_btn_update, #act_download_btn_save');
+      // Browser detection
       var online = location.protocol !== 'file:';
-      var ie = /\bMSIE \d|\bTrident\/\d\b./.test( navigator.userAgent );
-      var activex = false;
-      if ( ! ie ) {
-         try { // Active X disabled?
-            activex = !!new ActiveXObject("htmlfile")
-         } catch ( ignored ) {}
-      }
+      var ie = _.is.ie();
+      var activex = _.is.activeX();
+      _.hide( '#act_donwload_err_nonie, #act_donwload_err_activex, #act_donwload_err_online' )
       if ( online || ! ie || ! activex ) {
-         if ( ! ie ) _.removeClass( '#act_donwload_err_nonie.hide' );
-         if ( ie && ! activex ) _.removeClass( '#act_donwload_err_activex.hide' );
-         if ( online ) _.removeClass( '#act_donwload_err_online.hide' );
+         if ( ! ie ) _.show( '#act_donwload_err_nonie' );
+         if ( ie && ! activex ) _.show( '#act_donwload_err_activex' );
+         if ( online ) _.show( '#act_donwload_err_online' );
          _.hide( '#act_download_btn_get_catalog' );
-         //alert( _.l( 'error.file_no_api' ) );
-         return; // Do not border to load catalog or show other buttons
+         return; // Has error, so stop here.
       }
+      // Initialise catalogs and actions.
       od.data.load_catalog(
          function loadCatalogOk(){
+            _.show( '#act_download_btn_get_catalog' );
             od.data.get().forEach( function ( c ){ od.updater.create( c.name ); } );
             od.action.update.refresh();
          },
          function loadCatalogFail(){
+            _.show( '#act_download_btn_get_catalog' );
             od.action.update.refresh();
          }
       );
    },
 
-   "l10n" : function act_download_l10n() {
-   },
-
    'setup': function act_download_setup () {
       od.action.update.refresh();
    },
-
-   'cleanup': null,
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -184,33 +178,33 @@ od.action.update = {
           case 'reindex' :
              onclick = function act_download_btn_reindex() {
                 remote.reindex( refreshRemote, refreshRemote );
-             }};
+             };
              break;
           case 'delete' :
              onclick = function act_download_btn_refresh() {
                 od.updater.delete( remote );
                 od.action.update.refresh(); // Category can be deleted from remote, need full refresh to delete row
-             }};
+             };
              break;
           case 'relist':
           case 'list' :
              onclick = function act_download_btn_list() {
                 remote.get_listing( refreshRemote, refreshRemote );
                 refreshRemote();
-             }};
+             };
              break;
           case 'update_all':
              onclick = function act_download_btn_update_all() {
                 remote.update_all( refreshRemote, refreshRemote );
-             }};
+             };
              break;
           case 'update':
              onclick = function act_download_btn_update() {
                 remote.update_changed( refreshRemote, refreshRemote );
-             }};
+             };
              break;
       }
-      return _.create( 'button', param = { 'text': _.l( txt ), 'data-i18n': txt, 'onclick': onclick } );
+      return _.create( 'button', { 'text': _.l( txt ), 'data-i18n': txt, 'onclick': onclick } );
    },
 
    'refresh_func' : function act_download_refresh_func ( remote_cat ) {

@@ -108,7 +108,7 @@ _.l.set( 'action.update', {
    'err_nonie':
       "<b class='red'>Download/update is only available in <a href='http://ie.microsoft.com/'>Internet Explorer (9+)</a>.</b>",
    'err_activex':
-      "<b class='red'>Please use non-Metro IE and enable ActiveX to do download/update.</b>",
+      "<b class='red'>Please use desktop version IE and enable ActiveX to do download/update.</b>",
  
    'msg_login'  : "A login window will pop up.  Please *Login and Close* the login window to resume download."
 });

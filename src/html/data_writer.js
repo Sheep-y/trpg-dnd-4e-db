@@ -10,7 +10,7 @@ od.writer = {
    _state: 'initial', // 'initial', 'failed', 'success'
 
    _call : function writer_call ( com_callback, onerror ) {
-      if ( window.ActiveXObject ) {
+      if ( _.is.activeX() ) { // IE 11 reports no window.ActiveX, but can still create them.
          if ( com_callback ) {
             try {
                var fso = od.writer._fs;
