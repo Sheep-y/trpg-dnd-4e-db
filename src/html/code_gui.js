@@ -72,6 +72,7 @@ od.gui = {
          }
       }
       // Set id if absent. Then update url and swap page.
+      if ( ! action ) return gui.goto( 'list' );
       if ( action.id === undefined ) action.id = id;
       gui.pushState( act_id );
       gui.switch_action( action );
@@ -107,7 +108,7 @@ od.gui = {
       var gui = od.gui;
       var currentAction = gui.action;
       if ( !action || action === currentAction ) {
-         _.call( action.setup, action, od.gui.act_id );
+         _.call( action.setup, action, gui.act_id );
          return;
       }
 
@@ -119,7 +120,7 @@ od.gui = {
       }
 
       // Hide other actions and show target page
-      Array.prototype.forEach.call(_('body > section[id^="action_"]'), function(e){ e.style.display = ''; });
+      _.style('body > section[id^="action_"]', 'display', '' );
       var page = _( "#action_" + action.id )[0];
       page.style.display = 'block';
 
@@ -135,7 +136,7 @@ od.gui = {
       gui.action = action;
 
       gui.update_title();
-      _.time( 'Switched to ' + action.id );
+      _.time( '[Action] Switched to ' + action.id );
    },
    
    update_title : function gui_update_title () {

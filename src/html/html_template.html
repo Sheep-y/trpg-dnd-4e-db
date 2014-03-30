@@ -28,6 +28,19 @@
    <div style="display:none">
 <![endif]-->
    <div id="loading" class='i18n' style='display:none;'>gui.loading</div>
+   <section id='action_script_error'>
+      <p> <!-- This section is hidden by default (hide when noscript), is displayed immediately, and hidden by switch_action -->
+         Sorry, but it seems that something is wrong in the script, causing it to malfunction. <br/>
+         You may try <a href="http://www.mozilla.org/firefox/">another</a> <a href="http://www.google.com/chrome/">browser</a> and use the latest <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/releases">release</a>. <br/>
+         If you have done both and still this message, please <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/issues">file an issue report</a>. 
+      </p>
+      <script>
+         document.getElementById('action_script_error').style.display = 'block';
+      </script><noscript>
+         <h1> Please enable JavaScript </h1>
+         <h1> 請啟用 JavaScript </h1>
+      </noscript>
+   </section>
    <script>//<![CDATA[
       'use strict';
       var od = { action : {} };
@@ -41,20 +54,15 @@
       <!--#include file='data_updater.js' -->
       <!--#include file='data_reader.js' -->
       <!--#include file='data_writer.js' -->
-   //]]></script><noscript>
-      <h1> Please enable JavaScript </h1>
-      <h1> 請啟用 JavaScript </h1>
-   </noscript>
+   </script>
    <!--#include file='action_update.html' -->
    <!--#include file='action_list.html' -->
    <!--#include file='action_view.html' -->
    <!--#include file='action_about.html' -->
    <!--#include file='images.html' -->
-   <script>//<![CDATA[
-      'use strict';
-      // Init code. Running in a script block is faster then waiting for dom ready - everything should be embedded anyway!
+   <script>
+      // Init code. Running here is faster then waiting for dom ready.
       _.time( 'All code loaded.' );
-      for ( var i in od ) _.seal( _.noExt( od[i] ) ); // Seal object to avoid accidents
       od.gui.init();
    //]]></script>
 </body></html>
