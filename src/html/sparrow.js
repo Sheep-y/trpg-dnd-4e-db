@@ -485,7 +485,7 @@ _.assert = function _assert( check, msg ) {
  * @param {string} type Optional. Type of console function to run, e.g. 'debug' or 'warn'. If not found then fallback to 'log'.
  * @param {*=}  msg  Message objects to pass to console function.
  */
-_.log = function _info ( type, msg ) {
+_.log = function _log ( type, msg ) {
    if ( msg === undefined ) {
       msg = type;
       type = 'log';
@@ -493,7 +493,7 @@ _.log = function _info ( type, msg ) {
    if ( window.console ) {
       if ( console[type] === undefined ) type = 'log';
       var t = new Date();
-      console[type]( "["+t.getHours()+":"+t.getMinutes()+":"+t.getSeconds()+"."+t.getMilliseconds()+"]", msg );
+      console[type]( msg );
    }
 };
 
@@ -502,7 +502,7 @@ _.log = function _info ( type, msg ) {
  *
  * @param {*} msg Message objects to pass to console.
  */
-_.debug = function _info ( msg ) { _.log( 'debug', msg ); };
+_.debug = function _debug ( msg ) { _.log( 'debug', msg ); };
 
 /**
  * Safe console.info message.
@@ -516,7 +516,7 @@ _.info = function _info ( msg ) { _.log( 'info', msg ); };
  *
  * @param {*} msg Message objects to pass to console.
  */
-_.warn = function _info ( msg ) { _.log( 'warn', msg ); };
+_.warn = function _warn ( msg ) { _.log( 'warn', msg ); };
 
 /**
  * Safe console.error message.  It will stack up all errors in a 50ms window and shows them together.
