@@ -23,7 +23,7 @@
       <p>
          <button class='i18n' id='act_download_btn_get_catalog' onclick='od.action.update.get_catalog()'> action.update.btn_get_catalog </button>
          <button class='i18n' id='act_download_btn_all_list' onclick='od.action.update.list_all()'> action.update.btn_all_list </button>
-         <button class='i18n' id='act_download_btn_update' onclick='od.action.update.update_all()'> action.update.btn_update_changed </button>
+         <button class='i18n' id='act_download_btn_update' onclick='od.action.update.update_all()'> action.update.btn_update </button>
          <button class='i18n' id='act_download_btn_save' onclick='od.action.update.save()'> action.update.btn_save </button>
       </p>
    </div>
@@ -241,7 +241,7 @@ od.action.update = {
       function act_download_refresh_row ( remote ) {
          var tr = action.tr[ remote.name ];
          if ( tr === undefined ) tr = action.create_row( remote );
-         var cells = _( tr, 'td' );
+         var cells = _( tr, 'td' ), remote_stats = [ cells[1], cells[2], cells[3] ];
          var commands = cells[4];
          var local = od.data.get( remote.name );
          //var local = od.data.get( remote.name );
@@ -254,17 +254,17 @@ od.action.update = {
                commands.textContent = remote.progress;
                break;
             case "absent" :
-               _.attr( cells, { 'text': '--' } );
+               _.attr( remote_stats, { 'text': '--' } );
                commands.appendChild( action.create_button( 'delete', remote ) );
                if ( ! remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote ) );
                break;
             case "local" :
-               _.attr( cells, { 'text': '' } );
+               _.attr( remote_stats, { 'text': '' } );
                commands.appendChild( action.create_button( 'delete', remote ) );
                if ( ! remote.reindexed ) commands.appendChild( action.create_button( 'reindex', remote ) );
                break;
             case "unlisted" :
-               _.attr( cells, { 'text': '??' } );
+               _.attr( remote_stats, { 'text': '??' } );
                commands.appendChild( action.create_button( 'list', remote ) );
                if ( local ) {
                   commands.appendChild( action.create_button( 'delete', remote ) );
@@ -303,7 +303,7 @@ od.action.update = {
       }
 
       if ( changed ) {
-         _.set( '#act_download_btn_update', _.l( 'action.update.btn_update_changed' ) );
+         _.set( '#act_download_btn_update', _.l( 'action.update.btn_update' ) );
       }
       _.visible( '#act_download_btn_save', ( ! downloading ) && dirty );
       _.visible( '#act_download_btn_all_list', unlisted );
