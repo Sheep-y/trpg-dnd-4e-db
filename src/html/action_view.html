@@ -3,7 +3,7 @@
   - View content of an entry / multiple entries
   -->
 <section id='action_view'><!-- // Disabled because touch event behaviour is not universal. Button is good.
-         ontouchstart="od.action.view.touch_start(event)" ontouchmove="od.action.view.touch_move(event)" 
+         ontouchstart="od.action.view.touch_start(event)" ontouchmove="od.action.view.touch_move(event)"
          ontouchend="od.action.view.touch_end()" ontouchleave="od.action.view.touch_end()" ontouchcancel="od.action.view.touch_cancel()"-->
    <style scoped>
       .btn_prevnext {
@@ -160,7 +160,7 @@ od.action.view = {
    "siblings" : [],
 
    "clear" : function act_view_clear () { _( '#act_view_pnl_content')[0].innerHTML = ""; },
-   
+
    "set_title" : function act_view_set_title ( title ) {
       _('#action_view_h_title')[0].textContent = title;
       od.gui.update_title();

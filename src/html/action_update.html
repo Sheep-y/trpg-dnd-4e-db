@@ -145,7 +145,7 @@ od.action.update = {
       latch.count_down();
    },
 
-   lbl_count : function act_download_lbl_count ( list, label ) { 
+   lbl_count : function act_download_lbl_count ( list, label ) {
       return function act_download_lbl_count_click () {
          var remote = od.updater.get( this.parentNode.getAttribute('data-name') );
          var count = remote ? remote[list].length : 0;

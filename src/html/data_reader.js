@@ -110,7 +110,7 @@ od.reader = {
          for ( var id in data ) {
             data[ od.config.id( id ) ] = data[ id ];
             delete data[ id ];
-         } 
+         }
       }
       var cat = od.data.get(category);
       cat.index = data;

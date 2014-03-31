@@ -53,7 +53,7 @@ _.l.set( 'action.list', {
    'title' : "Browse",
    'link_text' : "Browse",
    'result_summary' : "Result",
-   
+
    'txt_search_name_placeholder' : "Type name to search (optional) and select category.",
    'txt_search_full_placeholder' : "Search keywords. e.g. ranger OR martial bonus -\"feat bonus\" ",
    'btn_search_name' : "<u>N</u>ame Search",
@@ -109,7 +109,7 @@ _.l.set( 'action.update', {
       "<b class='red'>Download/update is only available in <a href='http://ie.microsoft.com/'>Internet Explorer (9+)</a>.</b>",
    'err_activex':
       "<b class='red'>Please use desktop version IE and enable ActiveX to do download/update.</b>",
- 
+
    'msg_login'  : "A login window will pop up.  Please *Login and Close* the login window to resume download."
 });
 

@@ -23,7 +23,7 @@ od.updater = {
       //    dirty: [ "id1","id2" ] // Entries that are updated but not saved.
       // }
    },
-   dirty_catalog : false, // Mark whether master catalog is dirty, e.g. a category is deleted. 
+   dirty_catalog : false, // Mark whether master catalog is dirty, e.g. a category is deleted.
                           // Note that a dirty category always imply dirty catalog, because item count is likely different.
    "get" : function download_get ( name ) {
       var result;
@@ -35,7 +35,7 @@ od.updater = {
       result = this.category[name];
       return result ? result : null;
    },
-           
+
    "create" : function download_create ( name ) {
       var result = this.get( name );
       if ( result === null ) this.category[name] = result = new od.updater.RemoteCategory( name );
@@ -214,7 +214,7 @@ od.updater.RemoteCategory.prototype = {
    "changed": [],
    "added": [],
    "reindexed" : false,
-   
+
    /**
     * Return localised title/
     * @returns {_L8.data_Cat_unload}
@@ -249,7 +249,7 @@ od.updater.RemoteCategory.prototype = {
       var err = _.callonce( onerror );
       remote.progress = _.l('action.update.lbl_fetching_both');
       // Get the data list which is in XML.
-      this.get_remote( od.config.source.list( this.name ), function(txt){ 
+      this.get_remote( od.config.source.list( this.name ), function(txt){
          data = txt;
          data = data.replace( /’/g, "'" );
          remote.progress = _.l('action.update.lbl_fetching_xsl'); // We got xml, so that leaves xsl
@@ -257,7 +257,7 @@ od.updater.RemoteCategory.prototype = {
          latch.count_down();
       }, err );
       // Get compendium's XSL, required to convert the XML into table form.
-      this.get_remote( od.config.source.xsl ( this.name ), function(txt){ 
+      this.get_remote( od.config.source.xsl ( this.name ), function(txt){
          xsl = txt;
          xsl = xsl.replace( /\n\s+/g, '\n' );
          xsl = xsl.replace( /<script(.*\r?\n)+?<\/script>/g, '' ); // Remove scripts so that xsl can run
@@ -329,7 +329,7 @@ od.updater.RemoteCategory.prototype = {
     /**
      * Check local exist and columns match, if ok then pass to remote.find_changed()
      * Oterwise assume all items are new.
-     * 
+     *
      * @param {function } onload  Callback after changed items is founds
      * @returns {undefined}
      */
@@ -394,7 +394,7 @@ od.updater.RemoteCategory.prototype = {
 
    /**
     * Get entry content
-    * 
+    *
     * @param {type} id      Id of entry
     * @param {type} onload  Callback after successful load
     * @param {type} onerror Callback after error
@@ -425,7 +425,7 @@ od.updater.RemoteCategory.prototype = {
    /**
     * Rebuild listing and index from raw data.
     * Entries are processed in batch to maintain GUI responsiveness.
-    * 
+    *
     * @param {function} onstep  Callback on each update.
     * @param {function} ondone  Callback on done.
     * @param {function} onerror Callback on error.
@@ -498,7 +498,7 @@ od.updater.RemoteCategory.prototype = {
 
    /**
     * Save this category's changed data.
-    * 
+    *
     * @param {type} ondone  Callback after data is saved
     * @param {type} onerror Callback after error
     * @returns {undefined}

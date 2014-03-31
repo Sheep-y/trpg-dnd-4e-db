@@ -5,11 +5,11 @@ import java.nio.charset.Charset;
 
 public class Proxy extends java.applet.Applet {
    public String test() { return "1"; }
-   
-   public void write(String f, String txt) { 
+
+   public void write(String f, String txt) {
       write(f, txt, "UTF-8" );
    }
-   
+
    public Throwable write(final String f, final String txt, final String code) {
       Exception e = null;
       //Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() { @Override public void uncaughtException(Thread t, Throwable ex) { e = ex; }});

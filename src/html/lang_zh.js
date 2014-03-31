@@ -90,7 +90,7 @@ _.l.set( 'action.list', {
    'btn_search_body' : "全文搜索",
    'a_all' : "全類別",
    'lbl_count' : '%1／%2',
-   
+
    'lbl_no_result' : "無結果"
 });
 

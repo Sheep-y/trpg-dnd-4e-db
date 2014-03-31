@@ -3,7 +3,7 @@
  *
  * Handle search logic, including parsing search pattern, marking highlight terms,
  * and actually searching the data model.
- * 
+ *
  * Can also list unfiltered entry list in same format as search result.
  */
 
@@ -105,7 +105,7 @@ od.search = {
                } else {
                   // Full body search.  If does not have exclude term, try name first. If fail or otherwise do full body.
                   if ( ! pattern.hasExclude && regx.test( row.Name ) ) return true;
-                  return regx.test( row._category.index[ row.ID ] ); 
+                  return regx.test( row._category.index[ row.ID ] );
                }
             } );
             return result;

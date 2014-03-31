@@ -43,7 +43,7 @@ od.gui = {
          }, od.config.url_monitor_interval );
       })();
    },
-   
+
    /**
     * Localise current action.
     */
@@ -77,15 +77,16 @@ od.gui = {
       gui.pushState( act_id );
       gui.switch_action( action );
    },
-   
+
    /**
     * Call history.pushState
     *
     * @param {String} act_id location.search part (without '?')
     */
    "pushState" : function gui_push_state ( act_id ) {
-      if ( act_id !== location.search.substr(1) ) 
+      if ( act_id !== location.search.substr(1) ) {
          if ( history.pushState ) history.pushState( null, null, "?" + act_id );
+      }
       od.gui.act_id = act_id;
    },
 
@@ -138,7 +139,7 @@ od.gui = {
       gui.update_title();
       _.time( '[Action] Switched to ' + action.id );
    },
-   
+
    update_title : function gui_update_title () {
       _('title')[0].textContent = _.l( 'gui.title', 'Offline 4e database - ' )
                                 + _( "#action_" + od.gui.action.id + ' h1' )[0].textContent;
