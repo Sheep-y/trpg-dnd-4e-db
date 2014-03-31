@@ -183,7 +183,7 @@ od.action.update = {
              break;
           case 'delete' :
              onclick = function act_download_btn_refresh() {
-                od.updater.delete( remote );
+                od.updater.remove( remote );
                 od.action.update.refresh(); // Category can be deleted from remote, need full refresh to delete row
              };
              break;

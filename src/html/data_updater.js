@@ -42,7 +42,7 @@ od.updater = {
       return result;
    },
 
-   "delete" : function download_delete ( remote ) {
+   "remove" : function download_remove ( remote ) {
       if ( ! od.data.category[ remote.name ] ) return _.error( "Cannot delete a non-local category" );
       switch ( remote.state ) {
          case "local" :
@@ -474,7 +474,7 @@ od.updater.RemoteCategory.prototype = {
          len = idList.length;
          if ( len <= 0 ) {
             // If there is no data, do a delete instead.
-            od.updater.delete( remote );
+            od.updater.remove( remote );
             return _.call( ondone, remote );
          }
          local.ext_columns = local.parse_extended( local.raw_columns, null );
@@ -488,7 +488,7 @@ od.updater.RemoteCategory.prototype = {
             if ( local.count > 0 ) {
                if ( remote.dirty.indexOf( true ) < 0 ) remote.dirty.push( true );
             } else {
-               od.updater.delete( remote );
+               od.updater.remove( remote );
             }
             _.call( ondone, remote );
          } );
