@@ -16,7 +16,7 @@ od.data = {
       var category = this.category;
       for ( var c in category ) {
          if ( cat === undefined || cat === c ) {
-            category[c].clear;
+            category[c].unload();
             delete category[c];
          }
       }
