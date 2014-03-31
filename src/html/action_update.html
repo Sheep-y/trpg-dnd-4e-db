@@ -79,7 +79,7 @@ od.action.update = {
       var online = location.protocol !== 'file:';
       var ie = _.is.ie();
       var activex = _.is.activeX();
-      _.hide( '#act_donwload_err_nonie, #act_donwload_err_activex, #act_donwload_err_online' )
+      _.hide( '#act_donwload_err_nonie, #act_donwload_err_activex, #act_donwload_err_online' );
       if ( online || ! ie || ! activex ) {
          if ( ! ie ) _.show( '#act_donwload_err_nonie' );
          if ( ie && ! activex ) _.show( '#act_donwload_err_activex' );

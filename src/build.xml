@@ -53,8 +53,6 @@
       <replaceregexp match="&lt;/body>&lt;/html>(?!$|['&quot;])" replace="" file="${deliverable}" encoding="UTF-8" />
    </target>
 
-   <target name="compile" description="Run make target" depends="make" />
-
    <!-- Produce a simulation biuld for testing.  -->
    <target name="offline_simulate" description="Compile offline test build at root folder" depends="make">
       <replace file="${deliverable}" token='"simulate" : false' value='"simulate" : true' encoding="UTF-8" />
@@ -66,18 +64,19 @@
       <delete file="${deliverable}" />
    </target>
  
-   <!-- Stripts unnecessary code for deployment. Saves about 11% (34k) so production value is of doubt.  -->
+   <!-- Stripts unnecessary code for deployment. Saves around 23% (83k) as of v3 Milestone 3.  -->
    <target name="deploy" description="Compress existing build" depends="make">
       <!-- Remove comments. Start comment with three hypens to preserv license blocks. -->
       <replaceregexp match=" *&lt;!--(?![\[-])(.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
       <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
-      <replaceregexp match=" *(?&lt;=[ ;])//(?!\]).*?\n" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
+      <replaceregexp match=" *(?&lt;=[ ;\n])//(?!\]).*?\n" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
       <!-- Remove redundent whitespaces -->
       <replaceregexp match="   " replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
       <replaceregexp match="(\n)[\n ]+" replace="\1" flags="g" file="${deliverable}" encoding="UTF-8" />
       <!-- Concat htmls -->
       <replaceregexp match=">\n&lt;" replace=">&lt;" flags="g" file="${deliverable}" encoding="UTF-8" />
       <!-- Concat js -->
+      <replaceregexp match="([{}()\[\]:,+])\n" replace="\1" flags="g" file="${deliverable}" encoding="UTF-8" />
       <replaceregexp match="\n}" replace="}" flags="g" file="${deliverable}" encoding="UTF-8" />
    </target>
 

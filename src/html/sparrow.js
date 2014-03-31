@@ -37,7 +37,7 @@ window._ = function sparrow ( root, selector ) {
    }
    if ( selector.charAt(0) === '.' ) return root.getElementsByClassName( selector.substr(1) );
    return root.getElementsByTagName( selector );
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Array Helpers
@@ -66,7 +66,7 @@ _.ary = function _ary ( subject, startpos, length ) {
  */
 _.toAry = function _toAry ( subject ) {
    return subject instanceof Array ? subject : [ subject ];
-}
+};
 
 /**
  * Given an array-like object and one or more columns, extract and return those columns from subject.
@@ -339,7 +339,7 @@ _.is = {
     */
    ie : function _is_ie () {
       var result = /\bMSIE \d|\bTrident\/\d\b./.test( navigator.userAgent );
-      _.is.ie = function _is_ie_result() { return result; }
+      _.is.ie = function _is_ie_result() { return result; };
       return result;
    },
    /**
@@ -351,7 +351,7 @@ _.is = {
       try {
          result = !! new ActiveXObject( 'htmlfile' );
       } catch ( ignored ) {}
-      _.is.activeX = function _is_activeX_result() { return result; }
+      _.is.activeX = function _is_activeX_result() { return result; };
       return result;
    }
 };
@@ -477,7 +477,7 @@ _.assert = function _assert( check, msg ) {
       if ( typeof( msg ) === 'string' ) msg = 'Assertion failed (' + msg + ')';
       throw msg;
    }
-}
+};
 
 /**
  * Console log function.
@@ -652,7 +652,7 @@ _.halfwidth = function _halfwidth( src ) {
       else result += 2;
    }
    return result;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object helpers
@@ -677,7 +677,7 @@ _.inherit = function _inherit ( base, constructor, prototype ) {
 
 _.deepclone = function _clone( base ) {
    return _.clone( base, deep );
-}
+};
 
 /**
  * Clone a given object shallowly or deeply.
@@ -707,7 +707,7 @@ _.clone = function _clone( base, deep ) {
    }
    for ( var k in base ) result[k] = deep ? _.clone( base[k], deep ) : base[k];
    return result;
-}
+};
 
 // Prevent changing properties
 _.freeze = function _freeze ( o ) { return Object.freeze ? Object.freeze(o) : o; };
@@ -785,7 +785,7 @@ _.set = function _set ( ary, obj, value ) {
          e[ name ] = attr[ name ];
    } );
    return ary;
-}
+};
 
 /**
  * Set a list of object's DOM attribute/property to same value
@@ -828,7 +828,7 @@ _.attr = function _attr( ary, obj, value ) {
       }
    } );
    return ary;
-}
+};
 
 /**
  * Set a list of object's style's attribute/property to same value
@@ -857,7 +857,7 @@ _.style = function _style ( ary, obj, value ) {
       }
    } );
    return ary;
-}
+};
 
 /**
  * Show DOM elements by setting display to ''.
@@ -939,7 +939,7 @@ _.toggleClass = function _toggleClass ( e, className, toggle ) {
       for ( var j = c.length-1 ; j >= 0 ; j-- ) {
          var thisClass = c[ j ], pos = lst.indexOf( thisClass );
          if ( pos < 0 && ( toggle || toggle === undefined ) ) { // Absent and need to add
-            lst.push( thisClass )
+            lst.push( thisClass );
          } else if ( pos >= 0 && ( ! toggle || toggle === undefined ) ) { // Exists and need to remove
             lst.splice( pos, 1 );
          }
@@ -1121,7 +1121,7 @@ _.Index = function _Index ( indices ) {
    for ( var i = 0, l = indices.length ; i < l ; i++ ) {
       this.map[ indices[i] ] = {};
    }
-}
+};
 _.Index.prototype = {
    "all" : [],
    "map" : {},
@@ -1259,8 +1259,8 @@ _.EventManager.prototype = {
     */
    "add" : function _EventManager_add ( event, listener ) {
       var thisp = this;
-      if ( event instanceof Array ) return event.forEach( function( e ){ thisp.add( e, listener ) } );
-      if ( listener instanceof Array ) return listener.forEach( function( l ){ thisp.add( event, l ) } );
+      if ( event instanceof Array ) return event.forEach( function( e ){ thisp.add( e, listener ); } );
+      if ( listener instanceof Array ) return listener.forEach( function( l ){ thisp.add( event, l ); } );
       var lst = this.lst[event];
       if ( ! lst ) {
          if ( this.strict && lst === undefined )
@@ -1277,8 +1277,8 @@ _.EventManager.prototype = {
     */
    "remove" : function _EventManager_remove ( event, listener ) {
       var thisp = this;
-      if ( event instanceof Array ) return event.forEach( function( e ){ thisp.remove( e, listener ) } );
-      if ( listener instanceof Array ) return listener.forEach( function( l ){ thisp.remove( event, l ) } );
+      if ( event instanceof Array ) return event.forEach( function( e ){ thisp.remove( e, listener ); } );
+      if ( listener instanceof Array ) return listener.forEach( function( l ){ thisp.remove( event, l ); } );
       var lst = this.lst[event];
       if ( ! lst ) {
          if ( this.strict && lst === undefined )
