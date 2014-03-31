@@ -154,7 +154,8 @@ od.action.list = {
    },
 
    'txt_filter_input' : function act_list_txt_filter_input ( evt ) {
-      od.action.list.show_list();
+      if ( act_list_txt_filter_input.timer ) clearTimeout( act_list_txt_filter_input.timer );
+      act_list_txt_filter_input.timer = setTimeout( od.action.list.show_list, 300 );
    },
 
    /**
@@ -437,7 +438,7 @@ od.action.list = {
    'filter_data' : function act_list_filter_data ( col, data ) {
       _.ary( _( '.txt_filter' ) ).forEach( function act_list_filter_data_col( e, i ) {
          if ( e.value ) {
-            var num = e.value.match( /^(\d+[kmg]?)\s*-\s*(\d+[kmg]?)|([<>]=?)\s*(\d+[kmg]?)|(\d+[kmg]?)([+-]?)$/i );
+            var num = e.value.match( /^(\d+[kmg]?)\s*-\s*(\d+[kmg]?)|([<>]=?)\s*(\d+[kmg]?)?|(\d+[kmg]?)([+-]?)$/i );
             if ( ! num ) {
                // Text based search; parse pattern.
                var pattern = e.value ? od.search.gen_search( e.value ) : null;
@@ -456,6 +457,9 @@ od.action.list = {
                   max = Math.max( _.si( num[ 1 ] ), _.si( num[ 2 ] ) );
                } else if ( num[ 3 ] ) {
                   // Open range: <=3
+                  // Value may be unavaliable if user is still inputting.
+                  // This is designed to aviod clearing result list after user has typed '>' or '<=' but not yet finished
+                  if ( ! num[4] ) return;
                   var i = _.si( num[ 4 ] );
                   if ( num[ 3 ].substr(0,1) === '>' ) {
                      min = i;
