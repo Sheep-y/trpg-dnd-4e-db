@@ -141,7 +141,7 @@ _.l.set( 'action.about', {
    'p_get_data' :
       "This script comes with no data. To get data, you need a few things, including an active <a href='http://www.wizards.com/DnD/Subscription.aspx'>Dungeons & Dragons Insider subscription</a>. <br/>"+
       "Data can be acquired in a few steps: <br/> <ol> "+
-      " <li> Save this HTML to file system and open in Internet Explorer (non-Metro) "+
+      " <li> Save this HTML to your PC and open it with Internet Explorer (desktop version) "+
       " <li> Get catalog "+
       " <li> Get listing of one or more categories "+
       " <li> Get data (may prompt login) "+
@@ -174,13 +174,12 @@ _.l.set( 'action.about', {
       "You can lawfully copy this html and the data folder to USB or to smart phone, as long as it is for personal use. <br/>"+
       "<br/>"+
       "Default Android browser does not support local file, but you can use <a href='https://play.google.com/store/apps/details?id=com.opera.browser'>Opera Mobile</a> or <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox Mobile</a>. Chrome would NOT work.<br/> "+
-      "Apple iTune forbids lots of things, so for now you will need a jail breaked device."+
-      "Please let me know your experience with other smart phones / devices."+
+      "Apple iTune forbids lots of things, so for now you will need a jail breaked device. "+
+      "Please let me know your experience with other smart phones / devices. "+
       "<br/>"+
-      "You can put everything on personal web server, but initial search speed can be slow, a full search needs ~37MB data.",
+      "You can also put everything on a personal web server, if you have one, but initial search speed can be slow, a full search needs ~37MB data.",
 
    'h_history'   : "Product History",
-   'lbl_history' : "(If there are no images, please try Chrome or Android browser which support WebP.)",
    'lbl_english_only'  : "", // Please translate as "This section is English only."
 
    'h_version_history' : "Version History",

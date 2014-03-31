@@ -171,7 +171,7 @@ _.l.set( 'action.about', {
    'p_get_data' :
       "此文本不附帶任何數據。要獲取數據，您需要一些東西，當中包括 active <a href='http://www.wizards.com/DnD/Subscription.aspx'>Dungeons & Dragons Insider subscription</a>. <br/>"+
       "要獲取數據，只需以下短短幾步： <br/> <ol> "+
-      " <li> 將此 HTML 儲存到檔案系統，並用 Internet Explorer（非 Metro）開啓。"+
+      " <li> 將此 HTML 儲存到您的電腦，並用 Internet Explorer（桌面版）開啓。"+
       " <li> 下載目錄 "+
       " <li> 下載一類或多類的列表 "+
       " <li> 下載數據（可能會要求登入）"+
@@ -210,7 +210,6 @@ _.l.set( 'action.about', {
       "你可以把東西都放到個人網頁伺服器，不過初始的搜尋可能很慢，完整全文搜尋需要 ~37MB 數據。",
 
    'h_history' : "產品歷史",
-   'lbl_history' : "（如若沒有看見圖片，請試用支援 WebP 格式的 Chrome 或 Android 瀏覽器。）",
    'lbl_english_only' : "此章節只有英文版本。",
 
    'h_version_history' : "版本歷史",
