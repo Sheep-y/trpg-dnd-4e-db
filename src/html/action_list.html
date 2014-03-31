@@ -99,9 +99,9 @@
    </div>
 
    <header role="navigation">
-      <button class='i18n' id='act_list_btn_update' onclick='od.gui.goto("update")'> action.update.link_text </button>
+      <button class='i18n' id='act_list_btn_update' onclick='od.gui.go("update")'> action.update.link_text </button>
       <h1 class='i18n'>action.list.title</h1>
-      <button class='i18n btn_non_top' onclick='od.gui.goto("about")'> action.about.link_text </button>
+      <button class='i18n btn_non_top' onclick='od.gui.go("about")'> action.about.link_text </button>
       <a class='i18n button btn_top' href='#top'> gui.top </a>
    </header>
 
@@ -199,7 +199,7 @@ od.action.list = {
       var cat = od.action.list.category;
       if ( ! cat ) cat = od.data.get( e.getAttribute( 'data-category' ) );
       var id = od.config.id( e.getAttribute('data-id') );
-      od.gui.goto( "view=" + encodeURIComponent( cat.name + '.' +  id ) );
+      od.gui.go( "view=" + encodeURIComponent( cat.name + '.' +  id ) );
    },
 
    'set_search_category' : function act_list_set_search_category ( cat ) {
@@ -353,7 +353,7 @@ od.action.list = {
          _.show( div );
          if ( ondone ) _.call( ondone );
       }, function act_list_build_category_error () {
-         od.gui.goto( "update" );
+         od.gui.go( "update" );
       });
    },
 

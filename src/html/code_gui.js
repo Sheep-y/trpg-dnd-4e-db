@@ -20,10 +20,10 @@ od.gui = {
    init : function gui_init () {
       _.l.detectLocale( 'en' );
       od.gui.l10n();
-      od.gui.goto();
+      od.gui.go();
       // Perform navigation on pop state
       window.addEventListener( 'popstate', function window_popstate () {
-         od.gui.goto();
+         od.gui.go();
       }, false);
 
       // Show / Hide 'top' buttons when scrolled
@@ -39,7 +39,7 @@ od.gui = {
       (function(){
          var gui = od.gui, get_act_id = gui.get_act_id;
          setInterval( function window_interval_url_monitor() {
-            if ( get_act_id() !== gui.act_id ) od.gui.goto();
+            if ( get_act_id() !== gui.act_id ) od.gui.go();
          }, od.config.url_monitor_interval );
       })();
    },
@@ -57,7 +57,7 @@ od.gui = {
     *
     * @param {String} act_id Action to switch to, with all necessary parameters
     */
-   "goto" : function gui_goto ( act_id ) {
+   "go" : function gui_go ( act_id ) {
       var gui = od.gui;
       if ( act_id === undefined ) act_id = gui.get_act_id();
       var action = od.action[act_id], id = act_id;
@@ -72,7 +72,7 @@ od.gui = {
          }
       }
       // Set id if absent. Then update url and swap page.
-      if ( ! action ) return gui.goto( 'list' );
+      if ( ! action ) return gui.go( 'list' );
       if ( action.id === undefined ) action.id = id;
       gui.pushState( act_id );
       gui.switch_action( action );
