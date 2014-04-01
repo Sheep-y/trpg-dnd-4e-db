@@ -101,7 +101,7 @@ _.sorter = function _sorter ( field, des ) {
 /**
  * Returns a sorter function that sort an array of items by given fields.
  *
- * @param {String} field Field name to compare, leave undefined to compare the value itself.
+ * @param {string} field Field name to compare, leave undefined to compare the value itself.
  * @param {boolean=} des true for a descending sorter. false for ascending sorter (default).
  * @returns {function(*,*)} Sorter function
  */
@@ -178,10 +178,10 @@ _.callonce = function _call ( func ) {
  * Capture parameters in a closure and return a callback function
  * that can be called at a later time.
  *
- * @param {Function} func   function to call. Must be function, null, or undefined.
- * @param {Object} thisObj  'this' to be passed to the function
+ * @param {function(...*)} func   function to call. Must be function, null, or undefined.
+ * @param {Object=} thisObj  'this' to be passed to the function
  * @param {...*} param      call parameters, can have multiple.
- * @returns {Function}      A callback function that, when called, will call func with given this and parameters.
+ * @returns {function()}      A callback function that, when called, will call func with given this and parameters.
  */
 _.callfunc = function _callfunc ( func, thisObj, param /*...*/ ) {
    if ( arguments.length <= 1 ) return func;
@@ -198,7 +198,7 @@ if ( window.setImmediate === undefined ) {
       /**
        * Call a callback immediately after current stack is resolved.
        *
-       * @param {function()} Function to call
+       * @param {function(...*)} func Function to call
        * @returns {integer} Id of callback.
        */
       window.setImmediate = function setImmediate ( func ) { return window.setTimeout(func, 0); };
@@ -379,7 +379,7 @@ _.is = {
       return result;
    },
 
-   /*
+   /**
     * Retuan true if given value is a literal value (instead of an object)
     * @param {*} val Value to check.
     * @returns {(undefined|null|boolean)} True if value is boolean, number, or string. False if function, object, or other non-null types. Otherwise undefined or null.
@@ -439,7 +439,7 @@ _.xml = function _xml ( txt ) {
  * Convert XML Element to JS object.
  *
  * @param {Element} root DOM Element to start the conversion
- * @param {Object} base  Base object to copy to.  If undefined then will create a new object.
+ * @param {Object=} base  Base object to copy to.  If undefined then will create a new object.
  * @returns {Object} Converted JS object.
  */
 _.xml.toObject = function _xml_toObject ( root, base ) {
@@ -626,8 +626,8 @@ _.error.log = [];
  * Coarse timing function. Will show time relative to previous call as well as last reset call.
  * Time is in unit of ms. This routine is not designed for fine-grain measurement that would justify using high performance timer.
  *
- * @param {string} msg Message to display.  If undefined then will reset accumulated time.
- * @returns {Array|undefined} Return [time from last call, accumulated time].
+ * @param {string=} msg Message to display.  If undefined then will reset accumulated time.
+ * @returns {(Array|undefined)} Return [time from last call, accumulated time].
  */
 _.time = function _time ( msg ) {
    var t = _.time;
@@ -742,8 +742,8 @@ _.halfwidth = function _halfwidth( src ) {
  * Create a subclass from a base class.
  * You still need to call super in constructor and methods, if necessary.
  *
- * @param {{Object|null)} base Base class. Result prototype will inherit base.prototype.
- * @param {{function|null)} constructor Constructor function.
+ * @param {(Object|null)} base Base class. Result prototype will inherit base.prototype.
+ * @param {(function(...*)|null)} constructor Constructor function.
  * @param {Object=} prototype Object from which to copy properties to result.prototype. Optional.
  * @returns {Function} Result subclass function object.
  */
@@ -858,8 +858,7 @@ _.domlist = function _domlist ( e ) {
  * @returns {Array} Array-ifed ary
  */
 _.set = function _set ( ary, obj, value ) {
-   if ( ! ary || ! obj ) return;
-   if ( typeof( ary ) === 'string' || ary[0] instanceof Element ) {
+   if ( typeof( ary ) === 'string' || ( ary && ary[0] instanceof Element ) ) {
       return _.attr( ary, obj, value );
    }
    var attr = obj;
@@ -886,7 +885,6 @@ _.set = function _set ( ary, obj, value ) {
  * @returns {Array} Array-ifed ary
  */
 _.attr = function _attr( ary, obj, value ) {
-   if ( ! ary || ! obj ) return;
    var attr = obj;
    if ( _.is.literal( obj ) ) {
       attr = {};
@@ -928,7 +926,7 @@ _.attr = function _attr( ary, obj, value ) {
 /**
  * Set a list of object's style's attribute/property to same value
  *
- * @param {(string|NodeList|Array)} ary Element selcetor, dom list, or Array of JS objects.
+ * @param {(string|Node|NodeList|Array)} ary Element selcetor, dom list, or Array of JS objects.
  * @param {(Object|string)} obj Style attribute or attribute object to set.
  * @param {*=} value Value to set.  If 'undefined' then will also delete the style attribute.
  * @returns {Array} Array-ifed ary
@@ -958,7 +956,7 @@ _.style = function _style ( ary, obj, value ) {
  * Show DOM elements by setting display to ''.
  * Equals to _.style( e, 'display', undefined )
  *
- * @param {(string|Node|NodeList)} e Selector or element(s).
+ * @param {(string|Node|NodeList|Array)} e Selector or element(s).
  * @returns {Array} Array-ifed e
  */
 _.show = function _show ( e ) { return _.style( e, 'display', undefined ); };
@@ -967,7 +965,7 @@ _.show = function _show ( e ) { return _.style( e, 'display', undefined ); };
  * Hide DOM elements by setting display to 'none'.
  * Equals to _.style( e, 'display', 'none' )
  *
- * @param {(string|Node|NodeList)} e Selector or element(s).
+ * @param {(string|Node|NodeList|Array)} e Selector or element(s).
  * @returns {Array} Array-ifed e
  */
 _.hide = function _show ( e ) { return _.style( e, 'display', 'none' ); };
@@ -1504,10 +1502,10 @@ _.l.detectLocale = function _l_detectLocale ( defaultLocale ) {
  * @returns {*} if set, return undefined.  If get, return the resource.
  */
 _.l.getset = function _l_getset ( path, set, locale ) {
-   var p = path.split( '.' );
+   var p = path.split( '.' ), l = _.l;
    var last = p.pop();
    p.unshift( locale );
-   var base = this.data;
+   var base = l.data;
    // Explore path
    for ( var i = 0, l = p.length ; i < l ; i++ ) {
       var node = p[i];
@@ -1518,7 +1516,7 @@ _.l.getset = function _l_getset ( path, set, locale ) {
    if ( set !== undefined ) {
       base[last] = set;
    } else {
-      if ( base[last] === undefined && locale !== this.fallbackLocale ) return this.getset( path, undefined, this.fallbackLocale );
+      if ( base[last] === undefined && locale !== l.fallbackLocale ) return l.getset( path, undefined, l.fallbackLocale );
       return base[last];
    }
 };
