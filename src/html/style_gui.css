@@ -64,6 +64,8 @@ figure { margin: 0; }
 /** Search term highlight */
 .highlight {
    background: yellow;
+   padding: 0 !important;
+   margin: 0 !important;
 }
 
 /********************** Utility classes **************************/
