@@ -89,15 +89,28 @@ _.col = function _col ( subject, column /* ... */) {
 /**
  * Returns a sorter function that sort an array of items by given fields.
  *
- * @param {string} field Field name to compare
+ * @param {string} field Field name to compare.
  * @param {boolean=} des true for a descending sorter. false for ascending sorter (default).
  * @returns {function(*,*)} Sorter function
  */
 _.sorter = function _sorter ( field, des ) {
-   if ( ! des ) {
-      return function _sorter_asc( a, b ) { return a[ field ] > b[ field ] ?  1 : ( a[ field ] < b[ field ] ? -1 : 0 ); };
+   var ab = ! des ? 1 : 0, ba = -ab;
+   return function _sorter( a, b ) { return a[ field ] > b[ field ] ? ab : ( a[ field ] < b[ field ] ? ba : 0 ); };
+};
+
+/**
+ * Returns a sorter function that sort an array of items by given fields.
+ *
+ * @param {String} field Field name to compare, leave undefined to compare the value itself.
+ * @param {boolean=} des true for a descending sorter. false for ascending sorter (default).
+ * @returns {function(*,*)} Sorter function
+ */
+_.sorter.number = function _sorter_number ( field, des ) {
+   var ab = ! des ? 1 : 0, ba = -ab;
+   if ( field === undefined ) {
+      return function _sorter_number_val( a, b ) { return +a > +b ? ab : ( +a < +b ? ba : 0 ); };
    } else {
-      return function _sorter_des( a, b ) { return a[ field ] > b[ field ] ? -1 : ( a[ field ] < b[ field ] ?  1 : 0 ); };
+      return function _sorter_number_field( a, b ) { return +a[ field ] > +b[ field ] ? ab : ( +a[ field ] < +b[ field ] ? ba : 0 ); };
    }
 };
 
@@ -116,6 +129,16 @@ _.sort = function _sort ( data, field, des ) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Function Helpers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * A function that literally do nothing.  This function can be shared by code that need such a dummy function.
+ */
+_.dummy = function _dummy () {};
+
+/**
+ * A function that returns whatever passed in.
+ */
+_.echo = function _echo ( v ) { return v; }
 
 /**
  * Call a function - if it is not undefined - in a try block and return its return value.
@@ -334,6 +357,26 @@ _.cor = function _cor ( option, onload ) {
 
 _.is = {
    /**
+    * Return true if input is 'true', 'on', 'yes', '1'.
+    * Return false if 'false', 'off', 'no', '0'.
+    * Return null otherwise.
+    *
+    * @param {(string|boolean|number)} val Value to check.
+    * @returns {(boolean|null)} True, false, or null.
+    */
+   yes : function _is_yes ( val ) {
+      var type = typeof( val );
+      if ( type === 'string' ) {
+         val = val.trim().toLowerCase();
+         if ( [ 'true', 'on', 'yes', '1' ].indexOf( val ) >= 0 ) return true;
+         else if ( [ 'false', 'off', 'no', '0' ].indexOf( val ) >= 0 ) return false;
+      } else {
+         if ( type === 'boolean' || type === 'number' ) return val ? true : false;
+      }
+      return null;
+   },
+
+   /**
     * Detect whether browser ie IE.
     * @returns {boolean} True if ActiveX is enabled, false otherwise.
     */
@@ -342,6 +385,7 @@ _.is = {
       _.is.ie = function _is_ie_result() { return result; };
       return result;
    },
+
    /**
     * Detect whether browser has Active X. Works with IE 11.
     * @returns {boolean} True if ActiveX is enabled, false otherwise.
@@ -378,6 +422,31 @@ _.xml = function _xml ( txt ) {
 
    }
    throw 'XML Parser not supported';
+};
+
+/**
+ * Convert XML Element to JS object.
+ * 
+ * @param {Element} root DOM Element to start the conversion
+ * @param {Object} base  Base object to copy to.  If undefined then will create a new object.
+ * @returns {Object} Converted JS object.
+ */
+_.xml.toObject = function _xml_toObject ( root, base ) {
+   if ( base === undefined ) base = {};
+   base.tagName = root.tagName;
+   _.ary( root.attributes ).forEach( function _xml_toObject_attr_each( attr ) { 
+      base[attr.name] = attr.value;
+   } );
+   _.ary( root.children ).forEach( function _xml_toObject_children_each( child ) {
+      var name = child.name, obj = _xml_toObject( child );
+      if ( base[name] === undefined ) {
+         base[name] = obj;
+      } else {
+         base[name] = _.ary( base[name] );
+         base[name].push( obj );
+      }
+   } );
+   return base;
 };
 
 /**
@@ -662,22 +731,24 @@ _.halfwidth = function _halfwidth( src ) {
  * Create a subclass from a base class.
  * You still need to call super in constructor and methods, if necessary.
  *
- * @param {Object} base Base class. Result prototype will inherit base.prototype.
- * @param {Function} constructor Constructor function.
+ * @param {{Object|null)} base Base class. Result prototype will inherit base.prototype.
+ * @param {{function|null)} constructor Constructor function.
  * @param {Object=} prototype Object from which to copy properties to result.prototype. Optional.
  * @returns {Function} Result subclass function object.
  */
 _.inherit = function _inherit ( base, constructor, prototype ) {
-   _.assert( base && constructor, _inherit.name + ': base and constructor must be provided' );
-   var proto = constructor.prototype = Object.create( base.prototype );
+   _.assert( base === null || typeof( base ) === 'object' || typeof( base ) === 'function', _inherit.name + ': base must be object' );
+   _.assert( constructor === null || typeof( constructor ) === 'function', _inherit.name + ': constructor must be function' );
+   if ( constructor === null ) constructor = _.dummy;
+   var proto = constructor.prototype = base ? Object.create( base.prototype ) : {};
    if ( prototype ) for ( var k in prototype ) proto[k] = prototype[k];
-   _.freeze( proto );
+   // _.freeze( proto ); Frozen properties are inherited. While they can be overridden with defineProperty, general assignment won't work.
    return constructor;
 };
 
 _.deepclone = function _clone( base ) {
-   return _.clone( base, deep );
-};
+   return _.clone( base, true );
+}
 
 /**
  * Clone a given object shallowly or deeply.
@@ -710,16 +781,18 @@ _.clone = function _clone( base, deep ) {
 };
 
 // Prevent changing properties
-_.freeze = function _freeze ( o ) { return Object.freeze ? Object.freeze(o) : o; };
+_.freeze = Object.freeze ? function _freeze ( o ) { return Object.freeze(o); } : _.echo;
 // Prevent adding new properties and removing old properties
-_.seal = function _seal ( o ) { return Object.seal ? Object.seal(o) : o; };
+_.seal = Object.seal ? function _seal ( o ) { return Object.seal(o); } : _.echo;
 // Prevent adding new properties
-_.noExt = function _noExt ( o ) { return Object.preventExtensions ? Object.preventExtensions(o) : o; };
-_.noDef = function _noDef ( e ) { if ( e && e.preventDefault ) e.preventDefault(); return false; };
+_.noExt = Object.preventExtensions ? function _noExt ( o ) { return Object.preventExtensions(o); } : _.echo;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DOM manipulation
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Call 'preventDefault' (if exist) and return false.
+_.noDef = function _noDef ( e ) { if ( e && e.preventDefault ) e.preventDefault(); return false; };
 
 /**
  * Create a DOM element and set its attributes / contents.
