@@ -79,7 +79,7 @@ od.config = {
          case 'Paragon': return 11;
          case 'Epic'   : return 21;
       }
-      return +a.replace( /\D+/g, '' );
+      return +data.replace( /\D+/g, '' );
    },
 
    "category_order" : [
