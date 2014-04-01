@@ -216,8 +216,8 @@ od.data.Category.prototype = {
       od.reader.read_data( this.name, id, ondone, onerror );
    },
 
-   "save" : function data_Cat_save_listing ( ondone, onerror ) {
-      // od.reader.jsonp_data_listing( 20120915, "Sample", [ "Id", "Name", "Category", "SourceBook" ], [
+   /** Save raw data, listing data, and index data for this category. */
+   "save" : function data_Cat_save ( ondone, onerror ) {
       var l = new _.Latch( 3, ondone ), countdown = l.count_down_function();
       onerror = _.callonce( onerror );
       od.writer.write_data_raw( this, countdown, onerror );

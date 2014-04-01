@@ -217,7 +217,7 @@ od.updater.RemoteCategory.prototype = {
 
    /**
     * Return localised title/
-    * @returns {_L8.data_Cat_unload}
+    * @returns {string}
     */
    "getTitle" : function data_Cat_getTitle() {
       return _.l( 'data.category.' + this.name, this.name );
@@ -507,6 +507,7 @@ od.updater.RemoteCategory.prototype = {
       if ( this.dirty.length ) { // Has dirty
          var remote = this;
          var local = od.data.get( remote.name );
+         /** Save listing and index first */
          local.save( function download_Cat_saved () {
             var latch = new _.Latch( remote.dirty.length+1 );
             remote.dirty.forEach( function download_Cat_save_data ( id ) {
@@ -515,6 +516,7 @@ od.updater.RemoteCategory.prototype = {
             });
             latch.ondone = function download_Cat_saved_data () {
                remote.dirty = [];
+               local.unload(); // Unload saved data to save memory.
                _.call( ondone, remote );
             };
             latch.count_down();
