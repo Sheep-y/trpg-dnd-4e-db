@@ -138,7 +138,7 @@ _.dummy = function _dummy () {};
 /**
  * A function that returns whatever passed in.
  */
-_.echo = function _echo ( v ) { return v; }
+_.echo = function _echo ( v ) { return v; };
 
 /**
  * Call a function - if it is not undefined - in a try block and return its return value.
@@ -759,7 +759,7 @@ _.inherit = function _inherit ( base, constructor, prototype ) {
 
 _.deepclone = function _clone( base ) {
    return _.clone( base, true );
-}
+};
 
 /**
  * Clone a given object shallowly or deeply.
@@ -1507,7 +1507,7 @@ _.l.getset = function _l_getset ( path, set, locale ) {
    p.unshift( locale );
    var base = l.data;
    // Explore path
-   for ( var i = 0, l = p.length ; i < l ; i++ ) {
+   for ( var i = 0, len = p.length ; i < len ; i++ ) {
       var node = p[i];
       if ( base[node] === undefined ) base[node] = {};
       base = base[node];
