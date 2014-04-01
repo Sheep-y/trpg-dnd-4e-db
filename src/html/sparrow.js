@@ -357,26 +357,6 @@ _.cor = function _cor ( option, onload ) {
 
 _.is = {
    /**
-    * Return true if input is 'true', 'on', 'yes', '1'.
-    * Return false if 'false', 'off', 'no', '0'.
-    * Return null otherwise.
-    *
-    * @param {(string|boolean|number)} val Value to check.
-    * @returns {(boolean|null)} True, false, or null.
-    */
-   yes : function _is_yes ( val ) {
-      var type = typeof( val );
-      if ( type === 'string' ) {
-         val = val.trim().toLowerCase();
-         if ( [ 'true', 'on', 'yes', '1' ].indexOf( val ) >= 0 ) return true;
-         else if ( [ 'false', 'off', 'no', '0' ].indexOf( val ) >= 0 ) return false;
-      } else {
-         if ( type === 'boolean' || type === 'number' ) return val ? true : false;
-      }
-      return null;
-   },
-
-   /**
     * Detect whether browser ie IE.
     * @returns {boolean} True if ActiveX is enabled, false otherwise.
     */
@@ -397,6 +377,37 @@ _.is = {
       } catch ( ignored ) {}
       _.is.activeX = function _is_activeX_result() { return result; };
       return result;
+   },
+
+   /*
+    * Retuan true if given value is a literal value (instead of an object)
+    * @param {*} val Value to check.
+    * @returns {(undefined|null|boolean)} True if value is boolean, number, or string. False if function, object, or other non-null types. Otherwise undefined or null.
+    */
+   literal : function _is_literal ( val ) {
+      if ( val === undefined || val === null ) return val;
+      var type = typeof( val );
+      return type === 'boolean' || type === 'number' || type === 'string';
+   },
+
+   /**
+    * Return true if input is 'true', 'on', 'yes', '1'.
+    * Return false if 'false', 'off', 'no', '0'.
+    * Return null otherwise.
+    *
+    * @param {(string|boolean|number)} val Value to check.
+    * @returns {(boolean|null)} True, false, or null.
+    */
+   yes : function _is_yes ( val ) {
+      var type = typeof( val );
+      if ( type === 'string' ) {
+         val = val.trim().toLowerCase();
+         if ( [ 'true', 'on', 'yes', '1' ].indexOf( val ) >= 0 ) return true;
+         else if ( [ 'false', 'off', 'no', '0' ].indexOf( val ) >= 0 ) return false;
+      } else {
+         if ( type === 'boolean' || type === 'number' ) return val ? true : false;
+      }
+      return null;
    }
 };
 
@@ -426,7 +437,7 @@ _.xml = function _xml ( txt ) {
 
 /**
  * Convert XML Element to JS object.
- * 
+ *
  * @param {Element} root DOM Element to start the conversion
  * @param {Object} base  Base object to copy to.  If undefined then will create a new object.
  * @returns {Object} Converted JS object.
@@ -434,7 +445,7 @@ _.xml = function _xml ( txt ) {
 _.xml.toObject = function _xml_toObject ( root, base ) {
    if ( base === undefined ) base = {};
    base.tagName = root.tagName;
-   _.ary( root.attributes ).forEach( function _xml_toObject_attr_each( attr ) { 
+   _.ary( root.attributes ).forEach( function _xml_toObject_attr_each( attr ) {
       base[attr.name] = attr.value;
    } );
    _.ary( root.children ).forEach( function _xml_toObject_children_each( child ) {
@@ -838,7 +849,8 @@ _.domlist = function _domlist ( e ) {
 };
 
 /**
- * Set a list of object's same attribute/property to same value
+ * Set a list of object's same attribute/property to given value
+ * If object is selector or dom element list, this function is same as _.attr( ary, obj, value ).
  *
  * @param {(string|Node|NodeList|Array|Object)} ary Element selcetor, dom list, or Array of JS objects.
  * @param {(Object|string)} obj Attribute or attribute object to set.
@@ -846,12 +858,15 @@ _.domlist = function _domlist ( e ) {
  * @returns {Array} Array-ifed ary
  */
 _.set = function _set ( ary, obj, value ) {
+   if ( ! ary || ! obj ) return;
+   if ( typeof( ary ) === 'string' || ary[0] instanceof Element ) {
+      return _.attr( ary, obj, value );
+   }
    var attr = obj;
-   if ( typeof( attr ) === 'string' ) {
+   if ( _.is.literal( obj ) ) {
       attr = {};
       attr[ obj ] = value;
    }
-   if ( typeof( ary ) === 'string' ) ary =_( ary );
    ary = _.ary( ary );
    ary.forEach( function _setEach ( e ) {
       for ( var name in attr )
@@ -861,16 +876,19 @@ _.set = function _set ( ary, obj, value ) {
 };
 
 /**
- * Set a list of object's DOM attribute/property to same value
+ * Set a list of object's DOM attribute to set to given value.
+ * Can also mass add event listener.
+ * Please use _.css to set specific inline styles.
  *
  * @param {(string|Node|NodeList|Array)} ary Element selcetor, dom list, or Array of JS objects.
  * @param {(Object|string)} obj DOM attribute or attribute object to set.  text = textContent, html = innerHTML, class = className, onXXX = XXX addEventListener.
- * @param {*=} value Value to set.  If 'undefined' then will also delete the style attribute.
+ * @param {*=} value Value to set.  If 'undefined' then will delete the attribute.
  * @returns {Array} Array-ifed ary
  */
 _.attr = function _attr( ary, obj, value ) {
+   if ( ! ary || ! obj ) return;
    var attr = obj;
-   if ( typeof( attr ) === 'string' ) {
+   if ( _.is.literal( obj ) ) {
       attr = {};
       attr[ obj ] = value;
    }
@@ -895,7 +913,11 @@ _.attr = function _attr( ary, obj, value ) {
                if ( name.substr( 0, 2 ) === 'on' ) {
                   e.addEventListener( name.substr( 2 ), attr[ name ] );
                } else {
-                  e.setAttribute( name, attr[ name ] );
+                  if ( attr[ name ] !== undefined ) {
+                     e.setAttribute( name, attr[ name ] );
+                  } else {
+                     e.removeAttribute( name );
+                  }
                }
          }
       }
