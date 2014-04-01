@@ -10,6 +10,7 @@
 od.search = {
    /** Search cache */
    cache : {
+      type : "", // name or full
       category : {}, // Result map by category
       count: {}, // Count for other category is not overritten until term changes.
       term : 'global search term' // By-field search happens after global.
@@ -20,28 +21,29 @@ od.search = {
     * @param {Object} options Options: {
     *    category : category object, empty for all categories.
     *    term : terms to search for.
-    *    search_body : if false, search listing only, otherwise search both listing and content.
+    *    type : if 'full', search both listing and content, otherwise search listing only.
     *    ondone : callback after search is finished with search result { columns, list }, which may be zero rows.
     * }
     */
    "search" : function search_search ( options ) {
       _.time();
-      var cache = od.search.cache, cat = options.category, term = options.term, cols;
-      if ( term !== cache.term ) {
+      var cache = od.search.cache, cat = options.category, cols;
+      var term = options.term, type = options.type;
+      if ( term !== cache.term || cache.type !== type ) {
          cache = od.search.cache = {
             category : {},
             count : {},
-            term : term
+            term : term,
+            type : type
          };
       }
       var pattern = options.term ? this.gen_search( options.term ) : null;
-      var search_body = options.search_body;
       if ( cat ) {
          // Search in a single category
          cat.load_listing( function search_search_cat () {
             cols = od.config.display_columns( cat.columns );
             if ( ! pattern ) return _.call( options.ondone, null, cols );
-            if ( search_body ) {
+            if ( type === 'full' ) {
                cat.load_index( do_search );
             } else {
                do_search();
@@ -52,7 +54,7 @@ od.search = {
          cols = ["ID","Name","Category","Type","Level","SourceBook"];
          if ( ! pattern ) return _.call( options.ondone, null, cols );
          od.data.load_all_listing( function search_search_all () {
-            if ( search_body ) {
+            if ( type === 'full' ) {
                od.data.load_all_index( do_search );
             } else {
                do_search();
@@ -99,7 +101,7 @@ od.search = {
          function search( lst ) {
             var regx = pattern.regexp;
             var result = lst.filter( function search_search_filter ( row ) {
-               if ( ! search_body ) {
+               if ( type !== 'full' ) {
                   // Name search. Just try to match name.
                   return regx.test( row.Name );
                } else {

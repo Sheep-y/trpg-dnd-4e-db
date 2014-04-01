@@ -278,7 +278,7 @@ od.action.list = {
             od.search.search( {
                'category': cat,
                'term': action.get_search_term(),
-               'search_body': search_type === 'full',
+               'type': search_type,
                'ondone'  : action.build_list
             } );
          }
