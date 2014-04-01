@@ -148,7 +148,7 @@ od.action.list = {
    'txt_search_down' : function act_list_txt_search_down ( evt ) {
       if ( evt.keyCode === 13 && ! evt.altKey && ! evt.ctrlKey && !evt.metaKey ) {
          // If nothing is selected, assume a full catalog search
-         if ( this.cat === undefined ) this.set_search_category( "" );
+         if ( this.get_search_category() === undefined ) this.set_search_category( "" );
          this.search();
       }
    },
@@ -195,7 +195,6 @@ od.action.list = {
       if ( ! e ) return;
 
       // Find category and id and trigger navigation
-      var list = od.action.list;
       var cat = od.action.list.category;
       if ( ! cat ) cat = od.data.get( e.getAttribute( 'data-category' ) );
       var id = od.config.id( e.getAttribute('data-id') );
@@ -287,6 +286,27 @@ od.action.list = {
       _( '#act_list_txt_search' )[0].focus();
    },
 
+   'update_counts' : function act_list_update_counts ( counts ) {
+      var total = 0, dom = od.action.list.category_dom;
+      // Update each category's count
+      od.data.get().forEach( function act_list_show_count_each ( cat ) {
+         var txt = cat.count;
+         if ( counts ) {
+            var c = counts[ cat.name ];
+            txt = _.l( 'action.list.lbl_count', '%1/%2', c === undefined ? '--' : ~~c, cat.count );
+         }
+         _.attr( _( dom[ cat.name ], 'var' ), 'text', txt );
+         total += cat.count;
+      } );
+      // Update total count
+      var txt = total;
+      if ( counts ) {
+         var c = counts[ '' ];
+         txt = _.l( 'action.list.lbl_count', '%1/%2', c === undefined ? '--' : ~~c, total );
+      }
+      _.attr( _( dom[ '' ], 'var' ), 'text', txt );
+   },
+
    /** Called after category is loaded to build category buttons */
    'build_category' : function act_list_build_category ( ondone ) {
       // Category order and colour is defined at od.config in config.js
@@ -316,12 +336,10 @@ od.action.list = {
          a.appendChild( _.create( 'var', count ) );
          div.appendChild( a );
          action.category_dom[ name ] = a;
-         return count;
       }
 
       od.data.load_catalog( function act_list_build_category_load () {
          var div = _( '#act_list_pnl_category' )[ 0 ];
-         var total = 0;
          div.innerHTML = '';
          // Sort and create each category
          var list = od.data.get(), colour = "";
@@ -338,7 +356,7 @@ od.action.list = {
                // Create normal category button
                var cat = od.data.get( name );
                if ( cat ) {
-                  total += create_category_button( div, cat, colour );
+                  create_category_button( div, cat, colour );
                   list.splice( list.indexOf( cat ), 1 );
                }
             }
@@ -346,10 +364,8 @@ od.action.list = {
          action.l10n();
          // Create unexpected category button
          for ( var i = 0, l = list.length ; i < l ; i++ ) {
-            total += create_category_button( div, list[i], colour );
+            create_category_button( div, list[i], colour );
          }
-         action.total_count = total;
-         _( action.category_dom[''], 'var' )[0].textContent = total;
          _.show( div );
          if ( ondone ) _.call( ondone );
       }, function act_list_build_category_error () {
@@ -364,6 +380,8 @@ od.action.list = {
       action.data = data;
       od.gui.set_highlight( highlight );
 
+      action.update_counts( counts );
+
       // Remove old table and create a new one.
       var table = _( '#act_list_pnl_list table' );
       if ( table.length ) {
@@ -372,24 +390,6 @@ od.action.list = {
       table = _.create( 'table', { 'role' : 'menubar', 'aria-label' : _.l( 'action.list.search_result', 'Result' ) } );
       var head = _.create( 'thead' );
       table.appendChild( head );
-
-      // Show result counts
-      if ( counts ) {
-         od.data.get().forEach( function act_list_show_count_each ( cat ) {
-            var txt, dom = action.category_dom[ cat.name ];
-            if ( counts ) {
-               var c = counts[ cat.name ];
-               txt = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, cat.count );
-            } else {
-               txt = cat.count;
-            }
-            _( dom, 'var' )[ 0 ].textContent = txt;
-         } );
-         var c = counts[ '' ], dom = action.category_dom[ '' ];
-         _( dom, 'var' )[ 0 ].textContent = _.l( 'action.list.lbl_count', null, c === undefined ? '--' : ~~c, action.total_count );
-      } else {
-         // _( dom, 'var' )[ 0 ].textContent = action_list.total_count;
-      }
 
       // Headers
       for ( var i = 1 ; i < cl ; i++ ) {
@@ -411,15 +411,6 @@ od.action.list = {
       }
       // Action column
       var th = _.create( 'th' );
-      /*
-      th.appendChild( _.create( 'input', { 'type': 'checkbox', 'title': _.l( 'action.list.chk_all', 'Check/Uncheck all' ), onchange: function () {
-         this.indeterminate = false;
-         var checked = this.checked;
-         _.set( '.list_sel', 'checked', checked );
-      } } ) );
-      th.appendChild( _.create( 'br' ) );
-      */
-      //th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_filter', 'Filter' ), 'onclick': action_list.search } ) );
       th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_clear_filter', '×' ), 'onclick': function () {
          _.attr( '.txt_filter', 'value', '' );
          action.search();
