@@ -174,42 +174,44 @@ od.action.update = {
    },
 
    'create_button' : function act_download_create_button( command, remote ) {
-      var refreshRemote = od.action.update.refresh_func( remote ), onclick, txt = 'action.update.btn_' + command;
+      var refreshRemote = od.action.update.refresh_func( remote, false );
+      var onclick, txt = 'action.update.btn_' + command;
       switch ( command ) {
-          case 'reindex' :
-             onclick = function act_download_btn_reindex() {
-                remote.reindex( refreshRemote, refreshRemote );
-             };
-             break;
-          case 'delete' :
-             onclick = function act_download_btn_refresh() {
-                od.updater.remove( remote );
-                od.action.update.refresh(); // Category can be deleted from remote, need full refresh to delete row
-             };
-             break;
-          case 'relist':
-          case 'list' :
-             onclick = function act_download_btn_list() {
-                remote.get_listing( refreshRemote, refreshRemote );
-                refreshRemote();
-             };
-             break;
-          case 'update_all':
-             onclick = function act_download_btn_update_all() {
-                remote.update_all( refreshRemote, refreshRemote );
-             };
-             break;
-          case 'update':
-             onclick = function act_download_btn_update() {
-                remote.update_changed( refreshRemote, refreshRemote );
-             };
-             break;
+         case 'reindex' :
+            var refreshLocal  = od.action.update.refresh_func( remote, true );
+            onclick = function act_download_btn_reindex() {
+               remote.reindex( refreshLocal, refreshLocal );
+            };
+            break;
+         case 'delete' :
+            onclick = function act_download_btn_refresh() {
+               od.updater.remove( remote );
+               od.action.update.refresh(); // Category can be deleted from remote, need full refresh to delete row
+            };
+            break;
+         case 'relist':
+         case 'list' :
+            onclick = function act_download_btn_list() {
+               remote.get_listing( refreshRemote, refreshRemote );
+               refreshRemote();
+            };
+            break;
+         case 'update_all':
+            onclick = function act_download_btn_update_all() {
+               remote.update_all( refreshRemote, refreshRemote );
+            };
+            break;
+         case 'update':
+            onclick = function act_download_btn_update() {
+               remote.update_changed( refreshRemote, refreshRemote );
+            };
+            break;
       }
       return _.create( 'button', { 'text': _.l( txt ), 'data-i18n': txt, 'onclick': onclick } );
    },
 
-   'refresh_func' : function act_download_refresh_func ( remote_cat ) {
-      return _.callfunc( od.action.update.refresh, od.action.update, remote_cat );
+   'refresh_func' : function act_download_refresh_func ( remote_cat, update_local ) {
+      return _.callfunc( od.action.update.refresh, od.action.update, remote_cat, update_local );
     },
 
    'refresh' : function act_download_refresh ( remote_cat, update_local ) {

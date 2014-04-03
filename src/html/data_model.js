@@ -155,7 +155,6 @@ od.data.Category = function Category ( name ) {
 };
 od.data.Category.prototype = {
    "name": "",
-   "title": "",
    "count": 0,
 
    /** Raw data used to compose list property */

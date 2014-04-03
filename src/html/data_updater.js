@@ -200,7 +200,6 @@ od.updater.RemoteCategory = function RemoteCategory ( name ) {
 };
 od.updater.RemoteCategory.prototype = {
    "name": "",
-   "title": "",
    "state" : "local", // "local" -> "unlisted" OR "absent" -> "listing" <-> "listed" <-> "downloading"
    "progress" : "", // Text status progress
 
@@ -438,6 +437,7 @@ od.updater.RemoteCategory.prototype = {
       remote.state = 'downloading';
 
       function download_Cat_reindex_batch ( i ) {
+         // TODO: Rewrite to for loop
          var l = i - 25;
          while ( i >= 0 && i > l ) {
             setImmediate( download_Cat_reindex_func( i, idList[ i ] ) );
@@ -452,9 +452,9 @@ od.updater.RemoteCategory.prototype = {
       function download_Cat_reindex_func ( i, id ) {
          var sid = od.config.id( id );
          return function download_Cat_reindex_task () {
-            local.load_data( id, function download_Cat_reindex_loaded() {
+            local.load_data( sid, function download_Cat_reindex_loaded() {
                // Re-run local.update for reindex purpose
-               local.update( id, local.raw[ i ], local.data[ id ], i );
+               local.update( id, local.raw[ i ], local.data[ sid ], i );
                if ( remote.dirty.indexOf( id ) < 0 ) delete local.data[ sid ]; // Unload to save memory if not dirty data
                ++count;
                latch.count_down();
