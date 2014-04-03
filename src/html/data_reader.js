@@ -27,7 +27,7 @@ od.reader = {
       var path = od.config.url.catalog();
       this._read(
         path,
-        // Detecting data length is insufficient to know whether catalog is really loaded.
+        // Detecting data length may be insufficient to know whether catalog is really loaded, e.g. loaded single data.
         function(){ return od.reader.read_catalog.read && od.data.list().length > 0; },
         onload,
         onerror ? onerror : 'Cannot read data catalog from ' + path );
@@ -72,8 +72,14 @@ od.reader = {
    },
 
    jsonp_data_listing: function reader_jsonp_data_listing( version, category, columns, data ) {
+      var cat = od.data.get( category );
+      if ( ! cat || data.length !== cat.count ) {
+         category.count = data.length;
+         _.error( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'listing' ) );
+      }
+
       if ( version < 20130616 )
-         // Milestone 1 data, file name changed, not worth trouble to support.
+         // Milestone 1 data, file name changed, not worth supporting.
          // Can manually rename _listing.js to _raw.js and run reindex.
          return _.error( _.l( 'error.need_reget' ) );
       if ( version < 20130703 ) {
@@ -82,13 +88,12 @@ od.reader = {
             item[ 0 ] = od.config.id( item[ 0 ] );
          } );
       }
-      var cat = od.data.get( category );
       cat.ext_columns = columns;
       cat.extended = data;
    },
 
    jsonp_data_extended: function reader_jsonp_data_extended( version, category, columns, data ) {
-      return _.error( _.l( 'error.need_reget' ) ); // Milestone 1 data (ver 20130330), not worth trouble to support. See above.
+      return _.error( _.l( 'error.need_reget' ) ); // Milestone 1 data (ver 20130330), not worth supporting. See above.
    },
 
    /////////////////////////////////////////////////////////
@@ -105,6 +110,12 @@ od.reader = {
    },
 
    jsonp_data_index: function reader_jsonp_data_index( version, category, data ) {
+      var cat = od.data.get(category);
+      if ( ! cat || Object.keys( data ).length !== cat.count ) {
+         category.count = data.length;
+         _.error( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'index' ) );
+      }
+
       if ( version < 20130703 ) {
          // 20130616 format use url as id instead of simplified id
          for ( var id in data ) {
@@ -112,7 +123,6 @@ od.reader = {
             delete data[ id ];
          }
       }
-      var cat = od.data.get(category);
       cat.index = data;
    },
 
