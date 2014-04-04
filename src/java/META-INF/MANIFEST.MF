@@ -1,2 +1,7 @@
 Manifest-Version: 1.0
 Trusted-Library: true
+Application-Name: Internet and file access
+Permissions: all-permissions
+Codebase: *
+Caller-Allowable-Codebase: *
+Application-Library-Allowable-Codebase: *

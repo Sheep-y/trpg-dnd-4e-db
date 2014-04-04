@@ -82,7 +82,7 @@
 
    <!-- Compile and sign cor ajax and local file writing applet. -->
    <target name='javac' description="Compile Java applet in java/">
-      <javac srcdir="java/" destdir="java/" source="1.7" includeantruntime="false" encoding="UTF-8">
+      <javac srcdir="java/" destdir="java/" debug="off" source="1.7" includeantruntime="false" encoding="UTF-8">
          <compilerarg value="-Xlint"/>
       </javac>
       <zip basedir="java/" includes="*.class,META-INF/MANIFEST.MF" destfile="Sign.jar" level="9" />
