@@ -80,7 +80,7 @@
       <replaceregexp match="\n}" replace="}" flags="g" file="${deliverable}" encoding="UTF-8" />
    </target>
 
-   <!-- Compile and sign Cor and file writing applet. -->
+   <!-- Compile and sign cor ajax and local file writing applet. -->
    <target name='javac' description="Compile Java applet in java/">
       <javac srcdir="java/" destdir="java/" source="1.7" includeantruntime="false" encoding="UTF-8">
          <compilerarg value="-Xlint"/>
@@ -105,7 +105,7 @@
    </target>
 
    <!-- Old make. Simple but there is no main skeleton file, harder to maintain.
-target name="make2" description="Compile browsable html">
+   <target name="make2" description="Compile browsable html">
       <concat destfile="${deliverable}">
          <fileset file="${srcdir}html_doctype.html" />
          <fileset file="${srcdir}style.css" />
@@ -127,5 +127,6 @@ target name="make2" description="Compile browsable html">
          <fileset file="${srcdir}action_about.html" />
          <fileset file="${srcdir}html_footer.html" />
       </concat>
-   </target-->
+   </target>
+   -->
 </project>
