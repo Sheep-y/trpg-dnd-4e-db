@@ -235,7 +235,7 @@ _.ajax = function _ajax ( option, onload ) {
    var finished = false;
    xhr.onreadystatechange = function _ajax_onreadystatechange () {
       if ( xhr.readyState === 4 ) {
-         _.debug( '[AJAX] Complete, status ' + xhr.status + ': ' + url );
+         _.info( '[AJAX] Complete, status ' + xhr.status + ': ' + url );
          // 0 is a possible response code for local file access under IE 9 ActiveX
          if ( [0,200,302].indexOf( xhr.status ) >= 0 && xhr.responseText ) {
             setImmediate( function _ajax_onload_call () {
@@ -271,11 +271,13 @@ _.ajax = function _ajax ( option, onload ) {
  *
  * Options:
  *   url - Url to send get request, or an option object.
- *   charset - Charset to use
+ *   charset - Charset to use.
+ *   type    - script type.
  *   validate - Callback; if it returns true, script will not be loaded,
  *                        otherwise if still non-true after load then call onerror.
  *   onload  - Callback (url, option) when the request succeed.
  *   onerror - Callback (url, option) when the request failed.
+ *   harmony - If true, will set harmony script type for Firefox. (Overrides type in this case)
  *
  * @param {(string|Object)} option Url to send get request, or an option object.
  * @param {function(string,Object)=} onload Overrides option.onload
@@ -289,9 +291,13 @@ _.js = function _js ( option, onload ) {
    if ( option.validate && option.validate.call( null, url, option ) ) return _js_done( option.onload );
 
    var url = option.url;
-   var e = document.createElement( 'script' );
-   e.src = url;
-   if ( option.charset ) e.charset = option.charset;
+   if ( option.harmony && _.is.firefox() ) option.type = "application/javascript;version=1.8";
+
+   var attr = { 'src' : url };
+   if ( option.charset ) attr.charset = option.charset;
+   if ( option.type ) attr.type = option.type;
+
+   var e = _.create( 'script', attr );
    _.info( "[JS] Load script: " + url );
 
    var done = false;
@@ -316,7 +322,11 @@ _.js = function _js ( option, onload ) {
       _js_done( option.onerror, "[JS] Script error or not found: " + url );
    } );
 
-   document.body.appendChild( e );
+   if ( document.body ) {
+      document.body.appendChild( e );
+   } else {
+      document.head.appendChild( e );
+   }
    return e;
 };
 
@@ -358,11 +368,21 @@ _.cor = function _cor ( option, onload ) {
 _.is = {
    /**
     * Detect whether browser ie IE.
-    * @returns {boolean} True if ActiveX is enabled, false otherwise.
+    * @returns {boolean} True if browser is Internet Explorer, false otherwise.
     */
    ie : function _is_ie () {
       var result = /\bMSIE \d|\bTrident\/\d\b./.test( navigator.userAgent );
       _.is.ie = function _is_ie_result() { return result; };
+      return result;
+   },
+
+   /**
+    * Detect whether browser ie Firefox.
+    * @returns {boolean} True if browser is Firefox, false otherwise.
+    */
+   firefox : function _is_firefox () {
+      var result = /\bGecko\/\d{8}/.test( navigator.userAgent );
+      _.is.firefox = function _is_firefox_result() { return result; };
       return result;
    },
 
@@ -570,19 +590,11 @@ _.log = function _log ( type, msg ) {
       msg = type;
       type = 'log';
    }
-   if ( window.console ) {
-      if ( console[type] === undefined ) type = 'log';
-      var t = new Date();
+   if ( console ) {
+      if ( ! console[type] ) type = 'log';
       console[type]( msg );
    }
 };
-
-/**
- * Safe console.debug message.
- *
- * @param {*} msg Message objects to pass to console.
- */
-_.debug = function _debug ( msg ) { _.log( 'debug', msg ); };
 
 /**
  * Safe console.info message.
@@ -604,7 +616,7 @@ _.warn = function _warn ( msg ) { _.log( 'warn', msg ); };
  *
  * @param {*} msg Message objects to pass to console.
  */
-_.error = function _info ( msg ) {
+_.error = function _error ( msg ) {
    if ( ! _.error.timeout ) {
       // Delay a small period so that errors popup together instead of one by one
       _.error.timeout = setTimeout( function _error_timeout(){
@@ -742,18 +754,21 @@ _.halfwidth = function _halfwidth( src ) {
  * Create a subclass from a base class.
  * You still need to call super in constructor and methods, if necessary.
  *
- * @param {(Object|null)} base Base class. Result prototype will inherit base.prototype.
- * @param {(function(...*)|null)} constructor Constructor function.
+ * @param {(Object|null)} base Base constructor. Result prototype will inherit base.prototype.
+ * @param {(function(...*)|null)} constructor New object's constructor function. Optional.
  * @param {Object=} prototype Object from which to copy properties to result.prototype. Optional.
  * @returns {Function} Result subclass function object.
  */
 _.inherit = function _inherit ( base, constructor, prototype ) {
-   _.assert( base === null || typeof( base ) === 'object' || typeof( base ) === 'function', _inherit.name + ': base must be object' );
+   _.assert( base === null || base.prototype, _inherit.name + ': base must be inheritable' );
    _.assert( constructor === null || typeof( constructor ) === 'function', _inherit.name + ': constructor must be function' );
-   if ( constructor === null ) constructor = _.dummy;
+   if ( constructor === null ) {
+      if ( base ) constructor = function _inherit_constructor (){ base.apply( this, arguments ); };
+      else constructor = function (){}; // Must always create new function, do not share
+   }
    var proto = constructor.prototype = base ? Object.create( base.prototype ) : {};
    if ( prototype ) for ( var k in prototype ) proto[k] = prototype[k];
-   // _.freeze( proto ); Frozen properties are inherited. While they can be overridden with defineProperty, general assignment won't work.
+   // _.freeze( proto ); Frozen properties are inherited, preventing general assignment (can work around with defineProperty).
    return constructor;
 };
 
@@ -1590,5 +1605,5 @@ _.test = function _test ( condition, name ) {
    }
 };
 
-_.debug('Sparrow loaded.');
+_.info('Sparrow loaded.');
 _.time();
