@@ -4,6 +4,9 @@
   -->
 <section id='action_update'>
    <style scoped>
+      #act_download_tbl_list {
+         width: 100%;
+      }
       #act_download_tbl_list td:nth-child(4):hover, #act_download_tbl_list td:nth-child(5):hover {
          cursor: help; /* Indicate that more info is available */
          text-decoration: underline;
@@ -27,7 +30,7 @@
          <button class='i18n' id='act_download_btn_save' onclick='od.action.update.save()'> action.update.btn_save </button>
       </p>
    </div>
-   <table id='act_download_tbl_list' class="fullw">
+   <table id='act_download_tbl_list'>
       <thead>
          <tr>
             <th class='i18n'> </th>

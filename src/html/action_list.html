@@ -7,6 +7,9 @@
       #act_list_pnl_term {
          margin-bottom: 5px;
       }
+      #act_list_txt_search {
+         width: 100%;
+      }
       /* Search buttons */
       #act_list_tbl_search {
          width: 100%;
@@ -90,7 +93,7 @@
    </style>
 
    <div id="act_list_pnl_term" role="search">
-      <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" class='fullw' accesskey='s' autocomplete />
+      <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" accesskey='s' autocomplete />
    </div>
    <table id="act_list_tbl_search" summary=""><tr><td
       ><button id='act_list_btn_search_name' class="button pressable i18n" onclick="od.action.list.search('name');" accesskey='n'> action.list.btn_search_name </button
@@ -103,6 +106,7 @@
       <div id='act_list_lbl_filter'></div>
       <div id='act_list_pnl_list'></div>
    </div>
+
 
    <header role="navigation">
       <button class='i18n' id='act_list_btn_update' onclick='od.gui.go("update")'> action.update.link_text </button>

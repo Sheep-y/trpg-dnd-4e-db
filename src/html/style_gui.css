@@ -70,7 +70,6 @@ figure { margin: 0; }
 
 /********************** Utility classes **************************/
 
-.fullw { width: 100%; }
 .right { float: right; }
 .left { float: left; }
 .hide { display: none; }
