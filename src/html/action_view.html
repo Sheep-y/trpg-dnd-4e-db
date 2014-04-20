@@ -80,7 +80,7 @@ od.action.view = {
          var cat = od.data.create( id[ 1 ] );
          id = id[ 2 ];
          if ( ! cat || ! id ) return;
-         _.debug( "Display " + cat.name + "." + id );
+         _.info( "Display " + cat.name + "." + id );
          // Create div
          var div = _.create( 'div' );
          _( '#act_view_pnl_content')[0].appendChild( div );

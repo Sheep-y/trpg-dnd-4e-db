@@ -582,7 +582,7 @@ _.assert = function _assert( check, msg ) {
 /**
  * Console log function.
  *
- * @param {string} type Optional. Type of console function to run, e.g. 'debug' or 'warn'. If not found then fallback to 'log'.
+ * @param {string} type Optional. Type of console function to run, e.g. 'info' or 'warn'. If not found then fallback to 'log'.
  * @param {*=}  msg  Message objects to pass to console function.
  */
 _.log = function _log ( type, msg ) {
@@ -651,7 +651,7 @@ _.time = function _time ( msg ) {
    }
    var fromBase = now - t.base;
    var fromLast = t.last ? ( 'ms,+' + (now - t.last) ) : '';
-   _.debug( msg + ' (+' + fromBase + fromLast + 'ms)' );
+   _.info( msg + ' (+' + fromBase + fromLast + 'ms)' );
    t.last = now;
    return [now - t.last, fromBase];
 };
@@ -1147,14 +1147,14 @@ _.Executor.prototype = {
    },
    "addTo": function _executor_addTo ( index, runnable, param /*...*/ ) {
       if ( ! runnable.name ) runnable.name = runnable.toString().match(/^function\s+([^\s(]+)/)[1];
-      _.debug('Queue task ' + runnable.name );
+      _.info('Queue task ' + runnable.name );
       var arg = [ runnable ].concat( _.ary( arguments, 2 ) );
       this.waiting.splice( index, 0, arg );
       return this.notice();
    },
    "finish" : function _executor_finish ( id ) {
       var r = this.running[id];
-      _.debug('Finish task #' + id + ' ' + r[0].name );
+      _.info('Finish task #' + id + ' ' + r[0].name );
       this.running[id] = null;
       return this.notice();
    },
@@ -1179,7 +1179,7 @@ _.Executor.prototype = {
       }
 
       function _executor_run ( ii, r ){
-         _.debug('Start task #' + ii + ' ' + r[0].name );
+         _.info('Start task #' + ii + ' ' + r[0].name );
          try {
             if ( r[0].apply( null, [ ii ].concat( r.slice(1) ) ) !== false ) exe.finish( ii );
          } catch ( e ) {
@@ -1194,7 +1194,7 @@ _.Executor.prototype = {
          if ( ! this.running[i] ) {
             var r = exe.waiting.splice( 0, 1 )[0];
             exe.running[i] = r;
-            //_.debug('Schedule task #' + i + ' ' + r[0].name );
+            //_.info('Schedule task #' + i + ' ' + r[0].name );
             exe._lastRun = new Date().getTime();
             setImmediate( _.callfunc( _executor_run, null, i, r ) );
             if ( exe.interval > 0 ) return _executor_schedule_notice ( exe.interval );

@@ -119,7 +119,7 @@ od.updater = {
       remote.progress = _.l( 'action.update.lbl_progress', null, 0, total );
       _.call( onstep );
       function download_schedule_download_run() {
-         _.debug( 'Schedule '+ list.length );
+         _.info( 'Schedule '+ list.length );
          var latch = new _.Latch( list.length, function download_schedule_download_done () {
             _.call( ondone, remote );
          });
@@ -171,7 +171,7 @@ od.updater = {
                            exec.resume();
                         }
                         var index = _.col( remote.raw, 0 ).indexOf( id );
-                        local.update( id, remote.raw[index], data );
+                        local.update( id, remote.raw[index], data  );
                         if ( remote.dirty.indexOf( id ) < 0 ) remote.dirty.push( id );
                         remote.progress = _.l( 'action.update.lbl_progress', null, ++step, total );
                         exec.finish( threadid );
@@ -365,11 +365,11 @@ od.updater.RemoteCategory.prototype = {
                      var online  = JSON.stringify( row );
                      var offline = JSON.stringify( local.raw[ pos ] );
                      if ( online !== offline ) {
-                        //_.debug( "Mismatch " + id + ": " + online + ' vs. ' + offline );
+                        //_.info( "Mismatch " + id + ": " + online + ' vs. ' + offline );
                         changed.push( id );
                      }
                   } else {
-                     //_.debug( "New " + id + ": " +  JSON.stringify( row ) );
+                     //_.info( "New " + id + ": " +  JSON.stringify( row ) );
                      added.push( id );
                   }
                }
