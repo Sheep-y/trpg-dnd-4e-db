@@ -92,6 +92,7 @@ _.l.set( 'action.list', {
    'a_all' : "全類別",
    'lbl_count' : '%1／%2',
 
+   'lbl_filter' : '從 %2 項結果中過濾出 %1 項',
    'lbl_no_result' : "無結果"
 });
 

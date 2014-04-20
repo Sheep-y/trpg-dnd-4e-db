@@ -47,6 +47,10 @@
          font-weight: normal;
       }
       /* Result list */
+      #act_list_lbl_filter {
+         clear: left;
+         padding-top: 10px;
+      }
       #action_list input.txt_filter {
          color: red;
          font-weight: bold;
@@ -95,7 +99,9 @@
 
    <div id='act_list_pnl_category' role="tablist"></div>
 
-   <div id='act_list_pnl_list'>
+   <div>
+      <div id='act_list_lbl_filter'></div>
+      <div id='act_list_pnl_list'></div>
    </div>
 
    <header role="navigation">
@@ -427,6 +433,8 @@ od.action.list = {
 
    /** Filter given data and returns a copy. */
    'filter_data' : function act_list_filter_data ( col, data ) {
+      var orig_len = data.length;
+      _.attr( '#act_list_lbl_filter', 'text', '' );
       _.ary( _( '.txt_filter' ) ).forEach( function act_list_filter_data_col( e, i ) {
          if ( e.value ) {
             var num = e.value.match( /^(\d+[kmg]?)\s*-\s*(\d+[kmg]?)|([<>]=?)\s*(\d+[kmg]?)?|(\d+[kmg]?)([+-]?)$/i );
@@ -497,6 +505,9 @@ od.action.list = {
             }
          }
       } );
+      if ( orig_len != data.length ) {
+         _.attr( '#act_list_lbl_filter', 'text', _.l( 'action.list.lbl_filter', '%1/%2',  data.length, orig_len ) );
+      }
       return data;
    },
 
