@@ -55,8 +55,8 @@ _.l.set( 'action.list', {
    'link_text' : "Browse",
    'result_summary' : "Result",
 
-   'txt_search_name_placeholder' : "Type name to search (optional) and select category.",
-   'txt_search_full_placeholder' : "Search keywords. e.g. ranger OR martial bonus -\"feat bonus\" ",
+   'txt_search_name_placeholder' : "Type name and then select category.",
+   'txt_search_full_placeholder' : "Type search keywords. e.g. ranger OR martial bonus -\"feat bonus\" and then select category.",
    'btn_search_name' : "<u>N</u>ame Search",
    'btn_search_body' : "<u>F</u>ull Search",
    'a_all' : "All Category",

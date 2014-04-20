@@ -85,8 +85,8 @@ _.l.set( 'action.list', {
    'link_text' : "瀏覽",
    'result_summary' : "結果",
 
-   'txt_search_name_placeholder' : "輸入要搜尋的名字（可選），然後選擇分類。",
-   'txt_search_full_placeholder' : "搜尋關鍵詞。例： ranger OR martial bonus -\"feat bonus\" ",
+   'txt_search_name_placeholder' : "輸入名字，然後選擇分類。",
+   'txt_search_full_placeholder' : "輸入搜尋關鍵詞。例： ranger OR martial bonus -\"feat bonus\"，然後選擇分類。",
    'btn_search_name' : "名字搜索",
    'btn_search_body' : "全文搜索",
    'a_all' : "全類別",
