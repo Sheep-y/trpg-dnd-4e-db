@@ -137,14 +137,26 @@ od.updater = {
                      if ( data.toLowerCase().indexOf( "subscrib" ) >= 0 && data.toLowerCase().indexOf( "password" ) >= 0 ) {
                         if ( updater.login_check_id < 0 || updater.login_check_id === threadid ) {
                            // If need to login, and if we are first, show login dialog in model mode
-                           exec.pause();
+                           exec.thread = 1; // Stop new thread from running
                            updater.login_check_id = threadid;
+                           /*
+                           exec.pause();
                            if ( confirm( _.l( 'action.update.msg_login' ) ) ) {
                               showModalDialog( od.config.source.data( remote.name, item ) );
                               download_schedule_download_task( threadid );
                            } else {
+                           */     {
+                              alert( _.l( 'action.update.msg_login', 'Plese login to compenditum first.' ) );
                               exec.clear();
                               exec.finish( threadid );
+                              updater.get().forEach( function download_Cat_update_all_done ()  {
+                                 remote.state = "listed";
+                                 remote.find_changed( ondone );
+                              } );
+                              // Reset check thread after other threads are cleared
+                              setTimeout( function(){
+                                 updater.login_check_id = -1;
+                              }, 500 );
                            }
                         } else {
                            //--down.login_check_count;
@@ -159,7 +171,7 @@ od.updater = {
                            exec.resume();
                         }
                         var index = _.col( remote.raw, 0 ).indexOf( id );
-                        local.update( id, remote.raw[index], data  );
+                        local.update( id, remote.raw[index], data );
                         if ( remote.dirty.indexOf( id ) < 0 ) remote.dirty.push( id );
                         remote.progress = _.l( 'action.update.lbl_progress', null, ++step, total );
                         exec.finish( threadid );
