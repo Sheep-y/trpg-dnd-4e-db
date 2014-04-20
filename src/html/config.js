@@ -9,6 +9,7 @@ od.config = {
    "simulated_data_url" : 'offline_simulation_files',
    "data_read_path" : '4e_database_files',
    "data_write_path" : location.href.replace( /file:\/\/\/|[^\\\/]+\.html?(\?.*)?$/g, '' ) + '4e_database_files',
+   "data_write_compress" : true, // Whether to compress listing and index, the two biggest files.
    "retry" : 3, // Number of retry of download.
    "retry_interval" : 30 * 1000, // (ms) Interval between retry.
    "down_interval" : 0, // (ms) Interval between download, but unlikely to work......
