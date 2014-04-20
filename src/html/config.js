@@ -75,10 +75,10 @@ od.config = {
    },
    "level_to_int" : function config_level_to_int ( data ) {
       if ( ! data ) return 0;
-      switch ( data ) {
-         case 'Heroic' : return 1;
-         case 'Paragon': return 11;
-         case 'Epic'   : return 21;
+      switch ( data.toLowerCase() ) {
+         case 'heroic' : return 1;
+         case 'paragon': return 11;
+         case 'epic'   : return 21;
       }
       return +data.replace( /\D+/g, '' );
    },
