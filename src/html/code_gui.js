@@ -66,13 +66,20 @@ od.gui = {
       if ( ! action ) {
          var firstword = _.ary( act_id.match( /^\w+/ ) )[ 0 ]; // Parse first word in url
          for ( id in od.action ) {
-            action = od.action[ id ];
+            var act = od.action[ id ];
             // Either firstword is an exact match on id, or match action's url pattern
-            if ( firstword === id || ( action.url && action.url.test( act_id ) ) ) break;
+            if ( firstword === id || ( act.url && act.url.test( act_id ) ) ) {
+               action = act;
+               break;
+            }
          }
       }
       // Set id if absent. Then update url and swap page.
-      if ( ! action ) return gui.go( 'list' );
+      if ( ! action ) {
+         if ( act_id !== 'list' ) return gui.go( 'list' );
+         gui.act_id = 'list'; // Prevent triggering window_interval_url_monitor
+         return;
+      }
       if ( action.id === undefined ) action.id = id;
       gui.pushState( act_id );
       gui.switch_action( action );
@@ -105,7 +112,7 @@ od.gui = {
     *
     * @param {Object} action Action to switch to.
     */
-   "switch_action" : function gui_switch_action( action ) {
+   "switch_action" : function gui_switch_action ( action ) {
       var gui = od.gui;
       var currentAction = gui.action;
       if ( !action || action === currentAction ) {
