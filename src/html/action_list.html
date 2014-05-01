@@ -587,7 +587,7 @@ od.action.list = {
             row.setAttribute( 'aria-label', line.Name );
             //row.setAttribute( 'tabindex', 0 );
             row.setAttribute( 'data-id', id );
-            if ( action.category === null ) row.setAttribute( 'data-category', cat_name );
+            if ( ! action.category ) row.setAttribute( 'data-category', cat_name );
             /* Building row by string is not supported by IE http://www.ericvasilik.com/2006/07/code-karma.html */// TODO: Reconsider and retest speed!
             for ( var j = 1 ; j < cl ; j++ ) { // Note: VERY intensive loop - a hundred thousand if user click 'all'.
                var td = doc.createElement('td');
