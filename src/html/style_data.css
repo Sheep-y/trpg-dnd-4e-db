@@ -26,6 +26,14 @@
    font-size: 130%;
 }
 
+#detail ul {
+   margin: 0 15px;
+}
+
+#detail li {
+   padding-left: 0px;
+}
+
 #detail .flavor, #detail .miflavor {
    background-color: #CCC;
 }
