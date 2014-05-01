@@ -16,33 +16,38 @@
    margin: 0 auto;
 }
 
-#detail * {
-   padding: 5px 10px;
-   margin: 0 -10px;
-}
+   #detail * {
+      padding: 5px 10px;
+      margin: 0 -10px;
+   }
 
-#detail h1 {
-   position: relative;
-   font-size: 130%;
-}
+      #detail h1 {
+         position: relative;
+         font-size: 130%;
+      }
 
-#detail ul {
-   margin: 0 15px;
-}
+      #detail ul {
+         margin: 0 15px;
+      }
 
-#detail li {
-   padding-left: 0px;
-}
+      #detail li {
+         padding-left: 0px;
+      }
 
-#detail .flavor, #detail .miflavor {
-   background-color: #CCC;
-}
+      /* First classed element will need border radius to match surrounding border. */
+      #detail > *:first-child[class] { 
+         border-radius: 7px 7px 0 0;
+      }
 
-#detail .publishedIn {
-   font-size: smaller;
-   color: #888;
-   text-align: right;
-}
+      #detail .flavor, #detail .miflavor {
+         background-color: #CCC;
+      }
+
+      #detail .publishedIn {
+         font-size: smaller;
+         color: #888;
+         text-align: right;
+      }
 
 /********************* Common *************************/
 
@@ -53,21 +58,7 @@
    text-align: right;
 }
 
-#detail br + p:empty {
-   /*
-   border-bottom-left-radius: 10px;
-   border-bottom-right-radius: 10px;
-   border-top: 2px solid #666;
-   */
-}
-
 #detail h2 {
-   /*
-   , p:empty + h1
-   border-top-left-radius: 10px;
-   border-top-right-radius: 10px;
-   border-top: 2px solid #666;
-   */
    margin-top: 10px;
    font-size: 100%;
 }
@@ -121,7 +112,7 @@
    font-size: 110%;
 }
 
-/********************** Specifics **************************/
+/********************** Other specifics **************************/
 
 #detail .ritualstats {
    float: left;
