@@ -125,7 +125,7 @@
 <script type='text/javascript'>'use strict';(function action_list_init(){
 od.action.list = {
    'url' : /^list\b/,
-   'url_current' : 'list',
+   'last_url' : '?list',
 
    'initialize' : function act_list_init () {
       // Set initial search state (e.g. button pressed status)
@@ -141,6 +141,10 @@ od.action.list = {
    },
 
    'setup': function act_list_setup () {
+      var action = od.action.list;
+      if ( action.last_url !== location.search ) {
+         history.replaceState( null, null, action.last_url );
+      }
       if ( _( '#act_list_pnl_category button' ).length <= 0 )
          this.build_category( od.action.list.parse_action_id );
       else
@@ -247,24 +251,28 @@ od.action.list = {
          if ( ! action.sort_asc )
             id += "&reverse=1";
       }
-      action.url_current = id;
+      action.last_url = '?' + id;
       od.gui.pushState( id );
    },
 
    'parse_action_id' : function act_list_parse_action_id () {
-      // TODO: Add error handling when parsed info is incorrect
-      var id = od.gui.act_id, action_list = od.action.list;
-      var parts = id.match( /^list(?:\.(name|full)?\.([^.=]+)?)?(=[^&]+)?(?:&sort=([^&]+)(&reverse=1)?)?(.*)$/ );
-      if ( parts ) {
-         if ( parts[2] ) {
-            action_list.set_search_category( parts[2] === 'All' ? "" : od.data.get( parts[2] ) );
-         } else {
-            action_list.set_search_category( undefined );
+      try {
+         var id = od.gui.act_id, action = od.action.list;
+         if ( action.last_url === location.search ) return;
+         var parts = id.match( /^list(?:\.(name|full)?\.([^.=]+)?)?(=[^&]+)?(?:&sort=([^&]+)(&reverse=1)?)?(.*)$/ );
+         if ( parts ) {
+            if ( parts[2] ) {
+               action.set_search_category( parts[2] === 'All' ? "" : od.data.get( parts[2] ) );
+            } else {
+               action.set_search_category( undefined );
+            }
+            _( '#act_list_txt_search' )[0].value = parts[3] ? decodeURIComponent( parts[3].substr(1) ) : "";
+            action.sort_field = parts[4] ? parts[4] : undefined;
+            action.sort_asc = !!parts[5];
+            action.search( parts[1] );
          }
-         _( '#act_list_txt_search' )[0].value = parts[3] ? decodeURIComponent( parts[3].substr(1) ) : "";
-         action_list.sort_field = parts[4] ? parts[4] : undefined;
-         action_list.sort_asc = !!parts[5];
-         action_list.search( parts[1] );
+      } catch ( ex ) {
+         od.gui.go( 'list' );
       }
    },
 
@@ -306,12 +314,12 @@ od.action.list = {
       // Update each category's count
       od.data.get().forEach( function act_list_show_count_each ( cat ) {
          var txt = cat.count;
+         total += txt;
          if ( counts ) {
             var c = counts[ cat.name ];
             txt = _.l( 'action.list.lbl_count', '%1/%2', c === undefined ? '--' : ~~c, cat.count );
          }
          _.attr( _( dom[ cat.name ], 'var' ), 'text', txt );
-         total += cat.count;
       } );
       // Update total count
       var txt = total;
@@ -381,6 +389,7 @@ od.action.list = {
          for ( var i = 0, l = list.length ; i < l ; i++ ) {
             create_category_button( div, list[i], colour );
          }
+         action.update_counts();
          _.show( div );
          if ( ondone ) _.call( ondone );
       }, function act_list_build_category_error () {

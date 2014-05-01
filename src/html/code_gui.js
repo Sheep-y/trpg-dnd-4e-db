@@ -22,9 +22,11 @@ od.gui = {
       od.gui.l10n();
       od.gui.go();
       // Perform navigation on pop state
-      window.addEventListener( 'popstate', function window_popstate () {
-         od.gui.go();
-      }, false);
+      _.attr( window, {
+         'onpopstate' : function window_popstate () {
+            od.gui.go();
+         }
+      } );
 
       // Show / Hide 'top' buttons when scrolled
       function window_scroll () {
@@ -60,27 +62,30 @@ od.gui = {
    "go" : function gui_go ( act_id ) {
       var gui = od.gui;
       if ( act_id === undefined ) act_id = gui.get_act_id();
-      var action = od.action[act_id], id = act_id;
-      _.time( "[Action] Navigate to " + act_id );
+      var action = od.action[act_id];
+      _.info( "[Action] Navigate to " + act_id );
       // If not a simple page like about/download etc., try to find the action to handle this url
       if ( ! action ) {
          var firstword = _.ary( act_id.match( /^\w+/ ) )[ 0 ]; // Parse first word in url
-         for ( id in od.action ) {
-            var act = od.action[ id ];
+         for ( var aid in od.action ) {
+            var act = od.action[ aid ];
             // Either firstword is an exact match on id, or match action's url pattern
-            if ( firstword === id || ( act.url && act.url.test( act_id ) ) ) {
+            if ( firstword === aid || ( act.url && act.url.test( act_id ) ) ) {
                action = act;
+               if ( ! action.id ) action.id = aid;
                break;
             }
          }
+      } else {
+         if ( ! action.id ) action.id = act_id;
       }
-      // Set id if absent. Then update url and swap page.
+      // Fallback to 'list' if failed.
       if ( ! action ) {
          if ( act_id !== 'list' ) return gui.go( 'list' );
          gui.act_id = 'list'; // Prevent triggering window_interval_url_monitor
          return;
       }
-      if ( action.id === undefined ) action.id = id;
+      // Update url and swap page.
       gui.pushState( act_id );
       gui.switch_action( action );
    },
@@ -115,7 +120,9 @@ od.gui = {
    "switch_action" : function gui_switch_action ( action ) {
       var gui = od.gui;
       var currentAction = gui.action;
-      if ( !action || action === currentAction ) {
+      if ( ! action ) return _.warn( '[Action] Null or undefined action.' );
+      if ( action === currentAction ) {
+         _.info( "[Action] Already at " + action.id );
          _.call( action.setup, action, gui.act_id );
          return;
       }
