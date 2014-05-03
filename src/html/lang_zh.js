@@ -105,8 +105,8 @@ _.l.set( 'action.update', {
    'link_text' : "更新",
 
    'paragraph' : [
-      "此網頁讓您得以下載和儲存<a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>數據庫</a的條目，然後不論在線離線皆可以用強力的類谷哥語法去搜尋和列出它們。",
-      "<b>需要有效的 <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI 賬戶</a>才能下載或更新任何數據。</b>"
+      "此網頁讓您得以下載和儲存<a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>數據庫</a>的條目，然後不論在線離線皆可以用強力的類谷哥語法去搜尋和列出它們。",
+      "<b>需要有效的 <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI 賬戶</a></b>方能<b>下載或更新</b>任何數據。"
    ],
    'btn_get_catalog' : "刷新列表",
    'btn_all_list' : "全部檢查",
@@ -140,9 +140,9 @@ _.l.set( 'action.update', {
    'err_nonie':
       "<b class='red'>限使用 <a href='http://ie.microsoft.com/'>Internet Explorer (9+)</a> 才可以進行下載或更新。</b>",
    'err_activex':
-      "<b class='red'>限使用非 Metro IE 及需啟用 ActiveX 才可以進行下載或更新。</b>",
+   "<b class='red'>限使用<a href='http://www.askasu.idv.tw/index.php/2012/06/09/2129/'>桌面版 Metro IE</a> (假如使用 Windows 8) 及需<a href='http://windows.microsoft.com/zh-tw/windows/help/genuine/ie-activex'>啟用 ActiveX</a> 才可以進行下載或更新。</b>",
 
-   'msg_login'  : "一個登入頁即將彈出。請*登入並關閉*登入窗口以繼續下載。"
+   'msg_login'  : "請先登入官方數據庫然後重試。"
 });
 
 _.l.set( 'action.about', {

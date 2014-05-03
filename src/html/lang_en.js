@@ -76,7 +76,7 @@ _.l.set( 'action.update', {
 
    'paragraph' : [
       "This web page allows you to download and save <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>compendium entries</a>, then search and list them online or offline using advanced Google-like syntax.",
-      "<b>Requires an active <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI subscription</a> to download or update any data.</b>"
+      "<b>Requires active <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI subscription</a></b> to <b>download or update</b> any data."
    ],
    'btn_get_catalog' : "Refresh catalog",
    'btn_all_list' : "Check all",
@@ -110,9 +110,9 @@ _.l.set( 'action.update', {
    'err_nonie':
       "<b class='red'>Download/update is only available in <a href='http://ie.microsoft.com/'>Internet Explorer (9+)</a>.</b>",
    'err_activex':
-      "<b class='red'>Please use desktop version IE and enable ActiveX to do download/update.</b>",
+      "<b class='red'>Please use <a href='http://blogs.msdn.com/b/ie/archive/2012/03/26/launch-options-for-internet-explorer-10-on-windows-8.aspx'>desktop version IE</a> (if Windows 8) and <a href='http://windows.microsoft.com/en-gb/windows/help/genuine/ie-activex'>enable ActiveX</a> to do download/update.</b>",
 
-   'msg_login'  : "A login window will pop up.  Please *Login and Close* the login window to resume download."
+   'msg_login'  : "Please login to offical DDI (compendium) and try again."
 });
 
 _.l.set( 'action.about', {
