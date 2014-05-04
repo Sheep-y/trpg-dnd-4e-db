@@ -94,6 +94,7 @@ od.updater = {
 
    "executor" : new _.Executor( 1, od.config.down_interval ),
    "login_check_id": -1,
+   "latches" : [], // List of waiting latches
 
    /**
     * Schedule download of a list of items in same category.
@@ -121,8 +122,11 @@ od.updater = {
       function download_schedule_download_run() {
          _.info( 'Schedule '+ list.length );
          var latch = new _.Latch( list.length, function download_schedule_download_done () {
+            var pos = updater.latches.indexOf( latch );
+            if ( pos >= 0 ) updater.latches.splice( pos, 1 );
             _.call( ondone, remote );
          });
+         updater.latches.push( latch );
          list.forEach( function download_schedule_download_each( item ) {
             //var retry = 0;
             function download_schedule_download_task( threadid ) {
@@ -146,20 +150,18 @@ od.updater = {
                               download_schedule_download_task( threadid );
                            } else {
                            */     {
-                              alert( _.l( 'action.update.msg_login', 'Plese login to compenditum first.' ) );
+                              alert( _.l( 'action.update.msg_login', 'Plese login to official compenditum first.' ) );
                               exec.clear();
                               exec.finish( threadid );
-                              updater.get().forEach( function download_Cat_update_all_done ()  {
-                                 remote.state = "listed";
-                                 remote.find_changed( ondone );
+                              updater.latches.forEach( function download_schedule_download_abort_notice_latch ( e ) {
+                                 e.count_down( e.count );
                               } );
-                              // Reset check thread after other threads are cleared
+                              // Reset check thread after other threads are cleared (they may be in the middle of request)
                               setTimeout( function(){
                                  updater.login_check_id = -1;
                               }, 500 );
                            }
                         } else {
-                           //--down.login_check_count;
                            exec.asap( download_schedule_download_task );
                            exec.finish( threadid );
                         }
@@ -179,18 +181,11 @@ od.updater = {
                         latch.count_down();
                      }
                   },
-                  function download_schedule_download_onerror ( cat, id, err ){
-                     /** Get data already include retry.
-                     if ( ++retry <= od.config.retry ) {
-                        setTimeout( function(){
-                           exec.asap( download_schedule_download_run );
-                        }, od.config.retry_interval  );
-
-                     } else { */
-                        var i = _.col( cat.raw ).indexOf( id );
-                        i = i ? ' (' + cat.raw[i][1] + ')' : '';
-                        _.error( _.l( 'error.updating_data', null, id + i , cat.name, err ) );
-                     //}
+                  function download_schedule_download_onerror ( cat, id, err ) {
+                     // Handle as error only if not cancelled
+                     var i = _.col( cat.raw ).indexOf( id );
+                     i = i ? ' (' + cat.raw[i][1] + ')' : '';
+                     _.error( _.l( 'error.updating_data', null, id + i , cat.name, err ) );
                      exec.finish( threadid );
                      _.call( onstep, remote, id );
                   }
@@ -412,7 +407,7 @@ od.updater.RemoteCategory.prototype = {
     * @param {type} retry   Number of retry before throwing error.
     * @returns {undefined}
     */
-   "get_data": function download_Cat_get_data ( id, onload, onerror, retry ) {
+   "get_data" : function download_Cat_get_data ( id, onload, onerror, retry ) {
       var address = od.config.source.data( this.name, id );
       var remote = this;
       if ( retry === undefined ) retry = od.config.retry;
