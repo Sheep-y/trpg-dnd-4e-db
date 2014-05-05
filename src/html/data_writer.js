@@ -97,10 +97,10 @@ od.writer = {
    write_data_listing : function writer_write_data_listing ( category, ondone, onerror ) {
       var str = JSON.stringify( category.extended );
       if ( od.config.data_write_compress ) {
-         str = 'JSON.parse(LZString.decompress("' + LZString.compress( str ) + '"))';
+         str = 'JSON.parse(LZString.decompressFromBase64("' + LZString.compressToBase64( str ) + '"))';
       }
       this._write( od.config.file.listing( category.name ),
-         'od.reader.jsonp_data_listing(20140414,"' + _.escJs( category.name ) + '",'
+         'od.reader.jsonp_data_listing(20140506,"' + _.escJs( category.name ) + '",'
          + JSON.stringify( category.ext_columns ) + ','
          + str + ')', ondone, onerror );
    },
@@ -108,10 +108,10 @@ od.writer = {
    write_data_index : function writer_write_data_index ( category, ondone, onerror ) {
       var str = JSON.stringify( category.index );
       if ( od.config.data_write_compress ) {
-         str = 'JSON.parse(LZString.decompress("' + LZString.compress( str ) + '"))';
+         str = 'JSON.parse(LZString.decompressFromBase64("' + LZString.compressToBase64( str ) + '"))';
       }
       this._write( od.config.file.index( category.name ),
-       'od.reader.jsonp_data_index(20140414,"' + _.escJs( category.name ) + '",' + str + ')', ondone );
+       'od.reader.jsonp_data_index(20140506,"' + _.escJs( category.name ) + '",' + str + ')', ondone );
    },
 
    write_data : function writer_write_data ( category, id, data, ondone, onerror ) {

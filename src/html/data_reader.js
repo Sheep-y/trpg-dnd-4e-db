@@ -73,7 +73,8 @@ od.reader = {
 
    jsonp_data_listing: function reader_jsonp_data_listing( version, category, columns, data ) {
       var cat = od.data.get( category );
-      if ( ! cat || data.length !== cat.count ) {
+      if ( ! cat || data.length !== cat.count || version === 20140414 ) {
+         // Version 20140414 was saving compressed binary as unicode, corrupting them.
          category.count = data.length;
          _.error( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'listing' ) );
       }
@@ -111,7 +112,8 @@ od.reader = {
 
    jsonp_data_index: function reader_jsonp_data_index( version, category, data ) {
       var cat = od.data.get(category);
-      if ( ! cat || Object.keys( data ).length !== cat.count ) {
+      if ( ! cat || Object.keys( data ).length !== cat.count || version === 20140414 ) {
+         // Version 20140414 was saving compressed binary as unicode, corrupting them.
          category.count = data.length;
          _.error( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'index' ) );
       }
