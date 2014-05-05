@@ -760,15 +760,19 @@ _.halfwidth = function _halfwidth( src ) {
  * @returns {Function} Result subclass function object.
  */
 _.inherit = function _inherit ( base, constructor, prototype ) {
-   _.assert( base === null || base.prototype, _inherit.name + ': base must be inheritable' );
+   _.assert( ! base || base.prototype, _inherit.name + ': base must be inheritable' );
    _.assert( constructor === null || typeof( constructor ) === 'function', _inherit.name + ': constructor must be function' );
    if ( constructor === null ) {
       if ( base ) constructor = function _inherit_constructor (){ base.apply( this, arguments ); };
       else constructor = function (){}; // Must always create new function, do not share
    }
-   var proto = constructor.prototype = base ? Object.create( base.prototype ) : {};
-   if ( prototype ) for ( var k in prototype ) proto[k] = prototype[k];
-   // _.freeze( proto ); Frozen properties are inherited, preventing general assignment (can work around with defineProperty).
+   if ( base ) {
+      var proto = constructor.prototype = Object.create( base.prototype );
+      if ( prototype ) for ( var k in prototype ) proto[k] = prototype[k];
+   } else {
+      constructor.prototype = prototype;
+   }
+   // _.freeze( proto ); Frozen properties are inherited, preventing normal property assignment
    return constructor;
 };
 
@@ -1300,9 +1304,11 @@ _.Index.prototype = {
          if ( index === undefined ) throw "[Sparrow] Index.get(): Criteria not indexed: " + i;
          // Convert integer range to bounded list
          if ( criterion instanceof Object && ( criterion['>='] || criterion['<='] ) ) {
-            var range = [];
-            for ( var k = ~~criterion['>='], sl = ~~criterion['<='] ; k <= sl ; k++ )
-               range.push( ""+k );
+            var range = [], lo = ~~criterion['>='], hi = ~~criterion['<='];
+            if ( lo <= hi ) {
+               for ( var k = lo ; k <= hi ; k++ )
+                  range.push( ""+k );
+            }
             criterion = range;
          }
          if ( criterion instanceof Array ) {
