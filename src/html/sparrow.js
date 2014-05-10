@@ -219,6 +219,7 @@ if ( window.setImmediate === undefined ) {
  *   onerror - Callback (xhr, text status) when the request failed.
  *   ondone  - Callback (xhr) after success or failure.
  *   xhr     - XMLHttpRequest object to use. If none is provided the default will be used.
+ *   cor     - if true and if using IE, will use ActiveX instead of native ajax. Default true if current page is on file://
  *
  * @param {(string|Object)} option Url to send get request, or an option object.
  * @param {function(string,XMLHttpRequest)=} onload Callback (responseText, xhr) when the request succeed.
@@ -227,9 +228,13 @@ if ( window.setImmediate === undefined ) {
 _.ajax = function _ajax ( option, onload ) {
    if ( typeof( option ) === 'string' ) option = { url: option };
    if ( onload !== undefined ) option.onload = onload;
+   if ( option.cor === undefined ) option.cor = location.protocol === 'file:';
 
    var url = option.url, xhr = option.xhr;
-   if ( xhr === undefined ) xhr = new XMLHttpRequest();
+   if ( xhr === undefined ) {
+      if ( option.cor && _.is.ie() ) xhr = new ActiveXObject( "Microsoft.XMLHttp" );
+      if ( ! xhr ) xhr = new XMLHttpRequest();
+   }
    _.info( "[AJAX] Ajax: "+url);
    xhr.open( 'GET', url );
    var finished = false;
@@ -304,7 +309,7 @@ _.js = function _js ( option, onload ) {
    function _js_done ( callback, log ) {
       if ( done ) return;
       done = true;
-      if ( log ) _.log( log );
+      if ( log ) _.info( log );
       _.call( callback, e, url, option );
       if ( e && e.parentNode === document.body ) document.body.removeChild(e);
    }
@@ -328,41 +333,6 @@ _.js = function _js ( option, onload ) {
       document.head.appendChild( e );
    }
    return e;
-};
-
-/**
- * Cross Origin Request function. Currently only works for IE.
- *
- * Options:
- *   url - Url to send get request, or an option object.
- *   onload  - Callback (responseText, xhr) when the request succeed.
- *   onerror - Callback (xhr, text status) when the request failed.
- *   ondone  - Callback (xhr) after success or failure.
- *
- * @param {(string|Object)} option Url to send get request, or an option object.
- * @param {function(string,XMLHttpRequest)=} onload Callback (responseText, xhr) when the request succeed.
- * @returns {Object} xhr object
- */
-_.cor = function _cor ( option, onload ) {
-   // Normalise option object.
-   if ( typeof( option ) === 'string' )
-      option = { url: option };
-   // Check what we can use to do the cor.
-   if ( _.is.activeX() ) {
-      // XMLHttp can cross origin.
-      option.xhr = new ActiveXObject("Microsoft.XMLHttp");
-      return _.ajax( option, onload );
-   } else {
-      _.info( "[COR] Cross orig req: "+url );
-      return alert('Please override Cross Origin Request control (TODO: Explain better)');
-      // enablePrivilege is disabled since Firefox 15
-      //try {
-      //   netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
-      //} catch ( e ) {
-      //   alert(e);
-      //}
-      //return _.ajax( url, onsuccess, onfail, ondone, new ActiveXObject("Microsoft.XMLHttp") );
-   }
 };
 
 _.is = {
@@ -1218,136 +1188,6 @@ _.Executor.prototype = {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other helper objects
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Keep an index on specified object fields (field value can be undefined)
- * and enable simple seeking of objects that fulfill one or more criterias.
- *
- * Indexed fields are not expected to change frequently; the object need to be
- * removed before the change and re-added after the change.
- *
- * Indexed object's field values can be array, and each values will be indexed.
- *
- * @constructor
- * @param {Array} indices Array of name of fields to index.
- * @returns {_.Index} Index object
- */
-_.Index = function _Index ( indices ) {
-   if ( indices === undefined || ! ( indices instanceof Array ) || indices.length <= 0 )
-      throw "[Sparrow] Index(): Invalid parameter, must be array of fields to index.";
-   this.all = [];
-   this.map = {};
-   for ( var i = 0, l = indices.length ; i < l ; i++ ) {
-      this.map[ indices[i] ] = {};
-   }
-};
-_.Index.prototype = {
-   "all" : [],
-   "map" : {},
-   /**
-    * Add an object and update index.
-    *
-    * @param {Object} obj Object to add
-    */
-   "add" : function _Index_add ( obj ) {
-      var map = this.map;
-      for ( var i in map ) {
-         var index = map[i], keys = _.toAry( obj[i] );
-         keys.forEach( function _Index_add_each( key ) {
-            key = "" + key;
-            var list = index[key];
-            if ( list === undefined ) index[key] = list = [];
-            list.push( obj );
-         } );
-      }
-      this.all.push( obj );
-   },
-   /**
-    * Remove an object and update index.
-    *
-    * @param {Object} obj Object to remove
-    */
-   "remove" : function _Index_remove ( obj ) {
-      var map = this.map, pos = this.all.indexOf( obj );
-      if ( pos < 0 ) return;
-      this.all.splice( pos, 1 );
-      for ( var i in map ) {
-         var index = map[i], keys = _.toAry( obj[i] );
-         keys.forEach( function _Index_remove_each( key ) {
-            key = ""+key;
-            var list = index[key];
-            if ( list.length === 1 ) {
-               delete index[key];
-            } else {
-               list.splice( list.indexOf( obj ), 1 );
-            }
-         } );
-      }
-   },
-   /**
-    * Search the index to get a list of objects.
-    *
-    * Each search criterion is normally a string, returned objects will be an exact match in that field.
-    * Alternatively, search criterion can be an array of string, for objects that exactly match any of them.
-    * A criterion can also be a bounded integer range e.g. { '>=': 1, '<=': 9 } (missing = 0).
-    *
-    * For more advanced processing, please manually pre-process on index to get the correct filter.
-    *
-    * @param {Object} criteria An object with each criterion as a field. If unprovided, return a list of all indiced object.
-    * @returns {Array} List of objects that meet all the criteria.
-    */
-   "get" : function _Index_get ( criteria ) {
-      if ( criteria === undefined ) return this.all.concat();
-      var map = this.map, results = [];
-      for ( var i in criteria ) { // Build candidate list for each criterion
-         var index = map[i], criterion = criteria[i];
-         if ( index === undefined ) throw "[Sparrow] Index.get(): Criteria not indexed: " + i;
-         // Convert integer range to bounded list
-         if ( criterion instanceof Object && ( criterion['>='] || criterion['<='] ) ) {
-            var range = [], lo = ~~criterion['>='], hi = ~~criterion['<='];
-            if ( lo <= hi ) {
-               for ( var k = lo ; k <= hi ; k++ )
-                  range.push( ""+k );
-            }
-            criterion = range;
-         }
-         if ( criterion instanceof Array ) {
-            // Multiple target values; regard as 'OR'
-            var buffer = [], terms = [];
-            for ( var j = 0, cl = criterion.length ; j < cl ; j++ ) {
-               var val = "" + criterion[j], list = index[val];
-               if ( list === undefined || terms.indexOf( val ) >= 0 ) continue;
-               buffer = buffer.concat( list ); // Each list should contains unique objects!
-               terms.push( val );
-            }
-            if ( buffer.length <= 0 ) return [];
-            results.push( buffer );
-         } else {
-            // Single target value.
-            var val = "" + criterion, list = index[val];
-            if ( list === undefined ) return [];
-            results.push( list );
-         }
-      }
-      // No result, e.g. criteria is empty. Return empty.
-      if ( results.length <= 0 ) return [];
-      // Single criterion, return single list.
-      if ( results.length === 1 ) return results[0];
-      // We have multiple criteria list, find intersection. Start with shortest list.
-      results.sort( function(a,b){ return a.length - b.length; } );
-      var result = results[0].concat();
-      for ( var i = result.length-1 ; i >= 0 ; i-- ) { // For each candidate
-         var obj = result[i];
-         for ( var j = 1, rl = results.length ; j < rl ; j++ ) { // Check whether it is in each other list
-            if ( results[j].indexOf( obj ) < 0 ) {
-               result.splice( i, 1 );
-               break;
-            }
-         }
-      }
-      return result;
-   }
-};
 
 /**
  * A event manager with either fixed event list or flexible list.
