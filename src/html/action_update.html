@@ -213,8 +213,16 @@ od.action.update = {
       return _.create( 'button', { 'text': _.l( txt ), 'data-i18n': txt, 'onclick': onclick } );
    },
 
+   'remote_time' : {},
    'refresh_func' : function act_download_refresh_func ( remote_cat, update_local ) {
-      return _.callfunc( od.action.update.refresh, od.action.update, remote_cat, update_local );
+      return function act_download_refresh_func_callback () {
+         var action = od.action.update, title = remote_cat && update_local ? remote_cat.title : '';
+         if ( action.remote_time[ title ] ) return;
+         action.remote_time[ title ] = setTimeout( function act_download_refresh_func_timeout () {
+            action.refresh( remote_cat, update_local );
+            delete action.remote_time[ title ];
+         }, 100 );
+      };
     },
 
    'refresh' : function act_download_refresh ( remote_cat, update_local ) {
