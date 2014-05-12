@@ -922,6 +922,13 @@ _.attr = function _attr( ary, obj, value ) {
                e.className = attr[ name ];
                break;
 
+            case 'style' :
+               if ( typeof( attr[ name ] ) === 'object' ) {
+                  _.style( e, attr[ name ] );
+                  break;
+               }
+               // Else fall through as set/remove style attribute
+
             default:
                if ( name.substr( 0, 2 ) === 'on' ) {
                   e.addEventListener( name.substr( 2 ), attr[ name ] );
