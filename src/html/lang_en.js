@@ -44,7 +44,7 @@ _.l.set( 'error', {
 });
 
 _.l.set( 'gui', {
-   'title'   : '4e Database - ',
+   'title'   : '4e Database',
    'top'   : 'Top',
    'loading' : 'Loading...',
    'loading1': 'Loading %1',

@@ -74,7 +74,7 @@ _.l.set( 'error', {
 });
 
 _.l.set( 'gui', {
-   'title'   : '四版資料庫 - ',
+   'title'   : '四版資料庫',
    'top'     : '頂部',
    'loading' : '載入中...',
    'loading1': '載入 %1 中',

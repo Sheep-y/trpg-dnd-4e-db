@@ -157,8 +157,9 @@ od.gui = {
    },
 
    update_title : function gui_update_title () {
-      _('title')[0].textContent = _.l( 'gui.title', 'Offline 4e database - ' )
-                                + _( "#action_" + od.gui.action.id + ' h1' )[0].textContent;
+      var str = _.l( 'gui.title', 'Offline 4e database' );
+      if ( od.gui.action ) str += ' - ' + _( "#action_" + od.gui.action.id + ' h1' )[0].textContent;
+      _('title')[0].textContent = str;
    },
 
    /**
