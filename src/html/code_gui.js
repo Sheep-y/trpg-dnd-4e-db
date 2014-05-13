@@ -183,7 +183,7 @@ od.gui = {
    "highlight" : function gui_highlight( html ) {
       var hl = od.gui.hl;
       if ( ! hl ) return html; // Nothing to highlight (e.g. all exclude search)
-      return html.replace( od.gui.hlp, '<span class="highlight">$1</span>' );
+      return html.replace( od.gui.hlp, '<span class="highlight">$1</span>' ).replace( /<\/span>(\s+)<span class="highlight">/g, '$1' );
    },
 
    /**
