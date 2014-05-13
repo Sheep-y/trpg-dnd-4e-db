@@ -451,24 +451,16 @@ _.xml.toObject = function _xml_toObject ( root, base ) {
 };
 
 /**
- * parse xml and return an xml document.
- * Will try DOMParser then MSXML 6.0.
+ * Parse html and return an html dom element.
  *
  * @param {string} txt HTML text to parse.
- * @returns {Node} A node containing parsed html.
+ * @returns {Node} A div element that contains parsed html as dom child.
  */
 _.html = function _html ( txt ) {
-   var e = _.html.node;
-   if ( !e ) {
-      e = _.html.node = document.createElement('div');
-      e.style.display = 'none';
-      document.body.appendChild(e);
-   }
+   var e = _.html.node = document.createElement( 'div' );
    e.innerHTML = txt;
    return e;
 };
-_.html.node = null;
-
 
 /**
  * Apply an xsl to xml and return the result of transform
@@ -1409,19 +1401,37 @@ _.l.set = function _l_set ( path, data ) {
 _.l.localise = function _l_localise ( root ) {
    if ( root === undefined ) root = document.documentElement;
    root.setAttribute( 'lang', _.l.currentLocale );
-   var _l = _.l;
-   var el = root.getElementsByClassName( "i18n" );
-   for ( var i = 0, l = el.length ; i < l ; i++ ) {
-      var e = el[i];
-      var isInput = e.tagName === 'INPUT';
+   _.ary( _( ".i18n" ) ).forEach( function _l_localise_each ( e ) {
       var key = e.getAttribute( "data-i18n" );
       if ( ! key ) {
-          key = ( isInput ? e.value : e.textContent ).trim();
-          e.setAttribute( "data-i18n", key );
+         switch ( e.tagName ) {
+            case 'INPUT':
+               key = e.value;
+               break;
+            case 'MENUITEM':
+               key = e.getAttribute( 'label' );
+               break;
+            default:
+               key = e.textContent;
+         }
+         if ( ! key ) {
+            return _.warn( 'i18 class without l10n key: ' + e.tagName.toLowerCase() + (e.id ? '#' + e.id : '' ) + ' / ' + e.textContext );
+         }
+         key = key.trim();
+         e.setAttribute( "data-i18n", key );
       }
-      var val = _l( key, key.split('.').pop() );
-      e[ isInput ? 'value' : 'innerHTML' ] = val;
-   }
+      var val = _.l( key, key.split('.').pop() );
+      switch ( e.tagName ) {
+         case 'INPUT':
+            e.value = val;
+            break;
+         case 'MENUITEM':
+            e.setAttribute( 'label', val );
+            break;
+         default:
+            e.innerHTML = val;
+      }
+   });
 };
 
 _.l.event = new _.EventManager( _.l, ['set','locale'] );
