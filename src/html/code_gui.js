@@ -191,12 +191,15 @@ od.gui = {
       return html;
    },
 
+   /**
+    * Enable / disable keywords highlight.
+    */
    'toggle_highlight' : function gui_toggle_highlight ( ) {
       var gui = od.gui;
       gui.hl_enabled = ! gui.hl_enabled;
       _.ary( _( 'span.highlight' ) ).forEach( od.gui.hl_enabled
-         ? function gui_toggle_highlight_enable ( e ) { e.classList.remove( 'disabled' ) }
-         : function gui_toggle_highlight_disable( e ) { e.classList.add   ( 'disabled' ) } );
+         ? function gui_toggle_highlight_enable ( e ) { e.classList.remove( 'disabled' ); }
+         : function gui_toggle_highlight_disable( e ) { e.classList.add   ( 'disabled' ); } );
    },
 
    /**
