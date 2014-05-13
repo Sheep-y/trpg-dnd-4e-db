@@ -14,6 +14,8 @@ od.gui = {
    initialized: [],
    /** Array of words to highlight */
    hl: null,
+   /** True to show highlight, false to not show */
+   hl_enabled : true,
    /** RegExp pattern used in highlight */
    hlp : null,
 
@@ -165,7 +167,7 @@ od.gui = {
     *
     * @param {Array} highlights Array of terms to highlight.
     */
-   "set_highlight" : function gui_set_highlight( highlights ) {
+   "set_highlight" : function gui_set_highlight ( highlights ) {
       od.gui.hl = highlights;
       if ( ! highlights ) return;
       highlights = highlights.map( function ( e ) { return _.escRegx( _.escHtml( e ) ); } );
@@ -180,10 +182,20 @@ od.gui = {
     * @param {String} html source html
     * @returns {String} result html
     */
-   "highlight" : function gui_highlight( html ) {
-      var hl = od.gui.hl;
+   "highlight" : function gui_highlight ( html ) {
+      var gui = od.gui, hl = gui.hl;
       if ( ! hl ) return html; // Nothing to highlight (e.g. all exclude search)
-      return html.replace( od.gui.hlp, '<span class="highlight">$1</span>' ).replace( /<\/span>(\s+)<span class="highlight">/g, '$1' );
+      html = html.replace( gui.hlp, '<span class="highlight">$1</span>' ).replace( /<\/span>(\s+)<span class="highlight">/g, '$1' );
+      if ( ! gui.hl_enabled ) html = html.replace( /class="highlight">/g, 'class="highlight disabled">' );
+      return html;
+   },
+
+   'toggle_highlight' : function gui_toggle_highlight ( ) {
+      var gui = od.gui;
+      gui.hl_enabled = ! gui.hl_enabled;
+      _.ary( _( 'span.highlight' ) ).forEach( od.gui.hl_enabled
+         ? function gui_toggle_highlight_enable ( e ) { e.classList.remove( 'disabled' ) }
+         : function gui_toggle_highlight_disable( e ) { e.classList.add   ( 'disabled' ) } );
    },
 
    /**

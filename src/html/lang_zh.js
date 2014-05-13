@@ -75,9 +75,11 @@ _.l.set( 'error', {
 
 _.l.set( 'gui', {
    'title'   : '四版資料庫 - ',
+   'top'     : '頂部',
    'loading' : '載入中...',
    'loading1': '載入 %1 中',
-   'top'     : '頂部'
+
+   'menu_view_highlight' : '顯示/隱藏搜尋結果高亮'
 });
 
 _.l.set( 'action.list', {
@@ -185,7 +187,7 @@ _.l.set( 'action.about', {
       "輸入要找的字詞，就會找出包含所有字詞的結果，不論順序，不論大小寫。 <br/>"+
       "例、<kbd>fighter heal</kbd> 會找出同時包括 <q>Fighter</q> 和 <q>Heal</q> 或 <q>Healing</q> 或 <q>Healer</q> 的結果. <br/>"+
       "<br/>"+
-      "您可以先選取一個類別，以收窄搜尋範圍。搜尋名字也會比全文搜尋快。 <br/>"+
+      "您可以先選取一個類別，以收窄搜尋範圍。搜尋字會自動以高亮顯示，在 Firefox 裡可以從右按選單中關閉。<br/>"+
       "<br/> <ul>"+
       "<li> 要搜尋特定詞組，可以用半形雙引號 <q>\"</q> 包裹它。 <br/>"+
       " &nbsp; 例、<kbd>\"extra damage\"</kbd> 只符合詞組 <q>Extra damage</q>，而不是分成 <q>Extra</q> 和 <q>Damage</q>。 <br/>"+

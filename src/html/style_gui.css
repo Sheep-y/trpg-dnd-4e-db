@@ -63,9 +63,13 @@ figure { margin: 0; }
 
 /** Search term highlight */
 .highlight {
-   background: yellow;
+   background-color: yellow;
    padding: 0 !important;
    margin: 0 !important;
+}
+
+.highlight.disabled {
+   background-color: transparent;
 }
 
 /********************** Utility classes **************************/

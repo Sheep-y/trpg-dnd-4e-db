@@ -47,7 +47,9 @@ _.l.set( 'gui', {
    'title'   : '4e Database - ',
    'top'   : 'Top',
    'loading' : 'Loading...',
-   'loading1': 'Loading %1'
+   'loading1': 'Loading %1',
+
+   'menu_view_highlight' : 'On/off search term highlights'
 });
 
 _.l.set( 'action.list', {
@@ -155,7 +157,7 @@ _.l.set( 'action.about', {
       "Type in search terms and it will find results that contains all the terms, in any order, regardless of case. <br/>"+
       "e.g. <kbd>fighter heal</kbd> will search for results that contains <q>Fighter</q> and <q>Heal</q> or <q>Healing</q> or <q>Healer</q>. <br/>"+
       "<br/>"+
-      "You can select a category first, to limit search area. Searching by name is also faster then full content search. <br/>"+
+      "You can select a category first, to limit search area.  Search terms are highlighted by default, and can be disabled in firefox through right click menu. <br/>"+
       "<br/> <ul>"+
       "<li> To search for a specific term, surround it with double quotes <q>\"</q>. <br/>"+
       " &nbsp; e.g. <kbd>\"extra damage\"</kbd> matches the exact term <q>Extra damage</q>, instead of <q>Extra</q> and <q>Damage</q>. <br/>"+
