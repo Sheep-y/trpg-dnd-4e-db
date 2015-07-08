@@ -173,7 +173,7 @@ _.l.set( 'action.about', {
 
    'h_get_data' : "如何獲取數據",
    'p_get_data' :
-      "此文本不附帶任何數據。要獲取數據，您需要一些東西，當中包括 active <a href='http://www.wizards.com/DnD/Subscription.aspx'>Dungeons & Dragons Insider subscription</a>. <br/>"+
+      "此文本不附帶任何數據。要獲取數據，您需要一些東西，當中包括 active <a href='http://archive.wizards.com/DnD/Subscription.aspx'>Dungeons & Dragons Insider subscription</a>. <br/>"+
       "要獲取數據，只需以下短短幾步： <br/> <ol> "+
       " <li> 將此 HTML 儲存到您的電腦，並用 Internet Explorer（桌面版）開啓。"+
       " <li> 下載目錄 "+

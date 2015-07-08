@@ -143,7 +143,7 @@ _.l.set( 'action.about', {
 
    'h_get_data' : "How to Get data",
    'p_get_data' :
-      "This script comes with no data. To get data, you need a few things, including an active <a href='http://www.wizards.com/DnD/Subscription.aspx'>Dungeons & Dragons Insider subscription</a>. <br/>"+
+      "This script comes with no data. To get data, you need a few things, including an active <a href='http://archive.wizards.com/DnD/Subscription.aspx'>Dungeons & Dragons Insider subscription</a>. <br/>"+
       "Data can be acquired in a few steps: <br/> <ol> "+
       " <li> Save this HTML to your PC and open it with Internet Explorer (desktop version) "+
       " <li> Get catalog "+

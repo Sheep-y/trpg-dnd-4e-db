@@ -1,4 +1,4 @@
-/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
+/**
  * data_reader.js
  *
  * Read data from files written by data_writter.
@@ -11,7 +11,7 @@ od.reader = {
      */
    _read: function reader_read( src, validate, onload, onerror ) {
       var errorHandler = onerror;
-      if ( onerror && typeof( onerror ) === 'string' ) errorHandler = function(){ _.error( onerror ); };
+      if ( onerror && typeof( onerror ) === 'string' ) errorHandler = function(){ _.alert( onerror ); };
       _.js({
          "url"     : src,
          "validate": validate,
@@ -76,13 +76,13 @@ od.reader = {
       if ( ! cat || data.length !== cat.count || version === 20140414 ) {
          // Version 20140414 was saving compressed binary as unicode, corrupting them.
          category.count = data.length;
-         _.error( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'listing' ) );
+         _.alert( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'listing' ) );
       }
 
       if ( version < 20130616 )
          // Milestone 1 data, file name changed, not worth supporting.
          // Can manually rename _listing.js to _raw.js and run reindex.
-         return _.error( _.l( 'error.need_reget' ) );
+         return _.alert( _.l( 'error.need_reget' ) );
       if ( version < 20130703 ) {
          // 20130616 format use url as id instead of simplified id
          data.forEach( function reader_jsonp_data_listing_20130616 ( item ) {
@@ -94,7 +94,7 @@ od.reader = {
    },
 
    jsonp_data_extended: function reader_jsonp_data_extended( version, category, columns, data ) {
-      return _.error( _.l( 'error.need_reget' ) ); // Milestone 1 data (ver 20130330), not worth supporting. See above.
+      return _.alert( _.l( 'error.need_reget' ) ); // Milestone 1 data (ver 20130330), not worth supporting. See above.
    },
 
    /////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ od.reader = {
       if ( ! cat || Object.keys( data ).length !== cat.count || version === 20140414 ) {
          // Version 20140414 was saving compressed binary as unicode, corrupting them.
          category.count = data.length;
-         _.error( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'index' ) );
+         _.alert( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'index' ) );
       }
 
       if ( version < 20130703 ) {

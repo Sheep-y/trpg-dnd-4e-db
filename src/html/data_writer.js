@@ -1,4 +1,4 @@
-/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
+/**
  * data_writer.js
  *
  * Write data model to local files.
@@ -25,7 +25,7 @@ od.writer = {
                com_callback( fso );
             } catch (e) {
                if (e.number === -2146827859) e = _.l( 'error.com_file_security');
-               if ( onerror === undefined ) onerror = _.error;
+               if ( onerror === undefined ) onerror = _.alert;
                _.call( onerror, null, e );
             }
          }
@@ -53,7 +53,7 @@ od.writer = {
             _.log( 'Delete '+file );
             fso.DeleteFile( file );
             if ( fso.FileExists( file ) ) {
-               _.error( _.l( 'error.file_cannot_delete', file ) );
+               _.alert( _.l( 'error.file_cannot_delete', file ) );
                return false;
             }
          }*/
@@ -73,7 +73,7 @@ od.writer = {
             _.log( 'Delete '+file );
             fso.DeleteFile( file );
             if ( fso.FileExists( file ) ) {
-               return _.error( _.l( 'error.file_cannot_delete', file ) );
+               return _.alert( _.l( 'error.file_cannot_delete', file ) );
             }
          }
          if ( ondone ) ondone();

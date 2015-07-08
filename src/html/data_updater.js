@@ -1,4 +1,4 @@
-/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
+/**
  * data_updater.js
  *
  * Core (non-ui) logic of entry downloading and higher level data updating such as reindex and deletion.
@@ -43,7 +43,7 @@ od.updater = {
    },
 
    "remove" : function download_remove ( remote ) {
-      if ( ! od.data.category[ remote.name ] ) return _.error( "Cannot delete a non-local category" );
+      if ( ! od.data.category[ remote.name ] ) return _.alert( "Cannot delete a non-local category" );
       switch ( remote.state ) {
          case "local" :
          case "absent" :
@@ -51,7 +51,7 @@ od.updater = {
             break;
          case "listing":
          case "downloading":
-            _.error( "Cannot delete a listing / downloading category" );
+            _.alert( "Cannot delete a listing / downloading category" );
             return;
          case "listed" :
             remote.added = _.col( remote.raw );
@@ -87,7 +87,7 @@ od.updater = {
             _.call( onload );
          },
          "onerror" : onerror ? onerror : function download_get_catalog_error(){
-            _.error( "Cannot download catalog from " + address );
+            _.alert( "Cannot download catalog from " + address );
          }
       });
    },
@@ -185,7 +185,7 @@ od.updater = {
                      // Handle as error only if not cancelled
                      var i = _.col( cat.raw ).indexOf( id );
                      i = i ? ' (' + cat.raw[i][1] + ')' : '';
-                     _.error( _.l( 'error.updating_data', null, id + i , cat.name, err ) );
+                     _.alert( _.l( 'error.updating_data', null, id + i , cat.name, err ) );
                      exec.finish( threadid );
                      _.call( onstep, remote, id );
                   }
@@ -291,14 +291,14 @@ od.updater.RemoteCategory.prototype = {
             remote.raw_columns = _.col( results[ 0 ].getElementsByTagName( '*' ), 'tagName' );
 
             var ids = _.ary( _.xpath( transformed.documentElement, '//div//td[1]/a' ) ).map( function(e){ return e.getAttribute('href'); } );
-            if ( ids.length !== results.length ) _.error( 'Error getting listing for ' + remote.getTitle() + ': xsl transform rows mismatch' );
+            if ( ids.length !== results.length ) _.alert( 'Error getting listing for ' + remote.getTitle() + ': xsl transform rows mismatch' );
             for ( var i = 0, l = ids.length ; i < l ; i++ ) {
                var rowId = ids[i];
                if ( rowId ) { // Skip empty and duplicate id - which is download link
                   rowId = rowId.trim();
                   var row = _.col( results[i].getElementsByTagName( '*' ), 'textContent' );
                   if ( idList.indexOf( rowId ) >= 0 ) {
-                     _.error( "Duplicate result: " + rowId + " (" + row[ 1 ] + ")" );
+                     _.alert( "Duplicate result: " + rowId + " (" + row[ 1 ] + ")" );
                      continue;
                   }
                   row[0] = rowId;
@@ -319,7 +319,7 @@ od.updater.RemoteCategory.prototype = {
    "get_remote": function download_Cat_get_remote ( url, onload, onerror, retry ) {
       var remote = this;
       if ( retry === undefined ) retry = od.config.retry;
-      if ( onerror && typeof( onerror ) === 'string' ) onerror = function() { _.error( _.l.format( onerror, remote.name, url ) ); };
+      if ( onerror && typeof( onerror ) === 'string' ) onerror = function() { _.alert( _.l.format( onerror, remote.name, url ) ); };
       _.cor({
          "url" : url,
          "onload" : onload,
@@ -423,7 +423,7 @@ od.updater.RemoteCategory.prototype = {
          _.warn( 'downloar_Cat_get_data_retry: ' + retry );
          --retry;
          if ( retry <= 0 ) {
-            onerror ? _.call( onerror, remote, remote, id, err ) : _.error("Cannot download " + remote.name + " listing from " + address + ": " + err );
+            onerror ? _.call( onerror, remote, remote, id, err ) : _.alert("Cannot download " + remote.name + " listing from " + address + ": " + err );
          } else remote.get_data( id, onload, onerror, retry );
       }
    },
@@ -450,7 +450,7 @@ od.updater.RemoteCategory.prototype = {
             setImmediate( download_Cat_reindex_func( i, idList[ i ] ) );
             --i;
          }
-         if ( i > 0 ) setTimeout( _.callfunc( download_Cat_reindex_batch, null, i ), 10 );
+         if ( i > 0 ) setTimeout( download_Cat_reindex_batch.bind( null, i ), 10 );
          remote.progress = _.l( 'action.update.lbl_progress', null, count, len );
          _.call( onstep, remote, count, len );
       }
