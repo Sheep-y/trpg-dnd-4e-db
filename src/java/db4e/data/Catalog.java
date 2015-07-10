@@ -31,7 +31,7 @@ public class Catalog {
       if ( categories.size() <= 0 ) return "{}";
       StringBuilder str = new StringBuilder().append( '{' );
       categories.forEach( cat ->
-         str.append( cat.id ).append( ':' ).append( cat.size ) );
+         str.append( cat.id ).append( ':' ).append( cat.entries.size() ).append('/').append( cat.size ) );
       str.setLength( str.length()-1 );
       return str.append( '}' ).toString();
    }

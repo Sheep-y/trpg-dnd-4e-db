@@ -91,7 +91,7 @@ public class Downloader extends Application {
          } catch ( IllegalArgumentException ex ) {
             log.log( Level.WARNING, "log.data.err.not_compendium", current );
          } catch ( IOException ex ) {
-            log.log( Level.WARNING, "log.data.err.cannot_read", ex );
+            log.log( Level.WARNING, "log.cannot_read", ex );
          }
    }
 
@@ -188,7 +188,7 @@ public class Downloader extends Application {
          } catch ( IllegalArgumentException ex ) {
             msg = new MessageFormat( res.getString( "log.data.err.not_compendium" ) ).format( selected );
          } catch ( IOException ex ) {
-            msg = new MessageFormat( res.getString( "log.data.err.cannot_read" ) ).format( ex );
+            msg = new MessageFormat( res.getString( "log.cannot_read" ) ).format( ex );
          }
          if ( msg != null )
             new Alert( Alert.AlertType.ERROR, msg, ButtonType.OK ).show();

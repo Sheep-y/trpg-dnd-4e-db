@@ -22,9 +22,6 @@ public class ENG extends ListResourceBundle {
       { "data.dlg.location.filter.db", "Offline Compendium" },
       { "data.dlg.location.filter.any", "Any file" },
 
-      { "data.loader.done", "Local data read" },
-      { "data.loader.reading", "Reading local data {0}" },
-      { "data.loader.stopped", "Stopped reading local data" },
 
       { "web.title" , "Browser" },
 
@@ -32,9 +29,15 @@ public class ENG extends ListResourceBundle {
       { "log.title", "Log" },
       { "log.init" , "System initialised." },
       { "log.l10n" , "Setting language to {0}." },
-      { "log.data.err.cannot_read", "Cannot read file: {0}." },
+      { "log.malform", "File {0} is malformed." },
+      { "log.cannot_read", "Cannot read file: {0}." },
+
       { "log.data.err.not_compendium", "Selected file is not offline 4e compendium." },
-      { "log.data.err.malform", "File {0} is malformed." },
+
+      { "log.loader.done", "Local data read" },
+      { "log.loader.reading", "Reading local data {0}" },
+      { "log.loader.stopped", "Stopped reading local data" },
+
       { "log.web.run" , "Running {0}." },
       { "log.web.error" , "Browser error: {0}." },
    };

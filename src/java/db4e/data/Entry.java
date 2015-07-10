@@ -1,21 +1,18 @@
 package db4e.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Represents a data entry
  */
 public class Entry {
    public final Category category;
    public final String id; // Last url part
-   public final List<String> columns;
+   public final Object[] columns;
    public volatile String content;
 
-   public Entry(Category category, String id, int count ) {
+   public Entry( Category category, String id, int col_count ) {
       this.category = category;
       this.id = id;
-      columns = new ArrayList<String>(count);
+      columns = new Object[ col_count ];
    }
 
 }

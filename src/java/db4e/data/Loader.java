@@ -4,12 +4,18 @@ import db4e.Downloader;
 import db4e.Utils;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.IntFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 /**
  * Class to load data from local files
@@ -18,8 +24,12 @@ public class Loader implements Runnable {
 
    public static final Logger log = Logger.getLogger( Downloader.class.getName() );
 
+   // For version checkind
    private static final Pattern regx_version = Pattern.compile( "^\\d+," );
-   private static final Pattern regx_catalog = Pattern.compile( "\"((?:\\\\.|[^\\\\\"]+)+)\":(\\d+)" );
+   // For data parsing
+   private static final Pattern regx_string = Pattern.compile( "\"((?:\\\\.|[^\\\\\"]+)+)\"" );
+   private static final Pattern regx_string_array = Pattern.compile( "\\[\\(?:,?" + regx_string.pattern() + "\\)*\\]" );
+   private static final Pattern regx_num_field = Pattern.compile( regx_string.pattern() + ":(\\d+)" );
 
    public static void load( Catalog catalog, File basefile ) {
       Thread thread = new Thread( new Loader( catalog, basefile ) );
@@ -33,34 +43,30 @@ public class Loader implements Runnable {
       thread.start();
    }
 
-   public static String load ( File f, String jsonp ) {
+   public static JSONArray load ( File f, String jsonp ) {
+      assert( jsonp != null );
       try {
          String data = Utils.loadFile( f );
          if ( data == null ) return null;
 
          data = data.trim();
          if ( data.charAt( 0 ) == '\uFEFF' ) data = data.substring( 1 );
-         if ( jsonp != null )
-            try {
-               if ( ! data.startsWith( jsonp ) || data.length() < jsonp.length()+4 )
-                  throw new IllegalArgumentException();
 
-               data = data.substring( jsonp.length() + 1, data.length()-1 );
-               Matcher regx = regx_version.matcher( data );
-               if ( ! regx.find() )
-                  throw new IllegalArgumentException();
+         try {
+            if ( ! data.startsWith( jsonp ) || data.length() < jsonp.length()+4 )
+               throw new IllegalArgumentException();
 
-               data = regx.replaceFirst( "" ).trim();
+            data = '[' + data.substring( jsonp.length() + 1, data.length()-1 ) + ']';
 
-            } catch ( IllegalArgumentException ex ) {
-               log.log( Level.WARNING, "log.data.err.malform", f );
-               return null;
-            }
+            return (JSONArray) new JSONTokener( data ).nextValue();
 
-         return data.isEmpty() ? null : data;
+         } catch ( IllegalArgumentException | JSONException ex ) {
+            log.log( Level.WARNING, "log.malform", f );
+            return null;
+         }
 
       } catch ( IOException ex ) {
-         log.log( Level.WARNING, "log.data.err.cannot_read", f );
+         log.log( Level.WARNING, "log.cannot_read", f );
          return null;
       }
    }
@@ -74,38 +80,52 @@ public class Loader implements Runnable {
       this.catalog = catalog;
    }
 
-   private boolean stop() {
-      catalog.setLoader( null );
-      return true;
+   private boolean stopped () {
+      return Thread.currentThread().isInterrupted();
    }
 
-   private boolean stopped () {
-      if ( Thread.currentThread().isInterrupted() )
-         return stop();
-      return false;
+   private static <E> E[]  toArray( Object obj, IntFunction<E[]> constructor ) {
+      JSONArray ary = (JSONArray) obj;
+      E[] result = constructor.apply( ary.length() );
+      int i = 0;
+      for ( Object item : ary )
+         result[ i++ ] = (E) item;
+      return result;
    }
+
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    public void run () {
       try {
          loadCatalog();
-         log.info( "data.loader.done" );
+         for ( Category cat : catalog.categories )
+            if ( ! stopped() )
+               loadCategory( cat );
+         log.info( "log.loader.done" );
       } finally {
-         log.info( "data.loader.stopped" );
+         catalog.setLoader( null );
+         log.info( "log.loader.stopped" );
       }
    }
 
    private boolean loadCatalog () {
       // Load catalog content: od.reader.jsonp_catalog(20130616,{"Class":19,"Theme":110})
       File f = new File( basefile.getParent(), basefile.getName() + "/catalog.js" );
-      log.log( Level.FINE, "data.loader.reading", f );
-      String txt = load( f, "od.reader.jsonp_catalog" );
-      if ( txt == null ) return ! stop();
+      log.log( Level.FINE, "log.loader.reading", f );
+      JSONArray params = load( f, "od.reader.jsonp_catalog" );
+      if ( params == null ) return false;
 
       // Parse and set catalog content
       Map<String, Integer> data = new HashMap<>();
-      Matcher regx = regx_catalog.matcher( txt );
-      while ( regx.find() )
-         data.put( regx.group( 1 ), Integer.parseInt( regx.group( 2 ) ) );
+      try {
+         final JSONObject list = (JSONObject) params.get( 1 );
+         for ( Object name : list.names() ) {
+            String prop = name.toString();
+            data.put( prop, list.getInt( prop ) );
+         }
+      } catch ( ClassCastException | IndexOutOfBoundsException | JSONException ex ) {
+         log.log( Level.WARNING, "log.malform", f );
+      }
 
       // Update catalog
       synchronized ( catalog ) {
@@ -113,6 +133,55 @@ public class Loader implements Runnable {
          catalog.addCategories( data.keySet().toArray( new String[0] ) );
          catalog.categories.forEach( cat ->
             cat.size = data.get( cat.id ) );
+      }
+      log.fine( catalog.toString() );
+
+      return true;
+   }
+
+   private boolean loadCategory ( Category cat ) {
+      // Entry list: ﻿od.reader.jsonp_data_listing(20130616,"cat_id",["ID","Field2","SourceBook"],[["123.asp","1-2",["Book1","Book2"]],[["234.asp","2-2",["Book3"]]]
+      File f = new File( basefile.getParent(), basefile.getName() + "/" + cat.id + "/_listing.js" );
+      log.log( Level.FINE, "log.loader.reading", f );
+      JSONArray params = load( f, "od.reader.jsonp_data_listing" );
+      if ( params == null ) return false;
+
+      // Parse and set catalog content
+      try {
+         if ( ! cat.id.equals( params.get( 1 ) ) )
+            throw new JSONException( "Category ID mismatch" );
+
+         // Load columns
+         assert( cat.columns.size() <= 0 );
+         synchronized ( cat ) {
+            for ( Object col : (JSONArray) params.get( 2 ) )
+               cat.columns.add( col.toString() );
+         }
+         int col_count = cat.columns.size();
+         int sourcebook_index = col_count-1;
+
+         // Load listing
+         JSONArray items = (JSONArray) params.get( 3 );
+         List<Entry> entries = new ArrayList<>( items.length() );
+         for ( Object e : items ) {
+            JSONArray row = (JSONArray) e;
+            String id = row.get( 0 ).toString();
+            final Entry entry = new Entry( cat, id, sourcebook_index );
+            entries.add( entry );
+            for ( int i = 1 ; i < col_count ; i++ ) {
+               Object prop = row.get( i );
+               if ( prop instanceof JSONArray )
+                  entry.columns[ i-1 ] = toArray( row.getJSONArray( i ), String[]::new );
+               else
+                  entry.columns[ i-1 ] = prop;
+            }
+         }
+         cat.entries.addAll( entries );
+
+         log.fine( cat.toString() );
+
+      } catch ( ClassCastException | IndexOutOfBoundsException | JSONException ex ) {
+         log.log( Level.WARNING, "log.malform", f );
       }
 
       return true;
