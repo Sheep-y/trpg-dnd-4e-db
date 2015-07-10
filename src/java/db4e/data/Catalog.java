@@ -1,27 +1,58 @@
 package db4e.data;
 
 import java.io.File;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import javafx.collections.ObservableList;
+import sheepy.util.ui.ObservableArrayList;
 
 public class Catalog {
-   private final String main_file = "4e_database.html";
-   private final String data_folder = "4e_database_files";
-   public Map<String, Category> categories;
+   public final ObservableList<Category> categories = new ObservableArrayList<Category>();
 
-   public void clear() {
+   public synchronized void clear() {
       categories.clear();
    }
 
-   public void load( File basepath ) {
-      File f = new File(basepath, data_folder + "/catalog.js");
-      if (!f.exists()) {
-         return;
+   public void load ( File basefile ) {
+      Loader.load( this, basefile );
+   }
+
+   public void addCategories ( String ... names ) {
+      List<Category> add = new ArrayList<>( names.length );
+      synchronized ( this ) {
+         for ( String name : names )
+            if ( categories.filtered( e -> e.id.equals( name ) ).isEmpty() )
+               add.add( new Category( name ) );
+         categories.addAll( add );
       }
    }
 
-   public void addCategory( String name ) {
-      if ( categories.containsKey( name ) )
-         categories.put( name, new Category( name ) );
+   @Override public String toString () {
+      if ( categories.size() <= 0 ) return "{}";
+      StringBuilder str = new StringBuilder().append( '{' );
+      categories.forEach( cat ->
+         str.append( cat.id ).append( ':' ).append( cat.size ) );
+      str.setLength( str.length()-1 );
+      return str.append( '}' ).toString();
    }
 
+   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   private Runnable loader;
+
+   synchronized void setLoader( Runnable loader ) {
+      stop();
+      this.loader = loader;
+   }
+
+   public synchronized boolean ready () {
+       return loader == null;
+   }
+
+   public synchronized void stop () {
+       if ( loader != null ) {
+          loader.run();
+          loader = null;
+       }
+   }
 }

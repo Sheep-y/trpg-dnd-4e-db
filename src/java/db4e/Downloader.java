@@ -1,11 +1,10 @@
 package db4e;
 
 import db4e.data.Catalog;
+import db4e.data.Loader;
 import db4e.lang.ENG;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -38,11 +37,11 @@ public class Downloader extends Application {
 
    // System utilities
    public ResourceBundle res;
-   public final Logger log = Logger.getLogger( Downloader.class.getName() );
-   public final Preferences prefs = Preferences.userNodeForPackage( Downloader.class );
+   public static final Logger log = Logger.getLogger( Downloader.class.getName() );
+   public static final Preferences prefs = Preferences.userNodeForPackage( Downloader.class );
 
    // App Data
-   private File current = new File( prefs.get( "app_folder", "." ) );
+   private File current = new File( prefs.get( "app_folder", "4e_database.html" ) );
    public final Worker worker = new Worker( this );
    public final Catalog local = new Catalog();
    public final Catalog remote = new Catalog();
@@ -84,6 +83,16 @@ public class Downloader extends Application {
       stage.setScene( new Scene( pnlC, prefs.getInt( "frmMain.width", 750 ), prefs.getInt( "frmMain.height", 550 ) ) );
       stage.show();
       log.info( "log.init" );
+
+      // Load previous location
+      if ( current.exists() )
+         try {
+            loadFile( current );
+         } catch ( IllegalArgumentException ex ) {
+            log.log( Level.WARNING, "log.data.err.not_compendium", current );
+         } catch ( IOException ex ) {
+            log.log( Level.WARNING, "log.data.err.cannot_read", ex );
+         }
    }
 
    public void initLogger() throws SecurityException {
@@ -144,6 +153,19 @@ public class Downloader extends Application {
       if ( webGuide != null ) webGuide.getEngine().loadContent( res.getString( "guide.html" ) );
    }
 
+/********************************************************************************************************
+ * Data tab
+ ********************************************************************************************************///
+
+   private void loadFile ( File f ) throws IOException, IllegalArgumentException {
+      String content = Utils.loadFile( f );
+      if ( ! content.contains( "https://github.com/Sheep-y/trpg-dnd-4e-db/" ) )
+         throw new IllegalArgumentException();
+      local.load( new File ( f.getParent(), f.getName().replaceAll( "\\.x?html?$", "" ) + "_files" ) );
+      btnSave.setDisable( false );
+      pnlC.getTabs().get( 2 ).setDisable( false );
+   }
+
    private FileChooser dlgOpen;
    public void btnFolder_action ( ActionEvent evt ) {
       // Create file dialog
@@ -159,27 +181,17 @@ public class Downloader extends Application {
       // Show dialog
       File selected = dlgOpen.showOpenDialog( stage );
       if ( selected != null && selected.exists() && selected.isFile() ) {
-         String content = null;
-
-         // Read file
+         String msg = null;
          try {
-            content = new String( Files.readAllBytes( selected.toPath() ), Charset.forName( "UTF-8" ) );
+            loadFile( selected );
+            prefs.put( "app_folder", selected.toString() );
+         } catch ( IllegalArgumentException ex ) {
+            msg = new MessageFormat( res.getString( "log.data.err.not_compendium" ) ).format( selected );
          } catch ( IOException ex ) {
-            String msg = new MessageFormat( res.getString( "log.data.err.cannot_read" ) ).format( ex );
-            new Alert( Alert.AlertType.ERROR, msg, ButtonType.OK ).show();
-            return;
+            msg = new MessageFormat( res.getString( "log.data.err.cannot_read" ) ).format( ex );
          }
-
-         // Check content
-         if ( ! content.contains( "https://github.com/Sheep-y/trpg-dnd-4e-db/" ) ) {
-            String msg = new MessageFormat( res.getString( "log.data.err.not_compendium" ) ).format( selected );
+         if ( msg != null )
             new Alert( Alert.AlertType.ERROR, msg, ButtonType.OK ).show();
-            return;
-         }
-
-         btnSave.setDisable( false );
-         pnlC.getTabs().get( 2 ).setDisable( false );
       }
    }
-
 }

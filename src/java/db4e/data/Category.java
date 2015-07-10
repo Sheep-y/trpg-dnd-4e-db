@@ -9,7 +9,7 @@ import java.util.List;
 public class Category {
    public final String id;
    public final List<String> columns = new ArrayList<>();
-   private int size; // Listed entry count
+   public int size; // Listed entry count
 
    public Category(String id) {
       this.id = id;

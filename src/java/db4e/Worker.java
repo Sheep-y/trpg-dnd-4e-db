@@ -174,8 +174,7 @@ public class Worker {
       @Override void succeed() {
          super.succeed();
          String[] list = queryProperty( "#category option", "value" );
-         for ( String category : list )
-            main.remote.addCategory( category );
+         main.remote.addCategories( list );
          runAction( new ActionCheckLogin() );
       }
    }
