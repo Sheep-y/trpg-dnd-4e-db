@@ -29,12 +29,13 @@ public class ENG extends ListResourceBundle {
       { "log.title", "Log" },
       { "log.init" , "System initialised." },
       { "log.l10n" , "Setting language to {0}." },
-      { "log.malform", "File {0} is malformed." },
+      { "log.malform", "File {0} is malformed: {1}" },
       { "log.cannot_read", "Cannot read file: {0}." },
 
       { "log.data.err.not_compendium", "Selected file is not offline 4e compendium." },
 
       { "log.loader.done", "Local data read" },
+      { "log.loader.entry", "Loaded {1} local entries for {0}" },
       { "log.loader.reading", "Reading local data {0}" },
       { "log.loader.stopped", "Stopped reading local data" },
 

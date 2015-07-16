@@ -1,18 +1,36 @@
 package db4e.data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represents a data entry
  */
 public class Entry {
    public final Category category;
-   public final String id; // Last url part
-   public final Object[] columns;
+   public final Map<String,Object> meta;
    public volatile String content;
 
-   public Entry( Category category, String id, int col_count ) {
+   public Entry ( Category category, String id ) {
+      assert( category != null && id != null );
       this.category = category;
-      this.id = id;
-      columns = new Object[ col_count ];
+      meta = new HashMap<>( category.meta.size(), 1.0f );
+      setMeta( "ID", id );
+   }
+
+   public String getId () { return getMeta( "ID" ).toString(); }
+   public String getFileId () { return getId().replace( ".aspx?id=", "" ); }
+
+   public Object getMeta ( String name ) {
+      synchronized ( meta ) {
+         return meta.get( name );
+      }
+   }
+
+   public void setMeta ( String name, Object data ) {
+      synchronized ( meta ) {
+         meta.put( name, data );
+      }
    }
 
 }

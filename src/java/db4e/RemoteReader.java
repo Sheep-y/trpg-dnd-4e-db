@@ -2,6 +2,7 @@ package db4e;
 
 import java.time.Period;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -12,7 +13,9 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import sheepy.util.Net;
 
-public class Worker {
+public class RemoteReader {
+
+   public static final Logger log = Logger.getLogger( Downloader.class.getName() );
 
    private final Button btnRerun = new Button( "" );
    private final WebView web = new WebView();
@@ -39,11 +42,11 @@ public class Worker {
       Net.trustAllSSL(); // Kill invalid SSL errors in advance
    }
 
-   public Worker( Downloader main ) {
+   public RemoteReader( Downloader main ) {
       this.main = main;
       btnRerun.setDisable( true );
       js.setOnAlert( e -> new Alert( Alert.AlertType.INFORMATION, e.getData().toString(), ButtonType.OK ).showAndWait() );
-      js.setOnError( e -> main.log.log( Level.WARNING, "log.web.error", Utils.stacktrace( e.getException() ) ) );
+      js.setOnError( e -> log.log( Level.WARNING, "log.web.error", Utils.stacktrace( e.getException() ) ) );
       js.getLoadWorker().stateProperty().addListener( (prop,old,now) -> {
          switch ( now ) {
             case SUCCEEDED:
@@ -71,7 +74,7 @@ public class Worker {
 
    private abstract class ActionStrategy {
       void run() {
-         main.log.log( Level.FINE, "log.web.run", this.getClass().getSimpleName() );
+         log.log( Level.FINE, "log.web.run", this.getClass().getSimpleName() );
       }
       void succeed() {
          btnRerun.setDisable( true );

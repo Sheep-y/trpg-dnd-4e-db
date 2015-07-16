@@ -1,11 +1,14 @@
 package db4e;
 
 import db4e.data.Catalog;
-import db4e.data.Loader;
+import db4e.data.Category;
+import db4e.data.LocalReader;
 import db4e.lang.ENG;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Handler;
@@ -13,8 +16,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.Scene;
@@ -42,7 +48,7 @@ public class Downloader extends Application {
 
    // App Data
    private File current = new File( prefs.get( "app_folder", "4e_database.html" ) );
-   public final Worker worker = new Worker( this );
+   public final RemoteReader worker = new RemoteReader( this );
    public final Catalog local = new Catalog();
    public final Catalog remote = new Catalog();
 
@@ -77,7 +83,12 @@ public class Downloader extends Application {
       // Listen for resize or close and update or save preferences
       stage.widthProperty() .addListener( (prop,old,now) -> prefs.putInt( "frmMain.width" , now.intValue() ) );
       stage.heightProperty().addListener( (prop,old,now) -> prefs.putInt( "frmMain.height", now.intValue() ) );
-      stage.setOnCloseRequest( e -> { try { prefs.flush(); } catch (Exception ignored) {} } );
+      stage.setOnCloseRequest( e -> { try {
+         local.stop();
+         remote.stop();
+         prefs.flush();
+         log.getHandlers()[0].close();
+      } catch ( BackingStoreException | SecurityException | NullPointerException ignored ) {} } );
 
       // Launch!
       stage.setScene( new Scene( pnlC, prefs.getInt( "frmMain.width", 750 ), prefs.getInt( "frmMain.height", 550 ) ) );
@@ -96,16 +107,32 @@ public class Downloader extends Application {
    }
 
    public void initLogger() throws SecurityException {
+      final List<LogRecord> cache = new ArrayList<>();
+
       // Disable global logger
       Logger.getLogger( "" ).getHandlers()[0].setLevel( Level.OFF );
 
       // Setup our logger which goes to log tab.
-      log.setLevel( Level.ALL );
+      log.setLevel( Level.FINE );
       log.addHandler( new Handler() {
          private boolean closed = false;
          @Override public void publish( LogRecord record ) {
             if ( closed ) return;
-            txtLog.insertText( txtLog.getLength(), getFormatter().formatMessage( record ) + "\n" );
+            synchronized ( cache ) {
+               if ( cache.isEmpty() ) // If cache is empty, queue a update.
+                  Platform.runLater( () -> {
+                     LogRecord[] records;
+                     synchronized ( cache ) { // Copy from cache and work with local copy
+                        records = cache.toArray( new LogRecord[ cache.size() ] );
+                        cache.clear();
+                     }
+                     StringBuilder str = new StringBuilder(); // Concat all logs so that UI is only updated once
+                     for ( LogRecord log : records )
+                        str.append( getFormatter().formatMessage( log ) ).append( '\n' );
+                     txtLog.insertText( txtLog.getLength(), str.toString() );
+                  } );
+               cache.add( record );
+            }
          }
          @Override public void flush() {}
          @Override public void close() throws SecurityException { closed = true; }
@@ -128,6 +155,9 @@ public class Downloader extends Application {
             }
          }
       } );
+
+      // Listen to local and remote changes
+      local.categories.addListener( this::refreshCatalog );
    }
 
    // Localise user interface
@@ -161,7 +191,7 @@ public class Downloader extends Application {
       String content = Utils.loadFile( f );
       if ( ! content.contains( "https://github.com/Sheep-y/trpg-dnd-4e-db/" ) )
          throw new IllegalArgumentException();
-      local.load( new File ( f.getParent(), f.getName().replaceAll( "\\.x?html?$", "" ) + "_files" ) );
+      LocalReader.load( local, new File( f.getParent(), f.getName().replaceAll( "\\.x?html?$", "" ) + "_files" ) );
       btnSave.setDisable( false );
       pnlC.getTabs().get( 2 ).setDisable( false );
    }
@@ -193,5 +223,11 @@ public class Downloader extends Application {
          if ( msg != null )
             new Alert( Alert.AlertType.ERROR, msg, ButtonType.OK ).show();
       }
+   }
+
+   /**
+    * Call when catalog list is changed.  Will rebuild whole table.
+    */
+   public void refreshCatalog ( Change<? extends Category> evt ) {
    }
 }

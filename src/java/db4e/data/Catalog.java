@@ -1,20 +1,15 @@
 package db4e.data;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.collections.ObservableList;
 import sheepy.util.ui.ObservableArrayList;
 
 public class Catalog {
-   public final ObservableList<Category> categories = new ObservableArrayList<Category>();
+   public final ObservableList<Category> categories = new ObservableArrayList<>();
 
    public synchronized void clear() {
       categories.clear();
-   }
-
-   public void load ( File basefile ) {
-      Loader.load( this, basefile );
    }
 
    public void addCategories ( String ... names ) {
