@@ -1,5 +1,6 @@
 package db4e.data;
 
+import updater.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.collections.ObservableList;
@@ -33,21 +34,11 @@ public class Catalog {
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   private Runnable loader;
+   private Writer writer;
 
-   synchronized void setLoader( Runnable loader ) {
-      stop();
-      this.loader = loader;
-   }
-
-   public synchronized boolean ready () {
-       return loader == null;
-   }
-
-   public synchronized void stop () {
-       if ( loader != null ) {
-          loader.run();
-          loader = null;
-       }
+   public synchronized void setWriter( Writer writer ) {
+      if ( this.writer != null )
+         this.writer.waitForDone();
+      this.writer = writer;
    }
 }

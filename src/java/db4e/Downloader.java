@@ -2,7 +2,6 @@ package db4e;
 
 import db4e.data.Catalog;
 import db4e.data.Category;
-import db4e.data.LocalReader;
 import db4e.lang.ENG;
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +34,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import updater.Updater;
 
 public class Downloader extends Application {
 
@@ -48,15 +48,14 @@ public class Downloader extends Application {
 
    // App Data
    private File current = new File( prefs.get( "app_folder", "4e_database.html" ) );
-   public final RemoteReader worker = new RemoteReader( this );
-   public final Catalog local = new Catalog();
-   public final Catalog remote = new Catalog();
+   public final Browser worker = new Browser( this );
+   public final Catalog data = new Catalog();
+   public final Updater updater = new Updater( this );
 
    // Interactive components
    private WebView webGuide;
    private final TableView tblCat = new TableView();
    private final Button btnFolder = new Button();
-   private final Button btnSave   = new Button();
    private final TextArea txtLog = new TextArea();
 
    // Layout regions
@@ -84,8 +83,7 @@ public class Downloader extends Application {
       stage.widthProperty() .addListener( (prop,old,now) -> prefs.putInt( "frmMain.width" , now.intValue() ) );
       stage.heightProperty().addListener( (prop,old,now) -> prefs.putInt( "frmMain.height", now.intValue() ) );
       stage.setOnCloseRequest( e -> { try {
-         local.stop();
-         remote.stop();
+         updater.stop();
          prefs.flush();
          log.getHandlers()[0].close();
       } catch ( BackingStoreException | SecurityException | NullPointerException ignored ) {} } );
@@ -157,7 +155,7 @@ public class Downloader extends Application {
       } );
 
       // Listen to local and remote changes
-      local.categories.addListener( this::refreshCatalog );
+      data.categories.addListener( this::refreshCatalog );
    }
 
    // Localise user interface
@@ -175,8 +173,6 @@ public class Downloader extends Application {
       pnlC.getTabs().get( 1 ).setText( res.getString( "data.title"   ) );
          btnFolder.setText( res.getString( "data.btn.location" ) );
          btnFolder.setOnAction( this::btnFolder_action );
-         btnSave  .setText( res.getString( "data.btn.save"     ) );
-         btnSave  .setDisable( true );
       pnlC.getTabs().get( 2 ).setText( res.getString( "web.title"    ) );
       pnlC.getTabs().get( 3 ).setText( res.getString( "log.title"    ) );
 
@@ -191,8 +187,7 @@ public class Downloader extends Application {
       String content = Utils.loadFile( f );
       if ( ! content.contains( "https://github.com/Sheep-y/trpg-dnd-4e-db/" ) )
          throw new IllegalArgumentException();
-      LocalReader.load( local, new File( f.getParent(), f.getName().replaceAll( "\\.x?html?$", "" ) + "_files" ) );
-      btnSave.setDisable( false );
+      updater.setBasePath( new File( f.getParent(), f.getName().replaceAll( "\\.x?html?$", "" ) + "_files" ) );
       pnlC.getTabs().get( 2 ).setDisable( false );
    }
 

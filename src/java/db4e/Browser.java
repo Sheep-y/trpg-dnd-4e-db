@@ -13,7 +13,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import sheepy.util.Net;
 
-public class RemoteReader {
+public class Browser {
 
    public static final Logger log = Logger.getLogger( Downloader.class.getName() );
 
@@ -42,7 +42,7 @@ public class RemoteReader {
       Net.trustAllSSL(); // Kill invalid SSL errors in advance
    }
 
-   public RemoteReader( Downloader main ) {
+   public Browser( Downloader main ) {
       this.main = main;
       btnRerun.setDisable( true );
       js.setOnAlert( e -> new Alert( Alert.AlertType.INFORMATION, e.getData().toString(), ButtonType.OK ).showAndWait() );
@@ -177,7 +177,7 @@ public class RemoteReader {
       @Override void succeed() {
          super.succeed();
          String[] list = queryProperty( "#category option", "value" );
-         main.remote.addCategories( list );
+         main.data.addCategories( list );
          runAction( new ActionCheckLogin() );
       }
    }

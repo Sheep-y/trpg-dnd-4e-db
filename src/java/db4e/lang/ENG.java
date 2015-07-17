@@ -17,11 +17,9 @@ public class ENG extends ListResourceBundle {
 
       { "data.title", "Data" },
       { "data.btn.location", "Select compendium" },
-      { "data.btn.save", "Save" },
       { "data.dlg.location.title", "Select offline compendium to update" },
       { "data.dlg.location.filter.db", "Offline Compendium" },
       { "data.dlg.location.filter.any", "Any file" },
-
 
       { "web.title" , "Browser" },
 
@@ -34,10 +32,13 @@ public class ENG extends ListResourceBundle {
 
       { "log.data.err.not_compendium", "Selected file is not offline 4e compendium." },
 
-      { "log.loader.done", "Local data read" },
-      { "log.loader.entry", "Loaded {1} local entries for {0}" },
-      { "log.loader.reading", "Reading local data {0}" },
-      { "log.loader.stopped", "Stopped reading local data" },
+      { "log.updater.rebase", "Rebasing to {0}" },
+      { "log.updater.stopped", "All changes written." },
+      { "log.updater.stopping", "Waiting for changes to be written." },
+      { "log.reader.done", "Local data read" },
+      { "log.reader.entry", "Loaded {1} local entries for {0}" },
+      { "log.reader.reading", "Reading local data {0}" },
+      { "log.reader.stopped", "Stopped reading local data" },
 
       { "log.web.run" , "Running {0}." },
       { "log.web.error" , "Browser error: {0}." },

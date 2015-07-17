@@ -1,7 +1,10 @@
-package db4e.data;
+package updater;
 
 import db4e.Downloader;
 import db4e.Utils;
+import db4e.data.Catalog;
+import db4e.data.Category;
+import db4e.data.Entry;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,6 +14,8 @@ import java.util.Map;
 import java.util.function.IntFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,20 +24,12 @@ import org.json.JSONTokener;
 /**
  * Class to load data from local files
  */
-public class LocalReader implements Runnable {
+public class Reader implements Runnable {
 
    public static final Logger log = Logger.getLogger( Downloader.class.getName() );
 
-   public static void load ( Catalog catalog, File basefile ) {
-      Thread thread = new Thread( new LocalReader( catalog, basefile ) );
-      thread.setDaemon( true );
-      thread.setPriority( Thread.NORM_PRIORITY-1 );
-      Runnable aborter = () -> thread.interrupt();
-      synchronized ( catalog ) {
-         catalog.setLoader( aborter );
-         catalog.clear();
-      }
-      thread.start();
+   public static Reader load ( Catalog catalog, File basefile ) {
+      return new Reader( catalog, basefile );
    }
 
    public static JSONArray load ( File f, String jsonp ) {
@@ -65,15 +62,29 @@ public class LocalReader implements Runnable {
 
    private final File basefile;
    private final Catalog catalog;
+   private final Thread thread;
 
-   private LocalReader ( Catalog catalog, File basefile ) {
-      assert( basefile != null && basefile.isFile() );
-      this.basefile = basefile;
+   private Reader ( Catalog catalog, File basepath ) {
+      assert( basepath != null && basepath.isFile() );
+      this.basefile = basepath;
       this.catalog = catalog;
+
+      Thread thread = new Thread( this, "Reader" );
+      this.thread = thread;
+      thread.setDaemon( false );
+//      thread.setPriority( Thread.NORM_PRIORITY-1 );
+   }
+
+   public void start () {
+      thread.start();
+   }
+
+   public void stop () {
+      thread.interrupt();
    }
 
    private boolean stopped () {
-      return Thread.currentThread().isInterrupted();
+      return thread.isInterrupted();
    }
 
    private static <E> E[] toArray( Object obj, IntFunction<E[]> constructor ) {
@@ -87,7 +98,10 @@ public class LocalReader implements Runnable {
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   public void run () {
+   public BooleanProperty isRunning = new SimpleBooleanProperty();
+
+   @Override public void run () {
+      isRunning.set( true );
       try {
          loadCatalog();
          for ( Category cat : catalog.categories ) {
@@ -99,21 +113,19 @@ public class LocalReader implements Runnable {
                if ( stopped() ) return;
                loadEntry( entry );
             }
-            log.log( Level.FINE, "log.loader.entry", new Object[]{ cat.id, cat.entries.size() } );
+            log.log( Level.FINE, "log.reader.entry", new Object[]{ cat.id, cat.entries.size() } );
          }
-         log.info( "log.loader.done" );
+         log.info( "log.reader.done" );
       } finally {
-         synchronized ( catalog ) {
-            catalog.setLoader( null );
-         }
-         log.info( "log.loader.stopped" );
+         log.info( "log.reader.stopped" );
+         isRunning.set( false );
       }
    }
 
    private void loadCatalog () {
       // Load catalog content: od.reader.jsonp_catalog(20130616,{"Class":19,"Theme":110})
       File f = new File( basefile.getParent(), basefile.getName() + "/catalog.js" );
-      log.log( Level.FINE, "log.loader.reading", f );
+      log.log( Level.FINE, "log.reader.reading", f );
       JSONArray params = load( f, "od.reader.jsonp_catalog" );
       if ( params == null ) return;
 
@@ -142,7 +154,7 @@ public class LocalReader implements Runnable {
    private void loadCategory ( Category cat ) {
       // Entry list: ﻿od.reader.jsonp_data_listing(20130616,"cat_id",["ID","Field2","SourceBook"],[["123.asp","1-2",["Book1","Book2"]],[["234.asp","2-2",["Book3"]]]
       File f = new File( basefile.getParent(), basefile.getName() + "/" + cat.id + "/_listing.js" );
-      log.log( Level.FINE, "log.loader.reading", f );
+      log.log( Level.FINE, "log.reader.reading", f );
       JSONArray params = load( f, "od.reader.jsonp_data_listing" );
       if ( params == null ) return;
 
@@ -191,7 +203,7 @@ public class LocalReader implements Runnable {
    private void loadEntry ( Entry entry ) {
       //﻿od.reader.jsonp_data(20130330, "Cat", "id","content" )
       File f = new File( basefile.getParent(), basefile.getName() + "/" + entry.category.id + "/" + entry.getFileId() + ".js" );
-      log.log( Level.FINER, "log.loader.reading", f );
+      log.log( Level.FINER, "log.reader.reading", f );
       JSONArray params = load( f, "od.reader.jsonp_data" );
       if ( params == null ) return;
 
