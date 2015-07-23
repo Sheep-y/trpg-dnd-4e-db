@@ -578,33 +578,27 @@ od.action.list = {
 
       // Show data
       _.time( 'Listing ' + data.length + ' results (' + col + ')' );
-      var list = [], doc = document;
-      for ( var i = 0, l = data.length ; i < l ; i++ ) {
+      var list = [], doc = document, html = '';
+      for ( var i = 0, l = data.length ; i < l ; i++ ) { // Create row; intensive (up to tens of thousands).
          var line = data[i];
-         if ( line ) { // Create row; intensive (up to tens of thousands).  Creating it by DOM is about 18% faster then _.create.
-            var row = doc.createElement( 'tr' ), cat_name = line._category.name, id = line[ idField ];
-            row.setAttribute( 'role', 'menuitem' );
-            row.setAttribute( 'aria-label', line.Name );
-            //row.setAttribute( 'tabindex', 0 );
-            row.setAttribute( 'data-id', id );
-            if ( ! action.category ) row.setAttribute( 'data-category', cat_name );
-            /* Building row by string is not supported by IE http://www.ericvasilik.com/2006/07/code-karma.html */// TODO: Reconsider and retest speed!
-            for ( var j = 1 ; j < cl ; j++ ) { // Note: VERY intensive loop - a hundred thousand if user click 'all'.
-               var td = doc.createElement('td');
-               var d = line[ col[ j ] ];
-               if ( d ) td.innerHTML = gui.highlight( d.text ? d.text : d );
-               row.appendChild( td );
-            }
-            var td = doc.createElement('td');
-            td.innerHTML = '<input type="checkbox" class="list_sel">';
-            td.className = 'hide';
-            row.appendChild( td );
-            body.appendChild( row );
-            list.push( cat_name + "." + id );
+         if ( ! line ) continue;
+
+         var cat_name = line._category.name, id = line[ idField ];
+         html += '<tr role="menuitem" aria-label="' + _.escHtml( line.Name ) + '" data-id="' + _.escHtml( id ) + '"';
+         if ( ! action.category ) html += ' data-category="' + _.escHtml( cat_name ) + '"';
+         html += '>';
+         for ( var j = 1 ; j < cl ; j++ ) { // Note: VERY intensive loop - a hundred thousand if user clicks 'all'.
+            html += '<td>';
+            var d = line[ col[ j ] ];
+            if ( d ) html += gui.highlight( d.text ? d.text : d );
          }
+         //html += "<td class='hide'><input type='checkbox' class='list_sel'>";
+         html += "<td>";
+         list.push( cat_name + "." + id );
       }
       od.action.view.siblings = list;
 
+      body.insertAdjacentHTML( 'beforeend', html );
       table.appendChild( body );
       _.show( table ); // Android Firefox v27 needs an extra kick to trigger redraw
 
