@@ -1,7 +1,6 @@
 package db4e;
 
 import db4e.data.Catalog;
-import db4e.data.Category;
 import db4e.lang.ENG;
 import java.io.File;
 import java.io.IOException;
@@ -19,18 +18,21 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.ListChangeListener.Change;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -54,15 +56,21 @@ public class Downloader extends Application {
 
    // Interactive components
    private WebView webGuide;
-   private final TableView tblCat = new TableView();
    private final Button btnFolder = new Button();
+   private final Label  lblFolder = new Label();
+   private final Label  lblStatus = new Label();
+   private final Button btnDelete = new Button();
+   private final Button btnResave = new Button();
+   private final Button btnUpdate = new Button();
    private final TextArea txtLog = new TextArea();
 
    // Layout regions
    private Stage stage;
-   private final BorderPane pnlDataTop = new BorderPane( null, null, null, null, btnFolder );
    private final BorderPane pnlGuide = new BorderPane( webGuide );
-   private final BorderPane pnlData = new BorderPane( tblCat, pnlDataTop, null, null, null );
+   private final BorderPane pnlDataTop = new BorderPane( null, null, lblFolder, lblStatus, btnFolder );
+   private final GridPane   pnlDataAction = new GridPane();
+   private final BorderPane pnlDataCentre = new BorderPane( null, pnlDataAction, null, pnlDataTop, null );
+   private final BorderPane pnlData = new BorderPane( pnlDataCentre, pnlDataTop, null, null, null );
    private final TabPane pnlC = new TabPane(
          new Tab( "?", pnlGuide ),
          new Tab( "!", pnlData ),
@@ -94,14 +102,17 @@ public class Downloader extends Application {
       log.info( "log.init" );
 
       // Load previous location
-      if ( current.exists() )
+      if ( current.exists() ) {
          try {
             loadFile( current );
+            return;
          } catch ( IllegalArgumentException ex ) {
             log.log( Level.WARNING, "log.data.err.not_compendium", current );
          } catch ( IOException ex ) {
             log.log( Level.WARNING, "log.cannot_read", ex );
          }
+      }
+      unloadFile();
    }
 
    public void initLogger() throws SecurityException {
@@ -141,21 +152,21 @@ public class Downloader extends Application {
    public void initTabs() {
       ObservableList<Tab> tabs = pnlC.getTabs();
       for ( Tab tab : tabs ) tab.setClosable( false );
+
+      pnlDataAction.add( btnDelete, 0, 0 );
+      pnlDataAction.add( btnResave, 1, 0 );
+      pnlDataAction.add( btnUpdate, 2, 0 );
+
       tabs.get( 2 ).setDisable( true );
 
       pnlC.getSelectionModel().select( 1 );
       pnlC.getSelectionModel().selectedItemProperty().addListener( (prop,old,now) -> {
-         if ( now.getContent() == pnlGuide ) {
-            if ( webGuide == null ) {
-               webGuide = new WebView();
-               pnlGuide.setCenter( webGuide );
-               localise( null );
-            }
+         if ( now.getContent() == pnlGuide && webGuide == null ) {
+            webGuide = new WebView();
+            pnlGuide.setCenter( webGuide );
+            localise( null );
          }
       } );
-
-      // Listen to local and remote changes
-      data.categories.addListener( this::refreshCatalog );
    }
 
    // Localise user interface
@@ -173,6 +184,12 @@ public class Downloader extends Application {
       pnlC.getTabs().get( 1 ).setText( res.getString( "data.title"   ) );
          btnFolder.setText( res.getString( "data.btn.location" ) );
          btnFolder.setOnAction( this::btnFolder_action );
+         btnDelete.setText( res.getString( "data.btn.delete" ) );
+         btnDelete.setTooltip( new Tooltip( res.getString( "data.btn.delete_hint" ) ) );
+         btnResave.setText( res.getString( "data.btn.resave" ) );
+         btnResave.setTooltip( new Tooltip( res.getString( "data.btn.resave_hint" ) ) );
+         btnUpdate.setText( res.getString( "data.btn.update" ) );
+         btnUpdate.setTooltip( new Tooltip( res.getString( "data.btn.update_hint" ) ) );
       pnlC.getTabs().get( 2 ).setText( res.getString( "web.title"    ) );
       pnlC.getTabs().get( 3 ).setText( res.getString( "log.title"    ) );
 
@@ -187,8 +204,49 @@ public class Downloader extends Application {
       String content = Utils.loadFile( f );
       if ( ! content.contains( "https://github.com/Sheep-y/trpg-dnd-4e-db/" ) )
          throw new IllegalArgumentException();
-      updater.setBasePath( new File( f.getParent(), f.getName().replaceAll( "\\.x?html?$", "" ) + "_files" ) );
-      pnlC.getTabs().get( 2 ).setDisable( false );
+      File file = new File( f.getParent(), f.getName().replaceAll( "\\.x?html?$", "" ) + "_files" );
+      disableButtons();
+      lblFolder.setText( file.toString() );
+      lblStatus.setText( res.getString( "data.status.unloading" ) );
+
+      new Thread( () -> {
+         updater.stop();
+         updater.isRead.addListener( new ChangeListener<Boolean>() {
+            @Override public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+               if ( ! newValue.booleanValue() ) return;
+               updater.isRead.removeListener( this );
+               Platform.runLater( () -> {
+                  lblStatus.setText( res.getString( "data.status.read" ) );
+                  //pnlC.getTabs().get( 2 ).setDisable( false );
+               } );
+            }
+         } );
+         Platform.runLater( () -> {
+            btnFolder.setDisable( false );
+            lblStatus.setText( res.getString( "data.status.reading" ) );
+         } );
+         updater.setBasePath( file );
+      } ).start();
+   }
+
+   private void unloadFile() {
+      disableButtons();
+      lblStatus.setText( res.getString( "data.status.unloading" ) );
+      new Thread( () -> {
+         updater.stop();
+         Platform.runLater( () -> {
+            lblFolder.setText( "" );
+            lblStatus.setText( res.getString( "data.status.no_folder" ) );
+            btnFolder.setDisable( false );
+         } );
+      } ).start();
+   }
+
+   private void disableButtons() {
+      btnFolder.setDisable( true );
+      btnDelete.setDisable( true );
+      btnResave.setDisable( true );
+      btnUpdate.setDisable( true );
    }
 
    private FileChooser dlgOpen;
@@ -215,14 +273,10 @@ public class Downloader extends Application {
          } catch ( IOException ex ) {
             msg = new MessageFormat( res.getString( "log.cannot_read" ) ).format( ex );
          }
-         if ( msg != null )
+         if ( msg != null ) {
             new Alert( Alert.AlertType.ERROR, msg, ButtonType.OK ).show();
+            unloadFile();
+         }
       }
-   }
-
-   /**
-    * Call when catalog list is changed.  Will rebuild whole table.
-    */
-   public void refreshCatalog ( Change<? extends Category> evt ) {
    }
 }

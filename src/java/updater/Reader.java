@@ -83,7 +83,7 @@ public class Reader implements Runnable {
       thread.interrupt();
    }
 
-   private boolean stopped () {
+   public boolean isInterrupted () {
       return thread.isInterrupted();
    }
 
@@ -105,12 +105,12 @@ public class Reader implements Runnable {
       try {
          loadCatalog();
          for ( Category cat : catalog.categories ) {
-            if ( stopped() ) return;
+            if ( isInterrupted() ) return;
             loadCategory( cat );
          }
          for ( Category cat : catalog.categories ) {
             for ( Entry entry : cat.entries ) {
-               if ( stopped() ) return;
+               if ( isInterrupted() ) return;
                loadEntry( entry );
             }
             log.log( Level.FINE, "log.reader.entry", new Object[]{ cat.id, cat.entries.size() } );
@@ -124,7 +124,7 @@ public class Reader implements Runnable {
 
    private void loadCatalog () {
       // Load catalog content: od.reader.jsonp_catalog(20130616,{"Class":19,"Theme":110})
-      File f = new File( basefile.getParent(), basefile.getName() + "/catalog.js" );
+      File f = new File( basefile, "catalog.js" );
       log.log( Level.FINE, "log.reader.reading", f );
       JSONArray params = load( f, "od.reader.jsonp_catalog" );
       if ( params == null ) return;
@@ -143,7 +143,7 @@ public class Reader implements Runnable {
 
       // Update catalog
       synchronized ( catalog ) {
-         if ( stopped() ) return;
+         if ( isInterrupted() ) return;
          catalog.addCategories( data.keySet().toArray( new String[0] ) );
          catalog.categories.forEach( cat ->
             cat.size = data.get( cat.id ) );
@@ -153,7 +153,7 @@ public class Reader implements Runnable {
 
    private void loadCategory ( Category cat ) {
       // Entry list: ﻿od.reader.jsonp_data_listing(20130616,"cat_id",["ID","Field2","SourceBook"],[["123.asp","1-2",["Book1","Book2"]],[["234.asp","2-2",["Book3"]]]
-      File f = new File( basefile.getParent(), basefile.getName() + "/" + cat.id + "/_listing.js" );
+      File f = new File( basefile, cat.id + "/_listing.js" );
       log.log( Level.FINE, "log.reader.reading", f );
       JSONArray params = load( f, "od.reader.jsonp_data_listing" );
       if ( params == null ) return;
@@ -202,7 +202,7 @@ public class Reader implements Runnable {
 
    private void loadEntry ( Entry entry ) {
       //﻿od.reader.jsonp_data(20130330, "Cat", "id","content" )
-      File f = new File( basefile.getParent(), basefile.getName() + "/" + entry.category.id + "/" + entry.getFileId() + ".js" );
+      File f = new File( basefile, entry.category.id + "/" + entry.getFileId() + ".js" );
       log.log( Level.FINER, "log.reader.reading", f );
       JSONArray params = load( f, "od.reader.jsonp_data" );
       if ( params == null ) return;
