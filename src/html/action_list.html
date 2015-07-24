@@ -569,9 +569,9 @@ od.action.list = {
          return body.appendChild( _.create( 'td', { 'rowspan' : cl+1, 'align' : 'center', 'text' : _.l( 'action.list.lbl_no_result' ) } ) );
       }
 
-      // Fitler and sort data
+      // Filter and sort data
       data = action.filter_data( col, data );
-      if ( action.sort_field && data[0][ action.sort_field ] !== undefined ) {
+      if ( action.sort_field && data.length && data[0][ action.sort_field ] !== undefined ) {
          data = action.sort_data( data );
       }
 
