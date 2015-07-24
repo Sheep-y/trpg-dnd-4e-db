@@ -497,7 +497,7 @@ od.action.list = {
                }
             }
             data = data.filter( function act_list_filter_data_num_filter ( e ) {
-               var val = ~~e[ c ].replace( /\D/g, '' ), low, hi;
+               var val = ~~e[ c ].replace( /[^\d.]/g, '' ), low, hi;
                //_.info( 'Num check ' + e[c] + '(' + val + ') [' + min + ',' + max + '] against ' + e[c] );
                if ( val === 0 ) {
                   switch ( e[c].toLowerCase() ) {
