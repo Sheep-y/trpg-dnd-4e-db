@@ -177,7 +177,7 @@ public class Browser {
       @Override void succeed() {
          super.succeed();
          String[] list = queryProperty( "#category option", "value" );
-         main.data.addCategories( list );
+         //updater.data.addCategories( list );
          runAction( new ActionCheckLogin() );
       }
    }

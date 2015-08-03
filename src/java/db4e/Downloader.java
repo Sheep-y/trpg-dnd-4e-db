@@ -1,6 +1,5 @@
 package db4e;
 
-import db4e.data.Catalog;
 import db4e.lang.ENG;
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +35,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import sheepy.util.JavaFX;
 import updater.Updater;
 
 public class Downloader extends Application {
@@ -51,7 +51,6 @@ public class Downloader extends Application {
    // App Data
    private File current = new File( prefs.get( "app_folder", "4e_database.html" ) );
    public final Browser worker = new Browser( this );
-   public final Catalog data = new Catalog();
    public final Updater updater = new Updater( this );
 
    // Interactive components
@@ -59,6 +58,7 @@ public class Downloader extends Application {
    private final Button btnFolder = new Button();
    private final Label  lblFolder = new Label();
    private final Label  lblStatus = new Label();
+      private String statusTextKey = "data.status.no_folder";
    private final Button btnDelete = new Button();
    private final Button btnResave = new Button();
    private final Button btnUpdate = new Button();
@@ -164,12 +164,15 @@ public class Downloader extends Application {
          if ( now.getContent() == pnlGuide && webGuide == null ) {
             webGuide = new WebView();
             pnlGuide.setCenter( webGuide );
-            localise( null );
+            localise();
          }
       } );
    }
 
    // Localise user interface
+   public void localise () {
+      localise( null );
+   }
    public void localise ( String lang ) {
       if ( lang != null ) {
          switch ( lang ) {
@@ -180,20 +183,41 @@ public class Downloader extends Application {
          log.log( Level.CONFIG, "log.l10n", res.getClass().getSimpleName() );
       }
       stage.setTitle( res.getString( "title" ) );
-      pnlC.getTabs().get( 0 ).setText( res.getString( "guide.title"  ) );
-      pnlC.getTabs().get( 1 ).setText( res.getString( "data.title"   ) );
+      pnlC.getTabs().get( 0 ).setText( res.getString( "guide.title" ) );
+      pnlC.getTabs().get( 1 ).setText( res.getString( "data.title"  ) );
          btnFolder.setText( res.getString( "data.btn.location" ) );
          btnFolder.setOnAction( this::btnFolder_action );
          btnDelete.setText( res.getString( "data.btn.delete" ) );
          btnDelete.setTooltip( new Tooltip( res.getString( "data.btn.delete_hint" ) ) );
+         btnDelete.setOnAction( this::btnDelete_action );
          btnResave.setText( res.getString( "data.btn.resave" ) );
          btnResave.setTooltip( new Tooltip( res.getString( "data.btn.resave_hint" ) ) );
          btnUpdate.setText( res.getString( "data.btn.update" ) );
          btnUpdate.setTooltip( new Tooltip( res.getString( "data.btn.update_hint" ) ) );
-      pnlC.getTabs().get( 2 ).setText( res.getString( "web.title"    ) );
-      pnlC.getTabs().get( 3 ).setText( res.getString( "log.title"    ) );
+      pnlC.getTabs().get( 2 ).setText( res.getString( "web.title" ) );
+      pnlC.getTabs().get( 3 ).setText( res.getString( "log.title" ) );
+
+      lblStatus.setText( resFormat( statusTextKey ) );
+
+      if ( dlgOpen != null )
+         dlgOpen.setTitle( "data.dlg.location.title" );
+
+      if ( confirmDelete != null ) {
+         confirmDelete.setTitle( resFormat( "data.dlg.delete.title" ) );
+         confirmDelete.setContentText( resFormat( "data.dlg.delete.text" ) );
+      }
 
       if ( webGuide != null ) webGuide.getEngine().loadContent( res.getString( "guide.html" ) );
+   }
+
+   private void setStatus ( String key ) {
+      statusTextKey = key;
+      lblStatus.setText( resFormat( key ) );
+   }
+   private String resFormat ( String key, Object ... params ) {
+      key = res.getString( key );
+      if ( params.length <= 0 ) return key;
+      return MessageFormat.format( key, params );
    }
 
 /********************************************************************************************************
@@ -204,26 +228,23 @@ public class Downloader extends Application {
       String content = Utils.loadFile( f );
       if ( ! content.contains( "https://github.com/Sheep-y/trpg-dnd-4e-db/" ) )
          throw new IllegalArgumentException();
+      current = f;
       File file = new File( f.getParent(), f.getName().replaceAll( "\\.x?html?$", "" ) + "_files" );
       disableButtons();
-      lblFolder.setText( file.toString() );
-      lblStatus.setText( res.getString( "data.status.unloading" ) );
+      lblFolder.setText( file.getAbsolutePath() );
 
       new Thread( () -> {
          updater.stop();
          updater.isRead.addListener( new ChangeListener<Boolean>() {
             @Override public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-               if ( ! newValue.booleanValue() ) return;
+               if ( ! newValue ) return;
                updater.isRead.removeListener( this );
-               Platform.runLater( () -> {
-                  lblStatus.setText( res.getString( "data.status.read" ) );
-                  //pnlC.getTabs().get( 2 ).setDisable( false );
-               } );
+               Platform.runLater( Downloader.this::enableButtons );
             }
          } );
          Platform.runLater( () -> {
             btnFolder.setDisable( false );
-            lblStatus.setText( res.getString( "data.status.reading" ) );
+            setStatus( "data.status.reading" );
          } );
          updater.setBasePath( file );
       } ).start();
@@ -231,34 +252,43 @@ public class Downloader extends Application {
 
    private void unloadFile() {
       disableButtons();
-      lblStatus.setText( res.getString( "data.status.unloading" ) );
       new Thread( () -> {
          updater.stop();
          Platform.runLater( () -> {
             lblFolder.setText( "" );
-            lblStatus.setText( res.getString( "data.status.no_folder" ) );
+            setStatus( "data.status.no_folder" );
             btnFolder.setDisable( false );
          } );
       } ).start();
    }
 
    private void disableButtons() {
+      setStatus( "data.status.unloading" );
       btnFolder.setDisable( true );
       btnDelete.setDisable( true );
       btnResave.setDisable( true );
       btnUpdate.setDisable( true );
    }
 
+   private void enableButtons() {
+      setStatus( "data.status.ready" );
+      btnDelete.setDisable( false );
+      btnResave.setDisable( false );
+      btnUpdate.setDisable( false );
+   }
+
    private FileChooser dlgOpen;
    public void btnFolder_action ( ActionEvent evt ) {
+      assert( Platform.isFxApplicationThread() );
+
       // Create file dialog
       if ( dlgOpen == null ) {
          dlgOpen = new FileChooser();
-         dlgOpen.setTitle( "data.dlg.location.title" );
          dlgOpen.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter( "data.dlg.location.filter.db" , "4e_database.html" ),
-            new FileChooser.ExtensionFilter( "data.dlg.location.filter.any", "*.*" ) );
-         dlgOpen.setInitialDirectory( current );
+            new FileChooser.ExtensionFilter( resFormat( "data.dlg.location.filter.db" ), "4e_database.html" ),
+            new FileChooser.ExtensionFilter( resFormat( "data.dlg.location.filter.any" ), "*.*" ) );
+         dlgOpen.setInitialDirectory( current.getParentFile() );
+         localise();
       }
 
       // Show dialog
@@ -269,9 +299,9 @@ public class Downloader extends Application {
             loadFile( selected );
             prefs.put( "app_folder", selected.toString() );
          } catch ( IllegalArgumentException ex ) {
-            msg = new MessageFormat( res.getString( "log.data.err.not_compendium" ) ).format( selected );
+            msg = resFormat( "log.data.err.not_compendium", selected );
          } catch ( IOException ex ) {
-            msg = new MessageFormat( res.getString( "log.cannot_read" ) ).format( ex );
+            msg = resFormat( "log.cannot_read", ex );
          }
          if ( msg != null ) {
             new Alert( Alert.AlertType.ERROR, msg, ButtonType.OK ).show();
@@ -279,4 +309,20 @@ public class Downloader extends Application {
          }
       }
    }
+
+   Alert confirmDelete;
+   public void btnDelete_action ( ActionEvent evt ) {
+      assert( Platform.isFxApplicationThread() );
+
+      if ( confirmDelete == null ) {
+         confirmDelete = JavaFX.dialogDefault( new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO ), ButtonType.NO );
+         localise();
+      }
+      if ( ! confirmDelete.showAndWait().filter( e -> e == ButtonType.YES ).isPresent() )
+         return;
+
+      updater.deleteCategory();
+      btnDelete.setDisable( true );
+   }
+
 }

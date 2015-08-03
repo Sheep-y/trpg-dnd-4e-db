@@ -7,6 +7,7 @@ import db4e.data.Entry;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,7 +45,9 @@ public class Writer implements Runnable {
             queue.clear();
          }
          for ( Object o : write_list ) {
-            if ( o instanceof Entry )
+            if ( o instanceof Optional )
+               deleteItem( ( (Optional) o ).get() );
+            else if ( o instanceof Entry )
                writeEntry( ( Entry ) o );
             else if ( o instanceof Category )
                writeCategory( ( Category ) o );
@@ -64,6 +67,39 @@ public class Writer implements Runnable {
       synchronized ( stopped ) {
          stopped.notifyAll();
       }
+   }
+
+   private void deleteItem ( Object item ) {
+      File[] targets;
+      if ( item instanceof Entry ) {
+         Entry e = ( Entry ) item;
+         String path = e.category.id + File.separatorChar + e.getFileId() + ".js";
+         targets = new File[]{ new File( basepath, path ) };
+         log.log( Level.FINER, "log.writer.delele.entry", targets[0] );
+
+      } else if ( item instanceof Category ) {
+         String path = ( ( Category ) item ).id;
+         File base = new File( basepath, path );
+         targets = new File[]{ new File( base, "_index.js" )
+                             , new File( base, "_listing.js" )
+                             , new File( base, "_raw.js" )
+                             , base };
+         log.log( Level.FINE, "log.writer.delele.category", base );
+
+      } else if ( item instanceof Catalog ) {
+         targets = new File[]{ new File( basepath, "catalog.js" )
+                             , basepath };
+         log.log( Level.INFO, "log.writer.delele.catalog", targets[0] );
+
+      } else {
+         log.log( Level.WARNING, "Unknown class in delete queue: {0}", item.getClass() );
+         return;
+      }
+
+      for ( File f : targets )
+         if ( f.exists() )
+            if ( ! f.delete() )
+               log.log( Level.WARNING, "log.writer.delele.failed", f );
    }
 
    private void writeEntry ( Entry entry ) {
@@ -87,9 +123,20 @@ public class Writer implements Runnable {
    }
 
    /**
+    * Add an object to delete queue.
+    */
+   public void delete ( Object object ) {
+      assert( object != null );
+      synchronized ( queue ) {
+         queue.add( Optional.of( object ) );
+         recheck();
+      }
+   }
+
+   /**
     * Add an object to write queue.
     */
-   public void write( Object object ) {
+   public void write ( Object object ) {
       assert( object != null );
       synchronized ( queue ) {
          queue.add( object );

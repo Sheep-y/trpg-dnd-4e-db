@@ -15,6 +15,7 @@ import java.util.function.IntFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -98,10 +99,11 @@ public class Reader implements Runnable {
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   public BooleanProperty isRunning = new SimpleBooleanProperty();
+   private final BooleanProperty running = new SimpleBooleanProperty();
+   public final ReadOnlyBooleanProperty isRunning = ReadOnlyBooleanProperty.readOnlyBooleanProperty( running );
 
    @Override public void run () {
-      isRunning.set( true );
+      running.set( true );
       try {
          loadCatalog();
          for ( Category cat : catalog.categories ) {
@@ -118,7 +120,7 @@ public class Reader implements Runnable {
          log.info( "log.reader.done" );
       } finally {
          log.info( "log.reader.stopped" );
-         isRunning.set( false );
+         running.set( false );
       }
    }
 
