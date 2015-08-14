@@ -1,6 +1,6 @@
 package updater;
 
-import db4e.Downloader;
+import db4e.Main;
 import db4e.data.Catalog;
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  */
 public class Writer implements Runnable {
 
-   public static final Logger log = Logger.getLogger( Downloader.class.getName() );
+   public static final Logger log = Logger.getLogger( Main.class.getName() );
 
    private volatile boolean stop;
    private final AtomicBoolean stopped = new AtomicBoolean( false );

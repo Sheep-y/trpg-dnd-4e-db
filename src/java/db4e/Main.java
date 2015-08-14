@@ -38,15 +38,15 @@ import javafx.stage.Stage;
 import sheepy.util.JavaFX;
 import updater.Updater;
 
-public class Downloader extends Application {
+public class Main extends Application {
 
    // Main method.  Do virtually nothing.
    public static void main( String[] args ) { launch( args ); }
 
    // System utilities
    public ResourceBundle res;
-   public static final Logger log = Logger.getLogger( Downloader.class.getName() );
-   public static final Preferences prefs = Preferences.userNodeForPackage( Downloader.class );
+   public static final Logger log = Logger.getLogger( Main.class.getName() );
+   public static final Preferences prefs = Preferences.userNodeForPackage( Main.class );
 
    // App Data
    private File current = new File( prefs.get( "app_folder", "4e_database.html" ) );
@@ -211,8 +211,12 @@ public class Downloader extends Application {
    }
 
    private void setStatus ( String key ) {
-      statusTextKey = key;
-      lblStatus.setText( resFormat( key ) );
+      if ( Platform.isFxApplicationThread() ) {
+         statusTextKey = key;
+         lblStatus.setText( resFormat( key ) );
+      } else {
+         Platform.runLater( () -> setStatus( key ) );
+      }
    }
    private String resFormat ( String key, Object ... params ) {
       key = res.getString( key );
@@ -233,20 +237,11 @@ public class Downloader extends Application {
       disableButtons();
       lblFolder.setText( file.getAbsolutePath() );
 
+      btnFolder.setDisable( false );
       new Thread( () -> {
          updater.stop();
-         updater.isRead.addListener( new ChangeListener<Boolean>() {
-            @Override public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-               if ( ! newValue ) return;
-               updater.isRead.removeListener( this );
-               Platform.runLater( Downloader.this::enableButtons );
-            }
-         } );
-         Platform.runLater( () -> {
-            btnFolder.setDisable( false );
-            setStatus( "data.status.reading" );
-         } );
-         updater.setBasePath( file );
+         setStatus( "data.status.reading" );
+         updater.setBasePath( file ).thenRun( Main.this::enableButtons );
       } ).start();
    }
 
@@ -263,18 +258,26 @@ public class Downloader extends Application {
    }
 
    private void disableButtons() {
-      setStatus( "data.status.unloading" );
-      btnFolder.setDisable( true );
-      btnDelete.setDisable( true );
-      btnResave.setDisable( true );
-      btnUpdate.setDisable( true );
+      if ( Platform.isFxApplicationThread() ) {
+         setStatus( "data.status.unloading" );
+         btnFolder.setDisable( true );
+         btnDelete.setDisable( true );
+         btnResave.setDisable( true );
+         btnUpdate.setDisable( true );
+      } else {
+         Platform.runLater( this::disableButtons );
+      }
    }
 
    private void enableButtons() {
-      setStatus( "data.status.ready" );
-      btnDelete.setDisable( false );
-      btnResave.setDisable( false );
-      btnUpdate.setDisable( false );
+      if ( Platform.isFxApplicationThread() ) {
+         setStatus( "data.status.ready" );
+         btnDelete.setDisable( false );
+         btnResave.setDisable( false );
+         btnUpdate.setDisable( false );
+      } else {
+         Platform.runLater( this::enableButtons );
+      }
    }
 
    private FileChooser dlgOpen;

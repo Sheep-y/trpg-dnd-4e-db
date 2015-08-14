@@ -1,10 +1,12 @@
 package updater;
 
-import db4e.Downloader;
+import db4e.Main;
 import db4e.data.Catalog;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.io.File;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
@@ -13,26 +15,25 @@ import javafx.beans.property.SimpleBooleanProperty;
 
 public class Updater {
 
-   public static final Logger log = Logger.getLogger( Downloader.class.getName() );
+   public static final Logger log = Logger.getLogger( Main.class.getName() );
 
    // Internal status
-   private BooleanProperty read = new SimpleBooleanProperty();
+   private enum STATE { UNLOADED, LOADED, READING, WRITING, UPDATING };
+   private STATE state = STATE.UNLOADED;
    private BooleanProperty done = new SimpleBooleanProperty();
    // Public statuc hooks
-   public ReadOnlyBooleanProperty isRead = ReadOnlyBooleanProperty.readOnlyBooleanProperty( read );
    public ReadOnlyBooleanProperty isDone = ReadOnlyBooleanProperty.readOnlyBooleanProperty( done );
 
    private File basepath;
-   private final Downloader main;
+   private final Main main;
    public final Catalog data = new Catalog();
    private Reader reader;
    private Loader loader;
    private Writer writer;
 
-   public Updater ( Downloader main ) {
+   public Updater ( Main main ) {
       this.main = main;
-      read.set( false );
-      done.set( false );
+      done.set( true );
    }
 
    public synchronized void stop () {
@@ -50,27 +51,35 @@ public class Updater {
       log.fine( "log.updater.stopped" );
    }
 
-   public synchronized void setBasePath ( File basepath ) {
+   public synchronized CompletionStage<Catalog> setBasePath ( File basepath ) {
       stop();
       data.clear();
+      log.log( Level.CONFIG, "log.updater.rebase", basepath );
 
-      read.set( false );
+      done.set( false );
+      CompletableFuture<Catalog> promise = new CompletableFuture<>();
+      state = STATE.READING;
       reader = Reader.load( data, basepath );
-      data.setWriter( writer );
 
       reader.isRunning.addListener( (prop,oldVal,running) -> { synchronized ( this ) {
-         if ( running || reader == null ) return; // Do nothing if not done or ALREADY handled.
-         read.set( true );
+         if ( running || reader == null ) return; // Do nothing if not done or already handled.
          if ( ! reader.isInterrupted() ) {
             writer = new Writer( basepath );
             writer.start();
+            data.setWriter( writer );
             loader = new Loader();
             loader.start();
+            state = STATE.LOADED;
+         } else {
+            data.clear();
+            state = STATE.UNLOADED;
          }
          reader = null;
+         promise.complete( data );
+         done.set( true );
       } } );
       reader.start();
-      log.log( Level.CONFIG, "log.updater.rebase", basepath );
+      return promise;
    }
 
    /******************************************************************************************************************/

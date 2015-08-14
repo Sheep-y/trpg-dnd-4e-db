@@ -1,6 +1,6 @@
 package updater;
 
-import db4e.Downloader;
+import db4e.Main;
 import db4e.Utils;
 import db4e.data.Catalog;
 import db4e.data.Category;
@@ -27,7 +27,7 @@ import org.json.JSONTokener;
  */
 public class Reader implements Runnable {
 
-   public static final Logger log = Logger.getLogger( Downloader.class.getName() );
+   public static final Logger log = Logger.getLogger( Main.class.getName() );
 
    public static Reader load ( Catalog catalog, File basefile ) {
       return new Reader( catalog, basefile );

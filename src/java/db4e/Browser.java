@@ -15,7 +15,7 @@ import sheepy.util.Net;
 
 public class Browser {
 
-   public static final Logger log = Logger.getLogger( Downloader.class.getName() );
+   public static final Logger log = Logger.getLogger( Main.class.getName() );
 
    private final Button btnRerun = new Button( "" );
    private final WebView web = new WebView();
@@ -24,7 +24,7 @@ public class Browser {
    private final FlowPane pnlT = new FlowPane( btnRerun );
    private final BorderPane panel = new BorderPane( web, pnlT, null, null, null );
 
-   private final Downloader main;
+   private final Main main;
    private ActionStrategy action = new ActionLoadAgent();
 
    /*
@@ -42,7 +42,7 @@ public class Browser {
       Net.trustAllSSL(); // Kill invalid SSL errors in advance
    }
 
-   public Browser( Downloader main ) {
+   public Browser( Main main ) {
       this.main = main;
       btnRerun.setDisable( true );
       js.setOnAlert( e -> new Alert( Alert.AlertType.INFORMATION, e.getData().toString(), ButtonType.OK ).showAndWait() );
