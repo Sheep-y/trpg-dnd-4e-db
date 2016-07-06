@@ -1,6 +1,5 @@
 package db4e.data;
 
-import updater.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.collections.ObservableList;
@@ -30,15 +29,5 @@ public class Catalog {
          str.append( cat.id ).append( ':' ).append( cat.entries.size() ).append('/').append( cat.size ) );
       str.setLength( str.length()-1 );
       return str.append( '}' ).toString();
-   }
-
-   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   private Writer writer;
-
-   public synchronized void setWriter( Writer writer ) {
-      if ( this.writer != null )
-         this.writer.waitForDone();
-      this.writer = writer;
    }
 }
