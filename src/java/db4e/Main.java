@@ -5,12 +5,18 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.control.TextInputControl;
 import javafx.stage.Stage;
+import javax.swing.JOptionPane;
 import sheepy.util.JavaFX;
 
+/**
+ * Setup logging, load preference, and show downloader main GUI.
+ */
 public class Main extends Application {
 
    static {
@@ -19,19 +25,38 @@ public class Main extends Application {
       Logger.getLogger( "" ).getHandlers()[0].setLevel( Level.OFF );
    }
 
-   // Main method.  Do virtually nothing.
-   public static void main( String[] args ) { 
-      launch( args ); 
-   }
+   public static String TITLE = "Offline compendium v3.5 downloader";
 
-   // System utilities
+   // Global log ang preference
    public static final Logger log = Logger.getLogger( Main.class.getName() );
    public static final Preferences prefs = Preferences.userNodeForPackage( Main.class );
 
+   // Main method.  Do virtually nothing.
+   public static void main( String[] args ) {
+      try {
+         Class.forName( "java.util.concurrent.CompletableFuture" );
+         launch( args ); 
+      } catch ( ClassNotFoundException ex ) {
+         JOptionPane.showMessageDialog( null, "Requires Java 1.8 or above", TITLE, JOptionPane.ERROR_MESSAGE );
+         Platform.exit();
+      }
+   }
+
    @Override public void start( Stage stage ) throws Exception {
-      stage.setScene( new SceneMain( this ) );
+      final SceneMain sceneMain = new SceneMain( this );
+
+      stage.setTitle( TITLE );
+      stage.setScene(sceneMain);
+      stage.setOnCloseRequest( e -> { try {
+            sceneMain.shutdown();
+            prefs.flush();
+            for ( Handler handler : log.getHandlers() )
+               handler.close();
+         } catch ( BackingStoreException | SecurityException | NullPointerException ignored ) { } } );
       stage.show();
-      log.info( "UI Layout initialised" );
+      
+      log.info( "Main GUI initialised" );
+      sceneMain.startup();
    }
 
    public void addLoggerOutput( TextInputControl textInput ) throws SecurityException {

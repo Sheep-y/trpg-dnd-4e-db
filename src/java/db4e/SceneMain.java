@@ -24,19 +24,26 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import sheepy.util.JavaFX;
 import sheepy.util.ui.ConsoleWebView;
 
+/**
+ * Main GUI of downloader.
+ */
 public class SceneMain extends Scene {
 
-   // System utilities
-   public final Logger log = Main.log;
-   public final Preferences prefs = Main.prefs;
+   private static final Logger log = Main.log;
+   private static final Preferences prefs = Main.prefs;
+
+   // Global control states
+   private boolean isIdle = true; // Controls start at idle state; set to true so that enterBusy will do work
+   private boolean hasData = false;
 
    // Help Screen
    private final BorderPane pnlHelpTab = new BorderPane();
@@ -62,7 +69,8 @@ public class SceneMain extends Scene {
 
    // Option Screen
    private final CheckBox chkDebug = new CheckBox( "Show debug tabs" );
-   private final Pane pnlOptionTab = new HBox( chkDebug );
+   final Button btnClearData = new Button( "Clear Downloaded Data" ); // Allow downloader access, to allow clear when db is down
+   private final Pane pnlOptionTab = new VBox( 8, chkDebug, btnClearData );
    private final Tab tabOption = new Tab( "Options", pnlOptionTab );
 
    // Log Screen
@@ -72,6 +80,7 @@ public class SceneMain extends Scene {
    // Worker Screen
    private final ConsoleWebView pnlWorker = new ConsoleWebView();
    private final Tab tabWorker = new Tab( "Worker", new BorderPane( pnlWorker ) );
+   private final Downloader loader = new Downloader( this );
 
    // Layout regions
    private final TabPane pnlC = new TabPane( tabHelp, tabData, tabOption, tabAbout );
@@ -96,11 +105,12 @@ public class SceneMain extends Scene {
       chkDebug.selectedProperty().addListener( this::chkDebug_change );
       if ( prefs.getBoolean( "gui.debug", false ) )
          chkDebug.selectedProperty().set( true );
+      btnClearData.addEventHandler( ActionEvent.ACTION, this::btnClearData_click );
 
       // Log tab
       txtLog.setEditable( false );
 
-      disableButtons( "Initialising" );
+      enterBusy( "Initialising" );
    }
 
    private void initLayout () {
@@ -124,7 +134,7 @@ public class SceneMain extends Scene {
       tabLog.setClosable( false );
 
       // Start at data tab
-      pnlC.getSelectionModel().select( 1 );
+      pnlC.getSelectionModel().select( tabData );
       // Load help doc dynamically
       pnlC.getSelectionModel().selectedItemProperty().addListener( (prop,old,now) -> {
          if ( now == tabHelp )
@@ -136,11 +146,22 @@ public class SceneMain extends Scene {
       } );
    }
 
+   // Called by Main after stage show
+   void startup() {
+      loader.open();
+   }
+
+   // Called by Main during stage shutdown
+   void shutdown() {
+      loader.close();
+   }
+
    /////////////////////////////////////////////////////////////////////////////
-   // Utils
+   // GUI state
    /////////////////////////////////////////////////////////////////////////////
 
-   private void setStatus ( String msg ) {
+   void setStatus ( String msg ) {
+      log.log( Level.INFO, "Status: {0}", msg );
       if ( Platform.isFxApplicationThread() ) {
          lblStatus.setText( msg );
       } else {
@@ -148,37 +169,45 @@ public class SceneMain extends Scene {
       }
    }
 
-   private void disableButtons( String status ) {
+   void setHasData( boolean hasData ) {
       if ( Platform.isFxApplicationThread() ) {
-         if ( status != null ) {
-            setStatus( status );
-            log.log( Level.FINE, "{0}, disabling controls", status );
-         } else
-            log.log( Level.FINE, "Disabling controls" );
-         txtEmail.setDisable( true );
-         txtPass.setDisable( true );
-         btnView.setDisable( true );
-         btnExport.setDisable( true );
-         btnStartStop.setDisable( true );
+         // Set flag and update control status
+         this.hasData = hasData;
+         if ( isIdle )
+            enterIdle( null );
+         else
+            enterBusy( null );
       } else {
-         Platform.runLater( () -> disableButtons( status ) );
+         Platform.runLater( () -> setHasData( hasData ) );
       }
    }
 
-   private void enableButtons( String status ) {
+   void enterIdle ( String status ) {
       if ( Platform.isFxApplicationThread() ) {
-         if ( status != null ) {
-            setStatus( status );
-            log.log( Level.FINE, "{0}, enabling controls", status );
-         } else
-            log.log( Level.FINE, "Enabling controls" );
-         txtEmail.setDisable( true );
-         txtPass.setDisable( true );
+         if ( status != null ) setStatus( status );
+         log.log( Level.FINE, isIdle ? "Updating idle controls" : "Enter idle and enable controls" );
+         isIdle = true;
+         btnView.setDisable( ! hasData ); // Keep disable if has no data
+         btnExport.setDisable( ! hasData );
+         btnStartStop.setDisable( false );
+         btnClearData.setDisable( false );
+      } else {
+         Platform.runLater( () -> enterIdle( status ) );
+      }
+   }
+
+   void enterBusy ( String status ) {
+      if ( Platform.isFxApplicationThread() ) {
+         if ( status != null ) setStatus( status );
+         if ( ! isIdle ) return;
+         log.log( Level.FINE, "Disabling controls" );
+         isIdle = false;
          btnView.setDisable( true );
          btnExport.setDisable( true );
          btnStartStop.setDisable( true );
+         btnClearData.setDisable( true );
       } else {
-         Platform.runLater( () -> disableButtons( status ) );
+         Platform.runLater( () -> enterBusy( status ) );
       }
    }
 
@@ -211,7 +240,7 @@ public class SceneMain extends Scene {
    /////////////////////////////////////////////////////////////////////////////
 
    private FileChooser dlgCreateView;
-   public void btnFolder_action ( ActionEvent evt ) {
+   private void btnFolder_action ( ActionEvent evt ) {
       assert( Platform.isFxApplicationThread() );
 
       // Create file dialog
@@ -229,7 +258,7 @@ public class SceneMain extends Scene {
    // Option Tab
    /////////////////////////////////////////////////////////////////////////////
 
-   public void chkDebug_change ( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+   private void chkDebug_change ( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
       prefs.putBoolean("gui.debug", newValue );
       ObservableList<Tab> tabs = pnlC.getTabs();
       if ( newValue ) {
@@ -247,14 +276,25 @@ public class SceneMain extends Scene {
    }
 
    Alert confirmClear;
-   public void btnClear_action ( ActionEvent evt ) {
+   private void btnClearData_click( ActionEvent evt ) {
       assert( Platform.isFxApplicationThread() );
 
       if ( confirmClear == null ) {
          confirmClear = JavaFX.dialogDefault( new Alert( Alert.AlertType.CONFIRMATION, "Clear all downloaded data?", ButtonType.YES, ButtonType.NO ), ButtonType.NO );
       }
-      if ( ! ButtonType.YES.equals( confirmClear.showAndWait().get() ) )
+      final ButtonType result = confirmClear.showAndWait().get();
+      if ( ! ButtonType.YES.equals( result ) )
          return;
+
+      loader.resetDb().whenComplete( (a,b) -> pnlC.getSelectionModel().select( tabData ) );
+   }
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Worker Screen
+   /////////////////////////////////////////////////////////////////////////////
+
+   WebEngine getWorkerEngine () {
+      return pnlWorker.getWebEngine();
    }
 
 }

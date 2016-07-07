@@ -1,4 +1,4 @@
-package db4e;
+package sheepy.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -12,4 +12,5 @@ public class Utils {
       ex.printStackTrace( pw );
       return sw.toString();
    }
+
 }
