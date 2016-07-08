@@ -286,7 +286,8 @@ public class SceneMain extends Scene {
       if ( ! ButtonType.YES.equals( result ) )
          return;
 
-      loader.resetDb().whenComplete( (a,b) -> pnlC.getSelectionModel().select( tabData ) );
+      loader.resetDb();
+      pnlC.getSelectionModel().select( tabData );
    }
 
    /////////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,9 @@ package db4e;
 
 import db4e.data.Catalog;
 import java.io.File;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.web.WebEngine;
@@ -33,10 +35,10 @@ public class Downloader {
       browser = main.getWorkerEngine();
    }
    
-   CompletableFuture<Void> resetDb () {
+   void resetDb () {
       gui.enterBusy( "Clearing data" );
 
-      return CompletableFuture.completedFuture( null ).thenComposeAsync( ( ignored ) -> { try {
+      ForkJoinPool.commonPool().execute( () -> { try {
          synchronized ( this ) { // Lock database for the whole duration
             close();
             Thread.sleep( 1000 ); // Give OS some time to close the handle
@@ -44,15 +46,16 @@ public class Downloader {
             if ( file.exists() ) {
                log.log( Level.INFO, "Deleting database {0}", new File( DB_NAME ).getAbsolutePath() );
                file.delete();
-            } else
+            } else {
                log.log( Level.WARNING, "Database file not found: {0}", new File( DB_NAME ).getAbsolutePath() );
-            return this.open();
+            }
+            Thread.sleep( 500 ); // Give OS some time to delete the file
+            open();
          }
 
       } catch ( Exception ex ) {
          log.log( Level.WARNING, "Error when deleting database: {0}", Utils.stacktrace( ex ) );
          open().whenComplete( ( a, b ) -> gui.setStatus( "Cannot clear data" ) );
-         throw new RuntimeException( ex );
 
       } } );
    }
@@ -94,13 +97,15 @@ public class Downloader {
    private synchronized void openOrCreateTable() {
       try {
          int version = dal.setDb( db );
-         log.log( Level.CONFIG, "Database version {0}.  Tables opened.", version );
+         log.log( Level.CONFIG, "Database version {0,number,#}.  Tables opened.", version );
 
       } catch ( Exception e1 ) {
 
          log.log( Level.CONFIG, "Create tables because {0}", Utils.stacktrace( e1 ) );
          try {
             dal.createTables();
+            int version = dal.setDb( db );
+            log.log( Level.FINE, "Created and opened tables.  Database version {0,number,#}.", version );
 
          } catch ( Exception e2 ) {
             log.log( Level.SEVERE, "Cannot create tables: {0}", Utils.stacktrace( e2 ) );

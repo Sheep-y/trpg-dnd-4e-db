@@ -25,10 +25,10 @@ class DbAbstraction {
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
          ISqlJetCursor cursor = tblConfig.lookup( null, "version" );
-         if ( ! cursor.eof() ) version = (int) cursor.getInteger( "value" );
+         if ( ! cursor.eof() ) version = Integer.parseInt( cursor.getString( "value" ) );
          cursor.close();
          
-         if ( version <= 20160706) throw new DataFormatException( "dnd4e database version mismatch or not found." );
+         if ( version < 20160706) throw new DataFormatException( "dnd4e database version (" + version + ") mismatch or not found." );
       } finally {
          db.commit();
       }
