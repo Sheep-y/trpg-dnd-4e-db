@@ -20,9 +20,11 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -58,6 +60,10 @@ public class SceneMain extends Scene {
    private final TextField txtEmail  = new TextField( prefs.get( "ddi.email", "" ) );
    private final TextField txtPass   = new TextField( prefs.get( "ddi.pass", "" ) );
    private final TableView<Category> tblCategory = new TableView<>();
+      private final TableColumn<Category,String > colName = new TableColumn<>( "Category" );
+      private final TableColumn<Category,Integer> colTotalEntry = new TableColumn<>( "Total" );
+      private final TableColumn<Category,Integer> colDownloadedEntry = new TableColumn<>( "Downloaded" );
+      private final TableColumn<Category,Integer> colExportedEntry = new TableColumn<>( "Saved" );
    private final Button btnView = new Button( "View Data" );
    private final Button btnExport = new Button( "Export Data" );
    private final Button btnStartStop = new Button( "Start Download" );
@@ -101,6 +107,15 @@ public class SceneMain extends Scene {
       txtEmail.textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.email", now ); });
       txtPass .textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.pass" , now ); });
 
+
+      colName.setCellValueFactory( new PropertyValueFactory( "name" ) );
+      colTotalEntry.setCellValueFactory( new PropertyValueFactory<>( "totalEntry" ) );
+      colDownloadedEntry.setCellValueFactory( new PropertyValueFactory<>( "downloadedEntry" ) );
+      colName.prefWidthProperty().set( 200 );
+      colDownloadedEntry.prefWidthProperty().set( 120 );
+      colExportedEntry.setCellValueFactory( new PropertyValueFactory<>( "exportedEntry" ) );
+      tblCategory.getColumns().addAll( colName, colDownloadedEntry, colTotalEntry );
+
       // Option tab
       chkDebug.selectedProperty().addListener( this::chkDebug_change );
       if ( prefs.getBoolean( "gui.debug", false ) )
@@ -110,7 +125,7 @@ public class SceneMain extends Scene {
       // Log tab
       txtLog.setEditable( false );
 
-      enterBusy( "Initialising" );
+      disallowAction( "Initialising" );
    }
 
    private void initLayout () {
@@ -148,7 +163,7 @@ public class SceneMain extends Scene {
 
    // Called by Main after stage show
    void startup() {
-      loader.open();
+      loader.open( tblCategory );
    }
 
    // Called by Main during stage shutdown
@@ -161,7 +176,7 @@ public class SceneMain extends Scene {
    /////////////////////////////////////////////////////////////////////////////
 
    void setStatus ( String msg ) {
-      log.log( Level.INFO, "Status: {0}", msg );
+      log.log( Level.INFO, "Status: {0}.", msg );
       if ( Platform.isFxApplicationThread() ) {
          lblStatus.setText( msg );
       } else {
@@ -174,40 +189,40 @@ public class SceneMain extends Scene {
          // Set flag and update control status
          this.hasData = hasData;
          if ( isIdle )
-            enterIdle( null );
+            allowAction( null );
          else
-            enterBusy( null );
+            disallowAction( null );
       } else {
          Platform.runLater( () -> setHasData( hasData ) );
       }
    }
 
-   void enterIdle ( String status ) {
+   void allowAction ( String status ) {
       if ( Platform.isFxApplicationThread() ) {
          if ( status != null ) setStatus( status );
-         log.log( Level.FINE, isIdle ? "Updating idle controls" : "Enter idle and enable controls" );
+         log.log( Level.FINE, isIdle ? "Updating idle controls." : "Enter idle and enable controls." );
          isIdle = true;
          btnView.setDisable( ! hasData ); // Keep disable if has no data
          btnExport.setDisable( ! hasData );
          btnStartStop.setDisable( false );
          btnClearData.setDisable( false );
       } else {
-         Platform.runLater( () -> enterIdle( status ) );
+         Platform.runLater(() -> allowAction( status ) );
       }
    }
 
-   void enterBusy ( String status ) {
+   void disallowAction ( String status ) {
       if ( Platform.isFxApplicationThread() ) {
          if ( status != null ) setStatus( status );
          if ( ! isIdle ) return;
-         log.log( Level.FINE, "Disabling controls" );
+         log.log( Level.FINE, "Disabling controls." );
          isIdle = false;
          btnView.setDisable( true );
          btnExport.setDisable( true );
          btnStartStop.setDisable( true );
          btnClearData.setDisable( true );
       } else {
-         Platform.runLater( () -> enterBusy( status ) );
+         Platform.runLater(() -> disallowAction( status ) );
       }
    }
 

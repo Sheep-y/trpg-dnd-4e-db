@@ -1,15 +1,17 @@
 package db4e;
 
-import db4e.data.Catalog;
+import db4e.data.Category;
 import java.io.File;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TableView;
 import javafx.scene.web.WebEngine;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import sheepy.util.Utils;
+import sheepy.util.ui.ObservableArrayList;
 
 /**
  * Data Management
@@ -22,10 +24,10 @@ public class Downloader {
 
    // Database variables are set on open().
    // Access must be synchronised with 'this'
-   private SqlJetDb db; 
-   private DbAbstraction dal; 
-      
-   private final Catalog cat = new Catalog();
+   private SqlJetDb db;
+   private DbAbstraction dal;
+
+   public final ObservableList<Category> categories = new ObservableArrayList<>();
 
    private final SceneMain gui;
    private final WebEngine browser;
@@ -34,9 +36,9 @@ public class Downloader {
       gui = main;
       browser = main.getWorkerEngine();
    }
-   
+
    void resetDb () {
-      gui.enterBusy( "Clearing data" );
+      gui.disallowAction( "Clearing data" );
 
       ForkJoinPool.commonPool().execute( () -> { try {
          synchronized ( this ) { // Lock database for the whole duration
@@ -50,18 +52,18 @@ public class Downloader {
                log.log( Level.WARNING, "Database file not found: {0}", new File( DB_NAME ).getAbsolutePath() );
             }
             Thread.sleep( 500 ); // Give OS some time to delete the file
-            open();
+            open( null );
          }
 
       } catch ( Exception ex ) {
          log.log( Level.WARNING, "Error when deleting database: {0}", Utils.stacktrace( ex ) );
-         open().whenComplete( ( a, b ) -> gui.setStatus( "Cannot clear data" ) );
+         open( null ).whenComplete( ( a, b ) -> gui.setStatus( "Cannot clear data" ) );
 
       } } );
    }
 
-   CompletableFuture<Void> open() {
-      gui.enterBusy( "Opening Database" );
+   CompletableFuture<Void> open( TableView categoryTable ) {
+      gui.disallowAction( "Opening Database" );
 
       return CompletableFuture.runAsync( () -> {
          try {
@@ -72,13 +74,14 @@ public class Downloader {
             }
          } catch ( Exception ex ) {
             log.log( Level.SEVERE, "Cannot open database: {0}", Utils.stacktrace( ex ) );
-            gui.enterBusy( "Cannot open database" );
+            gui.disallowAction( "Cannot open database" );
             gui.btnClearData.setDisable( false );
             close();
             throw new RuntimeException( ex );
          }
 
          log.log( Level.FINE, "Database opened. Loading tables." );
+         if ( categoryTable != null ) categoryTable.setItems( categories );
          openOrCreateTable();
       } );
    }
@@ -96,7 +99,7 @@ public class Downloader {
 
    private synchronized void openOrCreateTable() {
       try {
-         int version = dal.setDb( db );
+         int version = dal.setDb( db, categories );
          log.log( Level.CONFIG, "Database version {0,number,#}.  Tables opened.", version );
 
       } catch ( Exception e1 ) {
@@ -104,18 +107,18 @@ public class Downloader {
          log.log( Level.CONFIG, "Create tables because {0}", Utils.stacktrace( e1 ) );
          try {
             dal.createTables();
-            int version = dal.setDb( db );
+            int version = dal.setDb( db, categories );
             log.log( Level.FINE, "Created and opened tables.  Database version {0,number,#}.", version );
 
          } catch ( Exception e2 ) {
             log.log( Level.SEVERE, "Cannot create tables: {0}", Utils.stacktrace( e2 ) );
-            gui.enterBusy( "Cannot open database, try clear data" );
+            gui.disallowAction( "Cannot open database, try clear data" );
             gui.btnClearData.setDisable( false );
             close();
             throw new RuntimeException( e2 );
          }
       }
-      gui.enterIdle ( "Ready to go" );
+      gui.allowAction( "Ready to go" );
    }
 
 }

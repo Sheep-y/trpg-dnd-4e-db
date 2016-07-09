@@ -35,7 +35,7 @@ public class Main extends Application {
    public static void main( String[] args ) {
       try {
          Class.forName( "java.util.concurrent.CompletableFuture" );
-         launch( args ); 
+         launch( args );
       } catch ( ClassNotFoundException ex ) {
          JOptionPane.showMessageDialog( null, "Requires Java 1.8 or above", TITLE, JOptionPane.ERROR_MESSAGE );
          Platform.exit();
@@ -54,8 +54,8 @@ public class Main extends Application {
                handler.close();
          } catch ( BackingStoreException | SecurityException | NullPointerException ignored ) { } } );
       stage.show();
-      
-      log.info( "Main GUI initialised" );
+
+      log.info( "Main GUI initialised." );
       sceneMain.startup();
    }
 
