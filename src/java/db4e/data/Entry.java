@@ -14,7 +14,7 @@ public class Entry {
    public Entry ( Category category, String id ) {
       assert( category != null && id != null );
       this.category = category;
-      meta = new HashMap<>( category.meta.size(), 1.0f );
+      meta = new HashMap<>( category.meta.length, 1.0f );
       setMeta( "ID", id );
    }
 
