@@ -36,7 +36,7 @@ class DbAbstraction {
          if ( ! cursor.eof() ) version = Integer.parseInt( cursor.getString( "value" ) );
          cursor.close();
 
-         if ( version < 20160706 )
+         if ( version < 20160710 )
             throw new UnsupportedOperationException( "dnd4e database version (" + version + ") mismatch or not found." );
       } finally {
          db.commit();
@@ -48,7 +48,7 @@ class DbAbstraction {
 
    synchronized void createTables () throws SqlJetException {
       db.beginTransaction( SqlJetTransactionMode.WRITE );
-         db.createTable( "CREATE TABLE 'config' ('key' TEXT PRIMARY KEY NOT NULL, 'value' TEXT);" );
+         db.createTable( "CREATE TABLE 'config' ('key' TEXT PRIMARY KEY NOT NULL, 'value' TEXT NOT NULL);" );
 
          db.createTable( "CREATE TABLE 'category' ("+
             " 'id' TEXT PRIMARY KEY NOT NULL,"+
@@ -59,13 +59,20 @@ class DbAbstraction {
             " 'order' INTEGER NOT NULL);" );
          db.createIndex( "CREATE INDEX category_order_index ON category(order)" );
 
-         db.createTable( "CREATE TABLE 'entry' ('id' TEXT PRIMARY KEY NOT NULL, 'name' TEXT, 'fields' TEXT, 'data' TEXT);" );
+         db.createTable( "CREATE TABLE 'entry' ("
+                 + " 'id' TEXT PRIMARY KEY NOT NULL,"
+                 + " 'name' TEXT NOT NULL,"
+                 + " 'category' TEXT NOT NULL,"
+                 + " 'fields' TEXT NOT NULL,"
+                 + " 'hasData' TINYINT NOT NULL,"
+                 + " 'data' TEXT);" );
+         db.createIndex( "CREATE INDEX entry_category_index ON entry(category, hasData)" );
 
          tblConfig = db.getTable( "config" );
          tblCategory = db.getTable( "category" );
          tblEntry = db.getTable( "entry" );
 
-         tblConfig.insert( "version", "20160706" );
+         tblConfig.insert( "version", "20160710" );
 
          tblCategory.insert( "Race", "Race", 0, "Size,DescriptionAttribute,SourceBook", "PC", 100 );
          tblCategory.insert( "Background", "Background", 0, "Type,Campaign,Skills,SourceBook", "PC", 200 );
@@ -111,14 +118,25 @@ class DbAbstraction {
             throw new UnsupportedOperationException( "dnd4e database does not contains category." );
          }
          cursor.close();
+         categories.clear();
+         categories.addAll( list );
+         log.log( Level.FINE, "Loaded {0} categories.", list.size() );
+
+         for ( Category c : list ) {
+            int total = c.total_entry.get();
+            if ( total > 0 )  {
+               cursor = tblEntry.lookup( "entry_category_index", c.id, null );
+               int null_row = (int) cursor.getRowCount();
+               cursor.close();
+               c.downloaded_entry.set( total - null_row );
+               log.log( Level.FINE, "{0} -> {1}/{2} = {3}", new Object[]{ c.id, null_row, total, total - null_row } );
+            }
+         }
       } finally {
          db.commit();
       }
 
-      log.log( Level.FINE, "Loaded {0} categories.", list.size() );
-      categories.clear();
-      categories.addAll( list );
+      // TODO: Backup good db.
    }
-
 
 }

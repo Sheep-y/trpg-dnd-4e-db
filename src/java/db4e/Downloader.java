@@ -39,6 +39,7 @@ public class Downloader {
 
    void resetDb () {
       gui.disallowAction( "Clearing data" );
+      categories.clear();
 
       ForkJoinPool.commonPool().execute( () -> { try {
          synchronized ( this ) { // Lock database for the whole duration
