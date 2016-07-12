@@ -52,7 +52,7 @@ public class Downloader {
 
       ForkJoinPool.commonPool().execute( () -> { try {
          synchronized ( this ) { // Lock database for the whole duration
-            close();
+            closeDb();
             Thread.sleep( 1000 ); // Give OS some time to close the handle
             final File file = new File( DB_NAME );
             if ( file.exists() ) {
@@ -86,7 +86,7 @@ public class Downloader {
             log.log( Level.SEVERE, "Cannot open database: {0}", Utils.stacktrace( ex ) );
             gui.disallowAction( "Cannot open database" );
             gui.btnClearData.setDisable( false );
-            close();
+            closeDb();
             throw new RuntimeException( ex );
          }
 
@@ -96,7 +96,12 @@ public class Downloader {
       } );
    }
 
-   synchronized void close() {
+   void close() {
+      scheduler.cancel();
+      closeDb();
+   }
+
+   private synchronized void closeDb () {
       if ( db != null ) try {
          log.log( Level.FINE, "Closing database" );
          db.close();
@@ -124,7 +129,7 @@ public class Downloader {
             log.log( Level.SEVERE, "Cannot create tables: {0}", Utils.stacktrace( e2 ) );
             gui.disallowAction( "Cannot open database, try clear data" );
             gui.btnClearData.setDisable( false );
-            close();
+            closeDb();
             throw new RuntimeException( e2 );
          }
       }
@@ -139,24 +144,24 @@ public class Downloader {
       gui.disallowAction( "Opening online compendium" );
 
       // Open compendium
-      CompletableFuture dbOpen = new CompletableFuture();
+      CompletableFuture<Void> dbOpen = new CompletableFuture<>();
 
       Platform.runLater( () -> {
          TimerTask openTimeout = Utils.toTimer( () -> { synchronized( browser ) {
             log.warning( "Open compendium timeout." );
             browser.handle( null, null );
-            dbOpen.completeExceptionally( new TimeoutException() );
+            dbOpen.completeExceptionally( new TimeoutException( "Online compendium timeout" ) );
          } } );
          scheduler.schedule( openTimeout, 30*1000 );
+
          browser.handle( (e) -> { synchronized( browser ) {
             log.info( "Compendium opened." );
-            openTimeout.cancel();
-            browser.handle( null, null );
+            openTimeout.cancel(); browser.handle( null, null );
             dbOpen.complete( null );
+
          } }, (e,err) -> { synchronized( browser ) {
             log.log( Level.WARNING, "Open compendium error: {0}", Utils.stacktrace( err ) );
-            openTimeout.cancel();
-            browser.handle( null, null );
+            openTimeout.cancel(); browser.handle( null, null );
             dbOpen.completeExceptionally( err );
          } } );
 //         browser.getWebEngine().load( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
@@ -164,13 +169,14 @@ public class Downloader {
       } );
 
       dbOpen.thenComposeAsync( ( result ) -> {
-         if ( result instanceof Throwable ) {
-            gui.allowAction( "Online compendium timeout" );
-            return CompletableFuture.completedFuture( result );
-         }
-
          gui.setStatus( "Loading categories" );
          return null;
-      } );
+      } ).exceptionally( (err) -> {
+         if ( err instanceof Exception )
+            gui.allowAction( ( (Exception) err ).getMessage() );
+         else
+            gui.allowAction( err.getClass().getSimpleName() );
+         return null;
+      });
    }
 }

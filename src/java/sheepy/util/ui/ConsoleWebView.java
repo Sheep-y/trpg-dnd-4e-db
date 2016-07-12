@@ -68,10 +68,10 @@ public class ConsoleWebView extends SplitPane {
       Logger log = Logger.getAnonymousLogger();
       log.setLevel( Level.FINE );
       log.addHandler( new ConsoleHandler() );
-      JavaFX.initWebEngine( view.getEngine(), this::view_onload, log );
+      JavaFX.initWebEngine( view.getEngine(), this::view_handle, log );
    }
 
-   private synchronized void view_onload ( WebEngine view, Throwable error ) {
+   private synchronized void view_handle ( WebEngine view, Throwable error ) {
       if ( error != null ) {
          if ( onerror != null ) onerror.accept( this, error );
       } else {

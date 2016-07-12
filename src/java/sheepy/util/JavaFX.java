@@ -115,7 +115,7 @@ public class JavaFX {
             String msg = "Failed to load webpage " + engine.getLocation();
             Throwable error = engine.getLoadWorker().getException();
             if ( handler != null )
-               handler.handle(new WebErrorEvent( engine.getLoadWorker(), WebErrorEvent.ANY, msg, error) );
+               handler.handle( new WebErrorEvent( engine.getLoadWorker(), WebErrorEvent.ANY, msg, error) );
             // Make sure error is not null!
             if ( error == null ) error = new RuntimeException( msg );
             if ( onHandle != null ) onHandle.accept( engine, error );
