@@ -1,5 +1,6 @@
 package sheepy.util.ui;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -28,6 +29,7 @@ public class ConsoleWebView extends SplitPane {
    String last_cmd = "";
 
    private Consumer<ConsoleWebView> onload;
+   private BiConsumer<ConsoleWebView, Throwable> onerror;
 
    public ConsoleWebView () {
       setOrientation( Orientation.VERTICAL );
@@ -69,8 +71,12 @@ public class ConsoleWebView extends SplitPane {
       JavaFX.initWebEngine( view.getEngine(), this::view_onload, log );
    }
 
-   private synchronized void view_onload ( WebEngine view ) {
-      if ( onload != null ) onload.accept( this );
+   private synchronized void view_onload ( WebEngine view, Throwable error ) {
+      if ( error != null ) {
+         if ( onerror != null ) onerror.accept( this, error );
+      } else {
+         if ( onload != null ) onload.accept( this );
+      }
    }
 
    private void log ( String msg ) {
@@ -107,4 +113,12 @@ public class ConsoleWebView extends SplitPane {
 
    public synchronized void setOnload(Consumer<ConsoleWebView> onload) { this.onload = onload; }
 
+   public synchronized BiConsumer<ConsoleWebView, Throwable> getOnerror() { return onerror; }
+
+   public synchronized void setOnerror(BiConsumer<ConsoleWebView, Throwable> onerror) { this.onerror = onerror; }
+
+   public synchronized void handle( Consumer<ConsoleWebView> onload, BiConsumer<ConsoleWebView, Throwable> onerror) {
+      this.onload = onload;
+      this.onerror = onerror;
+   }
 }

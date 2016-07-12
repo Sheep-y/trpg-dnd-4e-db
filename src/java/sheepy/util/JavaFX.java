@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
@@ -100,20 +100,25 @@ public class JavaFX {
     * 2. Direct javascript alert and error to logger.
     * 3. Forward page load error to engine.onError. (Message 'Failed to load webpage http:...)
     * 4. Add console object after page load, either to the logger or to system.out
-    * 
+    *
     * @param engine Engine to prep
-    * @param onLoad Callback on load
+    * @param onHandle Callback on load (throwable is null) or on error (non-null)
     * @param log Logger to log engine messages, may be null.
     */
-   public static void initWebEngine ( WebEngine engine, Consumer<WebEngine> onLoad,  Logger log ) {
+   public static void initWebEngine ( WebEngine engine, BiConsumer<WebEngine, Throwable> onHandle, Logger log ) {
       engine.getLoadWorker().stateProperty().addListener( ( val, old, now ) -> {
          if ( log != null )
             log.log( Level.FINE, "Browsing {0}: {1} => {2} ", new Object[]{ engine.getLocation(), old, now } );
 
          if ( now == Worker.State.FAILED ) {
             EventHandler<WebErrorEvent> handler = engine.onErrorProperty().get();
+            String msg = "Failed to load webpage " + engine.getLocation();
+            Throwable error = engine.getLoadWorker().getException();
             if ( handler != null )
-               handler.handle( new WebErrorEvent( engine.getLoadWorker(), WebErrorEvent.ANY, "Failed to load webpage " + engine.getLocation(), engine.getLoadWorker().getException() ) );
+               handler.handle(new WebErrorEvent( engine.getLoadWorker(), WebErrorEvent.ANY, msg, error) );
+            // Make sure error is not null!
+            if ( error == null ) error = new RuntimeException( msg );
+            if ( onHandle != null ) onHandle.accept( engine, error );
 
          } else if ( now == Worker.State.SUCCEEDED ) {
             JSObject window = (JSObject) engine.executeScript( "window" );
@@ -122,7 +127,7 @@ public class JavaFX {
             } else {
                window.setMember( "console", new Net.ConsoleSystem() );
             }
-            if ( onLoad != null ) onLoad.accept( engine );
+            if ( onHandle != null ) onHandle.accept( engine, null );
          }
       } );
 

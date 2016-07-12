@@ -142,20 +142,25 @@ public class Downloader {
       CompletableFuture dbOpen = new CompletableFuture();
 
       Platform.runLater( () -> {
-         TimerTask openTimeout = Utils.toTimer( () -> { synchronized( this ) {
-            log.warning( "Compendium timeout." );
-            browser.setOnload( null );
-            browser.getWebEngine().load( "about:blank" );
+         TimerTask openTimeout = Utils.toTimer( () -> { synchronized( browser ) {
+            log.warning( "Open compendium timeout." );
+            browser.handle( null, null );
             dbOpen.completeExceptionally( new TimeoutException() );
          } } );
          scheduler.schedule( openTimeout, 30*1000 );
-         browser.setOnload( (e) -> { synchronized( this ) {
+         browser.handle( (e) -> { synchronized( browser ) {
             log.info( "Compendium opened." );
             openTimeout.cancel();
+            browser.handle( null, null );
             dbOpen.complete( null );
+         } }, (e,err) -> { synchronized( browser ) {
+            log.log( Level.WARNING, "Open compendium error: {0}", Utils.stacktrace( err ) );
+            openTimeout.cancel();
+            browser.handle( null, null );
+            dbOpen.completeExceptionally( err );
          } } );
-         browser.getWebEngine().load( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
-         //browser.getWebEngine().load( "http://127.0.0.1/" ); // Test error
+//         browser.getWebEngine().load( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
+         browser.getWebEngine().load( "http://127.0.0.1/" ); // Test error
       } );
 
       dbOpen.thenComposeAsync( ( result ) -> {
