@@ -1,5 +1,6 @@
 package sheepy.util.ui;
 
+import java.util.function.Consumer;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -19,12 +20,14 @@ import sheepy.util.Net;
 
 public class ConsoleWebView extends SplitPane {
 
-   WebView view = new WebView();
+   final WebView view = new WebView();
 
    BorderPane pnlC = new BorderPane();
-   TextField txtInput = new TextField();
-   TextArea txtOutput = new TextArea();
+   final TextField txtInput = new TextField();
+   final TextArea txtOutput = new TextArea();
    String last_cmd = "";
+
+   private Consumer<ConsoleWebView> onload;
 
    public ConsoleWebView () {
       setOrientation( Orientation.VERTICAL );
@@ -63,11 +66,15 @@ public class ConsoleWebView extends SplitPane {
       Logger log = Logger.getAnonymousLogger();
       log.setLevel( Level.FINE );
       log.addHandler( new ConsoleHandler() );
-      JavaFX.initWebEngine( view.getEngine(), null, log );
+      JavaFX.initWebEngine( view.getEngine(), this::view_onload, log );
+   }
+
+   private synchronized void view_onload ( WebEngine view ) {
+      if ( onload != null ) onload.accept( this );
    }
 
    private void log ( String msg ) {
-      txtOutput.insertText(txtOutput.lengthProperty().get(), msg );
+      txtOutput.insertText( txtOutput.lengthProperty().get(), msg );
    }
 
    private class ConsoleHandler extends Handler {
@@ -83,7 +90,7 @@ public class ConsoleWebView extends SplitPane {
       @Override public void flush() {}
       @Override public void close() throws SecurityException {}
    }
-   
+
    /////////////////////////////////////////////////////////////////////////////
    // Accessors
    /////////////////////////////////////////////////////////////////////////////
@@ -95,4 +102,9 @@ public class ConsoleWebView extends SplitPane {
    public TextField getConsoleInput() { return txtInput; }
 
    public TextArea getConsoleOutput() { return txtOutput; }
+
+   public synchronized Consumer<ConsoleWebView> getOnload() { return onload; }
+
+   public synchronized void setOnload(Consumer<ConsoleWebView> onload) { this.onload = onload; }
+
 }

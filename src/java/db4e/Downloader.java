@@ -2,15 +2,19 @@ package db4e;
 
 import db4e.data.Category;
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
-import javafx.scene.web.WebEngine;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import sheepy.util.Utils;
+import sheepy.util.ui.ConsoleWebView;
 import sheepy.util.ui.ObservableArrayList;
 
 /**
@@ -30,12 +34,17 @@ public class Downloader {
    public final ObservableList<Category> categories = new ObservableArrayList<>();
 
    private final SceneMain gui;
-   private final WebEngine browser;
+   private final ConsoleWebView browser;
+   private final Timer scheduler = new Timer();
 
    public Downloader ( SceneMain main ) {
       gui = main;
-      browser = main.getWorkerEngine();
+      browser = main.getWorker();
    }
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Open, Close, and Reset
+   /////////////////////////////////////////////////////////////////////////////
 
    void resetDb () {
       gui.disallowAction( "Clearing data" );
@@ -122,4 +131,41 @@ public class Downloader {
       gui.allowAction( "Ready to go" );
    }
 
+   /////////////////////////////////////////////////////////////////////////////
+   // Download
+   /////////////////////////////////////////////////////////////////////////////
+
+   void startDownload () {
+      gui.disallowAction( "Opening online compendium" );
+
+      // Open compendium
+      CompletableFuture dbOpen = new CompletableFuture();
+
+      Platform.runLater( () -> {
+         TimerTask openTimeout = Utils.toTimer( () -> { synchronized( this ) {
+            log.warning( "Compendium timeout." );
+            browser.setOnload( null );
+            browser.getWebEngine().load( "about:blank" );
+            dbOpen.completeExceptionally( new TimeoutException() );
+         } } );
+         scheduler.schedule( openTimeout, 30*1000 );
+         browser.setOnload( (e) -> { synchronized( this ) {
+            log.info( "Compendium opened." );
+            openTimeout.cancel();
+            dbOpen.complete( null );
+         } } );
+         browser.getWebEngine().load( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
+         //browser.getWebEngine().load( "http://127.0.0.1/" ); // Test error
+      } );
+
+      dbOpen.thenComposeAsync( ( result ) -> {
+         if ( result instanceof Throwable ) {
+            gui.allowAction( "Online compendium timeout" );
+            return CompletableFuture.completedFuture( result );
+         }
+
+         gui.setStatus( "Loading categories" );
+         return null;
+      } );
+   }
 }

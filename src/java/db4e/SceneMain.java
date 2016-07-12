@@ -29,7 +29,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import sheepy.util.JavaFX;
@@ -107,14 +106,14 @@ public class SceneMain extends Scene {
       txtEmail.textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.email", now ); });
       txtPass .textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.pass" , now ); });
 
-
       colName.setCellValueFactory( new PropertyValueFactory( "name" ) );
       colTotalEntry.setCellValueFactory( new PropertyValueFactory<>( "totalEntry" ) );
       colDownloadedEntry.setCellValueFactory( new PropertyValueFactory<>( "downloadedEntry" ) );
-      colName.prefWidthProperty().set( 200 );
-      colDownloadedEntry.prefWidthProperty().set( 120 );
       colExportedEntry.setCellValueFactory( new PropertyValueFactory<>( "exportedEntry" ) );
+      tblCategory.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
       tblCategory.getColumns().addAll( colName, colDownloadedEntry, colTotalEntry );
+
+      btnStartStop.onActionProperty().set( this::btnStart_download_action );
 
       // Option tab
       chkDebug.selectedProperty().addListener( this::chkDebug_change );
@@ -176,8 +175,8 @@ public class SceneMain extends Scene {
    /////////////////////////////////////////////////////////////////////////////
 
    void setStatus ( String msg ) {
-      log.log( Level.INFO, "Status: {0}.", msg );
       if ( Platform.isFxApplicationThread() ) {
+         log.log( Level.INFO, "Status: {0}.", msg );
          lblStatus.setText( msg );
       } else {
          Platform.runLater( () -> setStatus( msg ) );
@@ -254,6 +253,10 @@ public class SceneMain extends Scene {
    // Data Tab
    /////////////////////////////////////////////////////////////////////////////
 
+   private void  btnStart_download_action ( ActionEvent evt ) {
+      loader.startDownload();
+   }
+
    private FileChooser dlgCreateView;
    private void btnFolder_action ( ActionEvent evt ) {
       assert( Platform.isFxApplicationThread() );
@@ -309,8 +312,8 @@ public class SceneMain extends Scene {
    // Worker Screen
    /////////////////////////////////////////////////////////////////////////////
 
-   WebEngine getWorkerEngine () {
-      return pnlWorker.getWebEngine();
+   ConsoleWebView getWorker () {
+      return pnlWorker;
    }
 
 }
