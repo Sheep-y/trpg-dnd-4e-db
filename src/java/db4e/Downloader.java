@@ -7,6 +7,7 @@ import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -30,6 +31,8 @@ public class Downloader {
    // Access must be synchronised with 'this'
    private SqlJetDb db;
    private DbAbstraction dal;
+   private CompletableFuture<Void> currentTask;
+   private final AtomicBoolean paused = new AtomicBoolean();
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
 
@@ -40,6 +43,37 @@ public class Downloader {
    public Downloader ( SceneMain main ) {
       gui = main;
       browser = main.getWorker();
+   }
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Pause and resume
+   /////////////////////////////////////////////////////////////////////////////
+
+   void pause () {
+      synchronized ( paused ) {
+         paused.set( true );
+      }
+   }
+
+   void resume () {
+      synchronized ( paused ) {
+         paused.set( false );
+         paused.notifyAll();
+      }
+   }
+
+   private void checkPause () {
+      synchronized ( paused ) {
+         while ( paused.get() ) {
+            gui.setStatus( "Paused" );
+            try {
+               paused.wait();
+            } catch (InterruptedException ex) {
+               throw new RuntimeException( ex );
+            }
+            gui.setStatus( "Resuming" );
+         }
+      }
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -96,7 +130,16 @@ public class Downloader {
       } );
    }
 
+   synchronized void stop () {
+      browser.getWebEngine().getLoadWorker().cancel();
+      if ( currentTask != null )
+         currentTask.completeExceptionally( new InterruptedException() );
+      currentTask = null;
+      resume();
+   }
+
    void close() {
+      stop();
       scheduler.cancel();
       closeDb();
    }
@@ -140,43 +183,62 @@ public class Downloader {
    // Download
    /////////////////////////////////////////////////////////////////////////////
 
-   void startDownload () {
+   CompletableFuture<Void> startDownload () {
       gui.disallowAction( "Opening online compendium" );
 
       // Open compendium
       CompletableFuture<Void> dbOpen = new CompletableFuture<>();
+      synchronized ( this ) {
+         currentTask = dbOpen; }
 
       Platform.runLater( () -> {
-         TimerTask openTimeout = Utils.toTimer( () -> { synchronized( browser ) {
-            log.warning( "Open compendium timeout." );
+         // Setup timeout
+         TimerTask openTimeout = Utils.toTimer( () -> { synchronized( this ) {
             browser.handle( null, null );
             dbOpen.completeExceptionally( new TimeoutException( "Online compendium timeout" ) );
          } } );
          scheduler.schedule( openTimeout, 30*1000 );
 
-         browser.handle( (e) -> { synchronized( browser ) {
-            log.info( "Compendium opened." );
+         browser.handle( (e) -> { synchronized( this ) { // On load
             openTimeout.cancel(); browser.handle( null, null );
             dbOpen.complete( null );
 
-         } }, (e,err) -> { synchronized( browser ) {
-            log.log( Level.WARNING, "Open compendium error: {0}", Utils.stacktrace( err ) );
+         } }, (e,err) -> { synchronized( this ) { // On error
             openTimeout.cancel(); browser.handle( null, null );
             dbOpen.completeExceptionally( err );
          } } );
-//         browser.getWebEngine().load( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
-         browser.getWebEngine().load( "http://127.0.0.1/" ); // Test error
+
+         browser.getWebEngine().load( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
       } );
 
-      dbOpen.thenComposeAsync( ( result ) -> {
-         gui.setStatus( "Loading categories" );
-         return null;
+      return dbOpen.thenCompose( ( result ) -> {
+         checkPause();
+         log.info( "Compendium opened." );
+         return downloadCategory();
+
       } ).exceptionally( (err) -> {
+         log.log( Level.WARNING, "Download error: {0}", Utils.stacktrace( err ) );
          if ( err instanceof Exception )
             gui.allowAction( ( (Exception) err ).getMessage() );
          else
             gui.allowAction( err.getClass().getSimpleName() );
          return null;
       });
+   }
+
+   private CompletableFuture<Void> downloadCategory() {
+      gui.setStatus( "Loading categories" );
+
+      CompletableFuture<Void> catLoad = new CompletableFuture<>();
+
+      ForkJoinPool.commonPool().execute( () -> {
+         // Check which category is not yet loaded
+         for ( Category cat : categories ) {
+            if ( cat.total_entry.get() > 0 ) continue;
+         }
+         catLoad.complete( null );
+      } );
+
+      return catLoad;
    }
 }

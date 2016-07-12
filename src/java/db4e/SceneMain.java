@@ -9,6 +9,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -112,8 +113,7 @@ public class SceneMain extends Scene {
       colExportedEntry.setCellValueFactory( new PropertyValueFactory<>( "exportedEntry" ) );
       tblCategory.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
       tblCategory.getColumns().addAll( colName, colDownloadedEntry, colTotalEntry );
-
-      btnStartStop.onActionProperty().set( this::btnStart_download_action );
+      stateIdle();
 
       // Option tab
       chkDebug.selectedProperty().addListener( this::chkDebug_change );
@@ -162,7 +162,7 @@ public class SceneMain extends Scene {
 
    // Called by Main after stage show
    void startup() {
-      loader.open( tblCategory );
+      loader.open( tblCategory ).thenRun( () -> btnStartStop.requestFocus() );
    }
 
    // Called by Main during stage shutdown
@@ -253,8 +253,36 @@ public class SceneMain extends Scene {
    // Data Tab
    /////////////////////////////////////////////////////////////////////////////
 
-   private void  btnStart_download_action ( ActionEvent evt ) {
-      loader.startDownload();
+   private void setStartStop ( String text, EventHandler<ActionEvent> action ) {
+      btnStartStop.setText( text );
+      btnStartStop.onActionProperty().set( action );
+   }
+
+   private void btnStart_download_action ( ActionEvent evt ) {
+      loader.startDownload().whenComplete( (a,b) -> stateIdle() );
+      stateDownloadRunning();
+   }
+
+   private void btnStart_download_pause ( ActionEvent evt ) {
+      loader.pause();
+      stateDownloadPaused();
+   }
+
+   private void btnStart_download_resume ( ActionEvent evt ) {
+      loader.resume();
+      stateDownloadRunning();
+   }
+
+   void stateIdle () {
+      setStartStop( "Start Download", this::btnStart_download_action );
+   }
+   
+   void stateDownloadRunning () {
+      setStartStop( "Pause Download", this::btnStart_download_pause );
+   }
+
+   void stateDownloadPaused () {
+      setStartStop( "Resume Download", this::btnStart_download_resume );
    }
 
    private FileChooser dlgCreateView;
