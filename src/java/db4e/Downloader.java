@@ -131,18 +131,32 @@ public class Downloader {
    CompletableFuture<Void> open( TableView categoryTable ) {
       gui.stateBusy( "Opening Database" );
       return CompletableFuture.runAsync( () -> {
+         File db_file = new File( DB_NAME );
+         String db_path = db_file.getAbsolutePath();
          try {
-            log.log( Level.INFO, "Opening database {0}", DB_NAME );
+            log.log( Level.INFO, "Opening shared database {0}", db_path );
             synchronized( this ) {
-               db = SqlJetDb.open( new File( DB_NAME ), true );
+               db = SqlJetDb.open( db_file, true );
                dal = new DbAbstraction();
             }
-         } catch ( Exception ex ) {
-            log.log( Level.SEVERE, "Cannot open database: {0}", Utils.stacktrace( ex ) );
-            gui.stateBadData();
-            gui.btnClearData.setDisable( false );
-            closeDb();
-            throw new RuntimeException( ex );
+         } catch ( Exception err ) {
+            log.log(Level.SEVERE, "Cannot open shared database {0}: {1}", new Object[]{ db_path, Utils.stacktrace( err ) } );
+
+            db_file = new File( System.getProperty("user.home") + "/" + DB_NAME );
+            db_path = db_file.getAbsolutePath();
+            try {
+               log.log( Level.INFO, "Opening user database {0}", db_path );
+               synchronized( this ) {
+                  db = SqlJetDb.open( db_file, true );
+                  dal = new DbAbstraction();
+               }
+            } catch ( Exception ex ) {
+               log.log( Level.SEVERE, "Cannot open user database {0}: {1}", new Object[]{ db_path, Utils.stacktrace( ex ) } );
+               gui.stateBadData();
+               gui.btnClearData.setDisable( false );
+               closeDb();
+               throw new RuntimeException( ex );
+            }
          }
 
          log.log( Level.FINE, "Database opened. Loading tables." );

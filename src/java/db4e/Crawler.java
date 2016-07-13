@@ -65,7 +65,7 @@ public class Crawler {
                + "    var meta = [], links = document.querySelectorAll( '.resultsTable a:not([href^=javascript])' ); "
                + "    for ( var a of [].slice.call( links ) ) { "
                + "       var cells = [].slice.call( a.parentNode.parentNode.cells ); "
-               + "       var row = [ a.href, cells[0].textContent.trim(), [] ]; "
+               + "       var row = [ a.href.replace( 'http://www.wizards.com/dndinsider/compendium/', ''), cells[0].textContent.trim(), [] ]; "
                + "       for ( var td of cells.slice( 1 ) ) "
                + "          row[ 2 ].push( td.textContent.trim() ); "
                + "       meta.push( row ); "
