@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.collections.ObservableList;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
@@ -97,7 +99,7 @@ class DbAbstraction {
       db.commit();
    }
 
-   private void loadCategory ( ObservableList<Category> categories ) throws SqlJetException {
+   private synchronized void loadCategory ( ObservableList<Category> categories ) throws SqlJetException {
       log.fine( "Loading categories." );
       List<Category> list = new ArrayList<>();
 
@@ -129,7 +131,7 @@ class DbAbstraction {
                int null_row = (int) cursor.getRowCount();
                cursor.close();
                c.downloaded_entry.set( total - null_row );
-               log.log( Level.FINE, "{0} -> {1}/{2} = {3}", new Object[]{ c.id, null_row, total, total - null_row } );
+               log.log( Level.FINE, "{0} -> {2} total - {1} null = {3} downloaded", new Object[]{ c.id, null_row, total, total - null_row } );
             }
          }
       } finally {
@@ -139,4 +141,29 @@ class DbAbstraction {
       // TODO: Backup good db.
    }
 
+   /////////////////////////////////////////////////////////////////////////////
+   // Utils
+   /////////////////////////////////////////////////////////////////////////////
+
+   private final String csvTokenPattern = "(?:^|,)((?!\")[^\r\n,]*|\"(?:\"\"|[^\"])*\")";
+   private final Matcher csvToken = Pattern.compile( csvTokenPattern ).matcher( "" );
+   private final List<String> csvBuffer = new ArrayList<>();
+
+   private String[] parseCsvLine ( CharSequence line ) {
+      csvToken.reset( line );
+      csvBuffer.clear();
+      int pos = 0;
+      while ( csvToken.find() ) {
+         if ( csvToken.start() != pos )
+            log.log( Level.WARNING, "CSV parse error: {0}", line );
+         String token = csvToken.group( 1 );
+         if ( token.length() >= 2 && token.charAt(0) == '"' && token.endsWith( "\"" ) )
+            token = token.substring( 1, token.length()-1 ).replaceAll( "\"\"", "\"" );
+         csvBuffer.add(token);
+         pos = csvToken.end();
+      }
+      if ( pos != line.length() )
+         log.log( Level.WARNING, "CSV parse error: {0}", line );
+      return csvBuffer.toArray( new String[ csvBuffer.size() ] );
+   }
 }
