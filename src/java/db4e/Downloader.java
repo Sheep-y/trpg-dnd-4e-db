@@ -1,7 +1,9 @@
 package db4e;
 
 import db4e.data.Category;
+import db4e.data.Entry;
 import java.io.File;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -26,6 +28,8 @@ public class Downloader {
 
    private static final Logger log = Main.log;
 
+   public static final int TIMEOUT_MS = 30_000;
+   public static volatile int INTERVAL_MS = 2_000;
    private static final String DB_NAME = "dnd4_compendium.sqlite";
 
    // Database variables are set on open().
@@ -213,12 +217,15 @@ public class Downloader {
          log.info( "Compendium opened." );
          return downloadCategory();
 
-      } ).exceptionally( (err) -> {
+      } ).exceptionally( ( err ) -> {
          gui.stateCanDownload();
          if ( err instanceof Exception ) {
-            if ( err.getCause() != null && err.getCause() instanceof InterruptedException )
-               gui.setStatus( "Download Stopped" );
-            else
+            if ( err.getCause() != null ) {
+               if ( err.getCause() instanceof InterruptedException )
+                  gui.setStatus( "Download Stopped" );
+               else if ( err.getCause() instanceof TimeoutException )
+                  gui.setStatus( "Download Timeout" );
+            } else
                gui.setStatus( ( (Exception) err ).getMessage() );
          } else {
             gui.setStatus( err.getClass().getSimpleName() );
@@ -233,13 +240,22 @@ public class Downloader {
 
       threadPool.execute( () -> {
          checkPause();
-         for ( Category cat : categories ) {
-            if ( cat.total_entry.get() > 0 ) continue;
-            checkPause();
-            gui.setStatus( "Listing " + cat.type + " category " + cat.name );
-            crawler.openCategory( cat );
+         try {
+            for ( Category cat : categories ) {
+               if ( cat.total_entry.get() > 0 ) continue;
+               checkPause();
+               gui.setStatus( "Listing " + cat.type + " category " + cat.name );
+               List<Entry> entries = crawler.openCategory( cat );
+               cat.entries.clear();
+               cat.entries.addAll( entries );
+               cat.total_entry.set( entries.size() );
+               Thread.sleep( INTERVAL_MS );
+            }
+            catLoad.complete( null );
+
+         } catch ( Exception err ) {
+            catLoad.completeExceptionally( err );
          }
-         catLoad.complete( null );
       } );
 
       return catLoad;
@@ -251,7 +267,7 @@ public class Downloader {
 
    /**
     * Given a CompletableFuture,
-    * set a timeout of 30 second and return a Consumer function
+    * set a timeout and return a Consumer function
     * that, when called, will finish the task
     * normally or exceptionally and cleanup.
     *
@@ -280,7 +296,7 @@ public class Downloader {
          }
       };
       TimerTask openTimeout = Utils.toTimer( () -> result.accept( null, new TimeoutException( timeout_message ) ) );
-      scheduler.schedule( openTimeout, 30*1000 );
+      scheduler.schedule( openTimeout, TIMEOUT_MS );
       return ( err ) -> result.accept( openTimeout, err );
    }
 
