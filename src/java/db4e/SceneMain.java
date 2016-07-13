@@ -43,10 +43,6 @@ public class SceneMain extends Scene {
    private static final Logger log = Main.log;
    private static final Preferences prefs = Main.prefs;
 
-   // Global control states
-   private boolean isIdle = true; // Controls start at idle state; set to true so that enterBusy will do work
-   private boolean hasData = false;
-
    // Help Screen
    private final BorderPane pnlHelpTab = new BorderPane();
    private final Tab tabHelp = new Tab( "Help", pnlHelpTab );
@@ -64,13 +60,12 @@ public class SceneMain extends Scene {
       private final TableColumn<Category,Integer> colTotalEntry = new TableColumn<>( "Total" );
       private final TableColumn<Category,Integer> colDownloadedEntry = new TableColumn<>( "Downloaded" );
       private final TableColumn<Category,Integer> colExportedEntry = new TableColumn<>( "Saved" );
-   private final Button btnView = new Button( "View Data" );
-   private final Button btnExport = new Button( "Export Data" );
-   private final Button btnStartStop = new Button( "Start Download" );
+   private final Button btnLeft = new Button( "Please" );
+   private final Button btnRight = new Button( "Wait" );
 
    private final Pane pnlDataTab = new BorderPane( tblCategory,
       JavaFX.fitVBox( lblStatus, JavaFX.fitHBox( txtEmail, txtPass ) ),  // Top
-      null, JavaFX.fitVBox( JavaFX.fitHBox( btnView, btnExport ), btnStartStop ), null ); // right, bottom, left
+      null, JavaFX.fitHBox( btnLeft, btnRight ), null ); // right, bottom, left
    private final Tab tabData = new Tab( "Data", pnlDataTab );
 
    // Option Screen
@@ -113,7 +108,7 @@ public class SceneMain extends Scene {
       colExportedEntry.setCellValueFactory( new PropertyValueFactory<>( "exportedEntry" ) );
       tblCategory.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
       tblCategory.getColumns().addAll( colName, colDownloadedEntry, colTotalEntry );
-      stateIdle();
+      stateCanDownload();
 
       // Option tab
       chkDebug.selectedProperty().addListener( this::chkDebug_change );
@@ -124,7 +119,7 @@ public class SceneMain extends Scene {
       // Log tab
       txtLog.setEditable( false );
 
-      disallowAction( "Initialising" );
+      stateBusy( "Initialising" );
    }
 
    private void initLayout () {
@@ -134,9 +129,8 @@ public class SceneMain extends Scene {
          lblStatus.setFont( new Font( lblStatus.getFont().getName(), 24 ) );
          lblStatus.setAlignment( Pos.CENTER );
          lblStatus.setPadding( i8 );
-         btnView.setPadding( i8 );
-         btnExport.setPadding( i8 );
-         btnStartStop.setPadding( i8 );
+         btnLeft.setPadding( i8 );
+         btnRight.setPadding( i8 );
 
       pnlOptionTab.setPadding( i8 );
    }
@@ -162,7 +156,9 @@ public class SceneMain extends Scene {
 
    // Called by Main after stage show
    void startup() {
-      loader.open( tblCategory ).thenRun( () -> btnStartStop.requestFocus() );
+      loader.open( tblCategory ).thenRun( () -> Platform.runLater( () ->
+         btnLeft.requestFocus()
+      ) );
    }
 
    // Called by Main during stage shutdown
@@ -174,55 +170,29 @@ public class SceneMain extends Scene {
    // GUI state
    /////////////////////////////////////////////////////////////////////////////
 
-   void setStatus ( String msg ) {
+   void setStatus ( String msg ) { runFX( () -> {
+      log.log( Level.INFO, "Status: {0}.", msg );
+      lblStatus.setText( msg );
+   } ); }
+
+   private void runFX ( Runnable r ) {
       if ( Platform.isFxApplicationThread() ) {
-         log.log( Level.INFO, "Status: {0}.", msg );
-         lblStatus.setText( msg );
+         r.run();
       } else {
-         Platform.runLater( () -> setStatus( msg ) );
+         Platform.runLater( r );
       }
    }
 
-   void setHasData( boolean hasData ) {
-      if ( Platform.isFxApplicationThread() ) {
-         // Set flag and update control status
-         this.hasData = hasData;
-         if ( isIdle )
-            allowAction( null );
-         else
-            disallowAction( null );
-      } else {
-         Platform.runLater( () -> setHasData( hasData ) );
-      }
+   private void allowAction () {
+      btnLeft.setDisable( false );
+      btnRight.setDisable( false );
+      btnClearData.setDisable( false );
    }
 
-   void allowAction ( String status ) {
-      if ( Platform.isFxApplicationThread() ) {
-         if ( status != null ) setStatus( status );
-         log.log( Level.FINE, isIdle ? "Updating idle controls." : "Enter idle and enable controls." );
-         isIdle = true;
-         btnView.setDisable( ! hasData ); // Keep disable if has no data
-         btnExport.setDisable( ! hasData );
-         btnStartStop.setDisable( false );
-         btnClearData.setDisable( false );
-      } else {
-         Platform.runLater(() -> allowAction( status ) );
-      }
-   }
-
-   void disallowAction ( String status ) {
-      if ( Platform.isFxApplicationThread() ) {
-         if ( status != null ) setStatus( status );
-         if ( ! isIdle ) return;
-         log.log( Level.FINE, "Disabling controls." );
-         isIdle = false;
-         btnView.setDisable( true );
-         btnExport.setDisable( true );
-         btnStartStop.setDisable( true );
-         btnClearData.setDisable( true );
-      } else {
-         Platform.runLater(() -> disallowAction( status ) );
-      }
+   private void disallowAction () {
+      btnLeft.setDisable( true );
+      btnRight.setDisable( true );
+      btnClearData.setDisable( true );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -253,37 +223,72 @@ public class SceneMain extends Scene {
    // Data Tab
    /////////////////////////////////////////////////////////////////////////////
 
-   private void setStartStop ( String text, EventHandler<ActionEvent> action ) {
-      btnStartStop.setText( text );
-      btnStartStop.onActionProperty().set( action );
+   private void setLeft ( String text, EventHandler<ActionEvent> action ) {
+      btnLeft.setText( text );
+      btnLeft.onActionProperty().set( action );
    }
 
-   private void btnStart_download_action ( ActionEvent evt ) {
-      loader.startDownload().whenComplete( (a,b) -> stateIdle() );
-      stateDownloadRunning();
+   private void setRight ( String text, EventHandler<ActionEvent> action ) {
+      btnRight.setText( text );
+      btnRight.onActionProperty().set( action );
    }
 
-   private void btnStart_download_pause ( ActionEvent evt ) {
+   private void action_exit ( ActionEvent evt ) {
+      getWindow().hide();
+   }
+
+   private void action_stop ( ActionEvent evt ) {
+      loader.stop();
+   }
+
+   private void action_download ( ActionEvent evt ) {
+      loader.startDownload().whenComplete( (a,b) -> stateCanDownload() );
+      stateRunning();
+   }
+
+   private void action_pause ( ActionEvent evt ) {
       loader.pause();
-      stateDownloadPaused();
+      statePaused();
    }
 
-   private void btnStart_download_resume ( ActionEvent evt ) {
+   private void action_resume ( ActionEvent evt ) {
       loader.resume();
-      stateDownloadRunning();
+      stateRunning();
    }
 
-   void stateIdle () {
-      setStartStop( "Start Download", this::btnStart_download_action );
-   }
-   
-   void stateDownloadRunning () {
-      setStartStop( "Pause Download", this::btnStart_download_pause );
-   }
+   void stateBusy ( String message ) { runFX( () -> {
+      if ( message != null ) setStatus( message );
+      log.log( Level.FINE, "State: Busy" );
+      disallowAction();
+   } ); }
 
-   void stateDownloadPaused () {
-      setStartStop( "Resume Download", this::btnStart_download_resume );
-   }
+   void stateBadData () { runFX( () -> {
+      log.log( Level.FINE, "State: Bad Data" );
+      setStatus( "Cannot open local database" );
+      allowAction();
+      setLeft( "Reset", this::btnClearData_click );
+      setRight( "Exit", this::action_exit );
+   } ); }
+
+   void stateCanDownload () { runFX( () -> {
+      log.log( Level.FINE, "State: Can Download" );
+      setStatus( "Ready to download" );
+      allowAction();
+      setLeft( "Download", this::action_download );
+      setRight( "Exit", this::action_exit );
+   } ); }
+
+   void stateRunning () { runFX( () -> {
+      log.log( Level.FINE, "State: Running" );
+      btnClearData.setDisable( true );
+      setLeft( "Pause", this::action_pause );
+      setRight( "Stop", this::action_stop );
+   } ); }
+
+   void statePaused () { runFX( () -> {
+      log.log( Level.FINE, "State: Paused" );
+      setLeft( "Resume", this::action_resume );
+   } ); }
 
    private FileChooser dlgCreateView;
    private void btnFolder_action ( ActionEvent evt ) {

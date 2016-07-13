@@ -81,7 +81,7 @@ public class Downloader {
    /////////////////////////////////////////////////////////////////////////////
 
    void resetDb () {
-      gui.disallowAction( "Clearing data" );
+      gui.setStatus( "Clearing data" );
       categories.clear();
 
       ForkJoinPool.commonPool().execute( () -> { try {
@@ -107,7 +107,7 @@ public class Downloader {
    }
 
    CompletableFuture<Void> open( TableView categoryTable ) {
-      gui.disallowAction( "Opening Database" );
+   gui.stateBusy( "Opening Database" );
 
       return CompletableFuture.runAsync( () -> {
          try {
@@ -118,7 +118,7 @@ public class Downloader {
             }
          } catch ( Exception ex ) {
             log.log( Level.SEVERE, "Cannot open database: {0}", Utils.stacktrace( ex ) );
-            gui.disallowAction( "Cannot open database" );
+            gui.stateBadData();
             gui.btnClearData.setDisable( false );
             closeDb();
             throw new RuntimeException( ex );
@@ -170,13 +170,13 @@ public class Downloader {
 
          } catch ( Exception e2 ) {
             log.log( Level.SEVERE, "Cannot create tables: {0}", Utils.stacktrace( e2 ) );
-            gui.disallowAction( "Cannot open database, try clear data" );
+            gui.stateBadData();
             gui.btnClearData.setDisable( false );
             closeDb();
             throw new RuntimeException( e2 );
          }
       }
-      gui.allowAction( "Ready to go" );
+      gui.stateCanDownload();
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -184,7 +184,7 @@ public class Downloader {
    /////////////////////////////////////////////////////////////////////////////
 
    CompletableFuture<Void> startDownload () {
-      gui.disallowAction( "Opening online compendium" );
+      gui.stateBusy( "Opening online compendium" );
 
       // Open compendium
       CompletableFuture<Void> dbOpen = new CompletableFuture<>();
@@ -218,10 +218,12 @@ public class Downloader {
 
       } ).exceptionally( (err) -> {
          log.log( Level.WARNING, "Download error: {0}", Utils.stacktrace( err ) );
-         if ( err instanceof Exception )
-            gui.allowAction( ( (Exception) err ).getMessage() );
-         else
-            gui.allowAction( err.getClass().getSimpleName() );
+         gui.stateCanDownload();
+         if ( err instanceof Exception ) {
+            gui.setStatus( ( (Exception) err ).getMessage() );
+         } else {
+            gui.setStatus( err.getClass().getSimpleName() );
+         }
          return null;
       });
    }
