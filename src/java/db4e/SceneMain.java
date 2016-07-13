@@ -234,7 +234,8 @@ public class SceneMain extends Scene {
    }
 
    private void action_exit ( ActionEvent evt ) {
-      getWindow().hide();
+      shutdown();
+      Platform.exit();
    }
 
    private void action_stop ( ActionEvent evt ) {

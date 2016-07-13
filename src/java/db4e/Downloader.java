@@ -8,6 +8,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -31,7 +33,7 @@ public class Downloader {
    // Access must be synchronised with 'this'
    private SqlJetDb db;
    private DbAbstraction dal;
-   private CompletableFuture<Void> currentTask;
+   private Thread currentThread;
    private final AtomicBoolean paused = new AtomicBoolean();
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
@@ -39,6 +41,8 @@ public class Downloader {
    private final SceneMain gui;
    private final ConsoleWebView browser;
    private final Timer scheduler = new Timer();
+   private final ForkJoinPool threadPool = ForkJoinPool.commonPool();
+//      new ForkJoinPool( Math.max( 3, Runtime.getRuntime().availableProcessors() - 1 ) );
 
    public Downloader ( SceneMain main ) {
       gui = main;
@@ -62,13 +66,26 @@ public class Downloader {
       }
    }
 
+   synchronized void stop () {
+      browser.getWebEngine().getLoadWorker().cancel();
+      if ( currentThread != null )
+         currentThread.interrupt();
+      currentThread = null;
+      resume();
+   }
+
    private void checkPause () {
+      synchronized ( this ) {
+         currentThread = Thread.currentThread();
+      }
       synchronized ( paused ) {
+         if ( Thread.interrupted() )
+            throw new RuntimeException( new InterruptedException() );
          while ( paused.get() ) {
             gui.setStatus( "Paused" );
             try {
                paused.wait();
-            } catch (InterruptedException ex) {
+            } catch ( InterruptedException ex ) {
                throw new RuntimeException( ex );
             }
             gui.setStatus( "Resuming" );
@@ -84,10 +101,10 @@ public class Downloader {
       gui.setStatus( "Clearing data" );
       categories.clear();
 
-      ForkJoinPool.commonPool().execute( () -> { try {
+      threadPool.execute( () -> { try {
          synchronized ( this ) { // Lock database for the whole duration
             closeDb();
-            Thread.sleep( 1000 ); // Give OS some time to close the handle
+            Thread.sleep( 1000 ); // Give it some time to save and close
             final File file = new File( DB_NAME );
             if ( file.exists() ) {
                log.log( Level.INFO, "Deleting database {0}", new File( DB_NAME ).getAbsolutePath() );
@@ -107,13 +124,12 @@ public class Downloader {
    }
 
    CompletableFuture<Void> open( TableView categoryTable ) {
-   gui.stateBusy( "Opening Database" );
-
+      gui.stateBusy( "Opening Database" );
       return CompletableFuture.runAsync( () -> {
          try {
             log.log( Level.INFO, "Opening database {0}", DB_NAME );
             synchronized( this ) {
-               db = SqlJetDb.open(new File( DB_NAME ), true );
+               db = SqlJetDb.open( new File( DB_NAME ), true );
                dal = new DbAbstraction();
             }
          } catch ( Exception ex ) {
@@ -128,14 +144,6 @@ public class Downloader {
          if ( categoryTable != null ) categoryTable.setItems( categories );
          openOrCreateTable();
       } );
-   }
-
-   synchronized void stop () {
-      browser.getWebEngine().getLoadWorker().cancel();
-      if ( currentTask != null )
-         currentTask.completeExceptionally( new InterruptedException() );
-      currentTask = null;
-      resume();
    }
 
    void close() {
@@ -171,7 +179,6 @@ public class Downloader {
          } catch ( Exception e2 ) {
             log.log( Level.SEVERE, "Cannot create tables: {0}", Utils.stacktrace( e2 ) );
             gui.stateBadData();
-            gui.btnClearData.setDisable( false );
             closeDb();
             throw new RuntimeException( e2 );
          }
@@ -188,36 +195,23 @@ public class Downloader {
 
       // Open compendium
       CompletableFuture<Void> dbOpen = new CompletableFuture<>();
-      synchronized ( this ) {
-         currentTask = dbOpen; }
+      Consumer<Throwable> handle = browserTaskHandler( dbOpen, "Online compendium timeout" );
 
-      Platform.runLater( () -> {
-         // Setup timeout
-         TimerTask openTimeout = Utils.toTimer( () -> { synchronized( this ) {
-            browser.handle( null, null );
-            dbOpen.completeExceptionally( new TimeoutException( "Online compendium timeout" ) );
-         } } );
-         scheduler.schedule( openTimeout, 30*1000 );
-
-         browser.handle( (e) -> { synchronized( this ) { // On load
-            openTimeout.cancel(); browser.handle( null, null );
-            dbOpen.complete( null );
-
-         } }, (e,err) -> { synchronized( this ) { // On error
-            openTimeout.cancel(); browser.handle( null, null );
-            dbOpen.completeExceptionally( err );
-         } } );
-
-         browser.getWebEngine().load( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
+      threadPool.execute( ()-> {
+         checkPause();
+         browser.handle(
+            ( e ) -> handle.accept( null ), // on load
+            ( e,err ) -> handle.accept( err ) // on error
+         );
+         browse( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
+         waitFinish( dbOpen, handle );
       } );
 
       return dbOpen.thenCompose( ( result ) -> {
-         checkPause();
          log.info( "Compendium opened." );
          return downloadCategory();
 
       } ).exceptionally( (err) -> {
-         log.log( Level.WARNING, "Download error: {0}", Utils.stacktrace( err ) );
          gui.stateCanDownload();
          if ( err instanceof Exception ) {
             gui.setStatus( ( (Exception) err ).getMessage() );
@@ -233,7 +227,7 @@ public class Downloader {
 
       CompletableFuture<Void> catLoad = new CompletableFuture<>();
 
-      ForkJoinPool.commonPool().execute( () -> {
+      threadPool.execute( () -> {
          // Check which category is not yet loaded
          for ( Category cat : categories ) {
             if ( cat.total_entry.get() > 0 ) continue;
@@ -243,4 +237,57 @@ public class Downloader {
 
       return catLoad;
    }
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Utils
+   /////////////////////////////////////////////////////////////////////////////
+
+   /**
+    * Given a CompletableFuture,
+    * set a timeout of 30 second and return a Consumer function
+    * that, when called, will finish the task
+    * normally or exceptionally and cleanup.
+    *
+    * Clean up includes stopping the timeout, clear browser handlers,
+    * and notify all threads waiting on the task.
+    * If the task ended in exception, it will also be logged at warning level.
+    *
+    * @param task Task to timeout and complete
+    * @param timeout_message Message of timeout exception
+    * @return A function to call to complete
+    */
+   private Consumer<Throwable> browserTaskHandler ( CompletableFuture task, String timeout_message ) {
+      BiConsumer<TimerTask, Throwable> result = ( timeout, err ) -> {
+         synchronized ( task ) {
+            if ( timeout != null )
+               timeout.cancel();
+            browser.handle( null, null );
+            if ( err != null ) {
+               log.log( Level.WARNING, "Task finished exceptionally: {0}", Utils.stacktrace( err ) );
+               task.completeExceptionally( err );
+            } else {
+               log.fine( "Task finished normally." );
+               task.complete( null );
+            }
+            task.notify();
+         }
+      };
+      TimerTask openTimeout = Utils.toTimer( () -> result.accept( null, new TimeoutException( timeout_message ) ) );
+      scheduler.schedule( openTimeout, 30*1000 );
+      return ( err ) -> result.accept( openTimeout, err );
+   }
+
+   private void browse ( String url ) {
+      Platform.runLater( () -> browser.getWebEngine().load( url ) );
+   }
+
+   private void waitFinish ( CompletableFuture task, Consumer<? super InterruptedException> interrupted ) {
+      synchronized ( task ) { try {
+         task.wait();
+      } catch ( InterruptedException ex ) {
+         if ( interrupted != null )
+            interrupted.accept( ex );
+      } }
+   }
+
 }
