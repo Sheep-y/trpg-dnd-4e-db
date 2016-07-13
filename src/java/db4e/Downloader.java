@@ -12,7 +12,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
@@ -40,6 +39,7 @@ public class Downloader {
 
    private final SceneMain gui;
    private final ConsoleWebView browser;
+   private final Crawler crawler;
    private final Timer scheduler = new Timer();
    private final ForkJoinPool threadPool = ForkJoinPool.commonPool();
 //      new ForkJoinPool( Math.max( 3, Runtime.getRuntime().availableProcessors() - 1 ) );
@@ -47,6 +47,7 @@ public class Downloader {
    public Downloader ( SceneMain main ) {
       gui = main;
       browser = main.getWorker();
+      crawler = new Crawler( browser.getWebEngine() );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -190,10 +191,11 @@ public class Downloader {
    // Download
    /////////////////////////////////////////////////////////////////////////////
 
+   // Open compendium
    CompletableFuture<Void> startDownload () {
-      gui.stateBusy( "Opening online compendium" );
+      gui.stateRunning();
+      gui.setStatus( "Opening online compendium" );
 
-      // Open compendium
       CompletableFuture<Void> dbOpen = new CompletableFuture<>();
       Consumer<Throwable> handle = browserTaskHandler( dbOpen, "Online compendium timeout" );
 
@@ -203,7 +205,7 @@ public class Downloader {
             ( e ) -> handle.accept( null ), // on load
             ( e,err ) -> handle.accept( err ) // on error
          );
-         browse( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
+         crawler.openFrontpage();
          waitFinish( dbOpen, handle );
       } );
 
@@ -214,7 +216,10 @@ public class Downloader {
       } ).exceptionally( (err) -> {
          gui.stateCanDownload();
          if ( err instanceof Exception ) {
-            gui.setStatus( ( (Exception) err ).getMessage() );
+            if ( err.getCause() != null && err.getCause() instanceof InterruptedException )
+               gui.setStatus( "Download Stopped" );
+            else
+               gui.setStatus( ( (Exception) err ).getMessage() );
          } else {
             gui.setStatus( err.getClass().getSimpleName() );
          }
@@ -224,13 +229,15 @@ public class Downloader {
 
    private CompletableFuture<Void> downloadCategory() {
       gui.setStatus( "Loading categories" );
-
       CompletableFuture<Void> catLoad = new CompletableFuture<>();
 
       threadPool.execute( () -> {
-         // Check which category is not yet loaded
+         checkPause();
          for ( Category cat : categories ) {
             if ( cat.total_entry.get() > 0 ) continue;
+            checkPause();
+            gui.setStatus( "Listing " + cat.type + " category " + cat.name );
+            crawler.openCategory( cat );
          }
          catLoad.complete( null );
       } );
@@ -275,10 +282,6 @@ public class Downloader {
       TimerTask openTimeout = Utils.toTimer( () -> result.accept( null, new TimeoutException( timeout_message ) ) );
       scheduler.schedule( openTimeout, 30*1000 );
       return ( err ) -> result.accept( openTimeout, err );
-   }
-
-   private void browse ( String url ) {
-      Platform.runLater( () -> browser.getWebEngine().load( url ) );
    }
 
    private void waitFinish ( CompletableFuture task, Consumer<? super InterruptedException> interrupted ) {

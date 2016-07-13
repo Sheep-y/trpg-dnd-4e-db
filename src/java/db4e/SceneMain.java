@@ -243,16 +243,18 @@ public class SceneMain extends Scene {
    }
 
    private void action_download ( ActionEvent evt ) {
-      loader.startDownload().whenComplete( (a,b) -> stateCanDownload() );
+      loader.startDownload().whenComplete( (a,b) -> allowAction() );
       stateRunning();
    }
 
    private void action_pause ( ActionEvent evt ) {
+      setStatus( "Pausing" );
       loader.pause();
       statePaused();
    }
 
    private void action_resume ( ActionEvent evt ) {
+      setStatus( "Resuming" );
       loader.resume();
       stateRunning();
    }
