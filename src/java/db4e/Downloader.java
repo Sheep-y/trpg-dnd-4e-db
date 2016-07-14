@@ -29,7 +29,7 @@ public class Downloader {
 
    private static final Logger log = Main.log;
 
-   public static final int TIMEOUT_MS = 900_000; // It take a very long time to list powers.
+   public static final int TIMEOUT_MS = 9000_000; // It take a very long time to list powers.
    public static volatile int INTERVAL_MS = 2_000;
    static final String DB_NAME = "dnd4_compendium.sqlite";
 
@@ -217,6 +217,7 @@ public class Downloader {
    // Open compendium
    CompletableFuture<Void> startDownload () {
       gui.stateRunning();
+      log.log( Level.CONFIG, "WebView Agent: {0}", browser.getWebEngine().getUserAgent() );
       gui.setStatus( "Opening online compendium" );
 
       CompletableFuture<Void> dbOpen = new CompletableFuture<>();

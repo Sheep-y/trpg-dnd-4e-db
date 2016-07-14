@@ -1,0 +1,118 @@
+<!DOCTYPE html><html>
+<head>
+   <title>Offline 4e Compendium - Help</title>
+   <meta charset="UTF-8">
+   <style>
+* { box-sizing: border-box; }
+html, body {
+   background: #DDD;
+   font: sans-serif;
+   margin: 0;
+   min-height: 100%;
+   padding: 0;
+   width: 100%;
+   }
+
+header {
+   position: fixed;
+   top: 0;
+   width: 100%;
+   }
+   header > nav {
+      display: flex;
+      flex-flow: row nowrap;
+      }
+      header > nav > a {
+         background: #006;
+         border: 1px solid white;
+         color: white;
+         display: block;
+         font-weight: bold;
+         flex-grow: 1;
+         text-align: center;
+         }
+         header > nav > a:hover ,
+         header > nav > a:active {
+            color: yellow;
+            }
+
+main {
+   margin: 1em;
+   }
+
+a {
+   text-decoration: none;
+   }
+
+li {
+   margin-bottom: 1ex;
+   }
+   </style>
+</head><body>
+   <!--<header> // Stupid JavaFX WebView use a Webkit so old that it does not support flex.
+      <nav>
+         <a href="#help">Help</a>
+         <a href="#about">About</a>
+      </nav>
+   </header>-->
+   <main>
+      <h1> 4e Compendium (v3.5) Downloader </h1>
+      <h1> Work In Progress.  Program Not Working. </h1>
+      <section>
+         <h2 id='help'> How to Use </h2>
+         <ol>
+            <li>
+               <b>You need an active (paid) <a href='https://store.digitalriver.com/store/dndi/DisplayHelpPage'>D&amp;D Insider subscription</a>.</b> <br>
+               You can recover your DDI account from <a href='http://ddi.wizards.com/'>the official site.</a>
+               Note that DDI no longer accepts new subscription.  If you have never subscripted, please find help from your D&amp;D community.
+               Otherwise, view any old subscription in <a href='https://store.digitalriver.com/DRHM/store?Action=DisplayAccountOrderListPage&SiteID=dndi'>order history</a> and click "renew" to place a new order.
+            </li>
+            <li>
+               <b>Fill the login in Data tab.</b> <br/>
+               This downloader relies on you to fill in correct DDI login information.
+               This downloader only send your login to the DDI site.
+               (If it hasn't been modified from the <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/releases'>original</a>.)
+            </li>
+            <li>
+               <b>Click "Download" and leave it running</b> <br/>
+               The download process takes at least a day or longer.
+               Progress is saved in real time, so it can be stopped mid-way and it will resume from there next time.
+               This is the only step that requires Internet connection and an active subscription.
+            </li>
+            <li>
+               <b>Click "Export" and save it somewhere </b> <br/>
+               Once data is complete, the download button will become export button.
+               Export is a process of converting downloaded data into a form that web browsers can read.
+               It starts anew every time, takes at least a few minutes, and eats lots of memory.
+            </li>
+            <li>
+               <b>(Optional) Transfer the exported file and data to mobile devices </b> <br/>
+               The exported <code>.html</code> file can be opened in any modern browser,
+               and it comes with a same named folder that contains the data.
+               You can copy the file and the folder to other PC or mobile devices;
+               copying data to your personal devices for personal use does not violate copyright.
+            </li>
+         </ol>
+      </section>
+      <section>
+         <h2 id='about'> About </h2>
+         <p>
+            This downloader and the exported compendium is open source, licensed under <a href='https://www.gnu.org/licenses/agpl-3.0.en.html'>GNU Affero GPL v3</a>.
+            Complete source code is available from <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/'>project homepage</a> on github.
+         </p>
+         <p>
+            This downloader uses <a href='http://sqljet.com/'>SQLJet (v1.1)</a>, <a href='http://svn.sqljet.com/repos/sqljet/branches/1.1.x/LICENSE.txt'>licensed</a> under <a href='https://www.gnu.org/licenses/gpl-2.0.en.html'>GNU GPL v2</a>.
+            SQLJet uses <a href='http://www.antlr3.org/'>ANTLR (v3.5)</a>, <a href='http://www.antlr3.org/license.html'>licensed</a> under <a href='https://opensource.org/licenses/BSD-3-Clause'>3-Clause BSD</a>.
+         </p>
+         <p>
+            This downloader is different from the data you use it to download.
+            The free licenses apply to code and related resources, but not to downloaded data.
+         </p>
+      </section>
+   </main>
+   <script>
+   [].forEach.call( document.querySelectorAll( 'a' ), function ( a ) {
+      a.target = '_blank';
+   } );
+   </script>
+</body></html>

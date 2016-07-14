@@ -1,7 +1,10 @@
 package db4e;
 
 import db4e.data.Category;
+import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -30,9 +33,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import sheepy.util.JavaFX;
+import sheepy.util.ResourceUtils;
+import sheepy.util.Utils;
 import sheepy.util.ui.ConsoleWebView;
 
 /**
@@ -108,7 +114,6 @@ public class SceneMain extends Scene {
       colExportedEntry.setCellValueFactory( new PropertyValueFactory<>( "exportedEntry" ) );
       tblCategory.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
       tblCategory.getColumns().addAll( colName, colDownloadedEntry, colTotalEntry );
-      stateCanDownload();
 
       // Option tab
       chkDebug.selectedProperty().addListener( this::chkDebug_change );
@@ -146,7 +151,7 @@ public class SceneMain extends Scene {
       // Load help doc dynamically
       pnlC.getSelectionModel().selectedItemProperty().addListener( (prop,old,now) -> {
          if ( now == tabHelp )
-            initWebViewTab( pnlHelpTab );
+            initWebViewTab( pnlHelpTab, "res/downloader_about.html" );
          else if ( now == tabWorker )
             Platform.runLater( () -> pnlWorker.getConsoleInput().requestFocus() );
       } );
@@ -198,6 +203,8 @@ public class SceneMain extends Scene {
    // Help & About
    /////////////////////////////////////////////////////////////////////////////
 
+   private WebEngine popupHandler;
+
    /**
     * Create a webview, put it in the pane, and load its content async.
     * If the pane already has a Node at the center, this method will do nothing.
@@ -205,16 +212,42 @@ public class SceneMain extends Scene {
     * @param pane Panel to add webview to
     * @return Created webview
     */
-   private void initWebViewTab ( BorderPane pane ) {
+   private void initWebViewTab ( BorderPane pane, String doc ) {
       if ( pane.getCenter() != null ) return;
+
       WebView web = new WebView();
+      WebEngine engine = web.getEngine();
       pane.setCenter( web );
-      web.getEngine().loadContent( "<h1>Loading</h1>" );
+      engine.loadContent( "<h1>Loading</h1>" );
+      engine.setCreatePopupHandler( ( popup ) -> {
+         if ( popupHandler == null ) {
+            assert( Platform.isFxApplicationThread() );
+            popupHandler = new WebEngine();
+            popupHandler.locationProperty().addListener( ( url, old, now ) -> { try {
+               log.log( Level.FINE, "Call desktop to browse {0}", now );
+               Desktop.getDesktop().browse( new URI( now ) );
+               popupHandler.getLoadWorker().cancel();
+            } catch ( Exception err ) {
+               // Should not happen because invalid url won't trigger popup
+               log.log( Level.WARNING, "Malformed URL: {0}", err );
+               //new Alert( Alert.AlertType.ERROR, "Cannot open " + now, ButtonType.OK ).show();
+            } } );
+         }
+         return popupHandler;
+      } );
       new Thread( () -> {
-         final String txt = "Work in progress"; // TODO: Load from file
-         Platform.runLater( () -> {
-            web.getEngine().loadContent( txt );
-         } );
+         try {
+            final String txt = ResourceUtils.getText( doc );
+            runFX( () -> {
+                  web.getEngine().loadContent( txt );
+            } );
+         } catch ( IOException ex ) {
+            log.log( Level.WARNING, "Error when loading help: {0}", Utils.stacktrace(ex) );
+            runFX( () -> {
+               web.getEngine().loadContent( "<h1>Cannot load help.</h1>"
+                     + "<h2><a href='https://github.com/Sheep-y/trpg-dnd-4e-db'>Project Home</a.></h2>" );
+            } );
+         }
       } ).start();
    }
 

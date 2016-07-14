@@ -47,20 +47,21 @@ public class Main extends Application {
 
    @Override public void start( Stage stage ) throws Exception {
       final SceneMain sceneMain = new SceneMain( this );
+      log.log( Level.CONFIG, "Java {0} on {1} {2}", new Object[]{ System.getProperty( "java.runtime.version" ), System.getProperty("os.name"), System.getProperty("os.arch") });
 
       stage.setTitle( TITLE );
-      stage.setScene(sceneMain);
+      stage.setScene( sceneMain );
+      try {
+         stage.getIcons().add( new Image( ResourceUtils.getStream( "img/icon.png" ) ) );
+      } catch ( Exception err ) {
+         log.warning( Utils.stacktrace( err ) );
+      }
       stage.setOnCloseRequest( e -> { try {
             sceneMain.shutdown();
             prefs.flush();
             for ( Handler handler : log.getHandlers() )
                handler.close();
          } catch ( BackingStoreException | SecurityException | NullPointerException ignored ) { } } );
-      try {
-         stage.getIcons().add( new Image( ResourceUtils.getStream( "img/icon.png" ) ) );
-      } catch ( Exception err ) {
-         log.warning( Utils.stacktrace( err ) );
-      }
       stage.show();
 
       log.info( "Main GUI initialised." );
