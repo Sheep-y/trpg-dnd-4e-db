@@ -322,7 +322,7 @@ public class SceneMain extends Scene {
             tabs.add( index+1, tabWorker );
          }
       } else {
-         log.setLevel( Level.INFO );
+         log.setLevel( Level.CONFIG );
          if ( tabs.contains( tabLog ) )
             tabs.removeAll( tabLog, tabWorker );
          txtLog.clear();

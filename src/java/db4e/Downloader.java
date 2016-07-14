@@ -29,7 +29,7 @@ public class Downloader {
 
    private static final Logger log = Main.log;
 
-   public static final int TIMEOUT_MS = 300_000; // It can take a long time to list monsters
+   public static final int TIMEOUT_MS = 900_000; // It take a very long time to list powers.
    public static volatile int INTERVAL_MS = 2_000;
    static final String DB_NAME = "dnd4_compendium.sqlite";
 
@@ -261,7 +261,7 @@ public class Downloader {
    }
 
    private CompletableFuture<Void> downloadCategory() {
-      gui.setStatus( "Loading categories" );
+      gui.setStatus( "Downloading categories" );
       CompletableFuture<Void> catLoad = new CompletableFuture<>();
 
       threadPool.execute( () -> {
@@ -270,9 +270,11 @@ public class Downloader {
             for ( Category cat : categories ) {
                if ( cat.total_entry.get() > 0 ) continue;
                checkPause();
+               gui.setStatus( "Listing " + cat.name );
                List<Entry> entries = crawler.openCategory( cat, progress( "Listing " + cat.name ) );
                checkPause();
-               dal.saveEntryList( cat, entries, progress( "Saving " + cat.name ) );
+               gui.setStatus( "Saving " + cat.name + " (" + entries.size() + ")" );
+               dal.saveEntryList( cat, entries );
                checkPause();
                Thread.sleep( INTERVAL_MS );
             }

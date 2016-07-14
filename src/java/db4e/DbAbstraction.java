@@ -143,13 +143,13 @@ class DbAbstraction {
       // TODO: Backup good db.
    }
 
-   synchronized void saveEntryList ( Category category, List<Entry> entries, BiConsumer<Integer,Integer> statusUpdate ) throws SqlJetException {
+   synchronized void saveEntryList ( Category category, List<Entry> entries ) throws SqlJetException {
       int count = entries.size();
       db.beginTransaction( SqlJetTransactionMode.WRITE );
       try {
          int i = 0;
          for ( Entry entry : entries ) {
-            log.log( Level.FINE, "Saving {0} - {1}", new Object[]{ entry.id, entry.name } );
+            log.log( Level.FINER, "Saving {0} - {1}", new Object[]{ entry.id, entry.name } );
             ISqlJetCursor lookup = tblEntry.lookup( null, entry.id );
             // Table fields: id, name, category, fields, hasData, data
             String fields = buildCsvLine( entry.fields ).toString();
@@ -159,8 +159,6 @@ class DbAbstraction {
 //               lookup.update( entry.id, entry.name, category.id, fields );
             }
             lookup.close();
-            if ( ++i % 100 == 0 )
-               statusUpdate.accept( i, count );
          }
 
          // Table fields: id, name, count, fields, type, order
@@ -173,7 +171,6 @@ class DbAbstraction {
          category.entries.clear();
          category.entries.addAll( entries );
          category.total_entry.set( count );
-         statusUpdate.accept( count, count );
 
       } catch ( Exception e ) {
          db.rollback();

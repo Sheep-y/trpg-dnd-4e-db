@@ -10,9 +10,12 @@ import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javax.swing.JOptionPane;
 import sheepy.util.JavaFX;
+import sheepy.util.ResourceUtils;
+import sheepy.util.Utils;
 
 /**
  * Setup logging, load preference, and show downloader main GUI.
@@ -53,6 +56,11 @@ public class Main extends Application {
             for ( Handler handler : log.getHandlers() )
                handler.close();
          } catch ( BackingStoreException | SecurityException | NullPointerException ignored ) { } } );
+      try {
+         stage.getIcons().add( new Image( ResourceUtils.getStream( "img/icon.png" ) ) );
+      } catch ( Exception err ) {
+         log.warning( Utils.stacktrace( err ) );
+      }
       stage.show();
 
       log.info( "Main GUI initialised." );

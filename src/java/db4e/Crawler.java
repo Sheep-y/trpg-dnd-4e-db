@@ -5,7 +5,6 @@ import db4e.data.Entry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
@@ -43,9 +42,23 @@ public class Crawler {
 
    List<Entry> openCategory( Category cat, BiConsumer<Integer,Integer> statusUpdate ) throws InterruptedException, TimeoutException {
       // Command page to get category
-      eval( " page_set = null; "
-          + " if ( resultsPerPage !== 100 ) SetResultsPerPage( 100 ); " // Set on first tab.  Should be instantaneous in that case.
-          + " SwitchTab( '" + cat.id + "' ); " ); // Select tab and enable search button
+      eval(" page_set = null; "
+         + " if ( resultsPerPage !== 100 ) {" // Set page count and retrieval function on first tab
+            + " SetResultsPerPage( 100 ); "
+            + " window.GetListData = function GetListData () { "
+            + "    var result = [], links = document.querySelectorAll( '.resultsTable a:not([href^=javascript])' ); "
+            + "    for ( var i = 0, il = links.length ; i < il ; i++ ) { "
+            + "       var a = links[ i ],   cells = a.parentNode.parentNode.cells,  prop = []; "
+            //        meta = [  [ id (removed common root) , name , [ meta properties ] ], ... ]
+            + "       var row = [ a.href.replace( 'http://www.wizards.com/dndinsider/compendium/', '' ), cells[0].textContent.trim(), prop ]; "
+            + "       for ( var j = 1, jl = cells.length ; j < jl ; j++ ) "
+            + "          prop.push( cells[ j ].textContent.trim() ); "
+            + "       result.push( row ); "
+            + "    } "
+            + "    return result; "
+            + " } "
+         + " } "
+         + " SwitchTab( '" + cat.id + "' ); " ); // Select tab and enable search button
       Object page_set = waitListData( " $( 'searchbutton' ).click(); ", "page_set ? page_set.length : null" );
 
       // Check and get item count and thus page count.
@@ -61,30 +74,19 @@ public class Crawler {
       // Get each page and add to result.
       for ( int page = 1 ; page <= totalPages ; page++ ) {
          log.log( Level.FINE, "Category {0} page {1}", new Object[]{ cat.id, page } );
-         Object meta = waitListData(
-                 " GotoPage(" + page + ");",
-                 " (function(){ "
-               + "    var meta = [], links = document.querySelectorAll( '.resultsTable a:not([href^=javascript])' ); "
-               + "    for ( var a of [].slice.call( links ) ) { "
-               + "       var cells = [].slice.call( a.parentNode.parentNode.cells ); "
-               + "       var row = [ a.href.replace( 'http://www.wizards.com/dndinsider/compendium/', ''), cells[0].textContent.trim(), [] ]; "
-               + "       for ( var td of cells.slice( 1 ) ) "
-               + "          row[ 2 ].push( td.textContent.trim() ); "
-               + "       meta.push( row ); "
-               + "    } "
-               + "    return meta;"
-               + " })() " );
+         Object meta = waitListData( " GotoPage(" + page + "); ", " GetListData() " );
 
          Object[] rows = toArray( meta );
-         for ( int i = 0 ; i < rows.length ; i++ ) {
+         for ( int i = 0, len = rows.length ; i < len ; i++ ) {
             Object[] row = toArray( rows[ i ] );
+            String name = row[1].toString();
             Object[] props = toArray( row[ 2 ] );
+            log.log( Level.FINER, "Copying row {0} {1}", new Object[]{ i, name } );
             String[] fields = Arrays.copyOf( props, props.length, String[].class);
-            result.add( new Entry( row[0].toString(), row[1].toString(), fields ) );
+            result.add( new Entry( row[0].toString(), name, fields ) );
          }
          statusUpdate.accept( result.size(), itemCount );
       }
-      statusUpdate.accept( result.size(), result.size() );
 
       if ( result.size() != itemCount )
          log.log( Level.SEVERE, "Category {0} entry count mismatch. Expected {1}, found {2}", new Object[]{cat.id, itemCount, result.size() } );
@@ -94,21 +96,20 @@ public class Crawler {
    private Object waitListData ( String action, String result ) throws InterruptedException, TimeoutException {
       eval( " $( 'page_nav_bottom' ).textContent = '-';  $( 'resultsbody' ).innerHTML = '';"
           + action
-          + " var timeout = setTimeout( function(){ $( 'page_nav_bottom' ).textContent = 'timeout'; }, " + Downloader.TIMEOUT_MS + " ); " );
+          + " ; var timeout = setTimeout( function(){ $( 'page_nav_bottom' ).textContent = 'timeout'; }, " + Downloader.TIMEOUT_MS + " ); " );
       Object output = null;
       JSObject check = null;
       do {
          check = (JSObject) eval( " [ document.querySelector( '.resultsTable a:not([href^=javascript])' ), $( 'page_nav_bottom' ).textContent ] " );
-         log.log( Level.FINE, "qs = {0}", check.getSlot( 0 ) );
-         log.log( Level.FINE, "nav = {0}", check.getSlot( 1 ) );
+         log.log( Level.FINER, "qs = {0}", check.getSlot( 0 ) );
+         log.log( Level.FINER, "nav = {0}", check.getSlot( 1 ) );
          if ( "timeout".equals( check.getSlot( 1 ) ) )
             throw new TimeoutException();
          if ( check.getSlot( 0 ) != null && ! "-".equals( check.getSlot( 1 ) ) ) {
             if ( result == null ) break;
             output = eval( result );
-            String logTxt = Objects.toString( output );
-            if ( logTxt.length() > 100 ) logTxt = logTxt.substring( 0, 86 ) + "...(" + logTxt.length() + " chars)";
-            log.log( Level.FINE, "out = {0}", logTxt );
+            // Do not format output to string.  High risk of Java Access Violation.
+            log.log( Level.FINER, "out = {0}", output == null ? "null" : output.getClass().getSimpleName() );
             if ( output != null ) break;
          }
          Thread.sleep( 200 );
