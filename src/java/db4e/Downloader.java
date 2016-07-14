@@ -31,7 +31,7 @@ public class Downloader {
 
    public static final int TIMEOUT_MS = 300_000; // It can take a long time to list monsters
    public static volatile int INTERVAL_MS = 2_000;
-   private static final String DB_NAME = "dnd4_compendium.sqlite";
+   static final String DB_NAME = "dnd4_compendium.sqlite";
 
    // Database variables are set on open().
    // Access must be synchronised with 'this'

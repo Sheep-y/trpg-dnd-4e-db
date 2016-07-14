@@ -16,8 +16,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Control;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -85,6 +87,15 @@ public class JavaFX {
       region.setMaxHeight( Double.MAX_VALUE );
       region.setMaxWidth( Double.MAX_VALUE );
       return region;
+   }
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Builders
+   /////////////////////////////////////////////////////////////////////////////
+
+   public static <T extends Control> T tooltip( T control, String tooltip ) {
+      control.setTooltip( new Tooltip( tooltip ) );
+      return control;
    }
 
    /** Set a dialog's default button and return the dialog */

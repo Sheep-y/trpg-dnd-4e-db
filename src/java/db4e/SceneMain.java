@@ -47,14 +47,12 @@ public class SceneMain extends Scene {
    private final BorderPane pnlHelpTab = new BorderPane();
    private final Tab tabHelp = new Tab( "Help", pnlHelpTab );
 
-   // About Screen
-   private final BorderPane pnlAboutTab = new BorderPane();
-   private final Tab tabAbout = new Tab( "About", pnlAboutTab );
-
    // Data Screen
    private final Label lblStatus = new Label( "Starting Up");
-   private final TextField txtEmail  = new TextField( prefs.get( "ddi.email", "" ) );
-   private final TextField txtPass   = new TextField( prefs.get( "ddi.pass", "" ) );
+   private final TextField txtEmail  = JavaFX.tooltip( new TextField( prefs.get( "ddi.email", "" ) ),
+           "DDI subscriber email." );
+   private final TextField txtPass   = JavaFX.tooltip( new TextField( prefs.get( "ddi.pass", "" ) ),
+           "DDI subscriber password." );
    private final TableView<Category> tblCategory = new TableView<>();
       private final TableColumn<Category,String > colName = new TableColumn<>( "Category" );
       private final TableColumn<Category,Integer> colTotalEntry = new TableColumn<>( "Total" );
@@ -69,8 +67,10 @@ public class SceneMain extends Scene {
    private final Tab tabData = new Tab( "Data", pnlDataTab );
 
    // Option Screen
-   private final CheckBox chkDebug = new CheckBox( "Show debug tabs" );
-   final Button btnClearData = new Button( "Clear Downloaded Data" ); // Allow downloader access, to allow clear when db is down
+   private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
+           "Show app log and console.  Increase memoro usage because of finer logging level." );
+   final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
+           "Clear ALL downloaded data by deleting '" + Downloader.DB_NAME + "'." );
    private final Pane pnlOptionTab = new VBox( 8, chkDebug, btnClearData );
    private final Tab tabOption = new Tab( "Options", pnlOptionTab );
 
@@ -84,7 +84,7 @@ public class SceneMain extends Scene {
    private final Downloader loader = new Downloader( this );
 
    // Layout regions
-   private final TabPane pnlC = new TabPane( tabHelp, tabData, tabOption, tabAbout );
+   private final TabPane pnlC = new TabPane( tabData, tabOption, tabHelp );
 
    public SceneMain( Main main ) {
       super( new Group(), 640, 450 );
@@ -149,8 +149,6 @@ public class SceneMain extends Scene {
             initWebViewTab( pnlHelpTab );
          else if ( now == tabWorker )
             Platform.runLater( () -> pnlWorker.getConsoleInput().requestFocus() );
-         else if ( now == tabAbout )
-            initWebViewTab( pnlAboutTab );
       } );
    }
 
@@ -327,6 +325,9 @@ public class SceneMain extends Scene {
          log.setLevel( Level.INFO );
          if ( tabs.contains( tabLog ) )
             tabs.removeAll( tabLog, tabWorker );
+         txtLog.clear();
+         pnlWorker.getConsoleOutput().clear();
+         log.config( "Log cleared by switching off debug." );
       }
    }
 
