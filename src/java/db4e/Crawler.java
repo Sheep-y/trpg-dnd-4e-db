@@ -31,6 +31,12 @@ public class Crawler {
    }
 
    void openFrontpage () {
+      try {
+         eval( " for ( var a of [] ); " ); // Older Java 8 (u45?( does not support for...of
+      } catch ( Exception e ) {
+         if ( e.getCause() != null && e.getCause().getMessage().contains( "SyntaxError" ) )
+            throw new UnsupportedOperationException( "Please upgrade Java" );
+      }
       browse( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
    }
 
@@ -136,17 +142,26 @@ public class Crawler {
     * @throws InterruptedException If interrupted during execution
     */
    private Object eval ( String script ) throws InterruptedException, TimeoutException {
+      if ( Platform.isFxApplicationThread() )
+         return browser.executeScript( script );
+
       final Object[] transport = new Object[1];
-      transport[0] = transport;
-      Platform.runLater( () -> { synchronized ( transport ) {
-          transport[0] = browser.executeScript( script );
-          transport.notify();
-      } } );
       synchronized ( transport ) {
+         transport[0] = transport;
+         Platform.runLater( () -> { synchronized ( transport ) {
+            try {
+               transport[0] = browser.executeScript( script );
+            } catch ( Exception e ) {
+               transport[0] = e;
+            }
+            transport.notify();
+         } } );
          transport.wait( Downloader.TIMEOUT_MS );
       }
       if ( transport[0] == transport )
          throw new TimeoutException( "Timeout waiting for '" + script + "'" );
+      else if ( transport[0] != null && transport[0] instanceof Exception )
+         throw new RuntimeException( "Error running '" + script + "'", (Exception) transport[0] );
       return transport[0];
    }
 

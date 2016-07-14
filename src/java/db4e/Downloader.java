@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -217,7 +218,7 @@ public class Downloader {
       CompletableFuture<Void> dbOpen = new CompletableFuture<>();
       Consumer<Throwable> handle = browserTaskHandler( dbOpen, "Online compendium timeout" );
 
-      threadPool.execute( ()-> {
+      threadPool.execute( ()-> { try {
          checkPause();
          browser.handle(
             ( e ) -> handle.accept( null ), // on load
@@ -225,7 +226,9 @@ public class Downloader {
          );
          crawler.openFrontpage();
          waitFinish( dbOpen, handle );
-      } );
+      } catch ( Exception e ) {
+         handle.accept( e );
+      } } );
 
       return dbOpen.thenCompose( ( result ) -> {
          log.info( "Compendium opened." );
@@ -233,12 +236,17 @@ public class Downloader {
 
       } ).exceptionally( ( err ) -> {
          gui.stateCanDownload();
-         if ( err instanceof Exception ) {
+         if ( err instanceof CompletionException ) {
             if ( err.getCause() != null ) {
                if ( err.getCause() instanceof InterruptedException )
                   gui.setStatus( "Download Stopped" );
                else if ( err.getCause() instanceof TimeoutException )
                   gui.setStatus( "Download Timeout" );
+               else {
+                  String msg = ( (Exception) err ).getMessage();
+                  if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
+                  gui.setStatus( msg );
+               }
             } else
                gui.setStatus( ( (Exception) err ).getMessage() );
          } else {
