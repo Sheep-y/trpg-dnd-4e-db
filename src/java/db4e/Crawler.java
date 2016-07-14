@@ -36,19 +36,18 @@ public class Crawler {
 
    List<Entry> openCategory( Category cat, BiConsumer<Integer,Integer> statusUpdate ) throws InterruptedException, TimeoutException {
       // Command page to get category
-      eval( " var page_set = null; "
+      eval( " $( 'page_nav_bottom' ).textContent = '-'; "
           + " if ( resultsPerPage !== 100 ) SetResultsPerPage( 100 ); " // Set on first tab.  Should be instantaneous in that case.
           + " SwitchTab( '" + cat.id + "' ); " // Select tab and enable search button
-          + " document.querySelector( '#searchbutton' ).click(); "
-          + " var timeout = setTimeout( function(){ page_set = 'timeout'; }, " + Downloader.TIMEOUT_MS + " ); " );
-      Object page_set = null;
+          + " $( 'searchbutton' ).click(); "
+          + " var timeout = setTimeout( function(){ $( 'page_nav_bottom' ).textContent = 'timeout'; }, " + Downloader.TIMEOUT_MS + " ); " );
       do {
-         Thread.sleep( 100 );
-         page_set = eval( " page_set ? page_set.length : null " ); // JSObject
-      } while ( page_set == null );
+         Thread.sleep( 200 );
+      } while ( "-".equals( eval( " page_set ? $( 'page_nav_bottom' ).textContent : '-' " ) ) );
       eval( " clearTimeout( timeout ); " );
 
       // Check and get item count and thus pagk count.
+      Object page_set = eval( " page_set.length " ); // JSObject
       if ( ! ( page_set instanceof Number ) )
          throwAsException( page_set, "Category " + cat.id + " listing " );
       final int itemCount = ( (Number) page_set ).intValue();
@@ -56,6 +55,7 @@ public class Crawler {
       if ( totalPages <= 0 )
          throw new AssertionError( "Category '" + cat.name + "' is empty." );
       List<Entry> result = new ArrayList<>( itemCount );
+      statusUpdate.accept( 0, itemCount );
 
       // Get each page and add to result.
       for ( int page = 1 ; page <= totalPages ; page++ ) {

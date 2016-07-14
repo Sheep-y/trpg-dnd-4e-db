@@ -28,7 +28,7 @@ public class Downloader {
 
    private static final Logger log = Main.log;
 
-   public static final int TIMEOUT_MS = 30_000;
+   public static final int TIMEOUT_MS = 60_000;
    public static volatile int INTERVAL_MS = 2_000;
    private static final String DB_NAME = "dnd4_compendium.sqlite";
 
@@ -325,7 +325,10 @@ public class Downloader {
    }
 
    private BiConsumer<Integer, Integer> progress( String task ) {
-      return ( current, total ) -> gui.setStatus( task + " (" + current + "/" + total + ")" );
+      return ( current, total ) -> {
+         checkPause();
+         gui.setStatus( task + " (" + current + "/" + total + ")" );
+      };
    }
 
 }
