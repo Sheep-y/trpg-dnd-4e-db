@@ -258,11 +258,12 @@ public class Downloader {
             for ( Category cat : categories ) {
                if ( cat.total_entry.get() > 0 ) continue;
                checkPause();
-               gui.setStatus( "Listing " + cat.type + " category " + cat.name );
-               List<Entry> entries = crawler.openCategory( cat );
-               cat.entries.clear();
-               cat.entries.addAll( entries );
-               cat.total_entry.set( entries.size() );
+               gui.setStatus( "Listing " + cat.name );
+               List<Entry> entries = crawler.openCategory( cat, progress( "Listing " + cat.name ) );
+               checkPause();
+               gui.setStatus( "Saving " + cat.name );
+               dal.saveEntryList( cat, entries, progress( "Saving " + cat.name ) );
+               checkPause();
                Thread.sleep( INTERVAL_MS );
             }
             catLoad.complete( null );
@@ -321,6 +322,10 @@ public class Downloader {
          if ( interrupted != null )
             interrupted.accept( ex );
       } }
+   }
+
+   private BiConsumer<Integer, Integer> progress( String task ) {
+      return ( current, total ) -> gui.setStatus( task + " (" + current + "/" + total + ")" );
    }
 
 }

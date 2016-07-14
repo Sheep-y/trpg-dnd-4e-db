@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -33,7 +34,7 @@ public class Crawler {
       browse( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
    }
 
-   List<Entry> openCategory( Category cat ) throws InterruptedException, TimeoutException {
+   List<Entry> openCategory( Category cat, BiConsumer<Integer,Integer> statusUpdate ) throws InterruptedException, TimeoutException {
       // Command page to get category
       eval( " var page_set = null; "
           + " if ( resultsPerPage !== 100 ) SetResultsPerPage( 100 ); " // Set on first tab.  Should be instantaneous in that case.
@@ -80,7 +81,9 @@ public class Crawler {
             String[] fields = Arrays.copyOf( props, props.length, String[].class);
             result.add( new Entry( row[0].toString(), row[1].toString(), fields ) );
          }
+         statusUpdate.accept( result.size(), itemCount );
       }
+      statusUpdate.accept( itemCount, itemCount );
 
       if ( result.size() != itemCount )
          log.log( Level.WARNING, "Category {0} entry count mismatch. Expected {1}, found {2}", new Object[]{cat.id, itemCount, result.size() } );

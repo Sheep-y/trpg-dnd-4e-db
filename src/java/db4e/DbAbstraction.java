@@ -1,8 +1,10 @@
 package db4e;
 
 import db4e.data.Category;
+import db4e.data.Entry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -112,7 +114,7 @@ class DbAbstraction {
                   cursor.getString( "id" ),
                   cursor.getString( "name" ),
                   cursor.getString( "type" ),
-                  cursor.getString( "fields" ).split( "," ) );
+                  parseCsvLine( cursor.getString( "fields" ) ) );
                category.total_entry.set( (int) cursor.getInteger( "count" ) );
                list.add( category );
             } while ( cursor.next() );
@@ -127,11 +129,11 @@ class DbAbstraction {
          for ( Category c : list ) {
             int total = c.total_entry.get();
             if ( total > 0 )  {
-               cursor = tblEntry.lookup( "entry_category_index", c.id, null );
-               int null_row = (int) cursor.getRowCount();
+               cursor = tblEntry.lookup( "entry_category_index", c.id, 1 );
+               int filled_row = (int) cursor.getRowCount();
                cursor.close();
-               c.downloaded_entry.set( total - null_row );
-               log.log( Level.FINE, "{0} -> {2} total - {1} null = {3} downloaded", new Object[]{ c.id, null_row, total, total - null_row } );
+               c.downloaded_entry.set( filled_row );
+               log.log( Level.FINE, "{0}: {2} total, {1} downloaded", new Object[]{ c.id, filled_row, total } );
             }
          }
       } finally {
@@ -139,6 +141,45 @@ class DbAbstraction {
       }
 
       // TODO: Backup good db.
+   }
+
+   synchronized void saveEntryList ( Category category, List<Entry> entries, BiConsumer<Integer,Integer> statusUpdate ) throws SqlJetException {
+      db.beginTransaction( SqlJetTransactionMode.WRITE );
+      try {
+         int i = 0;
+         for ( Entry entry : entries ) {
+            log.log( Level.FINE, "Saving {0} - {1}", new Object[]{ entry.id, entry.name } );
+            ISqlJetCursor lookup = tblEntry.lookup( null, entry.id );
+            // Table fields: id, name, category, fields, hasData, data
+            String fields = buildCsvLine( entry.fields ).toString();
+            if ( lookup.eof() ) {
+               tblEntry.insert( entry.id, entry.name, category.id, fields, 0, null );
+//            } else { // Shouldn't need to update.
+//               lookup.update( entry.id, entry.name, category.id, fields );
+            }
+            lookup.close();
+            if ( ++i % 100 == 0 )
+               statusUpdate.accept( i, entries.size() );
+         }
+
+         // Table fields: id, name, count, fields, type, order
+         log.log( Level.FINE, "Updating {0} count", category.id );
+         ISqlJetCursor owner = tblCategory.lookup( null, category.id );
+         if ( owner.eof() )
+            throw new AssertionError( "Category " + category.id + " not found in database." );
+         owner.update( category.id, category.name, entries.size() );
+         owner.close();
+         category.entries.clear();
+         category.entries.addAll( entries );
+         category.total_entry.set( entries.size() );
+         statusUpdate.accept( entries.size(), entries.size() );
+
+      } catch ( Exception e ) {
+         db.rollback();
+
+      } finally {
+         db.commit();
+      }
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -149,7 +190,7 @@ class DbAbstraction {
    private final Matcher csvToken = Pattern.compile( csvTokenPattern ).matcher( "" );
    private final List<String> csvBuffer = new ArrayList<>();
 
-   private String[] parseCsvLine ( CharSequence line ) {
+   private synchronized String[] parseCsvLine ( CharSequence line ) {
       csvToken.reset( line );
       csvBuffer.clear();
       int pos = 0;
@@ -165,5 +206,19 @@ class DbAbstraction {
       if ( pos != line.length() )
          log.log( Level.WARNING, "CSV parse error: {0}", line );
       return csvBuffer.toArray( new String[ csvBuffer.size() ] );
+   }
+
+   private final Matcher csvQuotable = Pattern.compile( "[\r\n,]" ).matcher( "" );
+
+   private synchronized StringBuilder buildCsvLine ( String[] line ) {
+      StringBuilder result = new StringBuilder(32);
+      for ( String token : line ) {
+         if ( csvQuotable.reset( token ).find() )
+            result.append( '"' ).append( token.replaceAll( "\"", "\"\"" ) ).append( "\"," );
+         else
+            result.append( token ).append( ',' );
+      }
+      result.setLength( result.length() - 1 );
+      return result;
    }
 }
