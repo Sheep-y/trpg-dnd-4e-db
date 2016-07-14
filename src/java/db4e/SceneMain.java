@@ -172,7 +172,8 @@ public class SceneMain extends Scene {
 
    void setStatus ( String msg ) { runFX( () -> {
       log.log( Level.INFO, "Status: {0}.", msg );
-      lblStatus.setText( msg );
+      if ( ! loader.isPausing() )
+         lblStatus.setText( msg );
    } ); }
 
    private void runFX ( Runnable r ) {

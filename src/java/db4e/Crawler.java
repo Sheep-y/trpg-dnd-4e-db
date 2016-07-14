@@ -5,6 +5,7 @@ import db4e.data.Entry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
@@ -42,20 +43,14 @@ public class Crawler {
 
    List<Entry> openCategory( Category cat, BiConsumer<Integer,Integer> statusUpdate ) throws InterruptedException, TimeoutException {
       // Command page to get category
-      eval( " $( 'page_nav_bottom' ).textContent = '-'; "
+      eval( " page_set = null; "
           + " if ( resultsPerPage !== 100 ) SetResultsPerPage( 100 ); " // Set on first tab.  Should be instantaneous in that case.
-          + " SwitchTab( '" + cat.id + "' ); " // Select tab and enable search button
-          + " $( 'searchbutton' ).click(); "
-          + " var timeout = setTimeout( function(){ $( 'page_nav_bottom' ).textContent = 'timeout'; }, " + Downloader.TIMEOUT_MS + " ); " );
-      do {
-         Thread.sleep( 200 );
-      } while ( "-".equals( eval( " page_set ? $( 'page_nav_bottom' ).textContent : '-' " ) ) );
-      eval( " clearTimeout( timeout ); " );
+          + " SwitchTab( '" + cat.id + "' ); " ); // Select tab and enable search button
+      Object page_set = waitListData( " $( 'searchbutton' ).click(); ", "page_set ? page_set.length : null" );
 
-      // Check and get item count and thus pagk count.
-      Object page_set = eval( " page_set.length " ); // JSObject
+      // Check and get item count and thus page count.
       if ( ! ( page_set instanceof Number ) )
-         throwAsException( page_set, "Category " + cat.id + " listing " );
+         throwAsException( page_set, "Category " + cat.id + " listing" );
       final int itemCount = ( (Number) page_set ).intValue();
       int totalPages = (int) Math.ceil(itemCount / 100.0 );
       if ( totalPages <= 0 )
@@ -66,8 +61,8 @@ public class Crawler {
       // Get each page and add to result.
       for ( int page = 1 ; page <= totalPages ; page++ ) {
          log.log( Level.FINE, "Category {0} page {1}", new Object[]{ cat.id, page } );
-         eval( " GotoPage(" + page + ")" );
-         Object meta = eval(
+         Object meta = waitListData(
+                 " GotoPage(" + page + ");",
                  " (function(){ "
                + "    var meta = [], links = document.querySelectorAll( '.resultsTable a:not([href^=javascript])' ); "
                + "    for ( var a of [].slice.call( links ) ) { "
@@ -89,11 +84,37 @@ public class Crawler {
          }
          statusUpdate.accept( result.size(), itemCount );
       }
-      statusUpdate.accept( itemCount, itemCount );
+      statusUpdate.accept( result.size(), result.size() );
 
       if ( result.size() != itemCount )
-         log.log( Level.WARNING, "Category {0} entry count mismatch. Expected {1}, found {2}", new Object[]{cat.id, itemCount, result.size() } );
+         log.log( Level.SEVERE, "Category {0} entry count mismatch. Expected {1}, found {2}", new Object[]{cat.id, itemCount, result.size() } );
       return result;
+   }
+
+   private Object waitListData ( String action, String result ) throws InterruptedException, TimeoutException {
+      eval( " $( 'page_nav_bottom' ).textContent = '-';  $( 'resultsbody' ).innerHTML = '';"
+          + action
+          + " var timeout = setTimeout( function(){ $( 'page_nav_bottom' ).textContent = 'timeout'; }, " + Downloader.TIMEOUT_MS + " ); " );
+      Object output = null;
+      JSObject check = null;
+      do {
+         check = (JSObject) eval( " [ document.querySelector( '.resultsTable a:not([href^=javascript])' ), $( 'page_nav_bottom' ).textContent ] " );
+         log.log( Level.FINE, "qs = {0}", check.getSlot( 0 ) );
+         log.log( Level.FINE, "nav = {0}", check.getSlot( 1 ) );
+         if ( "timeout".equals( check.getSlot( 1 ) ) )
+            throw new TimeoutException();
+         if ( check.getSlot( 0 ) != null && ! "-".equals( check.getSlot( 1 ) ) ) {
+            if ( result == null ) break;
+            output = eval( result );
+            String logTxt = Objects.toString( output );
+            if ( logTxt.length() > 100 ) logTxt = logTxt.substring( 0, 86 ) + "...(" + logTxt.length() + " chars)";
+            log.log( Level.FINE, "out = {0}", logTxt );
+            if ( output != null ) break;
+         }
+         Thread.sleep( 200 );
+      } while ( true );
+      eval( " clearTimeout( timeout ); " );
+      return output;
    }
 
    /////////////////////////////////////////////////////////////////////////////

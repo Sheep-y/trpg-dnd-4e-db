@@ -144,6 +144,7 @@ class DbAbstraction {
    }
 
    synchronized void saveEntryList ( Category category, List<Entry> entries, BiConsumer<Integer,Integer> statusUpdate ) throws SqlJetException {
+      int count = entries.size();
       db.beginTransaction( SqlJetTransactionMode.WRITE );
       try {
          int i = 0;
@@ -159,7 +160,7 @@ class DbAbstraction {
             }
             lookup.close();
             if ( ++i % 100 == 0 )
-               statusUpdate.accept( i, entries.size() );
+               statusUpdate.accept( i, count );
          }
 
          // Table fields: id, name, count, fields, type, order
@@ -167,12 +168,12 @@ class DbAbstraction {
          ISqlJetCursor owner = tblCategory.lookup( null, category.id );
          if ( owner.eof() )
             throw new AssertionError( "Category " + category.id + " not found in database." );
-         owner.update( category.id, category.name, entries.size() );
+         owner.update( category.id, category.name, count );
          owner.close();
          category.entries.clear();
          category.entries.addAll( entries );
-         category.total_entry.set( entries.size() );
-         statusUpdate.accept( entries.size(), entries.size() );
+         category.total_entry.set( count );
+         statusUpdate.accept( count, count );
 
       } catch ( Exception e ) {
          db.rollback();

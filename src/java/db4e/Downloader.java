@@ -29,7 +29,7 @@ public class Downloader {
 
    private static final Logger log = Main.log;
 
-   public static final int TIMEOUT_MS = 60_000;
+   public static final int TIMEOUT_MS = 300_000; // It can take a long time to list monsters
    public static volatile int INTERVAL_MS = 2_000;
    private static final String DB_NAME = "dnd4_compendium.sqlite";
 
@@ -63,6 +63,10 @@ public class Downloader {
       synchronized ( paused ) {
          paused.set( true );
       }
+   }
+
+   boolean isPausing () {
+      return paused.get();
    }
 
    void resume () {
@@ -266,10 +270,8 @@ public class Downloader {
             for ( Category cat : categories ) {
                if ( cat.total_entry.get() > 0 ) continue;
                checkPause();
-               gui.setStatus( "Listing " + cat.name );
                List<Entry> entries = crawler.openCategory( cat, progress( "Listing " + cat.name ) );
                checkPause();
-               gui.setStatus( "Saving " + cat.name );
                dal.saveEntryList( cat, entries, progress( "Saving " + cat.name ) );
                checkPause();
                Thread.sleep( INTERVAL_MS );
