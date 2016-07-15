@@ -175,8 +175,7 @@ public class SceneMain extends Scene {
 
    void setStatus ( String msg ) { runFX( () -> {
       log.log( Level.INFO, "Status: {0}.", msg );
-      if ( ! loader.isPausing() )
-         lblStatus.setText( msg );
+      lblStatus.setText( msg );
    } ); }
 
    private void runFX ( Runnable r ) {
@@ -266,29 +265,19 @@ public class SceneMain extends Scene {
    }
 
    private void action_exit ( ActionEvent evt ) {
+      loader.stop();
       shutdown();
       Platform.exit();
    }
 
    private void action_stop ( ActionEvent evt ) {
+      setStatus( "Stopping" );
       loader.stop();
    }
 
    private void action_download ( ActionEvent evt ) {
       setStatus( "Starting Download" );
       loader.startDownload().whenComplete( (a,b) -> allowAction() );
-      stateRunning();
-   }
-
-   private void action_pause ( ActionEvent evt ) {
-      setStatus( "Pausing" );
-      loader.pause();
-      statePaused();
-   }
-
-   private void action_resume ( ActionEvent evt ) {
-      setStatus( "Resuming" );
-      loader.resume();
       stateRunning();
    }
 
@@ -317,13 +306,7 @@ public class SceneMain extends Scene {
    void stateRunning () { runFX( () -> {
       log.log( Level.FINE, "State: Running" );
       btnClearData.setDisable( true );
-      setLeft( "Pause", this::action_pause );
-      setRight( "Stop", this::action_stop );
-   } ); }
-
-   void statePaused () { runFX( () -> {
-      log.log( Level.FINE, "State: Paused" );
-      setLeft( "Resume", this::action_resume );
+      setLeft( "Stop", this::action_stop );
    } ); }
 
    private FileChooser dlgCreateView;

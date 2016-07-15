@@ -11,7 +11,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -36,7 +35,7 @@ public class Downloader {
 
    private static final Logger log = Main.log;
 
-   public static final int TIMEOUT_MS = 9000_000; // It take a very long time to list powers.
+   public static final int TIMEOUT_MS = 30_000;
    public static volatile int INTERVAL_MS = 2_000;
    static final String DB_NAME = "dnd4_compendium.sqlite";
 
@@ -45,7 +44,6 @@ public class Downloader {
    private SqlJetDb db;
    private DbAbstraction dal;
    private Thread currentThread;
-   private final AtomicBoolean paused = new AtomicBoolean();
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
 
@@ -68,29 +66,11 @@ public class Downloader {
    // Pause and resume
    /////////////////////////////////////////////////////////////////////////////
 
-   void pause () {
-      synchronized ( paused ) {
-         paused.set( true );
-      }
-   }
-
-   boolean isPausing () {
-      return paused.get();
-   }
-
-   void resume () {
-      synchronized ( paused ) {
-         paused.set( false );
-         paused.notifyAll();
-      }
-   }
-
    synchronized void stop () {
       engine.getLoadWorker().cancel();
       if ( currentThread != null )
          currentThread.interrupt();
       currentThread = null;
-      resume();
    }
 
    private void checkStop ( String status ) {
@@ -98,19 +78,8 @@ public class Downloader {
       synchronized ( this ) {
          currentThread = Thread.currentThread();
       }
-      synchronized ( paused ) {
-         if ( Thread.interrupted() )
-            throw new RuntimeException( new InterruptedException() );
-         while ( paused.get() ) {
-            gui.setStatus( "Paused" );
-            try {
-               paused.wait();
-            } catch ( InterruptedException ex ) {
-               throw new RuntimeException( ex );
-            }
-            gui.setStatus( "Resuming" );
-         }
-      }
+      if ( Thread.interrupted() )
+         throw new RuntimeException( new InterruptedException() );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -241,6 +210,7 @@ public class Downloader {
         gui.setStatus( "Download Complete, may export data" );
 
       } ).exceptionally( ( err ) -> {
+         synchronized ( this ) { currentThread = null; }
          gui.stateCanDownload();
          if ( err.getCause() instanceof InterruptedException )
             gui.setStatus( "Download Stopped" );
