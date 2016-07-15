@@ -143,7 +143,7 @@ public class Downloader {
             }
          }
 
-         log.log( Level.FINE, "Database opened. Loading tables." );
+         log.log( Level.FINE, "Database opened. Loading data." );
          if ( categoryTable != null ) categoryTable.setItems( categories );
          openOrCreateTable();
       } );
@@ -168,7 +168,7 @@ public class Downloader {
 
    private synchronized void openOrCreateTable() {
       try {
-         int version = dal.setDb( db, categories );
+         int version = dal.setDb( db, categories, ( txt ) -> gui.setStatus( "Reading data (" + txt + ")" ) );
          log.log( Level.CONFIG, "Database version {0,number,#}.  Tables opened.", version );
 
       } catch ( Exception e1 ) {
@@ -176,7 +176,7 @@ public class Downloader {
          log.log( Level.CONFIG, "Create tables because {0}", Utils.stacktrace( e1 ) );
          try {
             dal.createTables();
-            int version = dal.setDb( db, categories );
+            int version = dal.setDb( db, categories, ( txt ) -> gui.setStatus( "Reading data (" + txt + ")" ) );
             log.log( Level.FINE, "Created and opened tables.  Database version {0,number,#}.", version );
 
          } catch ( Exception e2 ) {
@@ -329,7 +329,14 @@ public class Downloader {
       } }
    }
 
-   private CompletableFuture<Void> runAndGet ( String task_name, RunExcept task ) {
+   /**
+    * Call a task and wait for browser to finish loading.
+    * The task must cause the browser's loader to change state for this to work.
+    *
+    * @param task_name Name of task, used in logging and timeout message.
+    * @param task Task to run.
+    */
+   private void runAndGet ( String task_name, RunExcept task ) {
       CompletableFuture<Void> future = new CompletableFuture<>();
       Consumer handle = browserTaskHandler( future, task_name );
       try {
@@ -345,17 +352,9 @@ public class Downloader {
          handle.accept( e );
          throw new RuntimeException( e );
       }
-      return future;
    }
 
    private static interface RunExcept {
       void run ( ) throws Exception;
    }
-
-   private BiConsumer<Integer, Integer> progress( String task ) {
-      return ( current, total ) -> {
-         checkStop( task + " (" + current + "/" + total + ")" );
-      };
-   }
-
 }

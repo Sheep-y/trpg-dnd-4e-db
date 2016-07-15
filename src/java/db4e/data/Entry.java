@@ -8,14 +8,17 @@ import java.util.Map;
 public class Entry {
    public final String id;
    public final String name;
-   public final String[] fields;
+   public String[] fields;
    public String content;
 
    public Map<String,Object> meta;
 
-   public Entry ( String id, String name, String[] fields ) {
+   public Entry ( String id, String name ) {
       this.id = id;
       this.name = name;
+   }
+   public Entry ( String id, String name, String[] fields ) {
+      this( id, name );
       this.fields = fields;
    }
 

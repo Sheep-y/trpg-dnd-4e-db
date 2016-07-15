@@ -4,7 +4,7 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -25,7 +25,7 @@ class DbAbstraction {
       private ISqlJetTable tblCategory;
       private ISqlJetTable tblEntry;
 
-   synchronized int setDb ( SqlJetDb db, ObservableList<Category> categories ) throws SqlJetException {
+   synchronized int setDb ( SqlJetDb db, ObservableList<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
       this.db = db;
       tblConfig = db.getTable( "config" );
       tblCategory = db.getTable( "category" );
@@ -47,6 +47,7 @@ class DbAbstraction {
       }
 
       loadCategory( categories );
+      loadEntryIndex( categories, statusUpdate );
       return version;
    }
 
@@ -126,21 +127,45 @@ class DbAbstraction {
          categories.addAll( list );
          log.log( Level.FINE, "Loaded {0} categories.", list.size() );
 
-         for ( Category c : list ) {
-            int total = c.total_entry.get();
-            if ( total > 0 )  {
-               cursor = tblEntry.lookup( "entry_category_index", c.id, 1 );
-               int filled_row = (int) cursor.getRowCount();
-               cursor.close();
-               c.downloaded_entry.set( filled_row );
-               log.log( Level.FINE, "{0}: {2} total, {1} downloaded", new Object[]{ c.id, filled_row, total } );
-            }
-         }
       } finally {
          db.commit();
       }
 
       // TODO: Backup good db.
+   }
+
+   synchronized void loadEntryIndex ( List<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
+      db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
+      try {
+         ISqlJetCursor cursor = tblEntry.open();
+         final int total = (int) cursor.getRowCount();
+         int count = 0;
+         cursor.close();
+
+         for ( Category category : categories) {
+            int countWithData = 0;
+            List<Entry> list = category.entries;
+            list.clear();
+
+            cursor = tblEntry.lookup( "entry_category_index", category.id );
+            if ( ! cursor.eof() ) do {
+               list.add( new Entry( cursor.getString( "id" ), cursor.getString( "name" ) ) );
+               if ( cursor.getInteger( "hasData" ) != 0 )
+                  ++countWithData;
+               if ( ++count % 2048 == 0 )
+                  statusUpdate.accept( count + "/" + total );
+            } while ( cursor.next() );
+            cursor.close();
+
+            if ( list.size() != category.total_entry.get() ) {
+               log.log( Level.SEVERE, "{0} entry mismatch, expected {1}, read {2}", new Object[]{ category.id, category.total_entry.get(), list.size() });
+               category.total_entry.set( list.size() );
+            }
+            category.downloaded_entry.set( countWithData );
+         }
+      } finally {
+         db.commit();
+      }
    }
 
    synchronized void saveEntryList ( Category category, List<Entry> entries ) throws SqlJetException {
@@ -184,7 +209,7 @@ class DbAbstraction {
    // Utils
    /////////////////////////////////////////////////////////////////////////////
 
-   private final String csvTokenPattern = "(?:^|,)((?!\")[^\r\n,]*|\"(?:\"\"|[^\"])*\")";
+   private final String csvTokenPattern = "(?<=^|,)([^\"\\r\\n,]*|\"(?:\"\"|[^\"])*\")(?:,|$)";
    private final Matcher csvToken = Pattern.compile( csvTokenPattern ).matcher( "" );
    private final List<String> csvBuffer = new ArrayList<>();
 
