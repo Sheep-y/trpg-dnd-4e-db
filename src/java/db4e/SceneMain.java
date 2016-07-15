@@ -275,6 +275,7 @@ public class SceneMain extends Scene {
    }
 
    private void action_download ( ActionEvent evt ) {
+      setStatus( "Starting Download" );
       loader.startDownload().whenComplete( (a,b) -> allowAction() );
       stateRunning();
    }

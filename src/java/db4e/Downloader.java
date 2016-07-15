@@ -1,10 +1,14 @@
 package db4e;
 
 import db4e.data.Category;
+import db4e.data.Entry;
 import java.io.File;
+import java.io.StringWriter;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -12,13 +16,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
 import javafx.scene.web.WebEngine;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import org.w3c.dom.Document;
 import sheepy.util.Utils;
@@ -89,7 +93,8 @@ public class Downloader {
       resume();
    }
 
-   private void checkPause () {
+   private void checkStop ( String status ) {
+      if ( status != null ) gui.setStatus( status );
       synchronized ( this ) {
          currentThread = Thread.currentThread();
       }
@@ -223,25 +228,17 @@ public class Downloader {
    CompletableFuture<Void> startDownload () {
       gui.stateRunning();
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
-      gui.setStatus( "Opening online compendium" );
 
       CompletableFuture<Void> dbOpen = new CompletableFuture<>();
-      Consumer handle = browserTaskHandler( dbOpen, "Online compendium timeout" );
-
-      threadPool.execute( ()-> { try {
-         browser.handle(
-            ( e ) -> handle.accept( null ), // on load
-            ( e,err ) -> handle.accept( err ) // on error
-         );
-         crawler.openFrontpage();
-         waitFinish( dbOpen, handle );
-      } catch ( Exception e ) {
-         handle.accept( e );
-      } } );
+      threadPool.execute( ()-> runAndGet( dbOpen, "Open compendium", crawler::openFrontpage ) );
 
       return dbOpen.thenCompose( ( result ) -> {
          log.info( "Compendium opened." );
          return downloadCategory();
+
+      } ).thenRun( () -> {
+        gui.stateCanDownload();
+        gui.setStatus( "Download Complete, may export data" );
 
       } ).exceptionally( ( err ) -> {
          gui.stateCanDownload();
@@ -268,51 +265,41 @@ public class Downloader {
 
          for ( Category cat : categories ) {
             if ( cat.total_entry.get() > 0 ) continue;
-            checkPause();
-            gui.setStatus( "Getting " + cat.name + " template" );
+            final String name = cat.name.toLowerCase();
 
-            CompletableFuture<Document> catXsl = new CompletableFuture<>();
-            Consumer handleXsl = browserTaskHandler( catXsl, cat.name + " template timeout" );
-            browser.handle(
-               ( e ) -> handleXsl.accept( engine.getDocument() ), // on load
-               ( e,err ) -> handleXsl.accept( err ) // on error
-            );
-            crawler.getCategoryXsl( cat );
-            waitFinish( catXsl, handleXsl );
-
-            checkPause();
-            gui.setStatus( "Getting " + cat.name + " data" );
-
-            CompletableFuture<Document> catData = new CompletableFuture<>();
-            Consumer handleData = browserTaskHandler( catData, cat.name + " data timeout" );
-            browser.handle(
-               ( e ) -> handleData.accept( engine.getDocument() ), // on load
-               ( e,err ) -> handleData.accept( err ) // on error
-            );
-            crawler.getCategoryXsl( cat );
-            waitFinish( catData, handleData );
-
-            checkPause();
-            gui.setStatus( "Listing " + cat.name );
-            DOMResult catConverted = new DOMResult();
-            if ( factory == null ) factory = TransformerFactory.newInstance();
-            Transformer transformer = factory.newTransformer( new DOMSource( catXsl.get() ) );
-            transformer.transform(  new DOMSource( catData.get() ), catConverted );
-
-            System.out.println( catConverted.getNode().getOwnerDocument().getElementsByTagName( "a" ).getLength() );
-
-            /*
-            checkPause();
-            gui.setStatus( "Saving " + cat.name + " (" + entries.size() + ")" );
-            dal.saveEntryList( cat, entries );
-            */
-            checkPause();
             Thread.sleep( INTERVAL_MS );
+            CompletableFuture<Void> downXsl = runAndGet(null, "Get " + name + " template",
+               () -> crawler.getCategoryXsl( cat ) );
+            downXsl.get(); // throw ExecutionException if error
+            Document xsl = engine.getDocument();
+
+            Thread.sleep( INTERVAL_MS );
+            CompletableFuture<Void> downXml = runAndGet(null, "Get " + name + " data",
+               () -> crawler.getCategoryData( cat ) );
+            downXml.get(); // throw ExecutionException if error
+            Document xml = engine.getDocument();
+
+            checkStop("Parsing " + name );
+            if ( factory == null ) factory = TransformerFactory.newInstance();
+            StringWriter result = new StringWriter();
+            factory.newTransformer( new DOMSource( xsl ) ).transform( new DOMSource( xml ), new StreamResult( result ) );
+
+            runAndGet(null, "Listing " + name,
+               () -> Platform.runLater( () -> engine.loadContent( result.toString() ) ) );
+            List<Entry> entries = crawler.openCategory();
+
+            checkStop("Saving " + name );
+            dal.saveEntryList( cat, entries );
+
+            checkStop("Listed " + name );
          }
          catLoad.complete( null );
 
       } catch ( Exception err ) {
-         catLoad.completeExceptionally( err );
+         if ( err instanceof ExecutionException )
+            catLoad.completeExceptionally( err.getCause() );
+         else
+            catLoad.completeExceptionally( err );
       } } );
 
       return catLoad;
@@ -336,7 +323,7 @@ public class Downloader {
     * @param timeout_message Message of timeout exception
     * @return A function to call to complete
     */
-   private Consumer browserTaskHandler ( CompletableFuture task, String timeout_message ) {
+   private Consumer browserTaskHandler ( CompletableFuture task, String task_name ) {
       BiConsumer<TimerTask, Object> result = ( timeout, err ) -> {
          synchronized ( task ) {
             if ( timeout != null )
@@ -346,13 +333,13 @@ public class Downloader {
                log.log( Level.WARNING, "Task finished exceptionally: {0}", Utils.stacktrace( (Throwable) err ) );
                task.completeExceptionally( (Throwable) err );
             } else {
-               log.fine( "Task finished normally." );
+               log.log( Level.FINE, "{0} finished normally.", task_name );
                task.complete( err );
             }
             task.notify();
          }
       };
-      TimerTask openTimeout = Utils.toTimer( () -> result.accept( null, new TimeoutException( timeout_message ) ) );
+      TimerTask openTimeout = Utils.toTimer( () -> result.accept( null, new TimeoutException( task_name + " timeout" ) ) );
       scheduler.schedule( openTimeout, TIMEOUT_MS );
       return ( err ) -> result.accept( openTimeout, err );
    }
@@ -366,10 +353,30 @@ public class Downloader {
       } }
    }
 
+   private <T> CompletableFuture<T> runAndGet ( CompletableFuture<T> future, String task_name, RunExcept task ) {
+      if ( future == null ) future = new CompletableFuture<>();
+      Consumer handle = browserTaskHandler( future, task_name );
+      try {
+         browser.handle(
+            ( e ) -> handle.accept( null ), // on load
+            ( e,err ) -> handle.accept( err ) // on error
+         );
+         checkStop( task_name );
+         task.run();
+         waitFinish( future, handle );
+      } catch ( Exception e ) {
+         handle.accept( e );
+      }
+      return future;
+   }
+
+   private static interface RunExcept {
+      void run ( ) throws Exception;
+   }
+
    private BiConsumer<Integer, Integer> progress( String task ) {
       return ( current, total ) -> {
-         checkPause();
-         gui.setStatus( task + " (" + current + "/" + total + ")" );
+         checkStop( task + " (" + current + "/" + total + ")" );
       };
    }
 
