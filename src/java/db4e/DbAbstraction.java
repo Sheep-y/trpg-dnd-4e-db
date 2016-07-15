@@ -3,7 +3,9 @@ package db4e;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -136,7 +138,7 @@ class DbAbstraction {
 
    synchronized void loadEntryIndex ( List<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
-      try {
+      try { synchronized( Category.class ) {
          ISqlJetCursor cursor = tblEntry.open();
          final int total = (int) cursor.getRowCount();
          int count = 0;
@@ -149,9 +151,12 @@ class DbAbstraction {
 
             cursor = tblEntry.lookup( "entry_category_index", category.id );
             if ( ! cursor.eof() ) do {
-               list.add( new Entry( cursor.getString( "id" ), cursor.getString( "name" ) ) );
-               if ( cursor.getInteger( "hasData" ) != 0 )
+               final Entry entry = new Entry( cursor.getString( "id" ), cursor.getString( "name" ) );
+               list.add( entry );
+               if ( cursor.getInteger( "hasData" ) != 0 ) {
+                  entry.contentDownloaded = true;
                   ++countWithData;
+               }
                if ( ++count % 2048 == 0 )
                   statusUpdate.accept( count + "/" + total );
             } while ( cursor.next() );
@@ -163,7 +168,7 @@ class DbAbstraction {
             }
             category.downloaded_entry.set( countWithData );
          }
-      } finally {
+      } } finally {
          db.commit();
       }
    }
@@ -199,6 +204,27 @@ class DbAbstraction {
 
       } catch ( Exception e ) {
          db.rollback();
+         throw e;
+
+      } finally {
+         db.commit();
+      }
+   }
+
+   private final Map<String, Object> entryUpdateMap = new HashMap<>( 1, 1.0f );
+
+   synchronized void saveEntry ( Entry entry ) throws SqlJetException {
+      db.beginTransaction( SqlJetTransactionMode.WRITE );
+      try {
+         ISqlJetCursor owner = tblEntry.lookup( null, entry.id );
+         if ( owner.eof() ) throw new IllegalStateException( "'" + entry.name + "' not in database" );
+         entryUpdateMap.put( "data", entry.content );
+         owner.updateByFieldNames( entryUpdateMap );
+         entry.contentDownloaded = true;
+
+      } catch ( Exception e ) {
+         db.rollback();
+         throw e;
 
       } finally {
          db.commit();

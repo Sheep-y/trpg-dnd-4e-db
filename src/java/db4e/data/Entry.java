@@ -9,6 +9,7 @@ public class Entry {
    public final String id;
    public final String name;
    public String[] fields;
+   public boolean contentDownloaded;
    public String content;
 
    public Map<String,Object> meta;

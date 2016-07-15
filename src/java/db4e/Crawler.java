@@ -59,7 +59,7 @@ public class Crawler {
          615, // Familiar
          652, // Drop prone
       };
-      getEntry( "glossary.aspx?id=" + randomId[ new Random().nextInt( randomId.length ) ] );
+      openEntry( "glossary.aspx?id=" + randomId[ new Random().nextInt( randomId.length ) ] );
    }
 
    boolean isLoginOk () throws InterruptedException, TimeoutException {
@@ -68,7 +68,7 @@ public class Crawler {
       return check instanceof Boolean && ( Boolean ) check;
    }
 
-   void login ( String username, String password ) throws InterruptedException, TimeoutException {
+   synchronized void login ( String username, String password ) throws InterruptedException, TimeoutException {
       eval(" document.querySelector( 'input#email' ).value = \"" + escape( username ) + "\"; "
          + " document.querySelector( 'input#password' ).value = \"" + escape( username ) + "\"; "
          + " document.querySelector( 'input#password' ).form.submit() " );
@@ -113,14 +113,17 @@ public class Crawler {
       return result;
    }
 
-   void getEntry ( Entry entry ) {
-      getEntry( entry.id );
+   void openEntry ( Entry entry ) {
+      openEntry( entry.id );
    }
 
-   private void getEntry ( String url ) {
+   private void openEntry ( String url ) {
       browse( "http://www.wizards.com/dndinsider/compendium/" + url );
    }
 
+   void getEntry ( Entry entry ) {
+      // TODO: Get content
+   }
 
    /////////////////////////////////////////////////////////////////////////////
    // Utils

@@ -20,6 +20,7 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
 import javafx.scene.web.WebEngine;
+import javax.security.auth.login.LoginException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -202,13 +203,7 @@ public class Downloader {
       final CompletableFuture<Void> dbOpen = new CompletableFuture<>();
 
       threadPool.execute( ()-> { try {
-         runAndGet( "Connect compendium", crawler::randomGlossary );
-         if ( ! crawler.isLoginOk() ) {
-            runAndGet( "Test login", () -> crawler.login( user, pass ) );
-            if ( ! crawler.isLoginOk() )
-               throw new UnsupportedOperationException( "Login incorrect" );
-         }
-
+         runAndCheckLogin( "Connect compendium", crawler::randomGlossary );
          runAndGet( "Open compendium", crawler::openFrontpage );
          downloadCategory();
 
@@ -242,22 +237,21 @@ public class Downloader {
       });
    }
 
-   private void downloadCategory() throws Exception { // Too many exceptions to throw
-      gui.setStatus( "Downloading categories" );
+   private void downloadCategory() throws Exception { synchronized ( Category.class ) { // Too many exceptions to throw one by one
       TransformerFactory factory = null;
 
-      for ( Category cat : categories ) {
-         if ( cat.total_entry.get() > 0 ) continue;
-         final String name = cat.name.toLowerCase();
+      for ( Category category : categories ) {
+         if ( category.total_entry.get() > 0 ) continue;
+         final String name = category.name.toLowerCase();
 
          Thread.sleep( INTERVAL_MS );
          runAndGet( "Get " + name + " template", () ->
-            crawler.getCategoryXsl( cat ) );
+            crawler.getCategoryXsl( category ) );
          Document xsl = engine.getDocument();
 
          Thread.sleep( INTERVAL_MS );
          runAndGet( "Get " + name + " data", () ->
-            crawler.getCategoryData( cat ) );
+            crawler.getCategoryData( category ) );
          Document xml = engine.getDocument();
 
          checkStop( "Parsing " + name );
@@ -270,20 +264,45 @@ public class Downloader {
          List<Entry> entries = crawler.openCategory();
 
          checkStop( "Saving " + name );
-         dal.saveEntryList( cat, entries );
+         dal.saveEntryList( category, entries );
 
          checkStop( "Listed " + name );
       }
 
       downloadEntities();
-   }
+   } }
 
-   private void downloadEntities () {
+   private void downloadEntities () throws Exception {
+      for ( Category category : categories ) {
+         for ( Entry entry : category.entries ) {
+            if ( ! entry.contentDownloaded ) {
+               String name = entry.name + " (" + category.name + ")";
+               runAndCheckLogin( name, () -> crawler.openEntry( entry ) );
+               crawler.getEntry( entry );
+               dal.saveEntry( entry );
+               category.downloaded_entry.add( 1 );
+            }
+         }
+      }
    }
 
    /////////////////////////////////////////////////////////////////////////////
    // Utils
    /////////////////////////////////////////////////////////////////////////////
+
+   private void runAndCheckLogin ( String taskName, RunExcept task ) throws Exception {
+      runAndGet( taskName, task );
+      if ( ! crawler.isLoginOk() ) {
+         log.log( Level.INFO, "Requires login: {0}", engine.getLocation() );
+         final String user = gui.txtUser.getText().trim();
+         final String pass = gui.txtPass.getText().trim();
+         runAndGet( taskName + " (Login)", () -> crawler.login( user, pass ) );
+         if ( ! crawler.isLoginOk() ) {
+            log.log( Level.INFO, "Login failed: {0}", engine.getLocation() );
+            throw new LoginException( "Login incorrect or subscription expired" );
+         }
+      }
+   }
 
    /**
     * Given a CompletableFuture,
@@ -299,7 +318,7 @@ public class Downloader {
     * @param timeout_message Message of timeout exception
     * @return A function to call to complete
     */
-   private Consumer browserTaskHandler ( CompletableFuture task, String task_name ) {
+   private Consumer browserTaskHandler ( CompletableFuture task, String taskName ) {
       BiConsumer<TimerTask, Object> result = ( timeout, err ) -> {
          synchronized ( task ) {
             if ( timeout != null )
@@ -309,13 +328,13 @@ public class Downloader {
                log.log( Level.WARNING, "Task finished exceptionally: {0}", Utils.stacktrace( (Throwable) err ) );
                task.completeExceptionally( (Throwable) err );
             } else {
-               log.log( Level.FINE, "{0} finished normally.", task_name );
+               log.log( Level.FINE, "{0} finished normally.", taskName );
                task.complete( err );
             }
             task.notify();
          }
       };
-      TimerTask openTimeout = Utils.toTimer( () -> result.accept( null, new TimeoutException( task_name + " timeout" ) ) );
+      TimerTask openTimeout = Utils.toTimer( () -> result.accept( null, new TimeoutException( taskName + " timeout" ) ) );
       scheduler.schedule( openTimeout, TIMEOUT_MS );
       return ( err ) -> result.accept( openTimeout, err );
    }
@@ -333,18 +352,18 @@ public class Downloader {
     * Call a task and wait for browser to finish loading.
     * The task must cause the browser's loader to change state for this to work.
     *
-    * @param task_name Name of task, used in logging and timeout message.
+    * @param taskName Name of task, used in logging and timeout message.
     * @param task Task to run.
     */
-   private void runAndGet ( String task_name, RunExcept task ) {
+   private void runAndGet ( String taskName, RunExcept task ) {
       CompletableFuture<Void> future = new CompletableFuture<>();
-      Consumer handle = browserTaskHandler( future, task_name );
+      Consumer handle = browserTaskHandler( future, taskName );
       try {
          browser.handle(
             ( e ) -> handle.accept( null ), // on load
             ( e,err ) -> handle.accept( err ) // on error
          );
-         checkStop( task_name );
+         checkStop( taskName );
          task.run();
          waitFinish( future, handle );
          future.get(); // ExecutionException
