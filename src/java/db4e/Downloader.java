@@ -1,13 +1,10 @@
 package db4e;
 
 import db4e.data.Category;
-import db4e.data.Entry;
 import java.io.File;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,7 +14,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
+import javafx.scene.web.WebEngine;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
+import org.w3c.dom.Document;
 import sheepy.util.Utils;
 import sheepy.util.ui.ConsoleWebView;
 import sheepy.util.ui.ObservableArrayList;
@@ -44,6 +47,7 @@ public class Downloader {
 
    private final SceneMain gui;
    private final ConsoleWebView browser;
+   private final WebEngine engine;
    private final Crawler crawler;
    private final Timer scheduler = new Timer();
    private final ForkJoinPool threadPool = ForkJoinPool.commonPool();
@@ -52,7 +56,8 @@ public class Downloader {
    public Downloader ( SceneMain main ) {
       gui = main;
       browser = main.getWorker();
-      crawler = new Crawler( browser.getWebEngine() );
+      engine = browser.getWebEngine();
+      crawler = new Crawler( engine );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -77,7 +82,7 @@ public class Downloader {
    }
 
    synchronized void stop () {
-      browser.getWebEngine().getLoadWorker().cancel();
+      engine.getLoadWorker().cancel();
       if ( currentThread != null )
          currentThread.interrupt();
       currentThread = null;
@@ -217,14 +222,13 @@ public class Downloader {
    // Open compendium
    CompletableFuture<Void> startDownload () {
       gui.stateRunning();
-      log.log( Level.CONFIG, "WebView Agent: {0}", browser.getWebEngine().getUserAgent() );
+      log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
       gui.setStatus( "Opening online compendium" );
 
       CompletableFuture<Void> dbOpen = new CompletableFuture<>();
-      Consumer<Throwable> handle = browserTaskHandler( dbOpen, "Online compendium timeout" );
+      Consumer handle = browserTaskHandler( dbOpen, "Online compendium timeout" );
 
       threadPool.execute( ()-> { try {
-         checkPause();
          browser.handle(
             ( e ) -> handle.accept( null ), // on load
             ( e,err ) -> handle.accept( err ) // on error
@@ -241,21 +245,15 @@ public class Downloader {
 
       } ).exceptionally( ( err ) -> {
          gui.stateCanDownload();
-         if ( err instanceof CompletionException ) {
-            if ( err.getCause() != null ) {
-               if ( err.getCause() instanceof InterruptedException )
-                  gui.setStatus( "Download Stopped" );
-               else if ( err.getCause() instanceof TimeoutException )
-                  gui.setStatus( "Download Timeout" );
-               else {
-                  String msg = ( (Exception) err ).getMessage();
-                  if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
-                  gui.setStatus( msg );
-               }
-            } else
-               gui.setStatus( ( (Exception) err ).getMessage() );
-         } else {
-            gui.setStatus( err.getClass().getSimpleName() );
+         if ( err.getCause() instanceof InterruptedException )
+            gui.setStatus( "Download Stopped" );
+         else if ( err.getCause() instanceof TimeoutException )
+            gui.setStatus( "Download Timeout" );
+         else {
+            log.log( Level.WARNING, "Download failed: {0}", Utils.stacktrace( err ) );
+            String msg = ( (Exception) err ).getMessage();
+            if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
+            gui.setStatus( msg );
          }
          return null;
       });
@@ -265,26 +263,57 @@ public class Downloader {
       gui.setStatus( "Downloading categories" );
       CompletableFuture<Void> catLoad = new CompletableFuture<>();
 
-      threadPool.execute( () -> {
-         checkPause();
-         try {
-            for ( Category cat : categories ) {
-               if ( cat.total_entry.get() > 0 ) continue;
-               checkPause();
-               gui.setStatus( "Listing " + cat.name );
-               List<Entry> entries = crawler.openCategory( cat, progress( "Listing " + cat.name ) );
-               checkPause();
-               gui.setStatus( "Saving " + cat.name + " (" + entries.size() + ")" );
-               dal.saveEntryList( cat, entries );
-               checkPause();
-               Thread.sleep( INTERVAL_MS );
-            }
-            catLoad.complete( null );
+      threadPool.execute(() -> { try {
+         TransformerFactory factory = null;
 
-         } catch ( Exception err ) {
-            catLoad.completeExceptionally( err );
+         for ( Category cat : categories ) {
+            if ( cat.total_entry.get() > 0 ) continue;
+            checkPause();
+            gui.setStatus( "Getting " + cat.name + " template" );
+
+            CompletableFuture<Document> catXsl = new CompletableFuture<>();
+            Consumer handleXsl = browserTaskHandler( catXsl, cat.name + " template timeout" );
+            browser.handle(
+               ( e ) -> handleXsl.accept( engine.getDocument() ), // on load
+               ( e,err ) -> handleXsl.accept( err ) // on error
+            );
+            crawler.getCategoryXsl( cat );
+            waitFinish( catXsl, handleXsl );
+
+            checkPause();
+            gui.setStatus( "Getting " + cat.name + " data" );
+
+            CompletableFuture<Document> catData = new CompletableFuture<>();
+            Consumer handleData = browserTaskHandler( catData, cat.name + " data timeout" );
+            browser.handle(
+               ( e ) -> handleData.accept( engine.getDocument() ), // on load
+               ( e,err ) -> handleData.accept( err ) // on error
+            );
+            crawler.getCategoryXsl( cat );
+            waitFinish( catData, handleData );
+
+            checkPause();
+            gui.setStatus( "Listing " + cat.name );
+            DOMResult catConverted = new DOMResult();
+            if ( factory == null ) factory = TransformerFactory.newInstance();
+            Transformer transformer = factory.newTransformer( new DOMSource( catXsl.get() ) );
+            transformer.transform(  new DOMSource( catData.get() ), catConverted );
+
+            System.out.println( catConverted.getNode().getOwnerDocument().getElementsByTagName( "a" ).getLength() );
+
+            /*
+            checkPause();
+            gui.setStatus( "Saving " + cat.name + " (" + entries.size() + ")" );
+            dal.saveEntryList( cat, entries );
+            */
+            checkPause();
+            Thread.sleep( INTERVAL_MS );
          }
-      } );
+         catLoad.complete( null );
+
+      } catch ( Exception err ) {
+         catLoad.completeExceptionally( err );
+      } } );
 
       return catLoad;
    }
@@ -307,18 +336,18 @@ public class Downloader {
     * @param timeout_message Message of timeout exception
     * @return A function to call to complete
     */
-   private Consumer<Throwable> browserTaskHandler ( CompletableFuture task, String timeout_message ) {
-      BiConsumer<TimerTask, Throwable> result = ( timeout, err ) -> {
+   private Consumer browserTaskHandler ( CompletableFuture task, String timeout_message ) {
+      BiConsumer<TimerTask, Object> result = ( timeout, err ) -> {
          synchronized ( task ) {
             if ( timeout != null )
                timeout.cancel();
             browser.handle( null, null );
-            if ( err != null ) {
-               log.log( Level.WARNING, "Task finished exceptionally: {0}", Utils.stacktrace( err ) );
-               task.completeExceptionally( err );
+            if ( err != null && err instanceof Throwable ) {
+               log.log( Level.WARNING, "Task finished exceptionally: {0}", Utils.stacktrace( (Throwable) err ) );
+               task.completeExceptionally( (Throwable) err );
             } else {
                log.fine( "Task finished normally." );
-               task.complete( null );
+               task.complete( err );
             }
             task.notify();
          }
