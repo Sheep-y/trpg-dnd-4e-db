@@ -5,6 +5,7 @@ import db4e.data.Entry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,12 +30,56 @@ public class Crawler {
       Platform.runLater( () -> browser.load( url ) );
    }
 
+   void randomGlossary () {
+      // Get a random glossary article to determine login state
+      int[] randomId = new int[]{
+         8  ,  // swarm
+         86 , // Teleport
+         118, // Free Actions
+         133, // Dazed
+         135, // Dominated
+         138, // Immobilized
+         142, // Restrained
+         149, // Saving Throw
+         158, // Aquatic Combat
+         165, // Cover
+         169, // Concealment
+         176, // Forced Movement
+         177, // Action Point
+         186, // Beast form
+         203, // High Crit
+         320, // Insubstantial
+         337, // Stand up
+         344, // Aura
+         345, // Burrow
+         371, // Aquatic Combat
+         437, // Full Discipline
+         438, // Augmentable
+         503, // Runic
+         615, // Familiar
+         652, // Drop prone
+      };
+      getEntry( "glossary.aspx?id=" + randomId[ new Random().nextInt( randomId.length ) ] );
+   }
+
+   boolean isLoginOk () throws InterruptedException, TimeoutException {
+//      Object check = eval( " document.body.textContent.trim().replace( /\\s+/g, ' ' ).match( /(?=.*\\bsubscribe\\b)(?=.*\\bpassword\\b)(?=.*\\bcompendium\\b)/i ) " );
+      Object check = eval( " document.querySelector( 'input#email' ) && document.querySelector( 'input#password' ) " );
+      return check instanceof Boolean && ( Boolean ) check;
+   }
+
+   void login ( String username, String password ) throws InterruptedException, TimeoutException {
+      eval(" document.querySelector( 'input#email' ).value = \"" + escape( username ) + "\"; "
+         + " document.querySelector( 'input#password' ).value = \"" + escape( username ) + "\"; "
+         + " document.querySelector( 'input#password' ).form.submit() " );
+   }
+
    void openFrontpage () {
       browse( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
    }
 
    void getCategoryXsl ( Category cat ) {
-      browse( "http://www.wizards.com/dndinsider/compendium/xsl/" + cat.id + ".xsl ");
+      browse( "http://www.wizards.com/dndinsider/compendium/xsl/" + cat.id + ".xsl" );
    }
 
    void getCategoryData ( Category cat ) throws InterruptedException, TimeoutException {
@@ -68,9 +113,23 @@ public class Crawler {
       return result;
    }
 
+   void getEntry ( Entry entry ) {
+      getEntry( entry.id );
+   }
+
+   private void getEntry ( String url ) {
+      browse( "http://www.wizards.com/dndinsider/compendium/" + url );
+   }
+
+
    /////////////////////////////////////////////////////////////////////////////
    // Utils
    /////////////////////////////////////////////////////////////////////////////
+
+   private String escape ( String input ) {
+      return input.replace( "\r", "\\r" ).replace( "\n", "\\n" ).replace( "\"", "\\\"" );
+   }
+
    /**
     * Convert an array-like JSObject into Object[].
     *

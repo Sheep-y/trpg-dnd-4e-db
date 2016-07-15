@@ -55,9 +55,9 @@ public class SceneMain extends Scene {
 
    // Data Screen
    private final Label lblStatus = new Label( "Starting Up");
-   private final TextField txtEmail  = JavaFX.tooltip( new TextField( prefs.get( "ddi.email", "" ) ),
-           "DDI subscriber email." );
-   private final TextField txtPass   = JavaFX.tooltip( new TextField( prefs.get( "ddi.pass", "" ) ),
+   final TextField txtUser  = JavaFX.tooltip( new TextField( prefs.get( "ddi.user", "" ) ),
+           "DDI subscriber username." );
+   final TextField txtPass   = JavaFX.tooltip( new TextField( prefs.get( "ddi.pass", "" ) ),
            "DDI subscriber password." );
    private final TableView<Category> tblCategory = new TableView<>();
       private final TableColumn<Category,String > colName = new TableColumn<>( "Category" );
@@ -68,7 +68,7 @@ public class SceneMain extends Scene {
    private final Button btnRight = new Button( "Wait" );
 
    private final Pane pnlDataTab = new BorderPane( tblCategory,
-      JavaFX.fitVBox( lblStatus, JavaFX.fitHBox( txtEmail, txtPass ) ),  // Top
+      JavaFX.fitVBox( lblStatus, JavaFX.fitHBox( txtUser, txtPass ) ),  // Top
       null, JavaFX.fitHBox( btnLeft, btnRight ), null ); // right, bottom, left
    private final Tab tabData = new Tab( "Data", pnlDataTab );
 
@@ -103,9 +103,9 @@ public class SceneMain extends Scene {
 
    private void initControls () {
       // Data tab - save preference on change
-      txtEmail.setPromptText( "DDI login email" );
+      txtUser.setPromptText( "DDI login username" );
       txtPass .setPromptText( "DDI login password" );
-      txtEmail.textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.email", now ); });
+      txtUser.textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.email", now ); });
       txtPass .textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.pass" , now ); });
 
       colName.setCellValueFactory( new PropertyValueFactory( "name" ) );
@@ -187,12 +187,16 @@ public class SceneMain extends Scene {
    }
 
    private void allowAction () {
+      txtUser.setDisable( false );
+      txtPass.setDisable( false );
       btnLeft.setDisable( false );
       btnRight.setDisable( false );
       btnClearData.setDisable( false );
    }
 
    private void disallowAction () {
+      txtUser.setDisable( true );
+      txtPass.setDisable( true );
       btnLeft.setDisable( true );
       btnRight.setDisable( true );
       btnClearData.setDisable( true );
@@ -276,6 +280,12 @@ public class SceneMain extends Scene {
    }
 
    private void action_download ( ActionEvent evt ) {
+      if ( txtUser.getText().trim().isEmpty() || txtPass.getText().trim().isEmpty() ) {
+         new Alert( Alert.AlertType.ERROR, "Please input DDI username and password", ButtonType.OK ).showAndWait();
+         if ( txtUser.getText().trim().isEmpty() ) txtUser.requestFocus();
+         else txtPass.requestFocus();
+         return;
+      }
       setStatus( "Starting Download" );
       loader.startDownload().whenComplete( (a,b) -> allowAction() );
       stateRunning();

@@ -197,9 +197,26 @@ public class Downloader {
    CompletableFuture<Void> startDownload () {
       gui.stateRunning();
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
+      final String user = gui.txtUser.getText().trim();
+      final String pass = gui.txtPass.getText().trim();
 
       CompletableFuture<Void> dbOpen = new CompletableFuture<>();
-      threadPool.execute( ()-> runAndGet( dbOpen, "Open compendium", crawler::openFrontpage ) );
+      threadPool.execute( ()-> { try {
+         runAndGet( "Connect compendium", crawler::randomGlossary );
+         if ( ! crawler.isLoginOk() ) {
+            runAndGet( "Test login", () -> crawler.login( user, pass ) );
+            if ( ! crawler.isLoginOk() )
+               throw new UnsupportedOperationException( "Login incorrect" );
+         }
+         runAndGet( "Open compendium", crawler::openFrontpage )
+            .thenAccept( dbOpen::complete )
+            .exceptionally( ( err ) -> {
+               dbOpen.completeExceptionally( err );
+               return null;
+            } );
+      } catch ( Exception e ) {
+         dbOpen.completeExceptionally( e );
+      } } );
 
       return dbOpen.thenCompose( ( result ) -> {
          log.info( "Compendium opened." );
@@ -238,13 +255,13 @@ public class Downloader {
             final String name = cat.name.toLowerCase();
 
             Thread.sleep( INTERVAL_MS );
-            CompletableFuture<Void> downXsl = runAndGet(null, "Get " + name + " template",
+            CompletableFuture<Void> downXsl = runAndGet( "Get " + name + " template",
                () -> crawler.getCategoryXsl( cat ) );
             downXsl.get(); // throw ExecutionException if error
             Document xsl = engine.getDocument();
 
             Thread.sleep( INTERVAL_MS );
-            CompletableFuture<Void> downXml = runAndGet(null, "Get " + name + " data",
+            CompletableFuture<Void> downXml = runAndGet( "Get " + name + " data",
                () -> crawler.getCategoryData( cat ) );
             downXml.get(); // throw ExecutionException if error
             Document xml = engine.getDocument();
@@ -254,7 +271,7 @@ public class Downloader {
             StringWriter result = new StringWriter();
             factory.newTransformer( new DOMSource( xsl ) ).transform( new DOMSource( xml ), new StreamResult( result ) );
 
-            runAndGet(null, "Listing " + name,
+            runAndGet( "Listing " + name,
                () -> Platform.runLater( () -> engine.loadContent( result.toString() ) ) );
             List<Entry> entries = crawler.openCategory();
 
@@ -323,8 +340,8 @@ public class Downloader {
       } }
    }
 
-   private <T> CompletableFuture<T> runAndGet ( CompletableFuture<T> future, String task_name, RunExcept task ) {
-      if ( future == null ) future = new CompletableFuture<>();
+   private CompletableFuture<Void> runAndGet ( String task_name, RunExcept task ) {
+      CompletableFuture<Void> future = new CompletableFuture<>();
       Consumer handle = browserTaskHandler( future, task_name );
       try {
          browser.handle(
