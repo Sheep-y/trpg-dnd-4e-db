@@ -22,6 +22,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
@@ -30,6 +31,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -57,7 +59,7 @@ public class SceneMain extends Scene {
    private final Label lblStatus = new Label( "Starting Up");
    final TextField txtUser  = JavaFX.tooltip( new TextField( prefs.get( "ddi.user", "" ) ),
            "DDI subscriber username." );
-   final TextField txtPass   = JavaFX.tooltip( new TextField( prefs.get( "ddi.pass", "" ) ),
+   final PasswordField txtPass  = JavaFX.tooltip( new PasswordField(),
            "DDI subscriber password." );
    private final TableView<Category> tblCategory = new TableView<>();
       private final TableColumn<Category,String > colName = new TableColumn<>( "Category" );
@@ -73,11 +75,21 @@ public class SceneMain extends Scene {
    private final Tab tabData = new Tab( "Data", pnlDataTab );
 
    // Option Screen
+   final TextField txtTimeout  = JavaFX.tooltip( new TextField( Integer.toString(
+           Math.max( Downloader.MIN_TIMEOUT_MS/1000, prefs.getInt( "download.timeout", 30 ) ) ) ),
+           "Download timeout in seconds.  If changed mid-way, will apply in next action not current action." );
+   final TextField txtInterval  = JavaFX.tooltip( new TextField( Integer.toString(
+           Math.max( Downloader.MIN_INTERVAL_MS, prefs.getInt( "download.interval", 2000 ) ) ) ),
+           "Interval, in millisecond, between each download action.  If changed mid-way, will apply in next action not current action." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
            "Show app log and console.  Increase memoro usage because of finer logging level." );
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Downloader.DB_NAME + "'." );
-   private final Pane pnlOptionTab = new VBox( 8, chkDebug, btnClearData );
+   private final Pane pnlOptionTab = new VBox( 8,
+           new HBox( 8, new Label( "Timeout" ), txtTimeout, new Label( "seconds") ),
+           new HBox( 8, new Label( "Interval" ), txtInterval, new Label( "milliseconds") ),
+           chkDebug,
+           btnClearData );
    private final Tab tabOption = new Tab( "Options", pnlOptionTab );
 
    // Log Screen
@@ -103,10 +115,11 @@ public class SceneMain extends Scene {
 
    private void initControls () {
       // Data tab - save preference on change
+      txtPass.setText( prefs.get( "ddi.pass", "" ) );
       txtUser.setPromptText( "DDI login username" );
-      txtPass .setPromptText( "DDI login password" );
-      txtUser.textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.email", now ); });
-      txtPass .textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.pass" , now ); });
+      txtPass.setPromptText( "DDI login password" );
+      txtUser.textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.user", now ); });
+      txtPass.textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.pass" , now ); });
 
       colName.setCellValueFactory( new PropertyValueFactory( "name" ) );
       colTotalEntry.setCellValueFactory( new PropertyValueFactory<>( "totalEntry" ) );
@@ -116,6 +129,22 @@ public class SceneMain extends Scene {
       tblCategory.getColumns().addAll( colName, colDownloadedEntry, colTotalEntry );
 
       // Option tab
+      txtTimeout.textProperty().addListener( (prop, old, now ) -> { try {
+         int i = Integer.parseUnsignedInt( now );
+         if ( i * 1000 < Downloader.MIN_TIMEOUT_MS ) return;
+         prefs.putInt( "download.timeout", i );
+         Downloader.TIMEOUT_MS = i * 1000;
+         log.log( Level.CONFIG, "Timeout changed to {0} ms", Downloader.TIMEOUT_MS );
+      } catch ( NumberFormatException ignored ) { } } );
+
+      txtInterval.textProperty().addListener( (prop, old, now ) -> { try {
+         int i = Integer.parseUnsignedInt( now );
+         if ( i < Downloader.MIN_INTERVAL_MS ) return;
+         prefs.putInt( "download.interval", i );
+         Downloader.INTERVAL_MS = i;
+         log.log( Level.CONFIG, "Interval changed to {0} ms", i );
+      } catch ( NumberFormatException ignored ) { } } );
+
       chkDebug.selectedProperty().addListener( this::chkDebug_change );
       if ( prefs.getBoolean( "gui.debug", false ) )
          chkDebug.selectedProperty().set( true );

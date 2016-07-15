@@ -41,9 +41,12 @@ public class Downloader {
 
    private static final Logger log = Main.log;
 
-   public static volatile int TIMEOUT_MS = 30_000;
-   public static volatile int INTERVAL_MS = 2_000;
+   static volatile int TIMEOUT_MS = 30_000;
+   static volatile int INTERVAL_MS = 2_000;
+
    static final String DB_NAME = "dnd4_compendium.sqlite";
+   static final int MIN_TIMEOUT_MS = 10_000;
+   static final int MIN_INTERVAL_MS = 0;
 
    // Database variables are set on open().
    private volatile SqlJetDb db;
@@ -65,6 +68,10 @@ public class Downloader {
       browser = main.getWorker();
       engine = browser.getWebEngine();
       crawler = new Crawler( engine );
+      try {
+         TIMEOUT_MS = Integer.parseUnsignedInt( main.txtTimeout.getText() ) * 1000;
+         INTERVAL_MS = Integer.parseUnsignedInt( main.txtInterval.getText() );
+      } catch ( NumberFormatException ignored ) {}
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -211,6 +218,7 @@ public class Downloader {
    CompletableFuture<Void> startDownload () {
       gui.stateRunning();
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
+      log.log( Level.CONFIG, "Timeout {0} ms / Interval {1} ms ", new Object[]{ TIMEOUT_MS, INTERVAL_MS } );
       final CompletableFuture<Void> task = new CompletableFuture<>();
 
       threadPool.execute( ()-> { try {
@@ -375,6 +383,7 @@ public class Downloader {
     * @param task Task to run.
     */
    private void runAndGet ( String taskName, RunExcept task ) {
+      browser.getConsoleOutput().clear();
       CompletableFuture<Void> future = new CompletableFuture<>();
       Consumer handle = browserTaskHandler( future, taskName );
       try {
