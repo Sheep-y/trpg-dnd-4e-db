@@ -178,6 +178,25 @@ class DbAbstraction {
       return downloadComplete;
    }
 
+   synchronized void loadEntityContent ( List<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
+      db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
+      try { synchronized ( Category.class ) {
+         for ( Category category : categories ) {
+            for ( Entry entry : category.entries ) {
+               if ( entry.fields == null || entry.content == null ) {
+                  ISqlJetCursor cursor = tblEntry.lookup( null, entry.id );
+                  if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.name + "' not in database" );
+                  if ( entry.fields == null ) entry.fields = parseCsvLine( cursor.getString( "fields" ) );
+                  if ( entry.content == null ) entry.content = cursor.getString( "data" );
+                  cursor.close();
+               }
+            }
+         }
+      } } finally {
+         db.commit();
+      }
+   }
+
    synchronized void saveEntryList ( Category category, List<Entry> entries ) throws SqlJetException {
       int count = entries.size();
       db.beginTransaction( SqlJetTransactionMode.WRITE );
@@ -216,15 +235,19 @@ class DbAbstraction {
       }
    }
 
-   private final Map<String, Object> entryUpdateMap = new HashMap<>( 1, 1.0f );
+   private Map<String, Object> entryUpdateMap;
 
    synchronized void saveEntry ( Entry entry ) throws SqlJetException {
+      if ( entryUpdateMap == null ) {
+         entryUpdateMap = new HashMap<>( 2, 1.0f );
+         entryUpdateMap.put( "hasData", 1 );
+      }
       db.beginTransaction( SqlJetTransactionMode.WRITE );
       try {
-         ISqlJetCursor owner = tblEntry.lookup( null, entry.id );
-         if ( owner.eof() ) throw new IllegalStateException( "'" + entry.name + "' not in database" );
+         ISqlJetCursor cursor = tblEntry.lookup( null, entry.id );
+         if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.name + "' not in database" );
          entryUpdateMap.put( "data", entry.content );
-         owner.updateByFieldNames( entryUpdateMap );
+         cursor.updateByFieldNames( entryUpdateMap );
          entry.contentDownloaded = true;
 
       } catch ( Exception e ) {

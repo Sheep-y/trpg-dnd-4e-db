@@ -171,14 +171,14 @@ public class Downloader {
 
    private synchronized void openOrCreateTable () {
       try {
-         downloadComplete = dal.setDb( db, categories, ( txt ) -> gui.setStatus( "Reading data (" + txt + ")" ) );
+         downloadComplete = dal.setDb( db, categories, ( txt ) -> checkStop( "Reading data (" + txt + ")" ) );
 
       } catch ( Exception e1 ) {
 
          log.log( Level.CONFIG, "Create tables because {0}", Utils.stacktrace( e1 ) );
          try {
             dal.createTables();
-            downloadComplete = dal.setDb( db, categories, ( txt ) -> gui.setStatus( "Reading data (" + txt + ")" ) );
+            downloadComplete = dal.setDb( db, categories, ( txt ) -> checkStop( "Reading data (" + txt + ")" ) );
 
          } catch ( Exception e2 ) {
             log.log( Level.SEVERE, "Cannot create tables: {0}", Utils.stacktrace( e2 ) );
@@ -278,7 +278,7 @@ public class Downloader {
       final CompletableFuture<Void> task = new CompletableFuture<>();
 
       threadPool.execute( ()-> { try {
-//         dal.loadEntityContent();
+         dal.loadEntityContent( categories, ( txt ) -> checkStop( "Loading entry (" + txt + ")" ) );
 
          gui.stateCanExport();
          gui.setStatus( "Export Complete, may view data" );
