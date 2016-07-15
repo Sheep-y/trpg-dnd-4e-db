@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeoutException;
@@ -52,8 +53,7 @@ public class Downloader {
    private final WebEngine engine;
    private final Crawler crawler;
    private final Timer scheduler = new Timer();
-   private final ForkJoinPool threadPool = ForkJoinPool.commonPool();
-//      new ForkJoinPool( Math.max( 3, Runtime.getRuntime().availableProcessors() - 1 ) );
+   private final ForkJoinPool threadPool = ForkJoinPool.commonPool(); // Only need one thread
 
    public Downloader ( SceneMain main ) {
       gui = main;
@@ -199,8 +199,8 @@ public class Downloader {
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
       final String user = gui.txtUser.getText().trim();
       final String pass = gui.txtPass.getText().trim();
+      final CompletableFuture<Void> dbOpen = new CompletableFuture<>();
 
-      CompletableFuture<Void> dbOpen = new CompletableFuture<>();
       threadPool.execute( ()-> { try {
          runAndGet( "Connect compendium", crawler::randomGlossary );
          if ( ! crawler.isLoginOk() ) {
@@ -208,30 +208,29 @@ public class Downloader {
             if ( ! crawler.isLoginOk() )
                throw new UnsupportedOperationException( "Login incorrect" );
          }
-         runAndGet( "Open compendium", crawler::openFrontpage )
-            .thenAccept( dbOpen::complete )
-            .exceptionally( ( err ) -> {
-               dbOpen.completeExceptionally( err );
-               return null;
-            } );
+
+         runAndGet( "Open compendium", crawler::openFrontpage );
+         downloadCategory();
+
+         gui.stateCanExport();
+         gui.setStatus( "Download Complete, may export data" );
+         dbOpen.complete( null );
+
       } catch ( Exception e ) {
          dbOpen.completeExceptionally( e );
       } } );
 
-      return dbOpen.thenCompose( ( result ) -> {
-         log.info( "Compendium opened." );
-         return downloadCategory();
-
-      } ).thenRun( () -> {
-        gui.stateCanDownload();
-        gui.setStatus( "Download Complete, may export data" );
-
-      } ).exceptionally( ( err ) -> {
+      return dbOpen.exceptionally( ( err ) -> {
          synchronized ( this ) { currentThread = null; }
+         Throwable ex = err;
+         if ( ex instanceof CompletionException && ex.getCause() != null ) ex = ex.getCause();
+         while ( ( ex.getClass() == RuntimeException.class || ex.getClass() == ExecutionException.class ) && ex.getCause() != null )
+            ex = ex.getCause(); // Unwrap RuntimeException and ExecutionException (but not subclasses)
+
          gui.stateCanDownload();
-         if ( err.getCause() instanceof InterruptedException )
+         if ( ex.getCause() instanceof InterruptedException )
             gui.setStatus( "Download Stopped" );
-         else if ( err.getCause() instanceof TimeoutException )
+         else if ( ex.getCause() instanceof TimeoutException )
             gui.setStatus( "Download Timeout" );
          else {
             log.log( Level.WARNING, "Download failed: {0}", Utils.stacktrace( err ) );
@@ -243,53 +242,43 @@ public class Downloader {
       });
    }
 
-   private CompletableFuture<Void> downloadCategory() {
+   private void downloadCategory() throws Exception { // Too many exceptions to throw
       gui.setStatus( "Downloading categories" );
-      CompletableFuture<Void> catLoad = new CompletableFuture<>();
+      TransformerFactory factory = null;
 
-      threadPool.execute(() -> { try {
-         TransformerFactory factory = null;
+      for ( Category cat : categories ) {
+         if ( cat.total_entry.get() > 0 ) continue;
+         final String name = cat.name.toLowerCase();
 
-         for ( Category cat : categories ) {
-            if ( cat.total_entry.get() > 0 ) continue;
-            final String name = cat.name.toLowerCase();
+         Thread.sleep( INTERVAL_MS );
+         runAndGet( "Get " + name + " template", () ->
+            crawler.getCategoryXsl( cat ) );
+         Document xsl = engine.getDocument();
 
-            Thread.sleep( INTERVAL_MS );
-            CompletableFuture<Void> downXsl = runAndGet( "Get " + name + " template",
-               () -> crawler.getCategoryXsl( cat ) );
-            downXsl.get(); // throw ExecutionException if error
-            Document xsl = engine.getDocument();
+         Thread.sleep( INTERVAL_MS );
+         runAndGet( "Get " + name + " data", () ->
+            crawler.getCategoryData( cat ) );
+         Document xml = engine.getDocument();
 
-            Thread.sleep( INTERVAL_MS );
-            CompletableFuture<Void> downXml = runAndGet( "Get " + name + " data",
-               () -> crawler.getCategoryData( cat ) );
-            downXml.get(); // throw ExecutionException if error
-            Document xml = engine.getDocument();
+         checkStop( "Parsing " + name );
+         if ( factory == null ) factory = TransformerFactory.newInstance();
+         StringWriter result = new StringWriter();
+         factory.newTransformer( new DOMSource( xsl ) ).transform( new DOMSource( xml ), new StreamResult( result ) );
 
-            checkStop("Parsing " + name );
-            if ( factory == null ) factory = TransformerFactory.newInstance();
-            StringWriter result = new StringWriter();
-            factory.newTransformer( new DOMSource( xsl ) ).transform( new DOMSource( xml ), new StreamResult( result ) );
+         runAndGet( "Listing " + name, () -> Platform.runLater( () ->
+            engine.loadContent( result.toString() ) ) );
+         List<Entry> entries = crawler.openCategory();
 
-            runAndGet( "Listing " + name,
-               () -> Platform.runLater( () -> engine.loadContent( result.toString() ) ) );
-            List<Entry> entries = crawler.openCategory();
+         checkStop( "Saving " + name );
+         dal.saveEntryList( cat, entries );
 
-            checkStop("Saving " + name );
-            dal.saveEntryList( cat, entries );
+         checkStop( "Listed " + name );
+      }
 
-            checkStop("Listed " + name );
-         }
-         catLoad.complete( null );
+      downloadEntities();
+   }
 
-      } catch ( Exception err ) {
-         if ( err instanceof ExecutionException )
-            catLoad.completeExceptionally( err.getCause() );
-         else
-            catLoad.completeExceptionally( err );
-      } } );
-
-      return catLoad;
+   private void downloadEntities () {
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -351,8 +340,10 @@ public class Downloader {
          checkStop( task_name );
          task.run();
          waitFinish( future, handle );
+         future.get(); // ExecutionException
       } catch ( Exception e ) {
          handle.accept( e );
+         throw new RuntimeException( e );
       }
       return future;
    }

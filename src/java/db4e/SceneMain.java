@@ -291,6 +291,11 @@ public class SceneMain extends Scene {
       stateRunning();
    }
 
+   private void action_export ( ActionEvent evt ) {
+      setStatus( "Starting Export" );
+      stateRunning();
+   }
+
    void stateBusy ( String message ) { runFX( () -> {
       if ( message != null ) setStatus( message );
       log.log( Level.FINE, "State: Busy" );
@@ -310,6 +315,14 @@ public class SceneMain extends Scene {
       setStatus( "Ready to download" );
       allowAction();
       setLeft( "Download", this::action_download );
+      setRight( "Exit", this::action_exit );
+   } ); }
+
+   void stateCanExport () { runFX( () -> {
+      log.log( Level.FINE, "State: Can Export" );
+      setStatus( "Ready to export" );
+      allowAction();
+      setLeft( "Export", this::action_export );
       setRight( "Exit", this::action_exit );
    } ); }
 
