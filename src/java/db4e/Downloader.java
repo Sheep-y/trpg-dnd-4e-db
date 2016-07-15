@@ -14,6 +14,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -46,6 +47,7 @@ public class Downloader {
    private SqlJetDb db;
    private DbAbstraction dal;
    private Thread currentThread;
+   private boolean downloadComplete;
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
 
@@ -64,7 +66,7 @@ public class Downloader {
    }
 
    /////////////////////////////////////////////////////////////////////////////
-   // Pause and resume
+   // Stop task
    /////////////////////////////////////////////////////////////////////////////
 
    synchronized void stop () {
@@ -167,18 +169,16 @@ public class Downloader {
       }
    }
 
-   private synchronized void openOrCreateTable() {
+   private synchronized void openOrCreateTable () {
       try {
-         int version = dal.setDb( db, categories, ( txt ) -> gui.setStatus( "Reading data (" + txt + ")" ) );
-         log.log( Level.CONFIG, "Database version {0,number,#}.  Tables opened.", version );
+         downloadComplete = dal.setDb( db, categories, ( txt ) -> gui.setStatus( "Reading data (" + txt + ")" ) );
 
       } catch ( Exception e1 ) {
 
          log.log( Level.CONFIG, "Create tables because {0}", Utils.stacktrace( e1 ) );
          try {
             dal.createTables();
-            int version = dal.setDb( db, categories, ( txt ) -> gui.setStatus( "Reading data (" + txt + ")" ) );
-            log.log( Level.FINE, "Created and opened tables.  Database version {0,number,#}.", version );
+            downloadComplete = dal.setDb( db, categories, ( txt ) -> gui.setStatus( "Reading data (" + txt + ")" ) );
 
          } catch ( Exception e2 ) {
             log.log( Level.SEVERE, "Cannot create tables: {0}", Utils.stacktrace( e2 ) );
@@ -187,7 +187,10 @@ public class Downloader {
             throw new RuntimeException( e2 );
          }
       }
-      gui.stateCanDownload();
+      if ( ! downloadComplete )
+         gui.stateCanDownload();
+      else
+         gui.stateCanExport();
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -198,9 +201,7 @@ public class Downloader {
    CompletableFuture<Void> startDownload () {
       gui.stateRunning();
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
-      final String user = gui.txtUser.getText().trim();
-      final String pass = gui.txtPass.getText().trim();
-      final CompletableFuture<Void> dbOpen = new CompletableFuture<>();
+      final CompletableFuture<Void> task = new CompletableFuture<>();
 
       threadPool.execute( ()-> { try {
          runAndCheckLogin( "Connect compendium", crawler::randomGlossary );
@@ -208,33 +209,14 @@ public class Downloader {
          downloadCategory();
 
          gui.stateCanExport();
-         gui.setStatus( "Download Complete, may export data" );
-         dbOpen.complete( null );
+         gui.setStatus( "Download complete, may export data" );
+         task.complete( null );
 
       } catch ( Exception e ) {
-         dbOpen.completeExceptionally( e );
+         task.completeExceptionally( e );
       } } );
 
-      return dbOpen.exceptionally( ( err ) -> {
-         synchronized ( this ) { currentThread = null; }
-         Throwable ex = err;
-         if ( ex instanceof CompletionException && ex.getCause() != null ) ex = ex.getCause();
-         while ( ( ex.getClass() == RuntimeException.class || ex.getClass() == ExecutionException.class ) && ex.getCause() != null )
-            ex = ex.getCause(); // Unwrap RuntimeException and ExecutionException (but not subclasses)
-
-         gui.stateCanDownload();
-         if ( ex.getCause() instanceof InterruptedException )
-            gui.setStatus( "Download Stopped" );
-         else if ( ex.getCause() instanceof TimeoutException )
-            gui.setStatus( "Download Timeout" );
-         else {
-            log.log( Level.WARNING, "Download failed: {0}", Utils.stacktrace( err ) );
-            String msg = ( (Exception) err ).getMessage();
-            if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
-            gui.setStatus( msg );
-         }
-         return null;
-      });
+      return task.exceptionally( terminate( "Download" ) );
    }
 
    private void downloadCategory() throws Exception { synchronized ( Category.class ) { // Too many exceptions to throw one by one
@@ -284,6 +266,29 @@ public class Downloader {
             }
          }
       }
+   }
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Export
+   /////////////////////////////////////////////////////////////////////////////
+
+   CompletableFuture<Void> startExport ( File target ) {
+      gui.stateRunning();
+      log.log( Level.CONFIG, "Export target: {0}", target );
+      final CompletableFuture<Void> task = new CompletableFuture<>();
+
+      threadPool.execute( ()-> { try {
+//         dal.loadEntityContent();
+
+         gui.stateCanExport();
+         gui.setStatus( "Export Complete, may view data" );
+         task.complete( null );
+
+      } catch ( Exception e ) {
+         task.completeExceptionally( e );
+      } } );
+
+      return task.exceptionally( terminate( "Export" ) );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -371,6 +376,29 @@ public class Downloader {
          handle.accept( e );
          throw new RuntimeException( e );
       }
+   }
+
+   private Function<Throwable,Void> terminate ( String action ) {
+       return ( err ) -> {
+         synchronized ( this ) { currentThread = null; }
+         Throwable ex = err;
+         if ( ex instanceof CompletionException && ex.getCause() != null ) ex = ex.getCause();
+         while ( ( ex.getClass() == RuntimeException.class || ex.getClass() == ExecutionException.class ) && ex.getCause() != null )
+            ex = ex.getCause(); // Unwrap RuntimeException and ExecutionException (but not subclasses)
+
+         gui.stateCanDownload();
+         if ( ex.getCause() instanceof InterruptedException )
+            gui.setStatus( action + " stopped" );
+         else if ( ex.getCause() instanceof TimeoutException )
+            gui.setStatus( action + " timeout" );
+         else {
+            log.log( Level.WARNING, action + " failed: {0}", Utils.stacktrace( err ) );
+            String msg = ( (Exception) err ).getMessage();
+            if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
+            gui.setStatus( msg );
+         }
+         return null;
+      };
    }
 
    private static interface RunExcept {

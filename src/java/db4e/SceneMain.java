@@ -286,13 +286,15 @@ public class SceneMain extends Scene {
          else txtPass.requestFocus();
          return;
       }
-      setStatus( "Starting Download" );
+      setStatus( "Starting download" );
       loader.startDownload().whenComplete( (a,b) -> allowAction() );
       stateRunning();
    }
 
    private void action_export ( ActionEvent evt ) {
-      setStatus( "Starting Export" );
+      setStatus( "Starting export" );
+      File target = new File( "4e_compendium.html" );
+      loader.startExport( target ).whenComplete( (a,b) -> allowAction() );
       stateRunning();
    }
 

@@ -27,7 +27,7 @@ class DbAbstraction {
       private ISqlJetTable tblCategory;
       private ISqlJetTable tblEntry;
 
-   synchronized int setDb ( SqlJetDb db, ObservableList<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
+   synchronized boolean setDb ( SqlJetDb db, ObservableList<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
       this.db = db;
       tblConfig = db.getTable( "config" );
       tblCategory = db.getTable( "category" );
@@ -47,10 +47,10 @@ class DbAbstraction {
       } finally {
          db.commit();
       }
+      log.log( Level.CONFIG, "Database version {0,number,#}, opened.", version );
 
       loadCategory( categories );
-      loadEntryIndex( categories, statusUpdate );
-      return version;
+      return loadEntryIndex( categories, statusUpdate );
    }
 
    synchronized void createTables () throws SqlJetException {
@@ -136,7 +136,8 @@ class DbAbstraction {
       // TODO: Backup good db.
    }
 
-   synchronized void loadEntryIndex ( List<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
+   synchronized boolean loadEntryIndex ( List<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
+      boolean downloadComplete = true;
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try { synchronized( Category.class ) {
          ISqlJetCursor cursor = tblEntry.open();
@@ -161,16 +162,20 @@ class DbAbstraction {
                   statusUpdate.accept( count + "/" + total );
             } while ( cursor.next() );
             cursor.close();
+            final int size = list.size();
 
-            if ( list.size() != category.total_entry.get() ) {
-               log.log( Level.SEVERE, "{0} entry mismatch, expected {1}, read {2}", new Object[]{ category.id, category.total_entry.get(), list.size() });
-               category.total_entry.set( list.size() );
+            if ( size != category.total_entry.get() ) {
+               log.log(Level.SEVERE, "{0} entry mismatch, expected {1}, read {2}", new Object[]{ category.id, category.total_entry.get(), size});
+               category.total_entry.set( size );
             }
+            if ( size == 0 || countWithData < size )
+               downloadComplete = false;
             category.downloaded_entry.set( countWithData );
          }
       } } finally {
          db.commit();
       }
+      return downloadComplete;
    }
 
    synchronized void saveEntryList ( Category category, List<Entry> entries ) throws SqlJetException {
