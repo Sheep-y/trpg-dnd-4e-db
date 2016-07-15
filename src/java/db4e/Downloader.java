@@ -32,20 +32,22 @@ import sheepy.util.ui.ConsoleWebView;
 import sheepy.util.ui.ObservableArrayList;
 
 /**
- * Data Management
+ * Data Management.  Both download and export is controlled from a single thread.
+ *
+ * "this" is used to lock db, dal, and thread operations.
+ * "categories" is used to lock data access, including downloadComplete flag.
  */
 public class Downloader {
 
    private static final Logger log = Main.log;
 
-   public static final int TIMEOUT_MS = 30_000;
+   public static volatile int TIMEOUT_MS = 30_000;
    public static volatile int INTERVAL_MS = 2_000;
    static final String DB_NAME = "dnd4_compendium.sqlite";
 
    // Database variables are set on open().
-   // Access must be synchronised with 'this'
-   private SqlJetDb db;
-   private DbAbstraction dal;
+   private volatile SqlJetDb db;
+   private volatile DbAbstraction dal;
    private Thread currentThread;
    private boolean downloadComplete;
 
@@ -69,20 +71,22 @@ public class Downloader {
    // Stop task
    /////////////////////////////////////////////////////////////////////////////
 
-   synchronized void stop () {
+   void stop () {
       engine.getLoadWorker().cancel();
-      if ( currentThread != null )
-         currentThread.interrupt();
-      currentThread = null;
+      synchronized ( this ) {
+         if ( currentThread != null )
+            currentThread.interrupt();
+         currentThread = null;
+      }
    }
 
    private void checkStop ( String status ) {
       if ( status != null ) gui.setStatus( status );
       synchronized ( this ) {
-         currentThread = Thread.currentThread();
+         assert( currentThread == Thread.currentThread() );
+         if ( Thread.interrupted() )
+            throw new RuntimeException( new InterruptedException() );
       }
-      if ( Thread.interrupted() )
-         throw new RuntimeException( new InterruptedException() );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -91,7 +95,9 @@ public class Downloader {
 
    void resetDb () {
       gui.setStatus( "Clearing data" );
-      categories.clear();
+      synchronized ( categories ) {
+         categories.clear();
+      }
 
       threadPool.execute( () -> { try {
          synchronized ( this ) { // Lock database for the whole duration
@@ -116,24 +122,24 @@ public class Downloader {
    }
 
    CompletableFuture<Void> open( TableView categoryTable ) {
-      gui.stateBusy( "Opening Database" );
+      gui.stateBusy( "Opening database" );
       return CompletableFuture.runAsync( () -> {
          File db_file = new File( DB_NAME );
          String db_path = db_file.getAbsolutePath();
          try {
-            log.log( Level.INFO, "Opening shared database {0}", db_path );
-            synchronized( this ) {
+            log.log( Level.INFO, "Opening local database {0}", db_path );
+            synchronized ( this ) {
                db = SqlJetDb.open( db_file, true );
                dal = new DbAbstraction();
             }
          } catch ( Exception err ) {
-            log.log(Level.SEVERE, "Cannot open shared database {0}: {1}", new Object[]{ db_path, Utils.stacktrace( err ) } );
+            log.log(Level.SEVERE, "Cannot open local database {0}: {1}", new Object[]{ db_path, Utils.stacktrace( err ) } );
 
             db_file = new File( System.getProperty("user.home") + "/" + DB_NAME );
             db_path = db_file.getAbsolutePath();
             try {
                log.log( Level.INFO, "Opening user database {0}", db_path );
-               synchronized( this ) {
+               synchronized ( this ) {
                   db = SqlJetDb.open( db_file, true );
                   dal = new DbAbstraction();
                }
@@ -146,7 +152,7 @@ public class Downloader {
             }
          }
 
-         log.log( Level.FINE, "Database opened. Loading data." );
+         log.log( Level.CONFIG, "Opened database {0}", db_file );
          if ( categoryTable != null ) categoryTable.setItems( categories );
          openOrCreateTable();
       } );
@@ -169,16 +175,20 @@ public class Downloader {
       }
    }
 
-   private synchronized void openOrCreateTable () {
+   private void openOrCreateTable () {
       try {
-         downloadComplete = dal.setDb( db, categories, ( txt ) -> checkStop( "Reading data (" + txt + ")" ) );
+         synchronized ( categories ) {
+            downloadComplete = dal.setDb( db, categories, ( txt ) -> checkStop( "Reading data (" + txt + ")" ) );
+         }
 
       } catch ( Exception e1 ) {
 
          log.log( Level.CONFIG, "Create tables because {0}", Utils.stacktrace( e1 ) );
          try {
             dal.createTables();
-            downloadComplete = dal.setDb( db, categories, ( txt ) -> checkStop( "Reading data (" + txt + ")" ) );
+            synchronized ( categories ) {
+               downloadComplete = dal.setDb( db, categories, ( txt ) -> checkStop( "Reading data (" + txt + ")" ) );
+            }
 
          } catch ( Exception e2 ) {
             log.log( Level.SEVERE, "Cannot create tables: {0}", Utils.stacktrace( e2 ) );
@@ -188,9 +198,9 @@ public class Downloader {
          }
       }
       if ( ! downloadComplete )
-         gui.stateCanDownload();
+         gui.stateCanDownload( "Ready to download" );
       else
-         gui.stateCanExport();
+         gui.stateCanExport( "Ready to export" );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -204,13 +214,14 @@ public class Downloader {
       final CompletableFuture<Void> task = new CompletableFuture<>();
 
       threadPool.execute( ()-> { try {
+         synchronized ( this ) { currentThread = Thread.currentThread(); }
          runAndCheckLogin( "Connect compendium", crawler::randomGlossary );
          runAndGet( "Open compendium", crawler::openFrontpage );
          downloadCategory();
 
-         gui.stateCanExport();
-         gui.setStatus( "Download complete, may export data" );
+         gui.stateCanExport( "Download complete, may export data" );
          task.complete( null );
+         synchronized ( this ) { currentThread = null; }
 
       } catch ( Exception e ) {
          task.completeExceptionally( e );
@@ -219,7 +230,7 @@ public class Downloader {
       return task.exceptionally( terminate( "Download" ) );
    }
 
-   private void downloadCategory() throws Exception { synchronized ( Category.class ) { // Too many exceptions to throw one by one
+   private void downloadCategory() throws Exception { synchronized ( categories ) { // Too many exceptions to throw one by one
       TransformerFactory factory = null;
 
       for ( Category category : categories ) {
@@ -278,11 +289,14 @@ public class Downloader {
       final CompletableFuture<Void> task = new CompletableFuture<>();
 
       threadPool.execute( ()-> { try {
-         dal.loadEntityContent( categories, ( txt ) -> checkStop( "Loading entry (" + txt + ")" ) );
+         synchronized ( this ) { currentThread = Thread.currentThread(); }
+         synchronized ( categories ) {
+            dal.loadEntityContent( categories, ( txt ) -> checkStop( "Loading entry (" + txt + ")" ) );
+         }
 
-         gui.stateCanExport();
-         gui.setStatus( "Export Complete, may view data" );
+         gui.stateCanExport( "Export Complete, may view data" );
          task.complete( null );
+         synchronized ( this ) { currentThread = null; }
 
       } catch ( Exception e ) {
          task.completeExceptionally( e );
@@ -301,7 +315,7 @@ public class Downloader {
          log.log( Level.INFO, "Requires login: {0}", engine.getLocation() );
          final String user = gui.txtUser.getText().trim();
          final String pass = gui.txtPass.getText().trim();
-         runAndGet( taskName + " (Login)", () -> crawler.login( user, pass ) );
+         runAndGet( taskName + " login", () -> crawler.login( user, pass ) );
          if ( ! crawler.isLoginOk() ) {
             log.log( Level.INFO, "Login failed: {0}", engine.getLocation() );
             throw new LoginException( "Login incorrect or subscription expired" );
@@ -379,23 +393,25 @@ public class Downloader {
    }
 
    private Function<Throwable,Void> terminate ( String action ) {
-       return ( err ) -> {
+      return ( err ) -> {
          synchronized ( this ) { currentThread = null; }
          Throwable ex = err;
-         if ( ex instanceof CompletionException && ex.getCause() != null ) ex = ex.getCause();
-         while ( ( ex.getClass() == RuntimeException.class || ex.getClass() == ExecutionException.class ) && ex.getCause() != null )
-            ex = ex.getCause(); // Unwrap RuntimeException and ExecutionException (but not subclasses)
+         if ( ex instanceof CompletionException && ex.getCause() != null )
+            ex = ex.getCause();
+         while ( ( ex instanceof RuntimeException || ex instanceof ExecutionException ) && ex.getCause() != null )
+            ex = ex.getCause(); // Unwrap RuntimeException and ExecutionExceptiom
 
-         gui.stateCanDownload();
          if ( ex.getCause() instanceof InterruptedException )
-            gui.setStatus( action + " stopped" );
+            gui.stateCanDownload( action + " stopped" );
          else if ( ex.getCause() instanceof TimeoutException )
-            gui.setStatus( action + " timeout" );
+            gui.stateCanDownload( action + " timeout" );
          else {
             log.log( Level.WARNING, action + " failed: {0}", Utils.stacktrace( err ) );
             String msg = ( (Exception) err ).getMessage();
             if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
-            gui.setStatus( msg );
+            gui.stateCanDownload( msg );
+            if ( ex instanceof LoginException )
+               gui.txtUser.requestFocus();
          }
          return null;
       };

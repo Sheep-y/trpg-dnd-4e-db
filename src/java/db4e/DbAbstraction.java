@@ -104,7 +104,7 @@ class DbAbstraction {
       db.commit();
    }
 
-   private synchronized void loadCategory ( ObservableList<Category> categories ) throws SqlJetException {
+   private void loadCategory ( ObservableList<Category> categories ) throws SqlJetException {
       log.fine( "Loading categories." );
       List<Category> list = new ArrayList<>();
 
@@ -136,10 +136,11 @@ class DbAbstraction {
       // TODO: Backup good db.
    }
 
-   synchronized boolean loadEntryIndex ( List<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
+   private boolean loadEntryIndex ( List<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
       boolean downloadComplete = true;
+
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
-      try { synchronized( Category.class ) {
+      try {
          ISqlJetCursor cursor = tblEntry.open();
          final int total = (int) cursor.getRowCount();
          int count = 0;
@@ -158,7 +159,7 @@ class DbAbstraction {
                   entry.contentDownloaded = true;
                   ++countWithData;
                }
-               if ( ++count % 2048 == 0 )
+               if ( count++ % 2048 == 0 )
                   statusUpdate.accept( count + "/" + total );
             } while ( cursor.next() );
             cursor.close();
@@ -172,7 +173,7 @@ class DbAbstraction {
                downloadComplete = false;
             category.downloaded_entry.set( countWithData );
          }
-      } } finally {
+      } finally {
          db.commit();
       }
       return downloadComplete;
@@ -180,7 +181,7 @@ class DbAbstraction {
 
    synchronized void loadEntityContent ( List<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
-      try { synchronized ( Category.class ) {
+      try {
          for ( Category category : categories ) {
             for ( Entry entry : category.entries ) {
                if ( entry.fields == null || entry.content == null ) {
@@ -192,7 +193,7 @@ class DbAbstraction {
                }
             }
          }
-      } } finally {
+      } finally {
          db.commit();
       }
    }
@@ -225,13 +226,12 @@ class DbAbstraction {
          category.entries.clear();
          category.entries.addAll( entries );
          category.total_entry.set( count );
+         db.commit();
 
       } catch ( Exception e ) {
          db.rollback();
          throw e;
 
-      } finally {
-         db.commit();
       }
    }
 
@@ -248,14 +248,13 @@ class DbAbstraction {
          if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.name + "' not in database" );
          entryUpdateMap.put( "data", entry.content );
          cursor.updateByFieldNames( entryUpdateMap );
+         db.commit();
          entry.contentDownloaded = true;
 
       } catch ( Exception e ) {
          db.rollback();
          throw e;
 
-      } finally {
-         db.commit();
       }
    }
 

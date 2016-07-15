@@ -312,15 +312,15 @@ public class SceneMain extends Scene {
       setRight( "Exit", this::action_exit );
    } ); }
 
-   void stateCanDownload () { runFX( () -> {
+   void stateCanDownload ( String status ) { runFX( () -> {
       log.log( Level.FINE, "State: Can Download" );
-      setStatus( "Ready to download" );
+      setStatus( status );
       allowAction();
       setLeft( "Download", this::action_download );
       setRight( "Exit", this::action_exit );
    } ); }
 
-   void stateCanExport () { runFX( () -> {
+   void stateCanExport ( String status ) { runFX( () -> {
       log.log( Level.FINE, "State: Can Export" );
       setStatus( "Ready to export" );
       allowAction();
