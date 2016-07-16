@@ -57,15 +57,22 @@ li {
    </header>-->
    <main>
       <h1> 4e Compendium (v3.5) Downloader </h1>
-      <h1> Work In Progress.  Program Not Working. </h1>
+      <h1> Work In Progress.  Can download but not export. </h1>
+      <p>
+         This is a program for reading <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Compendium</a>, the official database of Dungeons &amp; Dragons™ 4<sup>th</sup> edition resources,
+         and save it for offline browsing and advanced searching.
+         This program does not come with copyrighted data; an active (paid) account is required.
+      </p>
+      <p>
+         Dungeons &amp; Dragons is a trademark of Wizards of the Coast LLC.
+      </p>
       <section>
          <h2 id='help'> How to Use </h2>
          <ol>
             <li>
-               <b>You need an active (paid) <a href='https://store.digitalriver.com/store/dndi/DisplayHelpPage'>D&amp;D Insider subscription</a>.</b> <br>
-               You can recover your DDI account from <a href='http://ddi.wizards.com/'>the official site.</a>
-               Note that DDI no longer accepts new subscription.  If you have never subscripted, please find help from your D&amp;D community.
-               Otherwise, view any old subscription in <a href='https://store.digitalriver.com/DRHM/store?Action=DisplayAccountOrderListPage&SiteID=dndi'>order history</a> and click "renew" to place a new order.
+               <b>You need an active (paid) <a href='https://store.digitalriver.com/store/dndi/DisplayHelpPage'>D&amp;D Insider subscription</a>.</b> <br/>
+               You can check / recover your DDI account from its <a href='http://ddi.wizards.com/'>official site.</a>
+               This program cannot access protected content without an active subscription.
             </li>
             <li>
                <b>Fill the login in Data tab.</b> <br/>
@@ -77,7 +84,7 @@ li {
                <b>Click "Download" and leave it running</b> <br/>
                The download process takes at least a day or longer.
                Progress is saved in real time, so it can be stopped mid-way and it will resume from there next time.
-               This is the only step that requires Internet connection and an active subscription.
+               The download step requires Internet connection and an active subscription.
             </li>
             <li>
                <b>Click "Export" and save it somewhere </b> <br/>
@@ -91,6 +98,48 @@ li {
                and it comes with a same named folder that contains the data.
                You can copy the file and the folder to other PC or mobile devices;
                copying data to your personal devices for personal use does not violate copyright.
+            </li>
+         </ol>
+      </section>
+      <section>
+         <h2 id='faq'> Troubleshoot </h2>
+         <ol>
+            <li>
+               <b>How to get DDI subscription?</b> <br/>
+               <ol>
+                  <li>You need to have <a href='http://ddi.wizards.com/'>registered</a> and paid before <a href='http://www.enworld.org/forum/content.php?3087-4e-DnD-Insider-Moving'>2015 Dec</a>.</li>
+                  <li>Old email based DDI account must be <a href='https://accounts.wizards.com/'>upgraded</a>, which happens when you login to DDI.</li>
+                  <li>Find help from your D&amp;D community if you never subscripted, sorry I can't help.</li>
+                  <li>To <a href='https://wizards.custhelp.com/app/answers/detail/a_id/2297/=1'>buy access</a>, view an old subscription in <a href='https://store.digitalriver.com/DRHM/store?Action=DisplayAccountOrderListPage&SiteID=dndi'>order history</a> and click "renew" to place a new order.</li>
+                  <li>Once paid, you can <a href='https://wizards.custhelp.com/app/answers/detail/a_id/2297/=1.01'>disable auto-renew</a> by viewing the new order and follow its manage link.</li>
+               </ol>
+            </li>
+            <li>
+               <b>Cannot open / read / write database</b> <br/>
+               Try "Reset Data" in option tab.  You will need to re-download the data. <br/>
+               Data is stored in "dnd4_compendium.database", and backups may be available in same folder.
+            </li>
+            <li>
+               <b>Connection timeout</b> <br/>
+               Increase the timeout period in option tab; long pages like power listing will take a while to reterieve.
+            </li>
+            <li>
+               <b>Slow download</b> <br/>
+               <i>Whoever is patient has great understanding, but one who is quick-tempered displays folly.</i> - Proverbs 14:29 <br/>
+               <br/>
+               Decrease the interval period in option tab, but there <i>are</i> 25k pieces of data to download afterall.
+               That's over 7 hours even if your internet can get it at 1 per second.
+            </li>
+            <li>
+               <b>How to export to my phone / pad?</b> <br/>
+               Using a USB drive is pretty fool-proof.
+               Android <a href='https://www.google.com/search?q=transfer+file+to+android'>is also easy</a>.
+               <br/>
+               Sorry I cannot support iOS.
+               I have neither the device or the Mac required to debug it.
+               It is no joy supporting <i>the</i> <a href='http://safari-is-the-new-ie.com/'>outdated browser</a>
+               that looks good only because of a <a href='http://www.howtogeek.com/184283/why-third-party-browsers-will-always-be-inferior-to-safari-on-iphone-and-ipad/'>lockout policy</a>
+               anyway.
             </li>
          </ol>
       </section>

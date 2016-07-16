@@ -14,7 +14,6 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -44,7 +43,7 @@ public class Downloader {
    static volatile int TIMEOUT_MS = 30_000;
    static volatile int INTERVAL_MS = 2_000;
 
-   static final String DB_NAME = "dnd4_compendium.sqlite";
+   static final String DB_NAME = "dnd4_compendium.database";
    static final int MIN_TIMEOUT_MS = 10_000;
    static final int MIN_INTERVAL_MS = 0;
 
@@ -94,6 +93,34 @@ public class Downloader {
          if ( Thread.interrupted() )
             throw new RuntimeException( new InterruptedException() );
       }
+   }
+
+   // Return a function that is used to clean up a future and perhaps display error message
+   private BiConsumer<Void,Throwable> terminate ( String action ) {
+      return ( result, err ) -> {
+         if ( err != null ) {
+            Throwable ex = err;
+            if ( ex instanceof CompletionException && ex.getCause() != null )
+               ex = ex.getCause();
+            while ( ( ex instanceof RuntimeException || ex instanceof ExecutionException ) && ex.getCause() != null )
+               ex = ex.getCause(); // Unwrap RuntimeException and ExecutionExceptiom
+
+            if ( ex instanceof InterruptedException )
+               gui.stateCanDownload( action + " stopped" );
+            else if ( ex instanceof TimeoutException )
+               gui.stateCanDownload( action + " timeout" );
+            else {
+               log.log( Level.WARNING, action + " failed: {0}", Utils.stacktrace( err ) );
+               String msg = ( (Exception) err ).getMessage();
+               if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
+               gui.stateCanDownload( msg );
+               if ( ex instanceof LoginException )
+                  gui.txtUser.requestFocus();
+            }
+         }
+         currentThread = null;
+         Thread.interrupted(); // Clear flag
+      };
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -224,18 +251,16 @@ public class Downloader {
       threadPool.execute( ()-> { try {
          synchronized ( this ) { currentThread = Thread.currentThread(); }
          runAndCheckLogin( "Connect compendium", crawler::randomGlossary );
-         runAndGet( "Open compendium", crawler::openFrontpage );
          downloadCategory();
 
          gui.stateCanExport( "Download complete, may export data" );
          task.complete( null );
-         synchronized ( this ) { currentThread = null; }
 
       } catch ( Exception e ) {
          task.completeExceptionally( e );
       } } );
 
-      return task.exceptionally( terminate( "Download" ) );
+      return task.whenComplete( terminate( "Download" ) );
    }
 
    private void downloadCategory() throws Exception { synchronized ( categories ) { // Too many exceptions to throw one by one
@@ -277,11 +302,12 @@ public class Downloader {
       for ( Category category : categories ) {
          for ( Entry entry : category.entries ) {
             if ( ! entry.contentDownloaded ) {
+               Thread.sleep( INTERVAL_MS );
                String name = entry.name + " (" + category.name + ")";
                runAndCheckLogin( name, () -> crawler.openEntry( entry ) );
                crawler.getEntry( entry );
                dal.saveEntry( entry );
-               category.downloaded_entry.add( 1 );
+               category.downloaded_entry.set( category.downloaded_entry.get() + 1 );
             }
          }
       }
@@ -304,13 +330,12 @@ public class Downloader {
 
          gui.stateCanExport( "Export Complete, may view data" );
          task.complete( null );
-         synchronized ( this ) { currentThread = null; }
 
       } catch ( Exception e ) {
          task.completeExceptionally( e );
       } } );
 
-      return task.exceptionally( terminate( "Export" ) );
+      return task.whenComplete( terminate( "Export" ) );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -319,14 +344,17 @@ public class Downloader {
 
    private void runAndCheckLogin ( String taskName, RunExcept task ) throws Exception {
       runAndGet( taskName, task );
-      if ( ! crawler.isLoginOk() ) {
+      if ( crawler.needLogin() ) {
          log.log( Level.INFO, "Requires login: {0}", engine.getLocation() );
+         runAndGet( "Open login page", crawler::openLoginPage );
          final String user = gui.txtUser.getText().trim();
          final String pass = gui.txtPass.getText().trim();
-         runAndGet( taskName + " login", () -> crawler.login( user, pass ) );
-         if ( ! crawler.isLoginOk() ) {
+         runAndGet( "Login", () -> crawler.login( user, pass ) );
+         // Post login page may contain forms (e.g. locate a store), so rerun task before check
+         runAndGet( taskName, task );
+         if ( crawler.needLogin() ) {
             log.log( Level.INFO, "Login failed: {0}", engine.getLocation() );
-            throw new LoginException( "Login incorrect or subscription expired" );
+            throw new LoginException( "Login incorrect or expired, see Help." );
          }
       }
    }
@@ -352,7 +380,7 @@ public class Downloader {
                timeout.cancel();
             browser.handle( null, null );
             if ( err != null && err instanceof Throwable ) {
-               log.log( Level.WARNING, "Task finished exceptionally: {0}", Utils.stacktrace( (Throwable) err ) );
+               log.log( Level.WARNING, "Task finished exceptionally: {0}", err );
                task.completeExceptionally( (Throwable) err );
             } else {
                log.log( Level.FINE, "{0} finished normally.", taskName );
@@ -399,31 +427,6 @@ public class Downloader {
          handle.accept( e );
          throw new RuntimeException( e );
       }
-   }
-
-   private Function<Throwable,Void> terminate ( String action ) {
-      return ( err ) -> {
-         synchronized ( this ) { currentThread = null; }
-         Throwable ex = err;
-         if ( ex instanceof CompletionException && ex.getCause() != null )
-            ex = ex.getCause();
-         while ( ( ex instanceof RuntimeException || ex instanceof ExecutionException ) && ex.getCause() != null )
-            ex = ex.getCause(); // Unwrap RuntimeException and ExecutionExceptiom
-
-         if ( ex.getCause() instanceof InterruptedException )
-            gui.stateCanDownload( action + " stopped" );
-         else if ( ex.getCause() instanceof TimeoutException )
-            gui.stateCanDownload( action + " timeout" );
-         else {
-            log.log( Level.WARNING, action + " failed: {0}", Utils.stacktrace( err ) );
-            String msg = ( (Exception) err ).getMessage();
-            if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
-            gui.stateCanDownload( msg );
-            if ( ex instanceof LoginException )
-               gui.txtUser.requestFocus();
-         }
-         return null;
-      };
    }
 
    private static interface RunExcept {

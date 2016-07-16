@@ -58,9 +58,9 @@ public class SceneMain extends Scene {
    // Data Screen
    private final Label lblStatus = new Label( "Starting Up");
    final TextField txtUser  = JavaFX.tooltip( new TextField( prefs.get( "ddi.user", "" ) ),
-           "DDI subscriber username." );
+           "DDI subscriber username" );
    final PasswordField txtPass  = JavaFX.tooltip( new PasswordField(),
-           "DDI subscriber password." );
+           "DDI subscriber password" );
    private final TableView<Category> tblCategory = new TableView<>();
       private final TableColumn<Category,String > colName = new TableColumn<>( "Category" );
       private final TableColumn<Category,Integer> colTotalEntry = new TableColumn<>( "Total" );
@@ -79,7 +79,7 @@ public class SceneMain extends Scene {
            Math.max( Downloader.MIN_TIMEOUT_MS/1000, prefs.getInt( "download.timeout", 30 ) ) ) ),
            "Download timeout in seconds.  If changed mid-way, will apply in next action not current action." );
    final TextField txtInterval  = JavaFX.tooltip( new TextField( Integer.toString(
-           Math.max( Downloader.MIN_INTERVAL_MS, prefs.getInt( "download.interval", 2000 ) ) ) ),
+           Math.max( Downloader.MIN_INTERVAL_MS, prefs.getInt( "download.interval", 1000 ) ) ) ),
            "Interval, in millisecond, between each download action.  If changed mid-way, will apply in next action not current action." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
            "Show app log and console.  Increase memoro usage because of finer logging level." );
@@ -116,7 +116,7 @@ public class SceneMain extends Scene {
    private void initControls () {
       // Data tab - save preference on change
       txtPass.setText( prefs.get( "ddi.pass", "" ) );
-      txtUser.setPromptText( "DDI login username" );
+      txtUser.setPromptText( "DDI login username (not email)" );
       txtPass.setPromptText( "DDI login password" );
       txtUser.textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.user", now ); });
       txtPass.textProperty().addListener( (prop, old, now ) -> { prefs.put( "ddi.pass" , now ); });
@@ -359,6 +359,8 @@ public class SceneMain extends Scene {
 
    void stateRunning () { runFX( () -> {
       log.log( Level.FINE, "State: Running" );
+      txtUser.setDisable( true );
+      txtPass.setDisable( true );
       btnClearData.setDisable( true );
       setLeft( "Stop", this::action_stop );
    } ); }

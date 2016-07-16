@@ -62,20 +62,20 @@ public class Crawler {
       openEntry( "glossary.aspx?id=" + randomId[ new Random().nextInt( randomId.length ) ] );
    }
 
-   boolean isLoginOk () throws InterruptedException, TimeoutException {
-//      Object check = eval( " document.body.textContent.trim().replace( /\\s+/g, ' ' ).match( /(?=.*\\bsubscribe\\b)(?=.*\\bpassword\\b)(?=.*\\bcompendium\\b)/i ) " );
-      Object check = eval( " document.querySelector( 'input#email' ) && document.querySelector( 'input#password' ) " );
-      return check instanceof Boolean && ( Boolean ) check;
+   boolean needLogin () throws InterruptedException, TimeoutException {
+//      Object check = eval( " document.body.textContent.trim().replace( /\\s+/g, ' ' ).match( /(?=.*\\bsubscribe\\b)(?=.*\\bD insider\\b)/i ) " );
+      Object check = eval( " document.querySelector( 'button, input[type=submit], input#email, input#password' ) " );
+      return check != null;
+   }
+
+   void openLoginPage () {
+      browse( "http://ddi.wizards.com/" );
    }
 
    synchronized void login ( String username, String password ) throws InterruptedException, TimeoutException {
-      eval(" document.querySelector( 'input#email' ).value = \"" + escape( username ) + "\"; "
-         + " document.querySelector( 'input#password' ).value = \"" + escape( username ) + "\"; "
-         + " document.querySelector( 'input#password' ).form.submit() " );
-   }
-
-   void openFrontpage () {
-      browse( "http://www.wizards.com/dndinsider/compendium/database.aspx" );
+      eval(" document.querySelector( 'input[id$=UserName]' ).value = \"" + escape( username ) + "\"; "
+         + " document.querySelector( 'input[id$=Password]' ).value = \"" + escape( password ) + "\"; "
+         + " document.querySelector( 'input[id$=Login]' ).click(); " );
    }
 
    void getCategoryXsl ( Category cat ) {
@@ -89,7 +89,7 @@ public class Crawler {
 
    List<Entry> openCategory () throws InterruptedException, TimeoutException {
 
-      Object data = eval(
+      Object data = eval( // Perhaps the slowest part in listing, but easily dwarfed by content download.
            " var links = document.querySelectorAll( 'a:not([href^=javascript])' ),  result = []; "
          + " for ( var y = 0, max_y = links.length ; y < max_y ; y++ ) { "
          + "    var a = links[ y ],  cells = a.parentNode.parentNode.cells,  prop = []; "
@@ -121,8 +121,12 @@ public class Crawler {
       browse( "http://www.wizards.com/dndinsider/compendium/" + url );
    }
 
-   void getEntry ( Entry entry ) {
-      // TODO: Get content
+   void getEntry ( Entry entry ) throws InterruptedException, TimeoutException {
+      Object verify = eval( " document.querySelector( 'body > form#form1 + script' ) " );
+      Object content = eval( " document.querySelector( '#detail' ).innerHTML.trim() " );
+      if ( content == null || verify == null ) throw new AssertionError( "Incomplete or empty entry" );
+      if ( ! ( content instanceof CharSequence ) ) throw new AssertionError( "Invalid entry" );
+      entry.content = content.toString();
    }
 
    /////////////////////////////////////////////////////////////////////////////
