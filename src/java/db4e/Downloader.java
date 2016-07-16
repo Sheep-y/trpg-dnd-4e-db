@@ -51,7 +51,7 @@ public class Downloader {
    private volatile SqlJetDb db;
    private volatile DbAbstraction dal;
    private Thread currentThread;
-   private boolean downloadComplete;
+   private DownloadState state;
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
 
@@ -67,6 +67,7 @@ public class Downloader {
       browser = main.getWorker();
       engine = browser.getWebEngine();
       crawler = new Crawler( engine );
+      state = new DownloadState( main::setProgress );
       try {
          TIMEOUT_MS = Integer.parseUnsignedInt( main.txtTimeout.getText() ) * 1000;
          INTERVAL_MS = Integer.parseUnsignedInt( main.txtInterval.getText() );
@@ -87,7 +88,11 @@ public class Downloader {
    }
 
    private void checkStop ( String status ) {
+      checkStop( status, null );
+   }
+   private void checkStop ( String status, Double progress ) {
       if ( status != null ) gui.setStatus( status );
+      if ( progress != null ) gui.setProgress( progress );
       synchronized ( this ) {
          assert( currentThread == Thread.currentThread() );
          if ( Thread.interrupted() )
@@ -129,9 +134,12 @@ public class Downloader {
 
    void resetDb () {
       gui.setStatus( "Clearing data" );
+      gui.setProgress( -1.0 );
       synchronized ( categories ) {
          categories.clear();
       }
+      state.downloaded = state.total = 0;
+      state.isCategoryComplete = false;
 
       threadPool.execute( () -> { try {
          synchronized ( this ) { // Lock database for the whole duration
@@ -210,9 +218,12 @@ public class Downloader {
    }
 
    private void openOrCreateTable () {
+      BiConsumer<Integer,Integer> statusUpdate = ( current, total ) -> {
+         checkStop( "Reading data (" + current + "/" + total + ")", current / (double) total );
+      };
       try {
          synchronized ( categories ) {
-            downloadComplete = dal.setDb( db, categories, ( txt ) -> checkStop( "Reading data (" + txt + ")" ) );
+            dal.setDb( db, categories, state );
          }
 
       } catch ( Exception e1 ) {
@@ -221,7 +232,7 @@ public class Downloader {
          try {
             dal.createTables();
             synchronized ( categories ) {
-               downloadComplete = dal.setDb( db, categories, ( txt ) -> checkStop( "Reading data (" + txt + ")" ) );
+               dal.setDb( db, categories, state );
             }
 
          } catch ( Exception e2 ) {
@@ -231,10 +242,12 @@ public class Downloader {
             throw new RuntimeException( e2 );
          }
       }
-      if ( ! downloadComplete )
+
+      if ( state.downloaded < state.total )
          gui.stateCanDownload( "Ready to download" );
       else
          gui.stateCanExport( "Ready to export" );
+      state.update();
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -244,6 +257,7 @@ public class Downloader {
    // Open compendium
    CompletableFuture<Void> startDownload () {
       gui.stateRunning();
+      gui.setProgress( -1.0 );
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
       log.log( Level.CONFIG, "Timeout {0} ms / Interval {1} ms ", new Object[]{ TIMEOUT_MS, INTERVAL_MS } );
       final CompletableFuture<Void> task = new CompletableFuture<>();
@@ -294,7 +308,9 @@ public class Downloader {
 
          checkStop( "Listed " + name );
       }
-
+      state.isCategoryComplete = true;
+      state.total = categories.stream().mapToInt( c -> c.total_entry.get() ).sum();
+      state.update();
       downloadEntities();
    } }
 
@@ -308,6 +324,8 @@ public class Downloader {
                crawler.getEntry( entry );
                dal.saveEntry( entry );
                category.downloaded_entry.set( category.downloaded_entry.get() + 1 );
+               state.downloaded += 1;
+               state.update();
             }
          }
       }

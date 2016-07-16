@@ -23,6 +23,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
@@ -33,6 +34,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.web.WebEngine;
@@ -56,7 +58,8 @@ public class SceneMain extends Scene {
    private final Tab tabHelp = new Tab( "Help", pnlHelpTab );
 
    // Data Screen
-   private final Label lblStatus = new Label( "Starting Up");
+   private final Label lblStatus = new Label( "Starting Up" );
+   private final ProgressIndicator prgProgress = new ProgressIndicator( -1f );
    final TextField txtUser  = JavaFX.tooltip( new TextField( prefs.get( "ddi.user", "" ) ),
            "DDI subscriber username" );
    final PasswordField txtPass  = JavaFX.tooltip( new PasswordField(),
@@ -70,7 +73,9 @@ public class SceneMain extends Scene {
    private final Button btnRight = new Button( "Wait" );
 
    private final Pane pnlDataTab = new BorderPane( tblCategory,
-      JavaFX.fitVBox( lblStatus, JavaFX.fitHBox( txtUser, txtPass ) ),  // Top
+      JavaFX.fitVBox(
+         new HBox( JavaFX.maxSize( lblStatus ), prgProgress ),
+         JavaFX.fitHBox( txtUser, txtPass ) ),  // Top
       null, JavaFX.fitHBox( btnLeft, btnRight ), null ); // right, bottom, left
    private final Tab tabData = new Tab( "Data", pnlDataTab );
 
@@ -160,6 +165,7 @@ public class SceneMain extends Scene {
       Insets i8 = new Insets( 8 );
 
       pnlDataTab.setPadding( i8 );
+         HBox.setHgrow( lblStatus, Priority.ALWAYS );
          lblStatus.setFont( new Font( lblStatus.getFont().getName(), 24 ) );
          lblStatus.setAlignment( Pos.CENTER );
          lblStatus.setPadding( i8 );
@@ -205,6 +211,11 @@ public class SceneMain extends Scene {
    void setStatus ( String msg ) { runFX( () -> {
       log.log( Level.INFO, "Status: {0}.", msg );
       lblStatus.setText( msg );
+   } ); }
+
+   void setProgress ( Double progress ) { runFX( () -> {
+      log.log( Level.FINE, "Progress: {0}.", progress );
+      prgProgress.setProgress( progress );
    } ); }
 
    private void runFX ( Runnable r ) {

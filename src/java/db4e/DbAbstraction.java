@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +28,7 @@ class DbAbstraction {
       private ISqlJetTable tblCategory;
       private ISqlJetTable tblEntry;
 
-   synchronized boolean setDb ( SqlJetDb db, ObservableList<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
+   synchronized void setDb ( SqlJetDb db, ObservableList<Category> categories, DownloadState state ) throws SqlJetException {
       this.db = db;
       tblConfig = db.getTable( "config" );
       tblCategory = db.getTable( "category" );
@@ -50,7 +51,9 @@ class DbAbstraction {
       log.log( Level.CONFIG, "Database version {0,number,#}, opened.", version );
 
       loadCategory( categories );
-      return loadEntryIndex( categories, statusUpdate );
+      loadEntryIndex( categories, state );
+
+
    }
 
    synchronized void createTables () throws SqlJetException {
@@ -136,47 +139,53 @@ class DbAbstraction {
       // TODO: Backup good db.
    }
 
-   private boolean loadEntryIndex ( List<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
-      boolean downloadComplete = true;
+   private void loadEntryIndex ( List<Category> categories, DownloadState state ) throws SqlJetException {
+      boolean categoryComplete = true;
+      int entryCount = 0, downCount = 0;
 
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
          ISqlJetCursor cursor = tblEntry.open();
          final int total = (int) cursor.getRowCount();
-         int count = 0;
+         state.total = total;
+         state.isCategoryComplete = true; // temporary, for progress display
          cursor.close();
 
-         for ( Category category : categories) {
-            int countWithData = 0;
+         for ( Category category : categories ) {
+            int countWithData = 0, size = category.total_entry.get();
             List<Entry> list = category.entries;
             list.clear();
 
-            cursor = tblEntry.lookup( "entry_category_index", category.id );
-            if ( ! cursor.eof() ) do {
-               final Entry entry = new Entry( cursor.getString( "id" ), cursor.getString( "name" ) );
-               list.add( entry );
-               if ( cursor.getInteger( "hasData" ) != 0 ) {
-                  entry.contentDownloaded = true;
-                  ++countWithData;
-               }
-               if ( count++ % 2048 == 0 )
-                  statusUpdate.accept( count + "/" + total );
-            } while ( cursor.next() );
-            cursor.close();
-            final int size = list.size();
-
-            if ( size != category.total_entry.get() ) {
-               log.log(Level.SEVERE, "{0} entry mismatch, expected {1}, read {2}", new Object[]{ category.id, category.total_entry.get(), size});
-               category.total_entry.set( size );
+            if ( category.total_entry.get() > 0 ) {
+               cursor = tblEntry.lookup( "entry_category_index", category.id );
+               if ( ! cursor.eof() ) do {
+                  final Entry entry = new Entry( cursor.getString( "id" ), cursor.getString( "name" ) );
+                  list.add( entry );
+                  if ( cursor.getInteger( "hasData" ) != 0 ) {
+                     entry.contentDownloaded = true;
+                     ++countWithData;
+                  }
+                  if ( entryCount++ % 2048 == 0 ) {
+                     state.downloaded = entryCount;
+                     state.update();
+                  }
+               } while ( cursor.next() );
+               cursor.close();
+               if ( list.size() != size )
+                  throw new AssertionError( category.name + " entry mismatch, expected " + size + ", read " + list.size() );
             }
-            if ( size == 0 || countWithData < size )
-               downloadComplete = false;
+            if ( size == 0 )
+               categoryComplete = false;
             category.downloaded_entry.set( countWithData );
+            downCount += countWithData;
          }
+         state.downloaded = entryCount;
+         state.update();
       } finally {
          db.commit();
       }
-      return downloadComplete;
+      state.downloaded = downCount;
+      state.isCategoryComplete = categoryComplete;
    }
 
    synchronized void loadEntityContent ( List<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
