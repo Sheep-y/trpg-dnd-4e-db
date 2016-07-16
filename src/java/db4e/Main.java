@@ -28,11 +28,11 @@ public class Main extends Application {
       Logger.getLogger( "" ).getHandlers()[0].setLevel( Level.OFF );
    }
 
-   public static String TITLE = "Offline compendium v3.5 downloader";
+   static String TITLE = "Compendium downloader";
 
    // Global log ang preference
-   public static final Logger log = Logger.getLogger( Main.class.getName() );
-   public static final Preferences prefs = Preferences.userNodeForPackage( Main.class );
+   static final Logger log = Logger.getLogger( Main.class.getName() );
+   static final Preferences prefs = Preferences.userNodeForPackage( Main.class );
 
    // Main method.  Do virtually nothing.
    public static void main( String[] args ) {

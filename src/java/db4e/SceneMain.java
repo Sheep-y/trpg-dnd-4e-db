@@ -40,6 +40,7 @@ import javafx.scene.text.Font;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import sheepy.util.JavaFX;
 import sheepy.util.ResourceUtils;
 import sheepy.util.Utils;
@@ -207,6 +208,10 @@ public class SceneMain extends Scene {
    /////////////////////////////////////////////////////////////////////////////
    // GUI state
    /////////////////////////////////////////////////////////////////////////////
+
+   void setTitle ( String title ) { runFX( () -> {
+      ( (Stage) getWindow() ).setTitle( Main.TITLE + ( title == null ? "" : " - " + title ) );
+   } ); }
 
    void setStatus ( String msg ) { runFX( () -> {
       log.log( Level.INFO, "Status: {0}.", msg );

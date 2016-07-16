@@ -114,11 +114,14 @@ public class Downloader {
             while ( ( ex instanceof RuntimeException || ex instanceof ExecutionException ) && ex.getCause() != null )
                ex = ex.getCause(); // Unwrap RuntimeException and ExecutionExceptiom
 
-            if ( ex instanceof InterruptedException )
+            if ( ex instanceof InterruptedException ) {
                gui.stateCanDownload( action + " stopped" );
-            else if ( ex instanceof TimeoutException )
+               gui.setTitle( "Stopped" );
+            } else if ( ex instanceof TimeoutException ) {
                gui.stateCanDownload( action + " timeout" );
-            else {
+               gui.setTitle( "Timeout" );
+            } else {
+               gui.setTitle( "Error" );
                log.log( Level.WARNING, action + " failed: {0}", Utils.stacktrace( err ) );
                String msg = ( (Exception) err ).getMessage();
                if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
@@ -126,6 +129,8 @@ public class Downloader {
                if ( ex instanceof LoginException )
                   gui.txtUser.requestFocus();
             }
+         } else {
+            gui.setTitle( "Done" );
          }
          state.update();
          currentThread = null;
@@ -314,6 +319,8 @@ public class Downloader {
    } }
 
    private void downloadEntities () throws Exception {
+      Instant[] pastFinishTime = new Instant[ 10 ]; // Past 10 finish time
+      int remainingCount = state.total - state.done;
       for ( Category category : categories ) {
          for ( Entry entry : category.entries ) {
             if ( ! entry.contentDownloaded ) {
@@ -321,9 +328,23 @@ public class Downloader {
                runAndCheckLogin( name, () -> crawler.openEntry( entry ) );
                crawler.getEntry( entry );
                dal.saveEntry( entry );
+
                category.downloaded_entry.set( category.downloaded_entry.get() + 1 );
                state.done += 1;
                state.update();
+
+               --remainingCount;
+               if ( remainingCount > 0 ) {
+                  System.arraycopy( pastFinishTime, 1, pastFinishTime, 0, 9 );
+                  pastFinishTime[9] = Instant.now();
+                  if ( pastFinishTime[0] == null ) continue;
+                  // Remaining time
+                  Duration sessionTime = Duration.between( pastFinishTime[0], Instant.now() );
+                  int second = (int) Math.ceil( ( sessionTime.getSeconds() / (double) 10 ) * remainingCount );
+                  // And make sure it's not less than current interval
+                  second = Math.max( second, (int) Math.ceil( remainingCount * (double) INTERVAL_MS / 1000 ) );
+                  gui.setTitle( Duration.ofSeconds(  second ).toString().substring( 2 ) + " remain" );
+               }
             }
          }
       }
