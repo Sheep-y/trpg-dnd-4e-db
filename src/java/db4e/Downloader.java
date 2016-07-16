@@ -4,6 +4,8 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.io.File;
 import java.io.StringWriter;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -40,18 +42,21 @@ public class Downloader {
 
    private static final Logger log = Main.log;
 
-   static volatile int TIMEOUT_MS = 30_000;
-   static volatile int INTERVAL_MS = 2_000;
-
-   static final String DB_NAME = "dnd4_compendium.database";
+   static final int DEF_TIMEOUT_MS = 30_000;
+   static final int DEF_INTERVAL_MS = 1_000;
    static final int MIN_TIMEOUT_MS = 10_000;
    static final int MIN_INTERVAL_MS = 0;
+
+   static volatile int TIMEOUT_MS = 30_000;
+   static volatile int INTERVAL_MS = 1_000;
+
+   static final String DB_NAME = "dnd4_compendium.database";
 
    // Database variables are set on open().
    private volatile SqlJetDb db;
    private volatile DbAbstraction dal;
    private Thread currentThread;
-   private DownloadState state;
+   private ProgressState state;
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
 
@@ -67,7 +72,7 @@ public class Downloader {
       browser = main.getWorker();
       engine = browser.getWebEngine();
       crawler = new Crawler( engine );
-      state = new DownloadState( main::setProgress );
+      state = new ProgressState( main::setProgress );
       try {
          TIMEOUT_MS = Integer.parseUnsignedInt( main.txtTimeout.getText() ) * 1000;
          INTERVAL_MS = Integer.parseUnsignedInt( main.txtInterval.getText() );
@@ -83,7 +88,6 @@ public class Downloader {
       synchronized ( this ) {
          if ( currentThread != null )
             currentThread.interrupt();
-         currentThread = null;
       }
    }
 
@@ -123,6 +127,7 @@ public class Downloader {
                   gui.txtUser.requestFocus();
             }
          }
+         state.update();
          currentThread = null;
          Thread.interrupted(); // Clear flag
       };
@@ -138,8 +143,7 @@ public class Downloader {
       synchronized ( categories ) {
          categories.clear();
       }
-      state.downloaded = state.total = 0;
-      state.isCategoryComplete = false;
+      state.done = state.total = 0;
 
       threadPool.execute( () -> { try {
          synchronized ( this ) { // Lock database for the whole duration
@@ -218,9 +222,7 @@ public class Downloader {
    }
 
    private void openOrCreateTable () {
-      BiConsumer<Integer,Integer> statusUpdate = ( current, total ) -> {
-         checkStop( "Reading data (" + current + "/" + total + ")", current / (double) total );
-      };
+      gui.setStatus( "Reading data" );
       try {
          synchronized ( categories ) {
             dal.setDb( db, categories, state );
@@ -243,7 +245,7 @@ public class Downloader {
          }
       }
 
-      if ( state.downloaded < state.total )
+      if ( state.done < state.total )
          gui.stateCanDownload( "Ready to download" );
       else
          gui.stateCanExport( "Ready to export" );
@@ -284,12 +286,10 @@ public class Downloader {
          if ( category.total_entry.get() > 0 ) continue;
          final String name = category.name.toLowerCase();
 
-         Thread.sleep( INTERVAL_MS );
          runAndGet( "Get " + name + " template", () ->
             crawler.getCategoryXsl( category ) );
          Document xsl = engine.getDocument();
 
-         Thread.sleep( INTERVAL_MS );
          runAndGet( "Get " + name + " data", () ->
             crawler.getCategoryData( category ) );
          Document xml = engine.getDocument();
@@ -308,7 +308,6 @@ public class Downloader {
 
          checkStop( "Listed " + name );
       }
-      state.isCategoryComplete = true;
       state.total = categories.stream().mapToInt( c -> c.total_entry.get() ).sum();
       state.update();
       downloadEntities();
@@ -318,13 +317,12 @@ public class Downloader {
       for ( Category category : categories ) {
          for ( Entry entry : category.entries ) {
             if ( ! entry.contentDownloaded ) {
-               Thread.sleep( INTERVAL_MS );
                String name = entry.name + " (" + category.name + ")";
                runAndCheckLogin( name, () -> crawler.openEntry( entry ) );
                crawler.getEntry( entry );
                dal.saveEntry( entry );
                category.downloaded_entry.set( category.downloaded_entry.get() + 1 );
-               state.downloaded += 1;
+               state.done += 1;
                state.update();
             }
          }
@@ -342,8 +340,9 @@ public class Downloader {
 
       threadPool.execute( ()-> { try {
          synchronized ( this ) { currentThread = Thread.currentThread(); }
+         gui.setStatus( "Loading content" );
          synchronized ( categories ) {
-            dal.loadEntityContent( categories, ( txt ) -> checkStop( "Loading entry (" + txt + ")" ) );
+            dal.loadEntityContent( categories, state );
          }
 
          gui.stateCanExport( "Export Complete, may view data" );
@@ -421,6 +420,8 @@ public class Downloader {
       } }
    }
 
+   private Instant lastLoad = Instant.now();
+
    /**
     * Call a task and wait for browser to finish loading.
     * The task must cause the browser's loader to change state for this to work.
@@ -429,10 +430,16 @@ public class Downloader {
     * @param task Task to run.
     */
    private void runAndGet ( String taskName, RunExcept task ) {
-      browser.getConsoleOutput().clear();
       CompletableFuture<Void> future = new CompletableFuture<>();
       Consumer handle = browserTaskHandler( future, taskName );
       try {
+         if ( INTERVAL_MS > 0 ) {
+            lastLoad = lastLoad.plusMillis( INTERVAL_MS );
+            long sleep = Duration.between( lastLoad, Instant.now() ).toMillis();
+            if ( sleep < INTERVAL_MS ) Thread.sleep( INTERVAL_MS - sleep );
+         }
+         lastLoad = Instant.now();
+         browser.getConsoleOutput().clear();
          browser.handle(
             ( e ) -> handle.accept( null ), // on load
             ( e,err ) -> handle.accept( err ) // on error

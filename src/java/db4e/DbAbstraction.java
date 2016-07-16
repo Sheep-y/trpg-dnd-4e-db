@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -28,7 +26,7 @@ class DbAbstraction {
       private ISqlJetTable tblCategory;
       private ISqlJetTable tblEntry;
 
-   synchronized void setDb ( SqlJetDb db, ObservableList<Category> categories, DownloadState state ) throws SqlJetException {
+   synchronized void setDb ( SqlJetDb db, ObservableList<Category> categories, ProgressState state ) throws SqlJetException {
       this.db = db;
       tblConfig = db.getTable( "config" );
       tblCategory = db.getTable( "category" );
@@ -139,7 +137,7 @@ class DbAbstraction {
       // TODO: Backup good db.
    }
 
-   private void loadEntryIndex ( List<Category> categories, DownloadState state ) throws SqlJetException {
+   private void loadEntryIndex ( List<Category> categories, ProgressState state ) throws SqlJetException {
       boolean categoryComplete = true;
       int entryCount = 0, downCount = 0;
 
@@ -148,7 +146,6 @@ class DbAbstraction {
          ISqlJetCursor cursor = tblEntry.open();
          final int total = (int) cursor.getRowCount();
          state.total = total;
-         state.isCategoryComplete = true; // temporary, for progress display
          cursor.close();
 
          for ( Category category : categories ) {
@@ -166,7 +163,7 @@ class DbAbstraction {
                      ++countWithData;
                   }
                   if ( entryCount++ % 2048 == 0 ) {
-                     state.downloaded = entryCount;
+                     state.done = entryCount;
                      state.update();
                   }
                } while ( cursor.next() );
@@ -179,16 +176,15 @@ class DbAbstraction {
             category.downloaded_entry.set( countWithData );
             downCount += countWithData;
          }
-         state.downloaded = entryCount;
+         state.done = entryCount;
          state.update();
       } finally {
          db.commit();
       }
-      state.downloaded = downCount;
-      state.isCategoryComplete = categoryComplete;
+      state.done = downCount;
    }
 
-   synchronized void loadEntityContent ( List<Category> categories, Consumer<String> statusUpdate ) throws SqlJetException {
+   synchronized void loadEntityContent ( List<Category> categories, ProgressState state ) throws SqlJetException {
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
          for ( Category category : categories ) {

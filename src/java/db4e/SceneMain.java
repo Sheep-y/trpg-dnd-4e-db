@@ -81,11 +81,11 @@ public class SceneMain extends Scene {
 
    // Option Screen
    final TextField txtTimeout  = JavaFX.tooltip( new TextField( Integer.toString(
-           Math.max( Downloader.MIN_TIMEOUT_MS/1000, prefs.getInt( "download.timeout", 30 ) ) ) ),
-           "Download timeout in seconds.  If changed mid-way, will apply in next action not current action." );
+           Math.max( Downloader.MIN_TIMEOUT_MS/1000, prefs.getInt( "download.timeout", Downloader.DEF_TIMEOUT_MS/1000 ) ) ) ),
+           "Download timeout in seconds.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
    final TextField txtInterval  = JavaFX.tooltip( new TextField( Integer.toString(
-           Math.max( Downloader.MIN_INTERVAL_MS, prefs.getInt( "download.interval", 1000 ) ) ) ),
-           "Interval, in millisecond, between each download action.  If changed mid-way, will apply in next action not current action." );
+           Math.max( Downloader.MIN_INTERVAL_MS, prefs.getInt( "download.interval", Downloader.DEF_INTERVAL_MS ) ) ) ),
+           "Minimal interval, in millisecond, between each download action.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
            "Show app log and console.  Increase memoro usage because of finer logging level." );
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down

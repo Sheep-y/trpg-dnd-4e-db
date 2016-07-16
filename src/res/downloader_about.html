@@ -15,30 +15,31 @@ html, body {
 
 header {
    position: fixed;
-   top: 0;
+   bottom: 0;
    width: 100%;
    }
-   header > nav {
-      display: flex;
-      flex-flow: row nowrap;
+   header > nav > a {
+      background: #006;
+      border: 1px solid white;
+      color: white;
+      display: block;
+      float: left;
+      font-weight: bold;
+      text-align: center;
+      width: 33.3%;
       }
-      header > nav > a {
-         background: #006;
-         border: 1px solid white;
-         color: white;
-         display: block;
-         font-weight: bold;
-         flex-grow: 1;
-         text-align: center;
+      header > nav > a:hover ,
+      header > nav > a:active {
+         color: yellow;
          }
-         header > nav > a:hover ,
-         header > nav > a:active {
-            color: yellow;
-            }
 
 main {
    margin: 1em;
+   padding-bottom: 1em;
    }
+   h2 {
+      margin-top: 1.5em;
+      }
 
 a {
    text-decoration: none;
@@ -49,12 +50,13 @@ li {
    }
    </style>
 </head><body>
-   <!--<header> // Stupid JavaFX WebView use a Webkit so old that it does not support flex.
+   <header>
       <nav>
          <a href="#help">Help</a>
+         <a href="#faq">FAQ</a>
          <a href="#about">About</a>
       </nav>
-   </header>-->
+   </header>
    <main>
       <h1> 4e Compendium (v3.5) Downloader </h1>
       <h1> Work In Progress.  Can download but not export. </h1>
@@ -126,9 +128,8 @@ li {
             <li>
                <b>Slow download</b> <br/>
                <i>Whoever is patient has great understanding, but one who is quick-tempered displays folly.</i> - Proverbs 14:29 <br/>
-               <br/>
                Decrease the interval period in option tab, but there <i>are</i> 25k pieces of data to download afterall.
-               That's over 7 hours even if your internet can get it at 1 per second.
+               7 hours if your Internet can get it at 1 per second, 21 if per 3 seconds.
             </li>
             <li>
                <b>How to export to my phone / pad?</b> <br/>
@@ -160,7 +161,7 @@ li {
       </section>
    </main>
    <script>
-   [].forEach.call( document.querySelectorAll( 'a' ), function ( a ) {
+   [].forEach.call( document.querySelectorAll( 'a:not([href^=#])' ), function ( a ) {
       a.target = '_blank';
    } );
    </script>
