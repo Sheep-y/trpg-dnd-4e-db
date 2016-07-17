@@ -67,6 +67,7 @@ public class Controller {
    private final ConsoleWebView browser;
    private final WebEngine engine;
    private final Crawler crawler;
+   private final Exporter exporter;
    private final Timer scheduler = new Timer();
    private final ForkJoinPool threadPool = ForkJoinPool.commonPool(); // Only need one thread
 
@@ -75,6 +76,7 @@ public class Controller {
       browser = main.getWorker();
       engine = browser.getWebEngine();
       crawler = new Crawler( engine );
+      exporter = new Exporter();
       state = new ProgressState( ( progress ) -> {
          checkStop( null );
          main.setProgress( progress );
@@ -350,9 +352,14 @@ public class Controller {
       state.done = 0;
       log.log( Level.CONFIG, "Export target: {0}", target );
       return runTask( () -> {
-         exportCatalog(); // Put it first to test file write
+         String root = target.getPath().split(  "\\.html?$", 1 )[0] + "_files/";
+         log.log( Level.CONFIG, "Export root: {0}", target );
+         new File( root ).mkdirs();
 
-         gui.setStatus( "Loading content" );
+         checkStop( "Writing main catlog" );
+         exporter.writeCatalog( root, categories );
+
+         checkStop( "Loading content" );
          dal.loadEntityContent( categories, state );
          convertDataForExport();
 
@@ -361,18 +368,14 @@ public class Controller {
    }
 
    private void convertDataForExport () {
-      gui.setStatus( "Formatting and Indexing" );
+      checkStop( "Formatting and Indexing" );
       state.done = 0;
       state.update();
       for ( Category category : categories ) {
+         log.log( Level.FINE, "Indexing {0}", category.name );
          Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
          convertor.convert( category, state );
       }
-   }
-
-   private void exportCatalog () {
-      gui.setStatus( "Writing main catlog" );
-
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -474,10 +477,6 @@ public class Controller {
       TimerTask openTimeout = Utils.toTimer( () -> handler.accept( null, new TimeoutException( taskName + " timeout" ) ) );
       scheduler.schedule( openTimeout, TIMEOUT_MS );
       return ( input ) -> handler.accept( openTimeout, input );
-   }
-
-   private String js ( String in ) {
-      return in.replace( "\"", "\\\"" );
    }
 
    private static interface RunExcept {
