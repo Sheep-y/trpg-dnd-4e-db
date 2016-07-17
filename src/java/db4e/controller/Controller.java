@@ -350,8 +350,9 @@ public class Controller {
       state.done = 0;
       log.log( Level.CONFIG, "Export target: {0}", target );
       return runTask( () -> {
-         gui.setStatus( "Loading content" );
+         exportCatalog(); // Put it first to test file write
 
+         gui.setStatus( "Loading content" );
          dal.loadEntityContent( categories, state );
          convertDataForExport();
 
@@ -364,9 +365,14 @@ public class Controller {
       state.done = 0;
       state.update();
       for ( Category category : categories ) {
-         Convertor convertor = Convertor.getConvertor( category );
+         Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
          convertor.convert( category, state );
       }
+   }
+
+   private void exportCatalog () {
+      gui.setStatus( "Writing main catlog" );
+
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -468,6 +474,10 @@ public class Controller {
       TimerTask openTimeout = Utils.toTimer( () -> handler.accept( null, new TimeoutException( taskName + " timeout" ) ) );
       scheduler.schedule( openTimeout, TIMEOUT_MS );
       return ( input ) -> handler.accept( openTimeout, input );
+   }
+
+   private String js ( String in ) {
+      return in.replace( "\"", "\\\"" );
    }
 
    private static interface RunExcept {

@@ -7,7 +7,7 @@
 od.config = {
    "simulate" : false, // If true, load data from local file instead of live url
    "simulated_data_url" : 'offline_simulation_files',
-   "data_read_path" : '4e_database_files',
+   "data_read_path" : location.pathname.match( /\w+(?=\.htm)/ ) + '_files',
    "data_write_path" : location.href.replace( /file:\/\/\/|[^\\\/]+\.html?(\?.*)?$/g, '' ) + '4e_database_files',
    "data_write_compress" : true, // Whether to compress listing and index, the two biggest files.
    "retry" : 3, // Number of retry of download.

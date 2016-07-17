@@ -91,7 +91,7 @@ public class SceneMain extends Scene {
    final TextField txtInterval  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( MIN_INTERVAL_MS, prefs.getInt( "download.interval", DEF_INTERVAL_MS ) ) ) ),
            "Minimal interval, in millisecond, between each download action.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
-           "Show app log and console.  Increase memoro usage because of finer logging level." );
+           "Show app log and console.  Will slow down download & export and use more memory." );
    final Button btnClearData = JavaFX.tooltip(new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
    private final Pane pnlOptionTab = new VBox( 8,
@@ -343,9 +343,23 @@ public class SceneMain extends Scene {
       stateRunning();
    }
 
+
+   private FileChooser dlgCreateView;
+
    private void action_export ( ActionEvent evt ) {
+      // Create file dialog
+      if ( dlgCreateView == null ) {
+         dlgCreateView = new FileChooser();
+         dlgCreateView.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter( "4e Offline Compendium", "4e_database.html" ),
+            new FileChooser.ExtensionFilter( "Any file", "*.*" ) );
+         dlgCreateView.setInitialDirectory( new File( System.getProperty( "user.home" ) ) );
+         dlgCreateView.setInitialFileName( "4e_database.html" );
+      }
+      File target = dlgCreateView.showSaveDialog( getWindow() );
+      if ( target == null ) return;
+
       setStatus( "Starting export" );
-      File target = new File( "4e_compendium.html" );
       loader.startExport( target ).whenComplete( (a,b) -> allowAction() );
       stateRunning();
    }
@@ -389,21 +403,6 @@ public class SceneMain extends Scene {
    public String getPassword () { return txtPass.getText().trim(); }
    public void focusUsername () { txtUser.requestFocus(); };
 
-   private FileChooser dlgCreateView;
-   private void btnFolder_action ( ActionEvent evt ) {
-      assert( Platform.isFxApplicationThread() );
-
-      // Create file dialog
-      if ( dlgCreateView == null ) {
-         dlgCreateView = new FileChooser();
-         dlgCreateView.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter( "4e Offline Compendium", "dd4_database.html" ),
-            new FileChooser.ExtensionFilter( "Any file", "*.*" ) );
-         dlgCreateView.setInitialDirectory( new File( System.getProperty( "user.home" ) ) );
-      }
-      dlgCreateView.showSaveDialog( getWindow() );
-   }
-
    /////////////////////////////////////////////////////////////////////////////
    // Option Tab
    /////////////////////////////////////////////////////////////////////////////
@@ -442,6 +441,8 @@ public class SceneMain extends Scene {
       loader.resetDb();
       pnlC.getSelectionModel().select( tabData );
    }
+
+   public boolean isDebugging () { return chkDebug.isSelected(); };
 
    /////////////////////////////////////////////////////////////////////////////
    // Worker Screen
