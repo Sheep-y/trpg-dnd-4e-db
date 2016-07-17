@@ -141,8 +141,7 @@ class DbAbstraction {
    }
 
    private void loadEntryIndex ( List<Category> categories, ProgressState state ) throws SqlJetException {
-      boolean categoryComplete = true;
-      int entryCount = 0, downCount = 0;
+      int downCount = state.done = 0;
 
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
@@ -165,21 +164,15 @@ class DbAbstraction {
                      entry.contentDownloaded = true;
                      ++countWithData;
                   }
-                  if ( entryCount++ % 2048 == 0 ) {
-                     state.done = entryCount;
-                     state.update();
-                  }
+                  state.addOne();
                } while ( cursor.next() );
                cursor.close();
                if ( list.size() != size )
-                  throw new AssertionError( category.name + " entry mismatch, expected " + size + ", read " + list.size() );
+                  throw new IllegalStateException( category.name + " entry mismatch, expected " + size + ", read " + list.size() );
             }
-            if ( size == 0 )
-               categoryComplete = false;
             category.downloaded_entry.set( countWithData );
             downCount += countWithData;
          }
-         state.done = entryCount;
          state.update();
 
       } finally {
@@ -200,8 +193,7 @@ class DbAbstraction {
                   if ( entry.content == null ) entry.content = cursor.getString( "data" );
                   cursor.close();
                }
-               if ( ++state.done % 2048 == 0 )
-                  state.update();
+               state.addOne();
             }
          }
       } finally {
@@ -231,7 +223,7 @@ class DbAbstraction {
          log.log( Level.FINE, "Updating {0} count", category.id );
          ISqlJetCursor owner = tblCategory.lookup( null, category.id );
          if ( owner.eof() )
-            throw new AssertionError( "Category " + category.id + " not found in database." );
+            throw new IllegalStateException( "Category " + category.id + " not found in database." );
          owner.update( category.id, category.name, count );
          owner.close();
          category.entries.clear();

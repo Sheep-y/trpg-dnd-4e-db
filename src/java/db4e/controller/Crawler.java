@@ -125,8 +125,8 @@ public class Crawler {
    void getEntry ( Entry entry ) throws InterruptedException, TimeoutException {
       Object verify = eval( " document.querySelector( 'body > form#form1 + script' ) " );
       Object content = eval( " document.querySelector( '#detail' ).innerHTML.trim() " );
-      if ( content == null || verify == null ) throw new AssertionError( "Incomplete or empty entry" );
-      if ( ! ( content instanceof CharSequence ) ) throw new AssertionError( "Invalid entry" );
+      if ( content == null || verify == null ) throw new IllegalStateException( "Incomplete or empty entry" );
+      if ( ! ( content instanceof CharSequence ) ) throw new IllegalStateException( "Invalid entry" );
       entry.content = content.toString();
    }
 

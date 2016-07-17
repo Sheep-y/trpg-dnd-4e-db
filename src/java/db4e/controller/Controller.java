@@ -2,6 +2,7 @@ package db4e.controller;
 
 import db4e.Main;
 import db4e.SceneMain;
+import db4e.convertor.Convertor;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.io.File;
@@ -106,25 +107,25 @@ public class Controller {
    private BiConsumer<Void,Throwable> terminate ( String action ) {
       return ( result, err ) -> {
          if ( err != null ) {
-            Throwable ex = err;
-            if ( ex instanceof CompletionException && ex.getCause() != null )
-               ex = ex.getCause();
-            while ( ( ex instanceof RuntimeException || ex instanceof ExecutionException ) && ex.getCause() != null )
-               ex = ex.getCause(); // Unwrap RuntimeException and ExecutionExceptiom
+            if ( err instanceof CompletionException && err.getCause() != null )
+               err = err.getCause();
+            while ( ( err instanceof RuntimeException || err instanceof ExecutionException ) && err.getCause() != null )
+               err = err.getCause(); // Unwrap RuntimeException and ExecutionExceptiom
 
-            if ( ex instanceof InterruptedException ) {
+            if ( err instanceof InterruptedException ) {
                gui.stateCanDownload( action + " stopped" );
                gui.setTitle( "Stopped" );
-            } else if ( ex instanceof TimeoutException ) {
+            } else if ( err instanceof TimeoutException ) {
                gui.stateCanDownload( action + " timeout" );
                gui.setTitle( "Timeout" );
             } else {
                gui.setTitle( "Error" );
                log.log( Level.WARNING, action + " failed: {0}", Utils.stacktrace( err ) );
                String msg = ( (Exception) err ).getMessage();
+               if ( msg == null || msg.isEmpty() ) msg = err.toString();
                if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
                gui.stateCanDownload( msg );
-               if ( ex instanceof LoginException )
+               if ( err instanceof LoginException )
                   gui.focusUsername();
             }
          } else {
@@ -317,8 +318,7 @@ public class Controller {
                dal.saveEntry( entry );
 
                category.downloaded_entry.set( category.downloaded_entry.get() + 1 );
-               state.done += 1;
-               state.update();
+               state.addOne();
 
                --remainingCount;
                if ( remainingCount > 0 ) {
@@ -348,9 +348,22 @@ public class Controller {
       log.log( Level.CONFIG, "Export target: {0}", target );
       return runTask( () -> {
          gui.setStatus( "Loading content" );
+
          dal.loadEntityContent( categories, state );
-         gui.stateCanExport( "Export Complete, may view data" );
+         convertDataForExport();
+
+         gui.stateCanExport( "Export is work in progress" );
       } ).whenComplete( terminate( "Export" ) );
+   }
+
+   private void convertDataForExport () {
+      gui.setStatus( "Formatting and Indexing" );
+      state.done = 0;
+      state.update();
+      for ( Category category : categories ) {
+         Convertor convertor = Convertor.getConvertor( category );
+         convertor.convert( category, state );
+      }
    }
 
    /////////////////////////////////////////////////////////////////////////////

@@ -2,9 +2,9 @@ package db4e.controller;
 
 import java.util.function.Consumer;
 
-class ProgressState {
-   volatile int done;
-   volatile int total;
+public class ProgressState {
+   public volatile int done;
+   public volatile int total;
 
    private final Consumer<Double> updater;
 
@@ -12,7 +12,12 @@ class ProgressState {
       this.updater = updater;
    }
 
-   void update () {
+   public void addOne () {
+      if ( ++done % 1024 == 0 )
+         update();
+   }
+
+   public void update () {
       updater.accept( getProgress() );
    }
 
