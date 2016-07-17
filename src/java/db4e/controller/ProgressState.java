@@ -13,7 +13,7 @@ public class ProgressState {
    }
 
    public void addOne () {
-      if ( ++done % 1024 == 0 )
+      if ( ++done % 256 == 0 )
          update();
    }
 

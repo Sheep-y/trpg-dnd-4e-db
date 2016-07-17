@@ -352,7 +352,8 @@ public class Controller {
       state.done = 0;
       log.log( Level.CONFIG, "Export target: {0}", target );
       return runTask( () -> {
-         String root = target.getPath().split(  "\\.html?$", 1 )[0] + "_files/";
+         // Export process is mainly IO limited. Not wasting time to make it multi-thread.
+         String root = target.getPath().replaceFirst( "\\.html?$", "_files/" );
          log.log( Level.CONFIG, "Export root: {0}", target );
          new File( root ).mkdirs();
 
@@ -365,12 +366,16 @@ public class Controller {
 
          checkStop( "Writing data" );
          state.done = 0;
+         state.update();
          for ( Category category : categories ) {
             log.log( Level.FINE, "Writing {0}", category.id );
             exporter.writeCategory( root, category, state );
          }
 
-         gui.stateCanExport( "Export is work in progress" );
+         checkStop( "Writing viewer" );
+         exporter.writeViewer( target );
+
+         gui.stateCanExport( "Export complete, may view data" );
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
    }
 
