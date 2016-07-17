@@ -1,5 +1,10 @@
 package db4e;
 
+import db4e.controller.Controller;
+import static db4e.controller.Controller.DEF_INTERVAL_MS;
+import static db4e.controller.Controller.DEF_TIMEOUT_MS;
+import static db4e.controller.Controller.MIN_INTERVAL_MS;
+import static db4e.controller.Controller.MIN_TIMEOUT_MS;
 import db4e.data.Category;
 import java.awt.Desktop;
 import java.io.File;
@@ -81,16 +86,14 @@ public class SceneMain extends Scene {
    private final Tab tabData = new Tab( "Data", pnlDataTab );
 
    // Option Screen
-   final TextField txtTimeout  = JavaFX.tooltip( new TextField( Integer.toString(
-           Math.max( Downloader.MIN_TIMEOUT_MS/1000, prefs.getInt( "download.timeout", Downloader.DEF_TIMEOUT_MS/1000 ) ) ) ),
+   final TextField txtTimeout  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( MIN_TIMEOUT_MS / 1000, prefs.getInt( "download.timeout", DEF_TIMEOUT_MS / 1000 ) ) ) ),
            "Download timeout in seconds.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
-   final TextField txtInterval  = JavaFX.tooltip( new TextField( Integer.toString(
-           Math.max( Downloader.MIN_INTERVAL_MS, prefs.getInt( "download.interval", Downloader.DEF_INTERVAL_MS ) ) ) ),
+   final TextField txtInterval  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( MIN_INTERVAL_MS, prefs.getInt( "download.interval", DEF_INTERVAL_MS ) ) ) ),
            "Minimal interval, in millisecond, between each download action.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
            "Show app log and console.  Increase memoro usage because of finer logging level." );
-   final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
-           "Clear ALL downloaded data by deleting '" + Downloader.DB_NAME + "'." );
+   final Button btnClearData = JavaFX.tooltip(new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
+           "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
    private final Pane pnlOptionTab = new VBox( 8,
            new HBox( 8, new Label( "Timeout" ), txtTimeout, new Label( "seconds") ),
            new HBox( 8, new Label( "Interval" ), txtInterval, new Label( "milliseconds") ),
@@ -105,7 +108,7 @@ public class SceneMain extends Scene {
    // Worker Screen
    private final ConsoleWebView pnlWorker = new ConsoleWebView();
    private final Tab tabWorker = new Tab( "Worker", new BorderPane( pnlWorker ) );
-   private final Downloader loader = new Downloader( this );
+   private final Controller loader = new Controller( this );
 
    // Layout regions
    private final TabPane pnlC = new TabPane( tabData, tabOption, tabHelp );
@@ -116,6 +119,10 @@ public class SceneMain extends Scene {
       initControls();
       initLayout();
       initTabs();
+      try {
+         Controller.TIMEOUT_MS = Integer.parseUnsignedInt( txtTimeout.getText() ) * 1000;
+         Controller.INTERVAL_MS = Integer.parseUnsignedInt( txtInterval.getText() );
+      } catch ( NumberFormatException ignored ) {}
       setRoot( pnlC );
    }
 
@@ -135,19 +142,19 @@ public class SceneMain extends Scene {
       tblCategory.getColumns().addAll( colName, colDownloadedEntry, colTotalEntry );
 
       // Option tab
-      txtTimeout.textProperty().addListener( (prop, old, now ) -> { try {
+      txtTimeout.textProperty().addListener((prop, old, now ) -> { try {
          int i = Integer.parseUnsignedInt( now );
-         if ( i * 1000 < Downloader.MIN_TIMEOUT_MS ) return;
+         if ( i * 1000 < Controller.MIN_TIMEOUT_MS ) return;
          prefs.putInt( "download.timeout", i );
-         Downloader.TIMEOUT_MS = i * 1000;
-         log.log( Level.CONFIG, "Timeout changed to {0} ms", Downloader.TIMEOUT_MS );
+         Controller.TIMEOUT_MS = i * 1000;
+         log.log( Level.CONFIG, "Timeout changed to {0} ms", Controller.TIMEOUT_MS );
       } catch ( NumberFormatException ignored ) { } } );
 
-      txtInterval.textProperty().addListener( (prop, old, now ) -> { try {
+      txtInterval.textProperty().addListener((prop, old, now ) -> { try {
          int i = Integer.parseUnsignedInt( now );
-         if ( i < Downloader.MIN_INTERVAL_MS ) return;
+         if ( i < Controller.MIN_INTERVAL_MS ) return;
          prefs.putInt( "download.interval", i );
-         Downloader.INTERVAL_MS = i;
+         Controller.INTERVAL_MS = i;
          log.log( Level.CONFIG, "Interval changed to {0} ms", i );
       } catch ( NumberFormatException ignored ) { } } );
 
@@ -209,16 +216,16 @@ public class SceneMain extends Scene {
    // GUI state
    /////////////////////////////////////////////////////////////////////////////
 
-   void setTitle ( String title ) { runFX( () -> {
+   public void setTitle ( String title ) { runFX( () -> {
       ( (Stage) getWindow() ).setTitle( Main.TITLE + ( title == null ? "" : " - " + title ) );
    } ); }
 
-   void setStatus ( String msg ) { runFX( () -> {
+   public void setStatus ( String msg ) { runFX( () -> {
       log.log( Level.INFO, "Status: {0}.", msg );
       lblStatus.setText( msg );
    } ); }
 
-   void setProgress ( Double progress ) { runFX( () -> {
+   public void setProgress ( Double progress ) { runFX( () -> {
       log.log( Level.FINE, "Progress: {0}.", progress );
       prgProgress.setProgress( progress );
    } ); }
@@ -343,13 +350,13 @@ public class SceneMain extends Scene {
       stateRunning();
    }
 
-   void stateBusy ( String message ) { runFX( () -> {
+   public void stateBusy ( String message ) { runFX( () -> {
       if ( message != null ) setStatus( message );
       log.log( Level.FINE, "State: Busy" );
       disallowAction();
    } ); }
 
-   void stateBadData () { runFX( () -> {
+   public void stateBadData () { runFX( () -> {
       log.log( Level.FINE, "State: Bad Data" );
       setStatus( "Cannot open local database" );
       allowAction();
@@ -357,7 +364,7 @@ public class SceneMain extends Scene {
       setRight( "Exit", this::action_exit );
    } ); }
 
-   void stateCanDownload ( String status ) { runFX( () -> {
+   public void stateCanDownload ( String status ) { runFX( () -> {
       log.log( Level.FINE, "State: Can Download" );
       setStatus( status );
       allowAction();
@@ -365,7 +372,7 @@ public class SceneMain extends Scene {
       setRight( "Exit", this::action_exit );
    } ); }
 
-   void stateCanExport ( String status ) { runFX( () -> {
+   public void stateCanExport ( String status ) { runFX( () -> {
       log.log( Level.FINE, "State: Can Export" );
       setStatus( status );
       allowAction();
@@ -373,13 +380,17 @@ public class SceneMain extends Scene {
       setRight( "Exit", this::action_exit );
    } ); }
 
-   void stateRunning () { runFX( () -> {
+   public void stateRunning () { runFX( () -> {
       log.log( Level.FINE, "State: Running" );
       txtUser.setDisable( true );
       txtPass.setDisable( true );
       btnClearData.setDisable( true );
       setLeft( "Stop", this::action_stop );
    } ); }
+
+   public String getUsername () { return txtUser.getText().trim(); }
+   public String getPassword () { return txtPass.getText().trim(); }
+   public void focusUsername () { txtUser.requestFocus(); };
 
    private FileChooser dlgCreateView;
    private void btnFolder_action ( ActionEvent evt ) {
@@ -421,7 +432,7 @@ public class SceneMain extends Scene {
    }
 
    Alert confirmClear;
-   private void btnClearData_click( ActionEvent evt ) {
+   private void btnClearData_click ( ActionEvent evt ) {
       assert( Platform.isFxApplicationThread() );
 
       if ( confirmClear == null ) {
@@ -439,8 +450,6 @@ public class SceneMain extends Scene {
    // Worker Screen
    /////////////////////////////////////////////////////////////////////////////
 
-   ConsoleWebView getWorker () {
-      return pnlWorker;
-   }
+   public ConsoleWebView getWorker () { return pnlWorker; }
 
 }

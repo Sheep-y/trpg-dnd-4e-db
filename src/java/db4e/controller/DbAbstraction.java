@@ -1,5 +1,6 @@
-package db4e;
+package db4e.controller;
 
+import db4e.Main;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;

@@ -1,5 +1,6 @@
-package db4e;
+package db4e.controller;
 
+import db4e.Main;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
@@ -176,7 +177,7 @@ public class Crawler {
             }
             transport.notify();
          } } );
-         transport.wait( Downloader.TIMEOUT_MS );
+         transport.wait( Controller.TIMEOUT_MS );
       }
       if ( transport[0] == transport )
          throw new TimeoutException( "Timeout waiting for '" + script + "'" );

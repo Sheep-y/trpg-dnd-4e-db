@@ -1,4 +1,4 @@
-package db4e;
+package db4e.controller;
 
 import java.util.function.Consumer;
 

@@ -31,7 +31,7 @@ public class Main extends Application {
    static String TITLE = "Compendium downloader";
 
    // Global log ang preference
-   static final Logger log = Logger.getLogger( Main.class.getName() );
+   public static final Logger log = Logger.getLogger( Main.class.getName() );
    static final Preferences prefs = Preferences.userNodeForPackage( Main.class );
 
    // Main method.  Do virtually nothing.

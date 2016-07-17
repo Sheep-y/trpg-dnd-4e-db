@@ -2,6 +2,7 @@ package db4e.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
@@ -9,15 +10,19 @@ import javafx.beans.property.SimpleIntegerProperty;
  * Represents a data category
  */
 public class Category {
-   public final String id;
-   public final String name;
+   public final String id; // Compendium id
+   public final String name; // Display name
+   public final String type; // Manually assigned category group - PC and DM.
    public final IntegerProperty total_entry = new SimpleIntegerProperty();
    public final IntegerProperty downloaded_entry = new SimpleIntegerProperty();
    public final IntegerProperty exported_entry = new SimpleIntegerProperty();
 
-   public final String type;
-   public final String[] fields;
-   public final List<Entry> entries = new ArrayList<>();
+   public final String[] fields; // Name (id) of compendium fields
+   public final List<Entry> entries = new ArrayList<>(); // Entry list
+
+   // Transformed data for export
+   public String[] meta; // Transform field list
+   public TreeSet<Entry> sorted; // Sorted entry list
 
    public Category( String id, String name, String type, String[] fields ) {
       this.id = id;

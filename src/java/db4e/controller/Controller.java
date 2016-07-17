@@ -1,5 +1,7 @@
-package db4e;
+package db4e.controller;
 
+import db4e.Main;
+import db4e.SceneMain;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.io.File;
@@ -38,19 +40,19 @@ import sheepy.util.ui.ObservableArrayList;
  * "this" is used to lock db, dal, and thread operations.
  * "categories" is used to lock data access, including downloadComplete flag.
  */
-public class Downloader {
+public class Controller {
 
    private static final Logger log = Main.log;
 
-   static final int DEF_TIMEOUT_MS = 30_000;
-   static final int DEF_INTERVAL_MS = 1_000;
-   static final int MIN_TIMEOUT_MS = 10_000;
-   static final int MIN_INTERVAL_MS = 0;
+   public static final int DEF_INTERVAL_MS = 1_000;
+   public static final int MIN_TIMEOUT_MS = 10_000;
+   public static final int MIN_INTERVAL_MS = 0;
+   public static final int DEF_TIMEOUT_MS = 30_000;
 
-   static volatile int TIMEOUT_MS = 30_000;
-   static volatile int INTERVAL_MS = 1_000;
+   public static volatile int TIMEOUT_MS = 30_000;
+   public static volatile int INTERVAL_MS = 1_000;
 
-   static final String DB_NAME = "dnd4_compendium.database";
+   public static final String DB_NAME = "dnd4_compendium.database";
 
    // Database variables are set on open().
    private volatile SqlJetDb db;
@@ -67,23 +69,19 @@ public class Downloader {
    private final Timer scheduler = new Timer();
    private final ForkJoinPool threadPool = ForkJoinPool.commonPool(); // Only need one thread
 
-   public Downloader ( SceneMain main ) {
+   public Controller ( SceneMain main ) {
       gui = main;
       browser = main.getWorker();
       engine = browser.getWebEngine();
       crawler = new Crawler( engine );
       state = new ProgressState( main::setProgress );
-      try {
-         TIMEOUT_MS = Integer.parseUnsignedInt( main.txtTimeout.getText() ) * 1000;
-         INTERVAL_MS = Integer.parseUnsignedInt( main.txtInterval.getText() );
-      } catch ( NumberFormatException ignored ) {}
    }
 
    /////////////////////////////////////////////////////////////////////////////
    // Stop task
    /////////////////////////////////////////////////////////////////////////////
 
-   void stop () {
+   public void stop () {
       engine.getLoadWorker().cancel();
       synchronized ( this ) {
          if ( currentThread != null )
@@ -127,7 +125,7 @@ public class Downloader {
                if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
                gui.stateCanDownload( msg );
                if ( ex instanceof LoginException )
-                  gui.txtUser.requestFocus();
+                  gui.focusUsername();
             }
          } else {
             gui.setTitle( "Done" );
@@ -142,7 +140,7 @@ public class Downloader {
    // Open, Close, and Reset
    /////////////////////////////////////////////////////////////////////////////
 
-   void resetDb () {
+   public void resetDb () {
       gui.setStatus( "Clearing data" );
       gui.setProgress( -1.0 );
       synchronized ( categories ) {
@@ -172,7 +170,7 @@ public class Downloader {
       } } );
    }
 
-   CompletableFuture<Void> open ( TableView categoryTable ) {
+   public CompletableFuture<Void> open ( TableView categoryTable ) {
       gui.stateBusy( "Opening database" );
       return CompletableFuture.runAsync( () -> {
          File db_file = new File( DB_NAME );
@@ -197,7 +195,6 @@ public class Downloader {
             } catch ( Exception ex ) {
                log.log( Level.SEVERE, "Cannot open user database {0}: {1}", new Object[]{ db_path, Utils.stacktrace( ex ) } );
                gui.stateBadData();
-               gui.btnClearData.setDisable( false );
                closeDb();
                throw new RuntimeException( ex );
             }
@@ -209,7 +206,7 @@ public class Downloader {
       } );
    }
 
-   void close() {
+   public void close() {
       stop();
       scheduler.cancel();
       closeDb();
@@ -262,7 +259,7 @@ public class Downloader {
    /////////////////////////////////////////////////////////////////////////////
 
    // Open compendium
-   CompletableFuture<Void> startDownload () {
+   public CompletableFuture<Void> startDownload () {
       gui.stateRunning();
       gui.setProgress( -1.0 );
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
@@ -344,7 +341,7 @@ public class Downloader {
    // Export
    /////////////////////////////////////////////////////////////////////////////
 
-   CompletableFuture<Void> startExport ( File target ) {
+   public CompletableFuture<Void> startExport ( File target ) {
       gui.stateRunning();
       gui.setProgress( -1.0 );
       state.done = 0;
@@ -380,9 +377,7 @@ public class Downloader {
       if ( crawler.needLogin() ) {
          log.log( Level.INFO, "Requires login: {0}", engine.getLocation() );
          runAndGet( "Open login page", crawler::openLoginPage );
-         final String user = gui.txtUser.getText().trim();
-         final String pass = gui.txtPass.getText().trim();
-         runAndGet( "Login", () -> crawler.login( user, pass ) );
+         runAndGet( "Login", () -> crawler.login( gui.getUsername(), gui.getPassword() ) );
          // Post login page may contain forms (e.g. locate a store), so rerun task before check
          runAndGet( taskName, task );
          if ( crawler.needLogin() ) {
