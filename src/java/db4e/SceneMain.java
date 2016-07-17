@@ -75,8 +75,8 @@ public class SceneMain extends Scene {
       private final TableColumn<Category,Integer> colTotalEntry = new TableColumn<>( "Total" );
       private final TableColumn<Category,Integer> colDownloadedEntry = new TableColumn<>( "Downloaded" );
       private final TableColumn<Category,Integer> colExportedEntry = new TableColumn<>( "Saved" );
-   private final Button btnLeft = new Button( "Please" );
-   private final Button btnRight = new Button( "Wait" );
+   private final Button btnLeft = new Button( "Wait" );
+   private final Button btnRight = new Button( "Exit" );
 
    private final Pane pnlDataTab = new BorderPane( tblCategory,
       JavaFX.fitVBox(
@@ -140,6 +140,8 @@ public class SceneMain extends Scene {
       colExportedEntry.setCellValueFactory( new PropertyValueFactory<>( "exportedEntry" ) );
       tblCategory.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
       tblCategory.getColumns().addAll( colName, colDownloadedEntry, colTotalEntry );
+
+      setRight( "Exit", this::action_exit );
 
       // Option tab
       txtTimeout.textProperty().addListener((prop, old, now ) -> { try {
@@ -242,7 +244,6 @@ public class SceneMain extends Scene {
       txtUser.setDisable( false );
       txtPass.setDisable( false );
       btnLeft.setDisable( false );
-      btnRight.setDisable( false );
       btnClearData.setDisable( false );
    }
 
@@ -250,7 +251,6 @@ public class SceneMain extends Scene {
       txtUser.setDisable( true );
       txtPass.setDisable( true );
       btnLeft.setDisable( true );
-      btnRight.setDisable( true );
       btnClearData.setDisable( true );
    }
 
@@ -361,7 +361,6 @@ public class SceneMain extends Scene {
       setStatus( "Cannot open local database" );
       allowAction();
       setLeft( "Reset", this::btnClearData_click );
-      setRight( "Exit", this::action_exit );
    } ); }
 
    public void stateCanDownload ( String status ) { runFX( () -> {
@@ -369,7 +368,6 @@ public class SceneMain extends Scene {
       setStatus( status );
       allowAction();
       setLeft( "Download", this::action_download );
-      setRight( "Exit", this::action_exit );
    } ); }
 
    public void stateCanExport ( String status ) { runFX( () -> {
@@ -377,7 +375,6 @@ public class SceneMain extends Scene {
       setStatus( status );
       allowAction();
       setLeft( "Export", this::action_export );
-      setRight( "Exit", this::action_exit );
    } ); }
 
    public void stateRunning () { runFX( () -> {

@@ -40,24 +40,31 @@ public class Convertor {
       return a.name.compareTo( b.name );
    }
 
+   private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
+
    protected void convertEntry ( Entry entry ) {
       if ( entry.meta == null )
          entry.meta = entry.fields;
-      if ( entry.data == null ) {
+
+      if ( entry.data == null )
          entry.data = normaliseData( entry.content );
-         if ( entry.data.contains( "<img " ) || entry.data.contains( "<a " ) )
-            log.log( Level.WARNING, "Found image or link in {0} ({1})", new Object[]{ entry.id, entry.name } );
-      }
+      if ( entry.data.contains( "<img " ) || entry.data.contains( "<a " ) )
+         log.log( Level.WARNING, "Unremoved image or link in {0} ({1})", new Object[]{ entry.id, entry.name } );
+
       if ( entry.fulltext == null )
          entry.fulltext = textData( entry.data );
+      if ( regxCheckFulltext.reset( entry.fulltext ).find() ) {
+         System.out.println( entry.fulltext );
+         log.log( Level.WARNING, "Unremoved html tag in fulltext of {0} ({1})", new Object[]{ entry.id, entry.name } );
+      }
    }
 
    // Products, Magazines of "published in". May be site root (Class Compendium) or empty (associate.93/Earth-Friend)
-   private Matcher regxSourceLink = Pattern.compile( "<a href=\"(?:http://www\\.wizards\\.com/[^\"]+)?\" target=\"_new\">([^<]+)</a>" ).matcher( "" );
+   private final Matcher regxSourceLink = Pattern.compile( "<a href=\"(?:http://www\\.wizards\\.com/[^\"]+)?\" target=\"_new\">([^<]+)</a>" ).matcher( "" );
    // Internal entry link, e.g. http://www.wizards.com/dndinsider/compendium/power.aspx?id=2848
-   private Matcher regxEntryLink = Pattern.compile( "<a href=\"http://www.wizards.com/dndinsider/compendium/[^\"]+\">([^<]+)</a>" ).matcher( "" );
+   private final Matcher regxEntryLink = Pattern.compile( "<a href=\"http://www.wizards.com/dndinsider/compendium/[^\"]+\">([^<]+)</a>" ).matcher( "" );
    // Internal search link, e.g. http://ww2.wizards.com/dnd/insider/item.aspx?fid=21&amp;ftype=3 - may also be empty (monster.2508/Darkpact Stalker)
-   private Matcher regxSearchLink = Pattern.compile( "<a target=\"_new\" href=\"http://ww2.wizards.com/dnd/insider/[^\"]+\">([^<]*)</a>" ).matcher( "" );
+   private final Matcher regxSearchLink = Pattern.compile( "<a target=\"_new\" href=\"http://ww2.wizards.com/dnd/insider/[^\"]+\">([^<]*)</a>" ).matcher( "" );
 
    protected String normaliseData ( String data ) {
       // Convert nbsp to character
@@ -101,13 +108,13 @@ public class Convertor {
     * @return Text data
     */
    protected String textData ( String data ) {
-      String result = regxHtmlTag.reset( data ).replaceAll( " " );
-      if ( result.indexOf( '<' ) >= 0 || result.indexOf( '>' ) >= 0 ) {
-         System.out.println( data );
-         System.out.println( "----" );
-         System.out.println( result );
-         throw new AssertionError( "unclean tag" );
-      }
-      return result;
+      // Strip HTML tags
+      data = regxHtmlTag.reset( data ).replaceAll( " " );
+      // HTML unescape. Compendium has relatively few escapes.
+      data = data.replace( "\u00A0", " " );
+      data = data.replaceAll( "\\s+", " " );
+      data = data.replace( "&amp;", "&" );
+      data = data.replace( "&gt;", ">" ); // glossary.433/"Weapons and Size"
+      return data;
    }
 }

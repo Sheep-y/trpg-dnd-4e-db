@@ -75,7 +75,10 @@ public class Controller {
       browser = main.getWorker();
       engine = browser.getWebEngine();
       crawler = new Crawler( engine );
-      state = new ProgressState( main::setProgress );
+      state = new ProgressState( ( progress ) -> {
+         checkStop( null );
+         main.setProgress( progress );
+      } );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -104,7 +107,7 @@ public class Controller {
    }
 
    // Return a function that is used to clean up running task and perhaps display error message
-   private BiConsumer<Void,Throwable> terminate ( String action ) {
+   private BiConsumer<Void,Throwable> terminate ( String action, Consumer<String> enabler ) {
       return ( result, err ) -> {
          if ( err != null ) {
             if ( err instanceof CompletionException && err.getCause() != null )
@@ -113,10 +116,10 @@ public class Controller {
                err = err.getCause(); // Unwrap RuntimeException and ExecutionExceptiom
 
             if ( err instanceof InterruptedException ) {
-               gui.stateCanDownload( action + " stopped" );
+               enabler.accept( action + " stopped" );
                gui.setTitle( "Stopped" );
             } else if ( err instanceof TimeoutException ) {
-               gui.stateCanDownload( action + " timeout" );
+               enabler.accept( action + " timeout" );
                gui.setTitle( "Timeout" );
             } else {
                gui.setTitle( "Error" );
@@ -124,7 +127,7 @@ public class Controller {
                String msg = ( (Exception) err ).getMessage();
                if ( msg == null || msg.isEmpty() ) msg = err.toString();
                if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
-               gui.stateCanDownload( msg );
+               enabler.accept( msg );
                if ( err instanceof LoginException )
                   gui.focusUsername();
             }
@@ -270,7 +273,7 @@ public class Controller {
          downloadCategory();
          downloadEntities();
          gui.stateCanExport( "Download complete, may export data" );
-      } ).whenComplete( terminate( "Download" ) );
+      } ).whenComplete( terminate( "Download", gui::stateCanDownload ) );
    }
 
    private void downloadCategory() throws Exception { // Too many exceptions to throw one by one
@@ -353,7 +356,7 @@ public class Controller {
          convertDataForExport();
 
          gui.stateCanExport( "Export is work in progress" );
-      } ).whenComplete( terminate( "Export" ) );
+      } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
    }
 
    private void convertDataForExport () {
