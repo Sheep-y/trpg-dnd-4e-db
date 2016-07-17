@@ -367,7 +367,7 @@ public class SceneMain extends Scene {
 
    void stateCanExport ( String status ) { runFX( () -> {
       log.log( Level.FINE, "State: Can Export" );
-      setStatus( "Ready to export" );
+      setStatus( status );
       allowAction();
       setLeft( "Export", this::action_export );
       setRight( "Exit", this::action_exit );

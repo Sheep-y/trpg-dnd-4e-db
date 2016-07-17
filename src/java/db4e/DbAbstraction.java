@@ -50,12 +50,11 @@ class DbAbstraction {
 
       loadCategory( categories );
       loadEntryIndex( categories, state );
-
-
    }
 
    synchronized void createTables () throws SqlJetException {
       db.beginTransaction( SqlJetTransactionMode.WRITE );
+      try {
          db.createTable( "CREATE TABLE 'config' ('key' TEXT PRIMARY KEY NOT NULL, 'value' TEXT NOT NULL);" );
 
          db.createTable( "CREATE TABLE 'category' ("+
@@ -102,7 +101,10 @@ class DbAbstraction {
          tblCategory.insert( "Deity", "Deity", 0, "Alignment,SourceBook", "DM", 1700 );
          tblCategory.insert( "Glossary", "Glossary", 0, "Category,Type,SourceBook", "DM", 1800 );
 
-      db.commit();
+         db.commit();
+      } finally {
+         db.rollback();
+      }
    }
 
    private void loadCategory ( ObservableList<Category> categories ) throws SqlJetException {
@@ -178,6 +180,7 @@ class DbAbstraction {
          }
          state.done = entryCount;
          state.update();
+
       } finally {
          db.commit();
       }
@@ -192,10 +195,12 @@ class DbAbstraction {
                if ( entry.fields == null || entry.content == null ) {
                   ISqlJetCursor cursor = tblEntry.lookup( null, entry.id );
                   if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.name + "' not in database" );
-                  if ( entry.fields == null ) entry.fields = parseCsvLine( cursor.getString( "fields" ) );
+                  if ( entry.fields  == null ) entry.fields  = parseCsvLine( cursor.getString( "fields" ) );
                   if ( entry.content == null ) entry.content = cursor.getString( "data" );
                   cursor.close();
                }
+               if ( ++state.done % 2048 == 0 )
+                  state.update();
             }
          }
       } finally {
@@ -233,10 +238,8 @@ class DbAbstraction {
          category.total_entry.set( count );
          db.commit();
 
-      } catch ( Exception e ) {
+      } finally {
          db.rollback();
-         throw e;
-
       }
    }
 
@@ -256,10 +259,8 @@ class DbAbstraction {
          db.commit();
          entry.contentDownloaded = true;
 
-      } catch ( Exception e ) {
+      } finally {
          db.rollback();
-         throw e;
-
       }
    }
 

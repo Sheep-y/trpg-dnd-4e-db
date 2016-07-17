@@ -104,7 +104,7 @@ public class Downloader {
       }
    }
 
-   // Return a function that is used to clean up a future and perhaps display error message
+   // Return a function that is used to clean up running task and perhaps display error message
    private BiConsumer<Void,Throwable> terminate ( String action ) {
       return ( result, err ) -> {
          if ( err != null ) {
@@ -172,7 +172,7 @@ public class Downloader {
       } } );
    }
 
-   CompletableFuture<Void> open( TableView categoryTable ) {
+   CompletableFuture<Void> open ( TableView categoryTable ) {
       gui.stateBusy( "Opening database" );
       return CompletableFuture.runAsync( () -> {
          File db_file = new File( DB_NAME );
@@ -267,29 +267,20 @@ public class Downloader {
       gui.setProgress( -1.0 );
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
       log.log( Level.CONFIG, "Timeout {0} ms / Interval {1} ms ", new Object[]{ TIMEOUT_MS, INTERVAL_MS } );
-      final CompletableFuture<Void> task = new CompletableFuture<>();
-
-      threadPool.execute( ()-> { try {
-         synchronized ( this ) { currentThread = Thread.currentThread(); }
+      return runTask( () -> {
          runAndCheckLogin( "Connect compendium", crawler::randomGlossary );
          downloadCategory();
-
+         downloadEntities();
          gui.stateCanExport( "Download complete, may export data" );
-         task.complete( null );
-
-      } catch ( Exception e ) {
-         task.completeExceptionally( e );
-      } } );
-
-      return task.whenComplete( terminate( "Download" ) );
+      } ).whenComplete( terminate( "Download" ) );
    }
 
-   private void downloadCategory() throws Exception { synchronized ( categories ) { // Too many exceptions to throw one by one
+   private void downloadCategory() throws Exception { // Too many exceptions to throw one by one
       TransformerFactory factory = null;
 
       for ( Category category : categories ) {
          if ( category.total_entry.get() > 0 ) continue;
-         final String name = category.name.toLowerCase();
+         String name = category.name.toLowerCase();
 
          runAndGet( "Get " + name + " template", () ->
             crawler.getCategoryXsl( category ) );
@@ -315,8 +306,7 @@ public class Downloader {
       }
       state.total = categories.stream().mapToInt( c -> c.total_entry.get() ).sum();
       state.update();
-      downloadEntities();
-   } }
+   }
 
    private void downloadEntities () throws Exception {
       Instant[] pastFinishTime = new Instant[ 10 ]; // Past 10 finish time
@@ -356,29 +346,34 @@ public class Downloader {
 
    CompletableFuture<Void> startExport ( File target ) {
       gui.stateRunning();
+      gui.setProgress( -1.0 );
+      state.done = 0;
       log.log( Level.CONFIG, "Export target: {0}", target );
-      final CompletableFuture<Void> task = new CompletableFuture<>();
-
-      threadPool.execute( ()-> { try {
-         synchronized ( this ) { currentThread = Thread.currentThread(); }
+      return runTask( () -> {
          gui.setStatus( "Loading content" );
-         synchronized ( categories ) {
-            dal.loadEntityContent( categories, state );
-         }
-
+         dal.loadEntityContent( categories, state );
          gui.stateCanExport( "Export Complete, may view data" );
-         task.complete( null );
-
-      } catch ( Exception e ) {
-         task.completeExceptionally( e );
-      } } );
-
-      return task.whenComplete( terminate( "Export" ) );
+      } ).whenComplete( terminate( "Export" ) );
    }
 
    /////////////////////////////////////////////////////////////////////////////
-   // Utils
+   // Shared / Utils
    /////////////////////////////////////////////////////////////////////////////
+
+   private CompletableFuture<Void> runTask ( RunExcept task ) {
+      final CompletableFuture<Void> result = new CompletableFuture<>();
+      threadPool.execute( ()-> { try {
+         synchronized ( this ) { currentThread = Thread.currentThread(); }
+         synchronized ( categories ) {
+            task.run();
+         }
+         result.complete( null );
+
+      } catch ( Exception e ) {
+         result.completeExceptionally( e );
+      } } );
+      return result;
+   }
 
    private void runAndCheckLogin ( String taskName, RunExcept task ) throws Exception {
       runAndGet( taskName, task );
@@ -395,50 +390,6 @@ public class Downloader {
             throw new LoginException( "Login incorrect or expired, see Help." );
          }
       }
-   }
-
-   /**
-    * Given a CompletableFuture,
-    * set a timeout and return a Consumer function
-    * that, when called, will finish the task
-    * normally or exceptionally and cleanup.
-    *
-    * Clean up includes stopping the timeout, clear browser handlers,
-    * and notify all threads waiting on the task.
-    * If the task ended in exception, it will also be logged at warning level.
-    *
-    * @param task Task to timeout and complete
-    * @param timeout_message Message of timeout exception
-    * @return A function to call to complete
-    */
-   private Consumer browserTaskHandler ( CompletableFuture task, String taskName ) {
-      BiConsumer<TimerTask, Object> result = ( timeout, err ) -> {
-         synchronized ( task ) {
-            if ( timeout != null )
-               timeout.cancel();
-            browser.handle( null, null );
-            if ( err != null && err instanceof Throwable ) {
-               log.log( Level.WARNING, "Task finished exceptionally: {0}", err );
-               task.completeExceptionally( (Throwable) err );
-            } else {
-               log.log( Level.FINE, "{0} finished normally.", taskName );
-               task.complete( err );
-            }
-            task.notify();
-         }
-      };
-      TimerTask openTimeout = Utils.toTimer( () -> result.accept( null, new TimeoutException( taskName + " timeout" ) ) );
-      scheduler.schedule( openTimeout, TIMEOUT_MS );
-      return ( err ) -> result.accept( openTimeout, err );
-   }
-
-   private void waitFinish ( CompletableFuture task, Consumer<? super InterruptedException> interrupted ) {
-      synchronized ( task ) { try {
-         task.wait();
-      } catch ( InterruptedException ex ) {
-         if ( interrupted != null )
-            interrupted.accept( ex );
-      } }
    }
 
    private Instant lastLoad = Instant.now();
@@ -467,12 +418,45 @@ public class Downloader {
          );
          checkStop( taskName );
          task.run();
-         waitFinish( future, handle );
+         synchronized ( future ) { future.wait(); }
          future.get(); // ExecutionException
       } catch ( Exception e ) {
          handle.accept( e );
          throw new RuntimeException( e );
       }
+   }
+
+   /**
+    * Given a CompletableFuture,
+    * set a timeout and return a Consumer function
+    * that, when called, will finish the task
+    * normally or exceptionally and cleanup.
+    *
+    * Clean up includes stopping the timeout, clear browser handlers,
+    * and notify all threads waiting on the task.
+    * If the task ended in exception, it will also be logged at warning level.
+    *
+    * @param task Task to timeout and complete
+    * @param timeout_message Message of timeout exception
+    * @return A function to call to complete
+    */
+   private Consumer browserTaskHandler ( CompletableFuture task, String taskName ) {
+      BiConsumer<TimerTask, Object> handler = ( timeout, result ) -> { synchronized ( task ) {
+         if ( timeout != null )
+            timeout.cancel();
+         browser.handle( null, null );
+         if ( result != null && result instanceof Throwable ) {
+            log.log( Level.WARNING, "Task finished exceptionally: {0}", result );
+            task.completeExceptionally( (Throwable) result );
+         } else {
+            log.log( Level.FINE, "{0} finished normally.", taskName );
+            task.complete( result );
+         }
+         task.notify();
+      } };
+      TimerTask openTimeout = Utils.toTimer( () -> handler.accept( null, new TimeoutException( taskName + " timeout" ) ) );
+      scheduler.schedule( openTimeout, TIMEOUT_MS );
+      return ( input ) -> handler.accept( openTimeout, input );
    }
 
    private static interface RunExcept {
