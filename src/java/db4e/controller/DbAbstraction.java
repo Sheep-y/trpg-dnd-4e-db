@@ -185,6 +185,7 @@ class DbAbstraction {
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
          for ( Category category : categories ) {
+            log.log( Level.FINE, "Loading {0} content", category.id );
             for ( Entry entry : category.entries ) {
                if ( entry.fields == null || entry.content == null ) {
                   ISqlJetCursor cursor = tblEntry.lookup( null, entry.id );

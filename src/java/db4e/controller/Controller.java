@@ -363,6 +363,13 @@ public class Controller {
          dal.loadEntityContent( categories, state );
          convertDataForExport();
 
+         checkStop( "Writing data" );
+         state.done = 0;
+         for ( Category category : categories ) {
+            log.log( Level.FINE, "Writing {0}", category.id );
+            exporter.writeCategory( root, category, state );
+         }
+
          gui.stateCanExport( "Export is work in progress" );
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
    }
@@ -372,7 +379,7 @@ public class Controller {
       state.done = 0;
       state.update();
       for ( Category category : categories ) {
-         log.log( Level.FINE, "Indexing {0}", category.name );
+         log.log( Level.FINE, "Indexing {0}", category.id );
          Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
          convertor.convert( category, state );
       }

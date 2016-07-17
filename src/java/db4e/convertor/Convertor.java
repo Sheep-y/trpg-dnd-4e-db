@@ -36,6 +36,7 @@ public class Convertor {
       for ( Entry entry : category.entries ) {
          if ( entry.content == null ) throw new IllegalStateException( entry.name + " (" + category.name + ") has no content" );
          convertEntry( entry );
+         category.sorted.add( entry ); // addAll yields no speed improvement if source is not sorted
          state.addOne();
       }
    }
@@ -113,7 +114,7 @@ public class Convertor {
       //data = regxSearchLink.reset( data ).replaceAll( "$1" );
       data = regxLinks.reset( data ).replaceAll( "$1" );
 
-      return data;
+      return data.trim();
    }
 
    private final Matcher regxHtmlTag = Pattern.compile( "</?\\w+[^>]*>" ).matcher( "" );
@@ -133,6 +134,6 @@ public class Convertor {
       // HTML unescape. Compendium has relatively few escapes.
       data = data.replace( "&amp;", "&" );
       data = data.replace( "&gt;", ">" ); // glossary.433/"Weapons and Size"
-      return data;
+      return data.trim();
    }
 }
