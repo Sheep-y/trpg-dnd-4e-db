@@ -13,32 +13,12 @@ html, body {
    width: 100%;
    }
 
-header {
-   position: fixed;
-   bottom: 0;
-   width: 100%;
-   }
-   header > nav > a {
-      background: #006;
-      border: 1px solid white;
-      color: white;
-      display: block;
-      float: left;
-      font-weight: bold;
-      text-align: center;
-      width: 33.3%;
-      }
-      header > nav > a:hover ,
-      header > nav > a:active {
-         color: yellow;
-         }
-
 main {
    margin: 1em;
    padding-bottom: 1em;
    }
    h2 {
-      margin-top: 1.5em;
+      margin-top: 1em;
       }
 
 a {
@@ -50,13 +30,6 @@ li {
    }
    </style>
 </head><body>
-   <header>
-      <nav>
-         <a href="#help">Help</a>
-         <a href="#faq">FAQ</a>
-         <a href="#about">About</a>
-      </nav>
-   </header>
    <main>
       <h1> 4e Compendium (v3.5) Downloader </h1>
       <h1> Work In Progress.  Can download but not export. </h1>
@@ -80,7 +53,7 @@ li {
                <b>Fill the login in Data tab.</b> <br/>
                This downloader relies on you to fill in correct DDI login information.
                This downloader only send your login to the DDI site.
-               (If it hasn't been modified from the <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/releases'>original</a>.)
+               Password is remembered on your machine; delete it after download to be safe.
             </li>
             <li>
                <b>Click "Download" and leave it running</b> <br/>
@@ -128,8 +101,8 @@ li {
             <li>
                <b>Slow download</b> <br/>
                <i>Whoever is patient has great understanding, but one who is quick-tempered displays folly.</i> - Proverbs 14:29 <br/>
-               Decrease the interval period in option tab, but there <i>are</i> 25k pieces of data to download afterall.
-               7 hours if your Internet can get it at 1 per second, 21 if per 3 seconds.
+               Decrease the interval period in option tab, but there are 25k pieces of data to download afterall.
+               14 hours if your Internet can get it at 1 per 2 seconds.
             </li>
             <li>
                <b>How to export to my phone / pad?</b> <br/>
@@ -137,10 +110,9 @@ li {
                Android <a href='https://www.google.com/search?q=transfer+file+to+android'>is also easy</a>.
                <br/>
                Sorry I cannot support iOS.
-               I have neither the device or the Mac required to debug it.
-               It is no joy supporting <i>the</i> <a href='http://safari-is-the-new-ie.com/'>outdated browser</a>
-               that looks good only because of a <a href='http://www.howtogeek.com/184283/why-third-party-browsers-will-always-be-inferior-to-safari-on-iphone-and-ipad/'>lockout policy</a>
-               anyway.
+               I have neither the device nor the Mac required to debug it.
+               I cannot promise it will work on an <a href='http://safari-is-the-new-ie.com/'>outdated browser</a>
+               that looks good only because of a <a href='http://www.howtogeek.com/184283/why-third-party-browsers-will-always-be-inferior-to-safari-on-iphone-and-ipad/'>lockout policy</a>.
             </li>
          </ol>
       </section>
@@ -155,13 +127,12 @@ li {
             SQLJet uses <a href='http://www.antlr3.org/'>ANTLR (v3.5)</a>, <a href='http://www.antlr3.org/license.html'>licensed</a> under <a href='https://opensource.org/licenses/BSD-3-Clause'>3-Clause BSD</a>.
          </p>
          <p>
-            This downloader is different from the data you use it to download.
-            The free licenses apply to code and related resources, but not to downloaded data.
+            The free licenses apply to code and related resources, but not to the data you downloaded.
          </p>
       </section>
    </main>
    <script>
-   [].forEach.call( document.querySelectorAll( 'a:not([href^=#])' ), function ( a ) {
+   [].forEach.call( document.querySelectorAll( 'a' ), function ( a ) {
       a.target = '_blank';
    } );
    </script>

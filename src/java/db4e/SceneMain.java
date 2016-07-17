@@ -114,7 +114,7 @@ public class SceneMain extends Scene {
    private final TabPane pnlC = new TabPane( tabData, tabOption, tabHelp );
 
    public SceneMain( Main main ) {
-      super( new Group(), 640, 450 );
+      super( new Group(), 800, 500 );
       main.addLoggerOutput( txtLog );
       initControls();
       initLayout();
