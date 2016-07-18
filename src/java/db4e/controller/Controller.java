@@ -386,7 +386,7 @@ public class Controller {
       for ( Category category : categories ) {
          log.log( Level.FINE, "Indexing {0}", category.id );
          Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
-         convertor.convert( category, state );
+         convertor.convert( state );
       }
    }
 

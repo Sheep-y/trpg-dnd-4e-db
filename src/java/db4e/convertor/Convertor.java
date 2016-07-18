@@ -17,17 +17,30 @@ public class Convertor {
 
    private static final Logger log = Main.log;
 
+   protected final Category category;
    private final boolean debug;
 
-   protected Convertor ( boolean debug ) {
+   protected Convertor ( Category category, boolean debug ) {
+      this.category = category;
       this.debug = debug;
    }
 
    public static Convertor getConvertor ( Category category, boolean debug ) {
-      return new Convertor( debug );
+      switch ( category.id ) {
+         case "Power":
+         case "Ritual":
+         case "Monster":
+         case "Trap":
+         case "Item":
+         case "Poison":
+         case "Disease":
+            return new LeveledConvertor( category, debug );
+         default:
+            return new Convertor( category, debug );
+      }
    }
 
-   public void convert ( Category category, ProgressState state ) {
+   public void convert ( ProgressState state ) {
       if ( category.meta == null )
          category.meta = category.fields;
       if ( category.sorted == null )

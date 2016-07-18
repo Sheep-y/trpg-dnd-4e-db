@@ -53,7 +53,7 @@ class Exporter {
          str( buffer, category.id );
          write( ",{", index, buffer );
 
-         for ( Entry entry : category.entries ) {
+         for ( Entry entry : category.sorted ) {
             str( buffer.append( '[' ), entry.id ).append( ',' );
             str( buffer, entry.name ).append( ',' );
             for ( Object field : entry.meta )
