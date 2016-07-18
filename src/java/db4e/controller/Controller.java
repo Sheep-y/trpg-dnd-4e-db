@@ -253,7 +253,7 @@ public class Controller {
          }
       }
 
-      if ( state.done < state.total )
+      if ( state.done < state.total || categories.stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
          gui.stateCanDownload( "Ready to download" );
       else
          gui.stateCanExport( "Ready to export" );

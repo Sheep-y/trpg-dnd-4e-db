@@ -82,20 +82,20 @@ class DbAbstraction {
 
          tblConfig.insert( "version", "20160710" );
 
-         tblCategory.insert( "Race", "Race", 0, "Size,DescriptionAttribute,SourceBook", "PC", 100 );
+         tblCategory.insert( "Race", "Race", 0, "DescriptionAttribute,Size,SourceBook", "PC", 100 );
          tblCategory.insert( "Background", "Background", 0, "Type,Campaign,Skills,SourceBook", "PC", 200 );
          tblCategory.insert( "Theme", "Theme", 0, "SourceBook", "PC", 300 );
-         tblCategory.insert( "Class", "Class", 0, "PowerSourceText,RoleName,KeyAbilities,SourceBook", "PC", 400 );
+         tblCategory.insert( "Class", "Class", 0, "RoleName,PowerSourceText,KeyAbilities,SourceBook", "PC", 400 );
          tblCategory.insert( "ParagonPath", "Paragon Path", 0, "Prerequisite,SourceBook", "PC", 500 );
          tblCategory.insert( "EpicDestiny", "Epic Destiny", 0, "Prerequisite,SourceBook", "PC", 600 );
-         tblCategory.insert( "Feat", "Feat", 0, "SourceBook,TierName,TierSort", "PC", 700 );
-         tblCategory.insert( "Power", "Power", 0, "Level,ActionType,SourceBook,ClassName", "PC", 800 );
+         tblCategory.insert( "Feat", "Feat", 0, "TierName,SourceBook", "PC", 700 );
+         tblCategory.insert( "Power", "Power", 0, "ClassName,Level,ActionType,SourceBook", "PC", 800 );
          tblCategory.insert( "Ritual", "Ritual", 0, "Level,ComponentCost,Price,KeySkillDescription,SourceBook", "PC", 900 );
          tblCategory.insert( "Companion", "Companion", 0, "Type,SourceBook", "PC", 1000 );
-         tblCategory.insert( "Item", "Item", 0, "Cost,Level,Rarity,Category,SourceBook,LevelSort,CostSort", "PC", 1100 );
+         tblCategory.insert( "Item", "Item", 0, "Category,Level,Cost,Rarity,SourceBook", "PC", 1100 );
 
-         tblCategory.insert( "Monster", "Monster", 0, "Level,GroupRole,CombatRole,SourceBook", "DM", 1200 );
-         tblCategory.insert( "Trap", "Trap", 0, "GroupRole,Type,Level,SourceBook", "DM", 1300 );
+         tblCategory.insert( "Monster", "Monster", 0, "Level,CombatRole,GroupRole,SourceBook", "DM", 1200 );
+         tblCategory.insert( "Trap", "Trap", 0, "Type,GroupRole,Level,SourceBook", "DM", 1300 );
          tblCategory.insert( "Terrain", "Terrain", 0, "Type,SourceBook", "DM", 1400 );
          tblCategory.insert( "Poison", "Poison", 0, "Level,Cost,SourceBook", "DM", 1500 );
          tblCategory.insert( "Disease", "Disease", 0, "Level,SourceBook", "DM", 1600 );

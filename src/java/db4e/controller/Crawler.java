@@ -84,7 +84,10 @@ public class Crawler {
    }
 
    void getCategoryData ( Category cat ) throws InterruptedException, TimeoutException {
-      eval( " document.querySelector( '[name=endPos]' ).setAttribute( 'select', \"'99999'\" ) " ); // Update XSL's limit
+      // Update XSL's limit
+      eval( " document.querySelector( '[name=endPos]' ).setAttribute( 'select', \"'99999'\" ) " );
+      // Remove multiple source mapping
+      eval( " document.querySelector( '[test^=contains]' ).parentNode.removeChild( document.querySelector( '[test^=contains]' ) ) ");
       browse( "http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/ViewAll?tab=" + cat.id );
    }
 
