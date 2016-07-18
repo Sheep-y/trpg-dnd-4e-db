@@ -11,17 +11,6 @@ od.data = {
    /* Please do NOT access directly. */
    "category" : {},
 
-   /** Clear all loaded data or a category of data */
-   "clear" : function data_clear ( cat ) {
-      var category = this.category;
-      for ( var c in category ) {
-         if ( cat === undefined || cat === c ) {
-            category[c].unload();
-            delete category[c];
-         }
-      }
-   },
-
    /**
     * With no parameter: return an array of category names.
     * With string parameter: Return a category.
@@ -71,87 +60,19 @@ od.data = {
       for ( var cat in cats ) cats[cat].load_listing( lat.count_down_function() );
       lat.count_down();
    },
-
-   "save_catalog" : function data_save_catalog ( ondone, onerror ) {
-      od.data.get().forEach( function(e) {
-         if ( e.count === 0 ) delete od.data.category[e.name];
-      });
-      od.writer.write_catalog( ondone, onerror );
-   },
-
-   /**
-    * Pre-process data - extract content, remove scripts and forms, normalise symbols and links etc.
-    *
-    * @param {String} data Raw entry data to be processed.
-    */
-   "preprocess" : function data_preprocess ( data ) {
-      // Normalise input
-      data = data.trim().replace( /\r\n?/g, '\n' );
-      // Extract body
-      if ( data.indexOf( '<body' ) >= 0 ) {
-         data = data.match( /<body[^>]*>\s*((?:.|\n)*?)\s*<\/body\s*>/ );
-         if ( !data ) return null;
-         data = data[1].trim();
-      }
-      // Remove script and form tags
-      data = data.replace( /<script\b.*?<\/script\s*>/g, '' ).replace( /<\/?(input|form)[^>]*>/g, '');
-      // Normalise whitespace
-      data = data.replace( /[\n\s]+/g, ' ' );
-      // Remove empty contents
-      data = data.replace( /<div[^>]*>\s*<\/div\s*>/g, '' );
-      // Compression - Removes quotes, links, nbsp etc.
-      data = data.replace( /(<\w+ \w+)\s*=\s*"([^" ]+)"/g, '$1=$2' );
-      data = data.replace( /(<\w+ \w+)\s*=\s*'([^' ]+)'/g, '$1=$2' );
-      data = data.replace( /<br\s*\/>/g, '<br>' );
-      data = data.replace( /&nbsp;/g, '\u00A0' );
-      data = data.replace( /<\/?a(\s[^>]+)?>/g, '' );
-      data = data.replace( / alt=""/g, ' ' );
-      // Image conversion
-      data = data.replace( /https?:\/\/(www\.)?wizards\.com\/dnd\/images\//g, 'images/' );
-      data = data.replace( /<img [^>]*src=images\/bullet\.gif [^>]*\/>/g, '✦' ); // Most common symbol at 100k.
-      data = data.replace( /<img [^>]*src=images\/symbol\/x\.gif [^>]*\/>/g, '✦' ); // Second most common symbol at 40k.
-      data = data.replace( /<img [^>]*src=images\/symbol\/aura\.png [^>]*\/>/g, '☼' ); // About 1000 hits
-      // S1 - basic close ; S2 - basic melee ; S3 - basic ranged ; S4 - basic area. Should use \u20DD Enclosing circle but only supported by Code2000, too high requirment
-      // Z1 & z1a - close ; z2a - melee ; z3a - ranged ; Z4 & z4a - area
-      data = data.replace( /<img [^>]*src=images\/symbol\/[sS]1\.gif [^>]*\/>/g, '͜͡⋖' ); // None
-      data = data.replace( /<img [^>]*src=images\/symbol\/[zZ]1[aA]?\.gif [^>]*\/>/g,'⋖' ); // ~3300
-      data = data.replace( /<img [^>]*src=images\/symbol\/[sS]2\.gif [^>]*\/>/g, '͜͡⚔' ); // ~5600
-      data = data.replace( /<img [^>]*src=images\/symbol\/[zZ]2[aA]?\.gif [^>]*\/>/g, '⚔' ); // ~4200
-      data = data.replace( /<img [^>]*src=images\/symbol\/[sS]3\.gif [^>]*\/>/g, '͜͡➶' ); // ~950
-      data = data.replace( /<img [^>]*src=images\/symbol\/[zZ]3[aA]?\.gif [^>]*\/>/g, '➶' ); // ~2000
-      data = data.replace( /<img [^>]*src=images\/symbol\/[sS]4\.gif [^>]*\/>/g, '͜͡✻' ); // No hits
-      data = data.replace( /<img [^>]*src=images\/symbol\/[zZ]4[aA]?\.gif [^>]*\/>/g, '✻' ); // ~720
-      // 1a ... 6a = dice face 1-6
-      data = data.replace( /<img [^>]*src=images\/symbol\/1[aA]\.gif [^>]*\/>/g, '⚀' ); // 1
-      data = data.replace( /<img [^>]*src=images\/symbol\/2[aA]\.gif [^>]*\/>/g, '⚁' ); // 4
-      data = data.replace( /<img [^>]*src=images\/symbol\/3[aA]\.gif [^>]*\/>/g, '⚂' ); // ~30
-      data = data.replace( /<img [^>]*src=images\/symbol\/4[aA]\.gif [^>]*\/>/g, '⚃' ); // ~560
-      data = data.replace( /<img [^>]*src=images\/symbol\/5[aA]\.gif [^>]*\/>/g, '⚄' ); // ~2100
-      data = data.replace( /<img [^>]*src=images\/symbol\/6[aA]\.gif [^>]*\/>/g, '⚅' ); // ~2500
-      // Convert ’ to ' so that people can actually search for it
-      data = data.replace( /’/g, "'" );
-      return data.trim();
-   },
-
-   /**
-    * Pre-process data - extract content, remove scripts and forms, normalise symbols and links etc.
-    *
-    * @param {String} data Data to be indexed.
-    */
-   "indexify" : function data_indexify ( data ) {
-      // Remove power and item flavors
-      data = data.replace( /(<h1 class=\w+power><span[^>]+>[^<]+<\/span>[^<]+<\/h1>)<p class=flavor>.*?<\/p>/g, '$1' );
-      data = data.replace( /<p class=miflavor>.*?<\/p>/g, '' );
-      // Remove tags and condense whitespaces
-      data = data.replace( /<[^>]+>/g, ' ' );
-      data = data.replace( /  +/g, ' ' );
-      return data.trim();
-   }
 };
 
 od.data.Category = function Category ( name ) {
    this.name = name;
-   this.unload();
+   this.raw_columns = [];
+   this.raw = [];
+   this.ext_columns = [];
+   this.extended = [];
+   this.index = {};
+   this.columns = [];
+   this.list = [];
+   this.map = {};
+   this.data = {};
 };
 od.data.Category.prototype = {
    "name": "",
@@ -177,24 +98,6 @@ od.data.Category.prototype = {
       return _.l( 'data.category.' + this.name, this.name );
    },
 
-   /**
-    * Clear all loaded data and columns.
-    *
-    * @returns undefined
-    */
-   "unload" : function data_Cat_unload () {
-      if ( this.list ) this.count = this.list.length;
-      this.raw_columns = [];
-      this.raw = [];
-      this.ext_columns = [];
-      this.extended = [];
-      this.index = {};
-      this.columns = [];
-      this.list = [];
-      this.map = {};
-      this.data = {};
-   },
-
    "load_raw" : function data_Cat_load_raw ( ondone, onerror ) {
       od.reader.read_data_raw( this.name, ondone, _.callonce( onerror ) );
    },
@@ -213,50 +116,6 @@ od.data.Category.prototype = {
 
    "load_data" : function data_Cat_load_data ( id, ondone, onerror ) {
       od.reader.read_data( this.name, id, ondone, onerror );
-   },
-
-   /** Save raw data, listing data, and index data for this category. */
-   "save" : function data_Cat_save ( ondone, onerror ) {
-      var l = new _.Latch( 3, ondone ), countdown = l.count_down_function();
-      onerror = _.callonce( onerror );
-      od.writer.write_data_raw( this, countdown, onerror );
-      od.writer.write_data_listing( this, countdown, onerror );
-      od.writer.write_data_index( this, countdown, onerror );
-   },
-
-   "save_data" : function data_Cat_save_data ( id, ondone, onerror ) {
-      od.writer.write_data( this, id, this.data[id], ondone, onerror );
-   },
-
-   "check_columns" : function data_Cat_check_columns ( col ) {
-      if ( JSON.stringify(this.raw_columns) !== JSON.stringify(col) ) {
-         this.unload();
-         this.count = 0;
-         this.raw_columns = col;
-         this.ext_columns = this.parse_extended( col, null );
-      }
-   },
-
-   "parse_extended" : function data_Cat_parse_extended ( listing, data ) {
-      var result = listing.concat();
-      // Data is null = listing columns
-      if ( data ) {
-         result[ 0 ] = od.config.id( result[ 0 ] );
-         var pos = this.ext_columns.indexOf( 'SourceBook' );
-         if ( pos && listing[ pos ] && listing[ pos ].indexOf(',') >= 0 ) result[ pos ] = [ listing[pos] ].concat( listing[pos].split(',') );
-      }
-      return result;
-   },
-
-   "update" : function data_Cat_update ( id, listing, data, i ) {
-      id = od.config.id( id );
-      if ( i === undefined ) i = _.col( this.raw ).indexOf( id );
-      data = od.data.preprocess( data );
-      if ( i < 0 ) i = this.count++;
-      this.raw[i] = listing;
-      this.extended[i] = this.parse_extended( listing, data );
-      this.index[id] = od.data.indexify( data );
-      this.data[id] = data;
    },
 
    // Build this.columns and this.list.

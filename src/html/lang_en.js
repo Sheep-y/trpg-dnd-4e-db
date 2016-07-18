@@ -32,15 +32,7 @@ _.l.set( 'error', {
    // 'no_cross_origin' : 'Cross Origin' // TODO: implement proper cross origin alert
    'ajax_error' : 'Cannot load content (%1) from %2',
 
-   'com_file_security' : 'Cannot save data due to browser security settings. Go to Tools > Internet Options > Security > Custom Level. Enable "Initialize and script ActiveX controls not marked as safe".',
-   'file_grant_permission' : 'You may see a prompt. Please grant us the permission update data files.',
-   'file_no_api' : 'Only support saving in IE, because JavaScript cannot save to portable offline data file.',
-   'file_cannot_delete' : 'Cannot overwrite %1',
-
-   'wrong_ext': 'Extended list different from raw list, please re-index from download screen: %1.',
-   'need_reindex' : 'Save format outdated; Please go to update page and re-index all data.',
-   'need_redown'  : 'Save format outdated; Please delete all data and re-download.',
-   'inconsistent_category' : "Category '%1' has inconsistent data (%2).  Please go to update and reindex it or delete and re-download it."
+   'inconsistent_category' : "Category '%1' has inconsistent data (%2).  Please re-export this viewer."
 });
 
 _.l.set( 'gui', {
@@ -72,51 +64,6 @@ _.l.set( 'action.view', {
    'title' : "View %1 Data"
 });
 
-_.l.set( 'action.update', {
-   'title' : "Update",
-   'link_text' : "Update",
-
-   'paragraph' : [
-      "This web page allows you to download and save <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>compendium entries</a>, then search and list them online or offline using advanced Google-like syntax.",
-      "<b>Requires active <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI subscription</a></b> to <b>download or update</b> any data."
-   ],
-   'btn_get_catalog' : "Refresh catalog",
-   'btn_all_list' : "Check all",
-   'btn_list' : "Check",
-   'btn_relist' : "Re-check",
-   'btn_delete' : "Delete",
-   'btn_reindex': "Re-index",
-   'btn_update' : "Get new + changed",
-   'btn_update_all' : "Get all items",
-   'btn_save' : "Save",
-
-   'th_category': "Category",
-   'th_local'   : "Saved",
-   'th_remote'  : "Online",
-   'th_changed' : "Changed",
-   'th_new'     : "New",
-   'th_status'  : " ",
-   'th_commands': " ",
-
-   'lbl_new_item'     : 'New item(s) in %2: %1',
-   'lbl_changed_item' : 'Changed item(s) in %2: %1',
-   'btn_close' : 'Close',
-
-   'lbl_fetching_both' : "Fetching list and convertor",
-   'lbl_fetching_xml' : "Fetching list",
-   'lbl_fetching_xsl' : "Fetching convertor",
-   'lbl_progress' : "%1 / %2",
-
-   'err_online':
-      "<b class='red'>Please save this web page as a file and open the file to do download/update.</b>",
-   'err_nonie':
-      "<b class='red'>Download/update is only available in <a href='http://ie.microsoft.com/'>Internet Explorer (9+)</a>.</b>",
-   'err_activex':
-      "<b class='red'>Please use <a href='http://blogs.msdn.com/b/ie/archive/2012/03/26/launch-options-for-internet-explorer-10-on-windows-8.aspx'>desktop version IE</a> (if Windows 8) and <a href='http://windows.microsoft.com/en-gb/windows/help/genuine/ie-activex'>enable ActiveX</a> to do download/update.</b>",
-
-   'msg_login'  : "Please login to offical DDI (compendium) and try again."
-});
-
 _.l.set( 'action.about', {
    'title' : "Help",
    'link_text' : "Help",
@@ -143,14 +90,8 @@ _.l.set( 'action.about', {
 
    'h_get_data' : "How to Get data",
    'p_get_data' :
-      "This script comes with no data. To get data, you need a few things, including an active <a href='http://archive.wizards.com/DnD/Subscription.aspx'>Dungeons & Dragons Insider subscription</a>. <br/>"+
-      "Data can be acquired in a few steps: <br/> <ol> "+
-      " <li> Save this HTML to your PC and open it with Internet Explorer (desktop version) "+
-      " <li> Get catalog "+
-      " <li> Get listing of one or more categories "+
-      " <li> Get data (may prompt login) "+
-      " <li> Save data "+
-      "</ol> More information is availble from the update page.",
+      "This script comes with no data. "+
+      "Data can be acquired with a <a href='https://github.com/Sheep-y/trpg-dnd-4e-db#readme'>downloader</a> if you have an active (paid) <a href='http://ddi.wizards.com/'>Dungeons &amp; Dragons insider</a> subscription and a computer.",
 
    'h_search_data' : "How to Search data",
    'p_search_data' :

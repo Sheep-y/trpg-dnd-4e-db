@@ -30,15 +30,6 @@ od.gui = {
          }
       } );
 
-      // Show / Hide 'top' buttons when scrolled
-      function window_scroll () {
-         var isTop = window.pageYOffset === 0;
-         _.visible( '.btn_top', ! isTop );
-         _.visible( '.btn_non_top', isTop );
-      }
-      window.addEventListener( 'scroll', window_scroll, false );
-      window_scroll();
-
       // Monitor url change
       (function(){
          var gui = od.gui, get_act_id = gui.get_act_id;

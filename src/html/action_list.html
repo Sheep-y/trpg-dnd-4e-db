@@ -114,10 +114,9 @@
    </div>
 
    <header role="navigation">
-      <button class='i18n' id='act_list_btn_update' onclick='od.gui.go("update")'> action.update.link_text </button>
+      <button class='i18n' onclick='od.gui.go("about")'> action.about.link_text </button>
       <h1 class='i18n'>action.list.title</h1>
-      <button class='i18n btn_non_top' onclick='od.gui.go("about")'> action.about.link_text </button>
-      <a class='i18n button btn_top' href='#top'> gui.top </a>
+      <button class='i18n' onclick='scrollTo(0,0)'> gui.top </button>
    </header>
 
 </section>
@@ -393,7 +392,7 @@ od.action.list = {
          _.show( div );
          if ( ondone ) _.call( ondone );
       }, function act_list_build_category_error () {
-         od.gui.go( "update" );
+         od.gui.go( "about" );
       });
    },
 

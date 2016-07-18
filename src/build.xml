@@ -16,10 +16,7 @@
       <loadfile property="code_lzw.js" srcfile="${srcdir}code_lzw.js" encoding="UTF-8" />
       <loadfile property="data_model.js" srcfile="${srcdir}data_model.js" encoding="UTF-8" />
       <loadfile property="data_search.js" srcfile="${srcdir}data_search.js" encoding="UTF-8" />
-      <loadfile property="data_updater.js" srcfile="${srcdir}data_updater.js" encoding="UTF-8" />
       <loadfile property="data_reader.js" srcfile="${srcdir}data_reader.js" encoding="UTF-8" />
-      <loadfile property="data_writer.js" srcfile="${srcdir}data_writer.js" encoding="UTF-8" />
-      <loadfile property="action_update.html" srcfile="${srcdir}action_update.html" encoding="UTF-8" />
       <loadfile property="action_list.html" srcfile="${srcdir}action_list.html" encoding="UTF-8" />
       <loadfile property="action_view.html" srcfile="${srcdir}action_view.html" encoding="UTF-8" />
       <loadfile property="action_about.html" srcfile="${srcdir}action_about.html" encoding="UTF-8" />
@@ -40,10 +37,7 @@
           <replacefilter token="&lt;!--#include file='code_lzw.js' --&gt;" value="${code_lzw.js}"/>
           <replacefilter token="&lt;!--#include file='data_model.js' --&gt;" value="${data_model.js}"/>
           <replacefilter token="&lt;!--#include file='data_search.js' --&gt;" value="${data_search.js}"/>
-          <replacefilter token="&lt;!--#include file='data_updater.js' --&gt;" value="${data_updater.js}"/>
           <replacefilter token="&lt;!--#include file='data_reader.js' --&gt;" value="${data_reader.js}"/>
-          <replacefilter token="&lt;!--#include file='data_writer.js' --&gt;" value="${data_writer.js}"/>
-          <replacefilter token="&lt;!--#include file='action_update.html' --&gt;" value="${action_update.html}"/>
           <replacefilter token="&lt;!--#include file='action_list.html' --&gt;" value="${action_list.html}"/>
           <replacefilter token="&lt;!--#include file='action_view.html' --&gt;" value="${action_view.html}"/>
           <replacefilter token="&lt;!--#include file='action_about.html' --&gt;" value="${action_about.html}"/>
@@ -118,12 +112,9 @@
          <fileset file="${srcdir}lang_zh.js" />
          <fileset file="${srcdir}code_gui.js" />
          <fileset file="${srcdir}data_model.js" />
-         <fileset file="${srcdir}data_updater.js" />
          <fileset file="${srcdir}data_reader.js" />
-         <fileset file="${srcdir}data_writer.js" />
          <fileset file="${srcdir}data_search.js" />
          <string>&lt;/script&gt;</string>
-         <fileset file="${srcdir}action_update.html" />
          <fileset file="${srcdir}action_list.html" />
          <fileset file="${srcdir}action_view.html" />
          <fileset file="${srcdir}action_about.html" />

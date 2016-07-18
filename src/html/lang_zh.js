@@ -62,15 +62,7 @@ _.l.set( 'error', {
    // 'no_cross_origin' : 'Cross Origin' // TODO: implement proper cross origin alert
    'ajax_error' : '無法載入 %2 的 %1 的內容。',
 
-   'com_file_security' : '瀏覽器安全等級過高，無法儲存數據。請到 Tools > Internet Options > Security > Custom Level 啟用 "Initialize and script ActiveX controls not marked as safe".',
-   'file_grant_permission' : '你可能會看見一個警示。請給予我們更新數據檔案的權限。',
-   'file_no_api' : '需要用 IE 才能更新，因為 JavaScript 不支援寫入本機檔案。',
-   'file_cannot_delete' : '無法覆寫 %1',
-
-   'wrong_ext': 'Extended list different from raw list, please re-index from download screen: %1.',
-   'need_reindex' : '數據格式過時；請到更新頁對所有資料重建索引。',
-   'need_redown'  : '數據格式過時；請刪除所有資料並重新下載。',
-   'inconsistent_category' : "分類'%1'數據有錯誤(%2)。請到更新頁重建索引或者把它刪除後重新下載。"
+   'inconsistent_category' : "分類'%1'數據有錯誤(%2)。請重新匯出此數據庫。"
 });
 
 _.l.set( 'gui', {
@@ -102,51 +94,6 @@ _.l.set( 'action.view', {
    'title' : "View Data"
 });
 
-_.l.set( 'action.update', {
-   'title' : "更新",
-   'link_text' : "更新",
-
-   'paragraph' : [
-      "此網頁讓您得以下載和儲存<a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>數據庫</a>的條目，然後不論在線離線皆可以用強力的類谷哥語法去搜尋和列出它們。",
-      "<b>需要有效的 <a href='http://www.wizards.com/DnD/Subscription.aspx'>DDI 賬戶</a></b>方能<b>下載或更新</b>任何數據。"
-   ],
-   'btn_get_catalog' : "刷新列表",
-   'btn_all_list' : "全部檢查",
-   'btn_list' : "檢查",
-   'btn_relist' : "再檢查",
-   'btn_delete' : "刪除",
-   'btn_reindex': "重建索引",
-   'btn_update' : "獲取新/改變條目",
-   'btn_update_all' : "獲取所有條目",
-   'btn_save' : "儲存",
-
-   'th_category': "類別",
-   'th_local'   : "已儲存",
-   'th_remote'  : "在線",
-   'th_changed' : "異動",
-   'th_new'     : "新增",
-   'th_status'  : " ",
-   'th_commands': " ",
-
-   'lbl_new_item'     : '%2 的新增項目：%1',
-   'lbl_changed_item' : '%2 的異動項目：%1',
-   'btn_close' : '關閉',
-
-   'lbl_fetching_both' : "提取列表及轉換器中",
-   'lbl_fetching_xml' : "提取列表中",
-   'lbl_fetching_xsl' : "提取轉換器中",
-   'lbl_progress' : "%1／%2",
-
-   'err_online':
-      "<b class='red'>請先將此網頁儲存成本機檔案，開啟它，才可以進行下載或更新。</b>",
-   'err_nonie':
-      "<b class='red'>限使用 <a href='http://ie.microsoft.com/'>Internet Explorer (9+)</a> 才可以進行下載或更新。</b>",
-   'err_activex':
-   "<b class='red'>限使用<a href='http://www.askasu.idv.tw/index.php/2012/06/09/2129/'>桌面版 Metro IE</a> (假如使用 Windows 8) 及需<a href='http://windows.microsoft.com/zh-tw/windows/help/genuine/ie-activex'>啟用 ActiveX</a> 才可以進行下載或更新。</b>",
-
-   'msg_login'  : "請先登入官方數據庫然後重試。"
-});
-
 _.l.set( 'action.about', {
    'title' : "關於",
    'link_text' : "關於",
@@ -173,14 +120,7 @@ _.l.set( 'action.about', {
 
    'h_get_data' : "如何獲取數據",
    'p_get_data' :
-      "此文本不附帶任何數據。要獲取數據，您需要一些東西，當中包括 active <a href='http://archive.wizards.com/DnD/Subscription.aspx'>Dungeons & Dragons Insider subscription</a>. <br/>"+
-      "要獲取數據，只需以下短短幾步： <br/> <ol> "+
-      " <li> 將此 HTML 儲存到您的電腦，並用 Internet Explorer（桌面版）開啓。"+
-      " <li> 下載目錄 "+
-      " <li> 下載一類或多類的列表 "+
-      " <li> 下載數據（可能會要求登入）"+
-      " <li> 儲存數據 "+
-      "</ol> 更新頁有更多的詳情。",
+      "此文本不附帶任何數據。如果你有生效中(已付費)的 <a href='http://ddi.wizards.com/'>Dungeons & Dragons Insider</a> 訂閱及一部電腦，你可以用<a href='https://github.com/Sheep-y/trpg-dnd-4e-db#readme'>下載器</a>獲取數據。",
 
    'h_search_data' : "如何搜尋數據",
    'p_search_data' :
