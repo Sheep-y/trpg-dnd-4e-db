@@ -120,6 +120,7 @@ header h1 ~ button, header h1 ~ .button { /* Right header button */
 
 body > section {
    display: none;
+   min-height: calc( 100vh - 40px );
    width: 100%;
    margin-top: 40px;
    background-color: rgba( 255, 224, 128, 0.5 );
