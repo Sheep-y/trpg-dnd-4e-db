@@ -87,7 +87,7 @@ public class Crawler {
       // Update XSL's limit
       eval( " document.querySelector( '[name=endPos]' ).setAttribute( 'select', \"'99999'\" ) " );
       // Remove multiple source mapping
-      eval( " document.querySelector( '[test^=contains]' ).parentNode.removeChild( document.querySelector( '[test^=contains]' ) ) ");
+      eval( " document.querySelector( '[test^=contains]' ).setAttribute( 'test', 'false()' ) ");
       browse( "http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/ViewAll?tab=" + cat.id );
    }
 

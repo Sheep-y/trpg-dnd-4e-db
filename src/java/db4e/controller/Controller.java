@@ -266,6 +266,7 @@ public class Controller {
 
    // Open compendium
    public CompletableFuture<Void> startDownload () {
+      gui.setTitle( "Downloading" );
       gui.stateRunning();
       gui.setProgress( -1.0 );
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
@@ -335,7 +336,7 @@ public class Controller {
                   int second = (int) Math.ceil( ( sessionTime.getSeconds() / (double) 10 ) * remainingCount );
                   // And make sure it's not less than current interval
                   second = Math.max( second, (int) Math.ceil( remainingCount * (double) INTERVAL_MS / 1000 ) );
-                  gui.setTitle( Duration.ofSeconds(  second ).toString().substring( 2 ) + " remain" );
+                  gui.setTitle( Duration.ofSeconds( second ).toString().substring( 2 ) + " remain" );
                }
             }
          }
@@ -347,6 +348,7 @@ public class Controller {
    /////////////////////////////////////////////////////////////////////////////
 
    public CompletableFuture<Void> startExport ( File target ) {
+      gui.setTitle( "Export" );
       gui.stateRunning();
       gui.setProgress( -1.0 );
       state.done = 0;

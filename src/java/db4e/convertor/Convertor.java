@@ -62,7 +62,7 @@ public class Convertor {
 
    protected void convertEntry ( Entry entry ) {
       if ( entry.shortid == null )
-         entry.shortid = entry.id.replace(  ".aspx?id=", "" );
+         entry.shortid = entry.id.replace( ".aspx?id=", "" );
       if ( entry.meta == null )
          entry.meta = entry.fields;
       if ( entry.data == null )
@@ -91,7 +91,7 @@ public class Convertor {
       // Replace images with character. Every image really appears in the compendium.
       data = data.replace( "<img src=\"images/bullet.gif\" alt=\"\">", "✦" ); // Four pointed star, 11x11, most common image at 100k hits
       data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/x.gif\">", "✦" ); // Four pointed star, 7x10, second most common image at 40k hits
-      if ( data.contains(  "<img " ) ) { // Most likely monsters
+      if ( data.contains( "<img " ) ) { // Most likely monsters
          data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/S2.gif\">", "(⚔)" ); // Basic melee, 14x14
          data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/S3.gif\">", "(➶)" ); // Basic ranged, 14x14
          data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z1.gif\">" , "ᗕ" ); // Blast, 20x20, for 10 monsters
@@ -115,7 +115,7 @@ public class Convertor {
       // Convert ’ to ' so that people can actually search for it
       data = data.replace( "’", "'" );
       // Convert some rare line breaks
-      if ( data.indexOf(  '\n' ) >= 0 ) {
+      if ( data.indexOf( '\n' ) >= 0 ) {
          data = data.replace( "\n,", "," );
          data = data.replace( "\n.", "." );
          data = data.replace( ".\n", "." );

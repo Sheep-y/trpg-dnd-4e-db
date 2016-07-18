@@ -21,6 +21,7 @@ public class Entry {
       this.id = id;
       this.name = name;
    }
+
    public Entry ( String id, String name, String[] fields ) {
       this( id, name );
       this.fields = fields;

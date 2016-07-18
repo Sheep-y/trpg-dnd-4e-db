@@ -74,7 +74,6 @@ public class SceneMain extends Scene {
       private final TableColumn<Category,String > colName = new TableColumn<>( "Category" );
       private final TableColumn<Category,Integer> colTotalEntry = new TableColumn<>( "Total" );
       private final TableColumn<Category,Integer> colDownloadedEntry = new TableColumn<>( "Downloaded" );
-      private final TableColumn<Category,Integer> colExportedEntry = new TableColumn<>( "Saved" );
    private final Button btnLeft = new Button( "Wait" );
    private final Button btnRight = new Button( "Exit" );
 
@@ -137,7 +136,6 @@ public class SceneMain extends Scene {
       colName.setCellValueFactory( new PropertyValueFactory( "name" ) );
       colTotalEntry.setCellValueFactory( new PropertyValueFactory<>( "totalEntry" ) );
       colDownloadedEntry.setCellValueFactory( new PropertyValueFactory<>( "downloadedEntry" ) );
-      colExportedEntry.setCellValueFactory( new PropertyValueFactory<>( "exportedEntry" ) );
       tblCategory.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
       tblCategory.getColumns().addAll( colName, colDownloadedEntry, colTotalEntry );
 

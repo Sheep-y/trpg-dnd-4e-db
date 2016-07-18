@@ -42,7 +42,7 @@ class DbAbstraction {
          if ( ! cursor.eof() ) version = Integer.parseInt( cursor.getString( "value" ) );
          cursor.close();
 
-         if ( version < 20160710 )
+         if ( version < 20160718 )
             throw new UnsupportedOperationException( "dnd4e database version (" + version + ") mismatch or not found." );
       } finally {
          db.commit();
@@ -80,7 +80,7 @@ class DbAbstraction {
          tblCategory = db.getTable( "category" );
          tblEntry = db.getTable( "entry" );
 
-         tblConfig.insert( "version", "20160710" );
+         tblConfig.insert( "version", "20160718" );
 
          tblCategory.insert( "Race", "Race", 0, "DescriptionAttribute,Size,SourceBook", "PC", 100 );
          tblCategory.insert( "Background", "Background", 0, "Type,Campaign,Skills,SourceBook", "PC", 200 );

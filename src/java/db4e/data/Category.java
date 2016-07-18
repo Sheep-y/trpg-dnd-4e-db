@@ -15,7 +15,6 @@ public class Category {
    public final String type; // Manually assigned category group - PC and DM.
    public final IntegerProperty total_entry = new SimpleIntegerProperty();
    public final IntegerProperty downloaded_entry = new SimpleIntegerProperty();
-   public final IntegerProperty exported_entry = new SimpleIntegerProperty();
 
    public final String[] fields; // Name (id) of compendium fields
    public final List<Entry> entries = new ArrayList<>(); // Entry list
@@ -40,5 +39,4 @@ public class Category {
    public String getName() { return name; }
    public IntegerProperty totalEntryProperty() { return total_entry; }
    public IntegerProperty downloadedEntryProperty() { return downloaded_entry; }
-   public IntegerProperty exportedEntryProperty() { return exported_entry; }
 }
