@@ -21,23 +21,6 @@
                <option value='zh'> Chinese 中文
                <option value='en'> English
             </select> <br/>
-            <label>
-               <span class='i18n'> action.about.lst_symbol </span>
-               <select id='action_about_lst_symbol' onchange="od.action.about.change_symbol(this.value)">
-                  <option value='' class='i18n'> action.about.opt_original
-                  <option value='Common'  class='i18n'> action.about.opt_common
-                  <option value='Dingbat' class='i18n'> action.about.opt_dingbat
-                  <option value='Plain'   class='i18n'> action.about.opt_plain
-               </select>
-            </label> <br/>
-            <span id="action_about_lbl_unicode" class="hide">
-               ✦
-               <span class='hint_basic'> ͜͡⋖ ͜͡⚔ ͜͡➶ ͜͡✻ </span>
-               <span class='hint_attack'> ⋖ ⚔ ➶ ✻ </span>
-               <span class='hint_dice'> ⚀ ⚁ ⚂ ⚃ ⚄ ⚅ </span>
-               <span class='hint_aura'> ☼ </span>
-            </span>
-            <span id="action_about_lbl_symbol"></span>
          </p>
       </article>
 
@@ -203,18 +186,12 @@ od.action.about = {
 
    "setup": function act_about_setup () {
       od.action.about.change_language( _('#action_about_lst_lang')[0].value );
-      od.action.about.change_symbol( _('#action_about_lst_symbol')[0].value );
       _('#action_about_lbl_folder')[0].textContent = od.config.data_read_path; // Must be after default l10n created the placeholder
    },
 
    "change_language" : function act_about_change_language ( lang ) {
       _.l.saveLocale( lang );
       od.gui.l10n();
-   },
-
-   "change_symbol" : function act_about_change_symbol ( symbol ) {
-      od.config.symbol_conversion = symbol ? symbol : false;
-      _('#action_about_lbl_symbol')[0].innerHTML = od.gui.symbol_safe_convert( _('#action_about_lbl_unicode')[0].innerHTML );
    },
 
    "show_source" : function act_about_show_source () {

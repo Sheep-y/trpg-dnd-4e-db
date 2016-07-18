@@ -101,15 +101,6 @@ _.l.set( 'action.about', {
    'h_language' : "語言",
    'lbl_select_lang' : "請選擇語言 :", // please translate as "Please select language:"
    'opt_auto' : "(自動偵察)",
-   'lst_symbol'  : "請選擇符號集：",
-   'opt_original': "原設",
-   'opt_common'  : "常見",
-   'opt_dingbat' : "雜錦",
-   'opt_plain'   : "純文字",
-   'hint_basic'  : "基礎攻擊（近距，近戰，遠程，範圍）",
-   'hint_attack' : "基礎攻擊（近距，近戰，遠程，範圍）",
-   'hint_dice'   : "骰面（充能） 1 2 3 4 5 6",
-   'hint_aura'   : "氣場",
 
    'h_license' : "授權及私隱聲明",
    'p_license' : "此程式稿免費開源，以 GNU AGPL v3 授權發佈。<br/>本程式稿不收集任何可以辨認個人的資訊。",
