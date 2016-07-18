@@ -2,6 +2,7 @@ package db4e;
 
 import db4e.controller.Controller;
 import static db4e.controller.Controller.DEF_INTERVAL_MS;
+import static db4e.controller.Controller.DEF_RETRY_COUNT;
 import static db4e.controller.Controller.DEF_TIMEOUT_MS;
 import static db4e.controller.Controller.MIN_INTERVAL_MS;
 import static db4e.controller.Controller.MIN_TIMEOUT_MS;
@@ -89,13 +90,16 @@ public class SceneMain extends Scene {
            "Download timeout in seconds.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
    final TextField txtInterval  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( MIN_INTERVAL_MS, prefs.getInt( "download.interval", DEF_INTERVAL_MS ) ) ) ),
            "Minimal interval, in millisecond, between each download action.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
+   final TextField txtRetry  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "download.retry", DEF_RETRY_COUNT ) ) ) ),
+           "Number of timeout retry.  Only apply to timeout errors." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
            "Show app log and console.  Will slow down download & export and use more memory." );
    final Button btnClearData = JavaFX.tooltip(new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
    private final Pane pnlOptionTab = new VBox( 8,
-           new HBox( 8, new Label( "Timeout" ), txtTimeout, new Label( "seconds") ),
-           new HBox( 8, new Label( "Interval" ), txtInterval, new Label( "milliseconds") ),
+           new HBox( 8, new Label( "Timeout in" ), txtTimeout, new Label( "seconds.") ),
+           new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (min) per request.") ),
+           new HBox( 8, new Label( "Retry" ), txtRetry, new Label( "times on timeout.") ),
            chkDebug,
            btnClearData );
    private final Tab tabOption = new Tab( "Options", pnlOptionTab );
@@ -121,6 +125,7 @@ public class SceneMain extends Scene {
       try {
          Controller.TIMEOUT_MS = Integer.parseUnsignedInt( txtTimeout.getText() ) * 1000;
          Controller.INTERVAL_MS = Integer.parseUnsignedInt( txtInterval.getText() );
+         Controller.RETRY_COUNT = Integer.parseUnsignedInt( txtRetry.getText() );
       } catch ( NumberFormatException ignored ) {}
       setRoot( pnlC );
    }
@@ -142,7 +147,7 @@ public class SceneMain extends Scene {
       setRight( "Exit", this::action_exit );
 
       // Option tab
-      txtTimeout.textProperty().addListener((prop, old, now ) -> { try {
+      txtTimeout.textProperty().addListener( (prop, old, now ) -> { try {
          int i = Integer.parseUnsignedInt( now );
          if ( i * 1000 < Controller.MIN_TIMEOUT_MS ) return;
          prefs.putInt( "download.timeout", i );
@@ -150,12 +155,20 @@ public class SceneMain extends Scene {
          log.log( Level.CONFIG, "Timeout changed to {0} ms", Controller.TIMEOUT_MS );
       } catch ( NumberFormatException ignored ) { } } );
 
-      txtInterval.textProperty().addListener((prop, old, now ) -> { try {
+      txtInterval.textProperty().addListener( (prop, old, now ) -> { try {
          int i = Integer.parseUnsignedInt( now );
          if ( i < Controller.MIN_INTERVAL_MS ) return;
          prefs.putInt( "download.interval", i );
          Controller.INTERVAL_MS = i;
          log.log( Level.CONFIG, "Interval changed to {0} ms", i );
+      } catch ( NumberFormatException ignored ) { } } );
+
+      txtRetry.textProperty().addListener( (prop, old, now ) -> { try {
+         int i = Integer.parseUnsignedInt( now );
+         if ( i < 0 ) return;
+         prefs.putInt( "download.retry", i );
+         Controller.RETRY_COUNT = i;
+         log.log( Level.CONFIG, "Retry count changed to {0}", i );
       } catch ( NumberFormatException ignored ) { } } );
 
       chkDebug.selectedProperty().addListener( this::chkDebug_change );

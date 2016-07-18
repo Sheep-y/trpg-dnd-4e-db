@@ -11,12 +11,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -45,13 +46,15 @@ public class Controller {
 
    private static final Logger log = Main.log;
 
-   public static final int DEF_INTERVAL_MS = 1_000;
    public static final int MIN_TIMEOUT_MS = 10_000;
    public static final int MIN_INTERVAL_MS = 0;
    public static final int DEF_TIMEOUT_MS = 30_000;
+   public static final int DEF_INTERVAL_MS = 1_000;
+   public static final int DEF_RETRY_COUNT = 5;
 
-   public static volatile int TIMEOUT_MS = 30_000;
-   public static volatile int INTERVAL_MS = 1_000;
+   public static volatile int TIMEOUT_MS = DEF_TIMEOUT_MS;
+   public static volatile int INTERVAL_MS = DEF_INTERVAL_MS;
+   public static volatile int RETRY_COUNT = DEF_RETRY_COUNT;
 
    public static final String DB_NAME = "dnd4_compendium.database";
 
@@ -272,7 +275,8 @@ public class Controller {
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
       log.log( Level.CONFIG, "Timeout {0} ms / Interval {1} ms ", new Object[]{ TIMEOUT_MS, INTERVAL_MS } );
       return runTask( () -> {
-         runAndCheckLogin( "Connect compendium", crawler::randomGlossary );
+         if ( categories.stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
+            runAndCheckLogin( "Connect compendium", crawler::randomGlossary );
          downloadCategory();
          downloadEntities();
          gui.stateCanExport( "Download complete, may export data" );
@@ -336,7 +340,10 @@ public class Controller {
                   int second = (int) Math.ceil( ( sessionTime.getSeconds() / (double) 10 ) * remainingCount );
                   // And make sure it's not less than current interval
                   second = Math.max( second, (int) Math.ceil( remainingCount * (double) INTERVAL_MS / 1000 ) );
-                  gui.setTitle( Duration.ofSeconds( second ).toString().substring( 2 ) + " remain" );
+                  // Manual format and display
+                  if ( second >= 3600 )     gui.setTitle( ( second / 3600 ) + "h " + ( ( second % 3600 ) / 60 )  + "m remain" );
+                  else if ( second >= 100 ) gui.setTitle( ( second / 60 )  + "m remain" );
+                  else                      gui.setTitle( second + "s remain" );
                }
             }
          }
@@ -427,70 +434,51 @@ public class Controller {
    }
 
    private Instant lastLoad = Instant.now();
-
    /**
-    * Call a task and wait for browser to finish loading.
+    * Call a task and wait for browser to finish loading... or timeout.
     * The task must cause the browser's loader to change state for this to work.
     *
     * @param taskName Name of task, used in logging and timeout message.
     * @param task Task to run.
     */
    private void runAndGet ( String taskName, RunExcept task ) {
-      CompletableFuture<Void> future = new CompletableFuture<>();
-      Consumer handle = browserTaskHandler( future, taskName );
-      try {
-         if ( INTERVAL_MS > 0 ) {
-            lastLoad = lastLoad.plusMillis( INTERVAL_MS );
-            long sleep = Duration.between( lastLoad, Instant.now() ).toMillis();
-            if ( sleep < INTERVAL_MS ) Thread.sleep( INTERVAL_MS - sleep );
-         }
-         lastLoad = Instant.now();
-         browser.getConsoleOutput().clear();
-         browser.handle(
-            ( e ) -> handle.accept( null ), // on load
-            ( e,err ) -> handle.accept( err ) // on error
-         );
-         checkStop( taskName );
-         task.run();
-         synchronized ( future ) { future.wait(); }
-         future.get(); // ExecutionException
-      } catch ( Exception e ) {
-         handle.accept( e );
-         throw new RuntimeException( e );
-      }
-   }
+      final CompletableFuture<Void> future = new CompletableFuture<>();
+      final AtomicInteger retry = new AtomicInteger();
 
-   /**
-    * Given a CompletableFuture,
-    * set a timeout and return a Consumer function
-    * that, when called, will finish the task
-    * normally or exceptionally and cleanup.
-    *
-    * Clean up includes stopping the timeout, clear browser handlers,
-    * and notify all threads waiting on the task.
-    * If the task ended in exception, it will also be logged at warning level.
-    *
-    * @param task Task to timeout and complete
-    * @param timeout_message Message of timeout exception
-    * @return A function to call to complete
-    */
-   private Consumer browserTaskHandler ( CompletableFuture task, String taskName ) {
-      BiConsumer<TimerTask, Object> handler = ( timeout, result ) -> { synchronized ( task ) {
-         if ( timeout != null )
-            timeout.cancel();
-         browser.handle( null, null );
-         if ( result != null && result instanceof Throwable ) {
-            log.log( Level.WARNING, "Task finished exceptionally: {0}", result );
-            task.completeExceptionally( (Throwable) result );
-         } else {
-            log.log( Level.FINE, "{0} finished normally.", taskName );
-            task.complete( result );
+      do {
+         try {
+            if ( INTERVAL_MS > 0 ) {
+               lastLoad = lastLoad.plusMillis( INTERVAL_MS );
+               long sleep = Duration.between( lastLoad, Instant.now() ).toMillis();
+               if ( sleep < INTERVAL_MS ) Thread.sleep( INTERVAL_MS - sleep );
+            }
+            lastLoad = Instant.now();
+            Platform.runLater( browser.getConsoleOutput()::clear );
+            checkStop( taskName );
+            browser.handle( ( e ) -> future.complete( null ), // on load
+                        ( e,err ) -> future.completeExceptionally( err ) ); // on error
+            task.run();
+            future.get( TIMEOUT_MS, TimeUnit.MILLISECONDS );
+            browser.handle( null, null );
+            log.log(Level.FINE, "{0} finished normally.", taskName);
+            break;
+
+         } catch ( Exception err ) {
+            browser.handle( null, null );
+            log.log( Level.WARNING, "{0} finished exceptionally: {0}", new Object[]{ taskName, err } );
+
+            if ( err instanceof TimeoutException && retry.incrementAndGet() <= RETRY_COUNT ) {
+               int sleep_sec = retry.get() > 3 ? 300 : new int[]{ 0, 10, 60, 120 }[ retry.get() ];
+               checkStop( "Timeout, waiting " + sleep_sec + " seconds before retry" );
+               try {
+                  Thread.sleep( sleep_sec * 1000 );
+               } catch ( InterruptedException ex ) {
+                  throw new RuntimeException( ex );
+               }
+            } else
+               throw new RuntimeException( err );
          }
-         task.notify();
-      } };
-      TimerTask openTimeout = Utils.toTimer( () -> handler.accept( null, new TimeoutException( taskName + " timeout" ) ) );
-      scheduler.schedule( openTimeout, TIMEOUT_MS );
-      return ( input ) -> handler.accept( openTimeout, input );
+      } while ( true );
    }
 
    private static interface RunExcept {
