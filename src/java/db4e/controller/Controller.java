@@ -129,7 +129,7 @@ public class Controller {
             } else {
                gui.setTitle( "Error" );
                log.log( Level.WARNING, action + " failed: {0}", Utils.stacktrace( err ) );
-               String msg = ( (Exception) err ).getMessage();
+               String msg = ( (Throwable) err ).getMessage();
                if ( msg == null || msg.isEmpty() ) msg = err.toString();
                if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
                enabler.accept( msg );

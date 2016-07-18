@@ -350,7 +350,7 @@ public class SceneMain extends Scene {
          return;
       }
       setStatus( "Starting download" );
-      loader.startDownload().whenComplete( (a,b) -> allowAction() );
+      loader.startDownload();
       stateRunning();
    }
 
@@ -371,7 +371,7 @@ public class SceneMain extends Scene {
       if ( target == null ) return;
 
       setStatus( "Starting export" );
-      loader.startExport( target ).whenComplete( (a,b) -> allowAction() );
+      loader.startExport( target );
       stateRunning();
    }
 

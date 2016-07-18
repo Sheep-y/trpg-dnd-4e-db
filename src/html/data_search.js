@@ -106,7 +106,7 @@ od.search = {
                   return regx.test( row.Name );
                } else {
                   // Full body search.  If does not have exclude term, try name first. If fail or otherwise do full body.
-                  if ( ! pattern.hasExclude && regx.test( row.Name ) ) return true;
+                  if ( ( ! pattern.hasExclude ) && regx.test( row.Name ) ) return true;
                   return regx.test( row._category.index[ row.ID ] );
                }
             } );
@@ -171,13 +171,13 @@ od.search = {
             var term = parts[i];
             var part = "";
             // Detect whether to include or exclude term
-            if ( term.indexOf('-') === 0 ) {
+            if ( term.charAt(0) === '-' ) {
                term = term.substr(1);
-               part += '(?!.*'; // Include
-            } else {
-               if ( term.indexOf('+') === 0 ) term = term.substr(1);
-               part += '(?=.*'; // Exclude
+               part += '(?!.*'; // Exclude
                hasExclude = true;
+            } else {
+               if ( term.charAt(0) === '+' ) term = term.substr(1);
+               part += '(?=.*'; // Include
             }
             if ( term ) {
                // Regular expression is used as is.
@@ -218,7 +218,7 @@ od.search = {
          }
       }
       if ( regx === '^' ) return null;
-      return { 'regexp': RegExp( regx, 'i' ), 'highlight': hl, 'hasExclude': hasExclude };
+      return { 'regexp': RegExp( regx, 'i' ), 'highlight': hl.length ? hl : null, 'hasExclude': hasExclude };
    }
 
 };
