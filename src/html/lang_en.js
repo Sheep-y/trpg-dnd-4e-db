@@ -71,6 +71,9 @@ _.l.set( 'action.about', {
    'h_language' : "Language",
    'lbl_select_lang' : ":", // Please translate as "Please select language:"
    'opt_auto'    : "(Auto detect)",
+   'lbl_toggle_highlight' : "Search term highlight:",
+   'opt_highlight_on' : "On",
+   'opt_highlight_off' : "Off",
 
    'h_license' : "License",
    'p_license' : "This script is free software and is licensed under GNU AGPL v3.<br/>This script does not collect any personally identifiable information.",

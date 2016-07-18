@@ -21,6 +21,15 @@
                <option value='zh'> Chinese 中文
                <option value='en'> English
             </select> <br/>
+            <span class='i18n'> action.about.lbl_toggle_highlight </span>
+            <label>
+               <input type='radio' name='highlight' id='action_about_rdo_highlight_on' checked onclick='od.gui.toggle_highlight(true)' />
+               <span class='i18n'> action.about.opt_highlight_on </span>
+            </label>
+            <label>
+               <input type='radio' name='highlight' id='action_about_rdo_highlight_off' onclick='od.gui.toggle_highlight(false)' />
+               <span class='i18n'> action.about.opt_highlight_off </span>
+            </label>
          </p>
       </article>
 
@@ -186,6 +195,7 @@ od.action.about = {
 
    "setup": function act_about_setup () {
       od.action.about.change_language( _('#action_about_lst_lang')[0].value );
+      od.gui.toggle_highlight( od.gui.hl_enabled );
       _('#action_about_lbl_folder')[0].textContent = od.config.data_read_path; // Must be after default l10n created the placeholder
    },
 

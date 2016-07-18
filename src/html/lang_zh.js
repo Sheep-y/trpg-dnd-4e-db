@@ -91,7 +91,7 @@ _.l.set( 'action.list', {
 });
 
 _.l.set( 'action.view', {
-   'title' : "View Data"
+   'title' : "詳情頁"
 });
 
 _.l.set( 'action.about', {
@@ -101,6 +101,9 @@ _.l.set( 'action.about', {
    'h_language' : "語言",
    'lbl_select_lang' : "請選擇語言 :", // please translate as "Please select language:"
    'opt_auto' : "(自動偵察)",
+   'lbl_toggle_highlight' : "搜尋結果高亮：",
+   'opt_highlight_on' : "顯示",
+   'opt_highlight_off' : "不顯示",
 
    'h_license' : "授權及私隱聲明",
    'p_license' : "此程式稿免費開源，以 GNU AGPL v3 授權發佈。<br/>本程式稿不收集任何可以辨認個人的資訊。",

@@ -187,12 +187,17 @@ od.gui = {
    /**
     * Enable / disable keywords highlight.
     */
-   'toggle_highlight' : function gui_toggle_highlight ( ) {
+   'toggle_highlight' : function gui_toggle_highlight ( state ) {
       var gui = od.gui;
-      gui.hl_enabled = ! gui.hl_enabled;
-      _.ary( _( 'span.highlight' ) ).forEach( od.gui.hl_enabled
+      if ( state === undefined )
+         gui.hl_enabled = ! gui.hl_enabled;
+      else
+         gui.hl_enabled = state;
+      _.info( "[Config] Toggle highlight " + ( gui.hl_enabled ? 'on' : 'off' ) );
+      _.ary( _( 'span.highlight' ) ).forEach( gui.hl_enabled
          ? function gui_toggle_highlight_enable ( e ) { e.classList.remove( 'disabled' ); }
          : function gui_toggle_highlight_disable( e ) { e.classList.add   ( 'disabled' ); } );
+      _.prop( '#action_about_rdo_highlight_' + ( od.gui.hl_enabled ? 'on' : 'off' ), { 'checked': true } );
    },
 
 };
