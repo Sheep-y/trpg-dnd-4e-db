@@ -35,11 +35,12 @@
       }
 
       /* First classed element will need border radius to match surrounding border. */
-      #detail > *:first-child[class] { 
+      #detail > *:first-child[class] {
          border-radius: 7px 7px 0 0;
       }
 
       #detail .flavor, #detail .miflavor {
+         display: block;
          background-color: #CCC;
       }
 
@@ -146,4 +147,8 @@
 
 #detail .dm {
    background-color: #DBF;
+}
+
+#detail .clearIndent {
+   display: block;
 }
