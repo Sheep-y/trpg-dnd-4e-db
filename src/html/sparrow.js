@@ -125,7 +125,7 @@ _.ary = function _ary ( subject, startpos, length ) {
       if ( startpos || length )
          return Array.prototype.slice.call( subject, startpos, length );
       else
-         return Array.from ? Array.from( subject ) : Array.prototype.concat.call( subject );
+         return Array.from ? Array.from( subject ) : Array.prototype.slice.call( subject );
    }
    return startpos || length ? subject : subject.slice( startpos, length );
 };

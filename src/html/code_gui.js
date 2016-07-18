@@ -30,13 +30,15 @@ od.gui = {
          }
       } );
 
-      // Monitor url change
+      // Monitor url change - disabled because Chrome no longer support history push/replace
+      /*
       (function(){
          var gui = od.gui, get_act_id = gui.get_act_id;
          setInterval( function window_interval_url_monitor() {
-            if ( get_act_id() !== gui.act_id ) od.gui.go();
+            if ( get_act_id() !== gui.act_id ) gui.go();
          }, od.config.url_monitor_interval );
       })();
+      */
    },
 
    /**
@@ -89,9 +91,9 @@ od.gui = {
     * @param {String} act_id location.search part (without '?')
     */
    "pushState" : function gui_push_state ( act_id ) {
-      if ( act_id !== location.search.substr(1) ) {
+      if ( act_id !== location.search.substr(1) ) try {
          if ( history.pushState ) history.pushState( null, null, "?" + act_id );
-      }
+      } catch ( err ) { /* https://bugs.chromium.org/p/chromium/issues/detail?id=301210 */ }
       od.gui.act_id = act_id;
    },
 

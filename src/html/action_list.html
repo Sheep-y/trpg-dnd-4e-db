@@ -124,7 +124,7 @@
 <script type='text/javascript'>'use strict';(function action_list_init(){
 od.action.list = {
    'url' : /^list\b/,
-   'last_url' : '?list',
+   'last_url' : null,
 
    'initialize' : function act_list_init () {
       // Set initial search state (e.g. button pressed status)
@@ -141,9 +141,9 @@ od.action.list = {
 
    'setup': function act_list_setup () {
       var action = od.action.list;
-      if ( action.last_url !== location.search ) {
+      if ( action.last_url && action.last_url !== location.search ) try {
          history.replaceState( null, null, action.last_url );
-      }
+      } catch ( err ) { /* https://bugs.chromium.org/p/chromium/issues/detail?id=528681 */  }
       if ( _( '#act_list_pnl_category button' ).length <= 0 )
          this.build_category( od.action.list.parse_action_id );
       else
@@ -186,7 +186,7 @@ od.action.list = {
       if ( document.body.clientWidth <= 980 && _.hasClass( '#act_list_pnl_category', 'active') ) {
          // Hide results and show category list
          _.hide( '#act_list_pnl_list' );
-         _.removeClass( '#act_list_pnl_category.active' );
+         _.removeClass( '#act_list_pnl_category.active', 'active' );
          _.attr( '#act_list_pnl_category .pressable', 'aria-pressed', 'false' );
          return;
       }
@@ -221,7 +221,7 @@ od.action.list = {
 
    'set_search_category' : function act_list_set_search_category ( cat ) {
       od.action.list.category = cat;
-      _.removeClass( '#act_list_pnl_category.active' );
+      _.removeClass( '#act_list_pnl_category.active', 'active' );
       _.attr( '#act_list_pnl_category .pressable', 'aria-pressed', 'false' );
       if ( cat !== undefined ) {
          _.addClass( '#act_list_pnl_category', 'active' );
