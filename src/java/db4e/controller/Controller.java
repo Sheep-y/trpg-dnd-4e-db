@@ -317,8 +317,8 @@ public class Controller {
    }
 
    private void downloadEntities () throws Exception {
-      Instant[] pastFinishTime = new Instant[ 10 ]; // Past 10 finish time
-      int remainingCount = state.total - state.done;
+      Instant[] pastFinishTime = new Instant[ 64 ]; // Past 64 finish time
+      int remainingCount = state.total - state.done, second;
       for ( Category category : categories ) {
          for ( Entry entry : category.entries ) {
             if ( ! entry.contentDownloaded ) {
@@ -332,15 +332,21 @@ public class Controller {
 
                --remainingCount;
                if ( remainingCount > 0 ) {
-                  System.arraycopy( pastFinishTime, 1, pastFinishTime, 0, 9 );
-                  pastFinishTime[9] = Instant.now();
-                  if ( pastFinishTime[0] == null ) continue;
+                  System.arraycopy( pastFinishTime, 1, pastFinishTime, 0, 63 );
+                  pastFinishTime[63] = Instant.now();
+                  if ( pastFinishTime[56] == null ) continue;
                   // Remaining time
-                  Duration sessionTime = Duration.between( pastFinishTime[0], Instant.now() );
-                  int second = (int) Math.ceil( ( sessionTime.getSeconds() / (double) 10 ) * remainingCount );
+                  if ( pastFinishTime[0] != null ) { // Use all 64 entry to estimate time
+                     Duration sessionTime = Duration.between( pastFinishTime[0], Instant.now() );
+                     second = (int) Math.ceil( ( sessionTime.getSeconds() / (double) 64 ) * remainingCount );
+                  } else { // Use 8 entry to estimate time
+                     Duration sessionTime = Duration.between( pastFinishTime[56], Instant.now() );
+                     second = (int) Math.ceil( ( sessionTime.getSeconds() / (double) 8 ) * remainingCount );
+                  }
                   // And make sure it's not less than current interval
                   second = Math.max( second, (int) Math.ceil( remainingCount * (double) INTERVAL_MS / 1000 ) );
                   // Manual format and display
+                  if ( second >= 86400 )    gui.setTitle( ( second / 86400 ) + "d " + ( ( second % 86400 ) / 3600 ) + "h remain" );
                   if ( second >= 3600 )     gui.setTitle( ( second / 3600 ) + "h " + ( ( second % 3600 ) / 60 )  + "m remain" );
                   else if ( second >= 100 ) gui.setTitle( ( second / 60 )  + "m remain" );
                   else                      gui.setTitle( second + "s remain" );
