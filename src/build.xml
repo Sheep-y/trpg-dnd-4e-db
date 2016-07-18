@@ -1,125 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="oddi" default="make" basedir=".">
-   <property name="root" value="../" />
-   <property name="srcdir" value="html/" />
-   <property name="deliverable" value="${root}4e_database.html" />
-   <property name="datadir" value="${root}4e_database_files/" />
+   <!-- Jar main class -->
+   <property name="jar.main"  value="db4e.Main" />
+   <!-- App title -->
+   <property name="app.title"  value="4e Compendium Downloader" />
+   <!-- Source code folder -->
+   <property name="dir.src"   value="java" />
+   <!-- Jar compilation folder -->
+   <property name="dir.jar"   value="dist" />
+   <!-- Jar file name -->
+   <property name="jar.name"   value="4e_compendium_downloader.jar" />
 
-   <target name="make" description="Compile live html at root folder">
-      <loadfile property="style_gui.css" srcfile="${srcdir}style_gui.css" encoding="UTF-8" />
-      <loadfile property="style_data.css" srcfile="${srcdir}style_data.css" encoding="UTF-8" />
-      <loadfile property="config.js" srcfile="${srcdir}config.js" encoding="UTF-8" />
-      <loadfile property="sparrow.js" srcfile="${srcdir}sparrow.js" encoding="UTF-8" />
-      <loadfile property="lang_en.js" srcfile="${srcdir}lang_en.js" encoding="UTF-8" />
-      <loadfile property="lang_zh.js" srcfile="${srcdir}lang_zh.js" encoding="UTF-8" />
-      <loadfile property="code_gui.js" srcfile="${srcdir}code_gui.js" encoding="UTF-8" />
-      <loadfile property="code_lzw.js" srcfile="${srcdir}code_lzw.js" encoding="UTF-8" />
-      <loadfile property="data_model.js" srcfile="${srcdir}data_model.js" encoding="UTF-8" />
-      <loadfile property="data_search.js" srcfile="${srcdir}data_search.js" encoding="UTF-8" />
-      <loadfile property="data_reader.js" srcfile="${srcdir}data_reader.js" encoding="UTF-8" />
-      <loadfile property="action_list.html" srcfile="${srcdir}action_list.html" encoding="UTF-8" />
-      <loadfile property="action_view.html" srcfile="${srcdir}action_view.html" encoding="UTF-8" />
-      <loadfile property="action_about.html" srcfile="${srcdir}action_about.html" encoding="UTF-8" />
-      <loadfile property="images.html" srcfile="${srcdir}images.html" encoding="UTF-8" />
-      <loadfile property="license_agpl.html" srcfile="${root}license_agpl.html" encoding="UTF-8" />
+   <target name="make" description="Compile html and jar">
+      <!-- Build viewer.  -->
+      <delete file="res/4e_database.html" failonerror="false" />
+      <java jar="CocoDoc.1.1.1.jar">
+         <arg line="html/html_template.html" />
+      </java>
 
-      <delete file="${deliverable}" failonerror="false" />
-      <copy file="${srcdir}/html_template.html" tofile="${deliverable}" />
+      <!-- Build downloager: cleanup -->
+      <delete file="${jar.name}" />
+      <delete includeemptydirs="true" failonerror="false"><fileset dir ="${dir.jar}" /></delete>
+      <mkdir dir="${dir.jar}" />
 
-      <replace file="${deliverable}" encoding="UTF-8">
-          <replacefilter token="&lt;!--#include file='style_gui.css' --&gt;" value="${style_gui.css}"/>
-          <replacefilter token="&lt;!--#include file='style_data.css' --&gt;" value="${style_data.css}"/>
-          <replacefilter token="&lt;!--#include file='config.js' --&gt;" value="${config.js}"/>
-          <replacefilter token="&lt;!--#include file='sparrow.js' --&gt;" value="${sparrow.js}"/>
-          <replacefilter token="&lt;!--#include file='lang_en.js' --&gt;" value="${lang_en.js}"/>
-          <replacefilter token="&lt;!--#include file='lang_zh.js' --&gt;" value="${lang_zh.js}"/>
-          <replacefilter token="&lt;!--#include file='code_gui.js' --&gt;" value="${code_gui.js}"/>
-          <replacefilter token="&lt;!--#include file='code_lzw.js' --&gt;" value="${code_lzw.js}"/>
-          <replacefilter token="&lt;!--#include file='data_model.js' --&gt;" value="${data_model.js}"/>
-          <replacefilter token="&lt;!--#include file='data_search.js' --&gt;" value="${data_search.js}"/>
-          <replacefilter token="&lt;!--#include file='data_reader.js' --&gt;" value="${data_reader.js}"/>
-          <replacefilter token="&lt;!--#include file='action_list.html' --&gt;" value="${action_list.html}"/>
-          <replacefilter token="&lt;!--#include file='action_view.html' --&gt;" value="${action_view.html}"/>
-          <replacefilter token="&lt;!--#include file='action_about.html' --&gt;" value="${action_about.html}"/>
-          <replacefilter token="&lt;!--#include file='images.html' --&gt;" value="${images.html}"/>
-          <replacefilter token="&lt;!--#include file='license_agpl.html' --&gt;" value="${license_agpl.html}"/>
-      </replace>
-      <!-- Removes doctype and end tags from embedded document(s) -->
-      <replaceregexp match="(?&lt;!^|['&quot;])&lt;!DOCTYPE[^\n]+\n" replace="" file="${deliverable}" encoding="UTF-8" />
-      <replaceregexp match="&lt;/body>&lt;/html>(?!$|['&quot;])" replace="" file="${deliverable}" encoding="UTF-8" />
-   </target>
-
-   <!-- Produce a simulation biuld for testing.  -->
-   <target name="offline_simulate" description="Compile offline test build at root folder" depends="make">
-      <replace file="${deliverable}" token='"simulate" : false' value='"simulate" : true' encoding="UTF-8" />
-      <replace file="${deliverable}" token='"down_interval" : 0' value='"down_interval" : 1000' encoding="UTF-8" />
-   </target>
-
-   <!-- Clean up.  -->
-   <target name="clean" description="Delete built file">
-      <delete file="${deliverable}" />
-   </target>
-
-   <!-- Stripts unnecessary code for deployment. Saves around 23% (83k) as of v3 Milestone 3.  -->
-   <target name="deploy" description="Compress existing build" depends="make">
-      <!-- Remove comments. Start comment with three hypens to preserv license blocks. -->
-      <replaceregexp match=" *&lt;!--(?![\[-])(.|\n)*?--> *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
-      <replaceregexp match=" */\*(.|\n)*?\*/ *\n?" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
-      <replaceregexp match=" *(?&lt;=[ ;\n])//(?!\]).*?\n" replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
-      <!-- Remove redundent whitespaces -->
-      <replaceregexp match="   " replace="" flags="g" file="${deliverable}" encoding="UTF-8" />
-      <replaceregexp match="(\n)[\n ]+" replace="\1" flags="g" file="${deliverable}" encoding="UTF-8" />
-      <!-- Concat htmls -->
-      <replaceregexp match=">\n&lt;" replace=">&lt;" flags="g" file="${deliverable}" encoding="UTF-8" />
-      <!-- Concat js -->
-      <replaceregexp match="([{}()\[\]:,+])\n" replace="\1" flags="g" file="${deliverable}" encoding="UTF-8" />
-      <replaceregexp match="\n}" replace="}" flags="g" file="${deliverable}" encoding="UTF-8" />
-   </target>
-
-   <!-- Compile and sign cor ajax and local file writing applet. -->
-   <target name='javac' description="Compile Java applet in java/">
-      <javac srcdir="java/" destdir="java/" debug="off" source="1.7" includeantruntime="false" encoding="UTF-8">
-         <compilerarg value="-Xlint"/>
+      <!-- Build downloader: compile -->
+      <javac srcdir="${dir.src}" destdir="${dir.jar}" encoding="UTF-8" debug="true" includeantruntime="false">
+         <classpath>
+            <pathelement path="java_lib/sqljet/sqljet-1.1.10.jar" />
+         </classpath>
       </javac>
-      <zip basedir="java/" includes="*.class,META-INF/MANIFEST.MF" destfile="Sign.jar" level="9" />
-      <signjar jar="Sign.jar" signedjar="Proxy.jar" alias="sign" keystore="cert/keystore.jks" storepass="123456" />
-      <delete><fileset dir="." includes="java/*.class,Sign.jar"/></delete>
-      <echo message="Compiled Java applet; please manually convert to data uri and embed in sparrow.js." />
-   </target>
+      <!-- Build downloader: copy support files -->
+      <property name="jar.root" value="${dir.jar}" />
+      <copy todir="${jar.root}/res"><fileset dir="res"/></copy>
+      <unjar src="java_lib/antlr/antlr-3.5.2-runtime.jar" dest="${jar.root}" />
+      <unjar src="java_lib/sqljet/sqljet-1.1.10.jar" dest="${jar.root}" />
 
-   <!-- Convert data from UCS2-LE to UTF-8 to save space. Please note there is NO auto encoding detection. -->
-   <target name="utf8data" description="Convert UTF-16 data files to UTF-8">
-      <echo message="Converting reterived data."/>
-      <move todir="../tmp">
-         <fileset dir="${datadir}"/>
-      </move>
-      <copy todir="${datadir}" overwrite="true" encoding="UTF-16LE" outputencoding="UTF-8" verbose="true">
-         <fileset dir="../tmp"/>
+      <!-- Build downloader: copy source code -->
+      <copy todir="${jar.root}">
+         <fileset file="build.xml" />
+         <fileset file="launch4j.xml" />
+         <fileset file="../license_agpl.html" />
+         <fileset file="../README.md" />
       </copy>
-      <delete dir="../tmp" />
-      <echo message="Data converted from UCS2-LE to UTF-8."/>
+      <copy todir="${jar.root}/src/html"><fileset dir="html"/></copy>
+      <copy todir="${jar.root}/src/java"><fileset dir="java"/></copy>
+
+      <!-- Build downloader: make jar -->
+      <jar destfile="${jar.name}">
+         <fileset dir="${dir.jar}"/>
+         <manifest>
+            <attribute name="Main-Class" value="${jar.main}" />
+            <attribute name="Application-Name" value="${jar.main}" />
+            <attribute name="Permissions" value="all-permissions" />
+         </manifest>
+      </jar>
    </target>
 
-   <!-- Old make. Simple but there is no main skeleton file, harder to maintain.
-   <target name="make2" description="Compile browsable html">
-      <concat destfile="${deliverable}">
-         <fileset file="${srcdir}html_doctype.html" />
-         <fileset file="${srcdir}style.css" />
-         <fileset file="${srcdir}html_header.html" />
-         <string>&lt;script&gt;'use strict';</string>
-         <fileset file="${srcdir}sparrow.js" />
-         <fileset file="${srcdir}lang_en.js" />
-         <fileset file="${srcdir}lang_zh.js" />
-         <fileset file="${srcdir}code_gui.js" />
-         <fileset file="${srcdir}data_model.js" />
-         <fileset file="${srcdir}data_reader.js" />
-         <fileset file="${srcdir}data_search.js" />
-         <string>&lt;/script&gt;</string>
-         <fileset file="${srcdir}action_list.html" />
-         <fileset file="${srcdir}action_view.html" />
-         <fileset file="${srcdir}action_about.html" />
-         <fileset file="${srcdir}html_footer.html" />
-      </concat>
-   </target>
-   -->
 </project>

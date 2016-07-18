@@ -18,8 +18,7 @@
   <link rel="help" href="?about#action_about" />
   <link rel="search" href="?list" />
   <style>
-<!--#include file='style_gui.css' -->
-<!--#include file='style_data.css' -->
+     <?coco file( "style_gui.css", "style_data.css") css(minify) ?>
   </style>
 </head><body>
 <!--[if lte IE 11]>
@@ -45,26 +44,19 @@
    <script>//<![CDATA[
       'use strict';
       var od = { action : {} };
-      <!--#include file='config.js' -->
-      <!--#include file='sparrow.js' -->
-      <!--#include file='lang_en.js' -->
-      <!--#include file='lang_zh.js' -->
-      <!--#include file='code_gui.js' -->
-      <!--#include file='code_lzw.js' -->
-      <!--#include file='data_model.js' -->
-      <!--#include file='data_search.js' -->
-      <!--#include file='data_reader.js' -->
-   </script>
+     <?coco file( "config.js", "sparrow.js", "lang_en.js", "lang_zh.js" ) js(minify) ?>
+     <?coco file( "code_gui.js", "data_model.js", "data_search.js", "data_reader.js" ) js(minify) ?>
+   //]]></script>
    <menu type='context' id='menu_view'>
       <menuitem class='i18n' label='gui.menu_view_highlight' onclick='od.gui.toggle_highlight()' />
    </menu>
-   <!--#include file='action_list.html' -->
-   <!--#include file='action_view.html' -->
-   <!--#include file='action_about.html' -->
-   <!--#include file='images.html' -->
+   <?coco file( "action_list.html" ) ?>
+   <?coco file( "action_view.html" ) ?>
+   <?coco file( "action_about.html" ) coco ?>
+   <?coco file( "images.html" ) ?>
    <script>
       // Init code. Running here is faster then waiting for dom ready.
       _.time( 'All code loaded.' );
       od.gui.init();
-   //]]></script>
-</body></html>
+   </script>
+</body></html><?coco-output "../res/4e_database.html" ?>
