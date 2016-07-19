@@ -131,7 +131,7 @@ public class Controller {
                log.log( Level.WARNING, action + " failed: {0}", Utils.stacktrace( err ) );
                String msg = ( (Throwable) err ).getMessage();
                if ( msg == null || msg.isEmpty() ) msg = err.toString();
-               if ( msg.contains( "Exception: ") ) msg = msg.split( "Exception: ", 2 )[1];
+               if ( msg.contains( "Exception: ") ) msg = "Error: " + msg.split( "Exception: ", 2 )[1];
                enabler.accept( msg );
                if ( err instanceof LoginException )
                   gui.focusUsername();

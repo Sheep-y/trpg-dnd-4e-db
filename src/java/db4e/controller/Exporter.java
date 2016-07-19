@@ -55,7 +55,7 @@ class Exporter {
 
          for ( Entry entry : category.sorted ) {
             str( buffer.append( '[' ), entry.id ).append( ',' );
-            str( buffer, entry.name ).append( ',' );
+            str( buffer, entry.display_name ).append( ',' );
             for ( Object field : entry.meta )
                str( buffer, field.toString() ).append( ',' );
             write( "],", listing, buffer );

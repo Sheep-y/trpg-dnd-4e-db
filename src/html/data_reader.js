@@ -75,7 +75,7 @@ od.reader = {
       var cat = od.data.get( category );
       if ( ! cat || data.length !== cat.count || version === 20140414 ) {
          // Version 20140414 was saving compressed binary as unicode, corrupting them.
-         category.count = data.length;
+         cat.count = data.length;
          _.alert( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'listing' ) );
       }
 

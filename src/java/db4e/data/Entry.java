@@ -11,11 +11,12 @@ public class Entry {
    public String content; // Actual content. Not loaded until export.
 
    // Transformed data for export
-   public String shortid;   // Simplified id for export
-   public String fulltext; // Full text index text - without name and flavour
-   public Object[] meta;  // Transform field data
-   public String data;   // Processed data text
-   public Entry parent;  // Owning entry, like feat chain
+   public String display_name; // Converted name for export
+   public String shortid;     // Simplified id for export
+   public String fulltext;   // Full text index text - without name and flavour
+   public Object[] meta;    // Transform field data
+   public String data;     // Processed data text
+   public Entry parent;   // Owning entry, like feat chain
 
    public Entry ( String id, String name ) {
       this.id = id;

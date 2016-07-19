@@ -61,10 +61,11 @@ public class Convertor {
    private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
 
    protected void convertEntry ( Entry entry ) {
+      if ( entry.display_name == null )
+         entry.display_name = entry.name.replace( "’", "'" );
       if ( entry.shortid == null )
          entry.shortid = entry.id.replace( ".aspx?id=", "" );
-      if ( entry.meta == null )
-         entry.meta = entry.fields;
+      copyMeta( entry );
       if ( entry.data == null )
          entry.data = normaliseData( entry.content );
       if ( entry.fulltext == null )
@@ -76,6 +77,13 @@ public class Convertor {
          if ( regxCheckFulltext.reset( entry.fulltext ).find() )
             log.log( Level.WARNING, "Unremoved html tag in fulltext of {0} ({1})", new Object[]{ entry.id, entry.name } );
       }
+   }
+
+   protected void copyMeta ( Entry entry ) {
+      if ( entry.meta != null ) return;
+      final int length = entry.fields.length;
+      entry.meta = new Object[ length ];
+      System.arraycopy( entry.fields, 0, entry.meta, 0, length );
    }
 
    // Products, Magazines of "published in". May be site root (Class Compendium) or empty (associate.93/Earth-Friend)
