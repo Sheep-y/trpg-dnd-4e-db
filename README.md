@@ -22,6 +22,7 @@ This is a fan-made project and does not contain any copyrighted data.
 
 A built script is included to compile everything into an executable jar.
 Part of the build process uses the [CocoDoc](https://github.com/Sheep-y/CocoDoc/) app builder, which is bundled and must run in GUI.
+Try to use 64 bits java runtime; 32 bits may stackoverfow on js minify, but won't affect functionality.
 
 If you use an IDE, becareful not to export data to project folder.
 Otherwise, it can take a long time for the IDE to scan all the data files.

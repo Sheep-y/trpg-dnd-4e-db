@@ -1,4 +1,4 @@
-/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
+/*  
  * data_search.js
  *
  * Handle search logic, including parsing search pattern, marking highlight terms,

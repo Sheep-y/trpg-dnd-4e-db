@@ -1,4 +1,4 @@
-/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
+/*  
  * data_model.js
  *
  * Model and manage data in memory.

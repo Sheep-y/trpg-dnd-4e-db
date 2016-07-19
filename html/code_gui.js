@@ -1,4 +1,4 @@
-/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
+/*  
  * code_gui.js
  *
  * GUI-related codes, but activity-specific codes are coded with activities.

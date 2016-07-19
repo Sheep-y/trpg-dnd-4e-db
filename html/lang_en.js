@@ -1,4 +1,4 @@
-/*                                                                              ex: softtabstop=3 shiftwidth=3 tabstop=3 expandtab
+/*  
  * lang_en.js
  *
  * English localization resources
