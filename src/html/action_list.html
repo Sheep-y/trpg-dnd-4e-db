@@ -3,7 +3,7 @@
   - List and search downloaded entries
   -->
 <section id='action_list'>
-   <style scoped>
+   <style scoped><?coco-start css(minify) ?>
       #act_list_pnl_term {
          margin-bottom: 5px;
       }
@@ -96,7 +96,7 @@
          #act_list_pnl_category.active button { display: none; }
          #act_list_pnl_category.active button[aria-pressed="true"] { display: block; }
       }
-   </style>
+   <?coco-end?></style>
 
    <div id="act_list_pnl_term" role="search">
       <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" accesskey='s' autocomplete />
@@ -121,7 +121,7 @@
 
 </section>
 
-<script type='text/javascript'>'use strict';(function action_list_init(){
+<script><?coco-start js(minify) ?>   'use strict';(function action_list_init(){
 od.action.list = {
    'url' : /^list\b/,
    'last_url' : null,
@@ -604,4 +604,4 @@ od.action.list = {
    }
 };
 
-})();</script>
+})();<?coco-end?></script>

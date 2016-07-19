@@ -5,7 +5,7 @@
 <section id='action_view'><!-- // Disabled because touch event behaviour is not universal. Button is good.
          ontouchstart="od.action.view.touch_start(event)" ontouchmove="od.action.view.touch_move(event)"
          ontouchend="od.action.view.touch_end()" ontouchleave="od.action.view.touch_end()" ontouchcancel="od.action.view.touch_cancel()"-->
-   <style scoped>
+   <style scoped><?coco-start css(minify) ?>
       .btn_prevnext {
          position: fixed;
          margin: auto;
@@ -28,7 +28,7 @@
       #action_view_btn_next {
          margin-right: 0;
       }
-   </style>
+   <?coco-end?></style>
    <nav>
       <button id="action_view_btn_prev" class="btn_prevnext" onclick="od.action.view.btn_prev_click()">&lt;</button>
       <button id="action_view_btn_next" class="btn_prevnext" onclick="od.action.view.btn_next_click()">&gt;</button>
@@ -41,7 +41,7 @@
    </header>
 </section>
 
-<script type='text/javascript'>'use strict';(function action_view_init(){
+<script><?coco-start js(minify) ?>   'use strict';(function action_view_init(){
 od.action.view = {
 
    "initialize" : null,
@@ -178,4 +178,4 @@ od.action.view = {
    }
 };
 
-})();</script>
+})();<?coco-end?></script>

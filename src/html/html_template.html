@@ -8,7 +8,7 @@
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
 
  A copy of the GNU Affero General Public License is built into this script, and is also available from <http://www.gnu.org/licenses/>.
---><html id="top"><head><meta charset="utf-8" />
+--><html><head><meta charset="utf-8" /><?coco-start trim(line) ?>
   <title> Offline Compendium </title>
   <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true;IE=edge" />
   <meta http-equiv="P3P" content='CP="NOI NID CURa STP PRE"' /> <!-- nonident , non-identifiable, to support current activity (always), keep for stated purpose, preference data -->
@@ -50,13 +50,11 @@
    <menu type='context' id='menu_view'>
       <menuitem class='i18n' label='gui.menu_view_highlight' onclick='od.gui.toggle_highlight()' />
    </menu>
-   <?coco file( "action_list.html" ) ?>
-   <?coco file( "action_view.html" ) ?>
-   <?coco file( "action_about.html" ) coco ?>
+   <?coco file( "action_list.html", "action_view.html", "action_about.html" ) coco ?>
    <?coco file( "images.html" ) ?>
    <script>
       // Init code. Running here is faster then waiting for dom ready.
       _.time( 'All code loaded.' );
       od.gui.init();
    </script>
-</body></html><?coco-output "../res/4e_database.html" ?>
+</body></html><?coco-end?><?coco-output "../res/4e_database.html" ?>
