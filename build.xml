@@ -14,13 +14,15 @@
    <!-- Jar file name -->
    <property name="jar.name"   value="4e_compendium_downloader.jar" />
 
-   <target name="make" description="Compile html and jar">
+   <target name="-make-html">
       <!-- Build viewer.  -->
       <delete file="res/4e_database.html" failonerror="false" />
       <java jar="CocoDoc.1.1.1.jar">
          <arg line="html/html_template.html" />
       </java>
+   </target>
 
+   <target name="make" depends="-make-html" description="Compile html and jar">
       <!-- Build downloager: cleanup -->
       <delete file="${jar.name}" />
       <delete includeemptydirs="true" failonerror="false"><fileset dir ="${dir.jar}" /></delete>
@@ -72,6 +74,11 @@
       <!-- Call launch4j -->
       <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.dir}/launch4j.jar:${launch4j.dir}/lib/xstream.jar" />
       <launch4j configFile="launch4j.xml" />
+   </target>
+
+   <!-- Wrap jar file into exe -->
+   <target name="make_viewer" depends="-make-html" description="Compile the HTML viewer and moves it to default location (user home)" >
+      <copy todir="${user.home}"><fileset file="res/4e_database.html"/></copy>
    </target>
 
 </project>

@@ -354,6 +354,28 @@ public class SceneMain extends Scene {
       stateRunning();
    }
 
+   private void action_view ( ActionEvent evt ) {
+      File f = getLastExport();
+      if ( f == null ) {
+         new Alert( Alert.AlertType.ERROR, "Last export may have been deleted", ButtonType.OK ).show();
+         stateCanExport( null );
+      } else { try {
+         Desktop.getDesktop().browse( f.toURI() );
+      } catch ( IOException ex ) {
+         log.log( Level.WARNING, "Error opening last export {0}: {1}", new Object[]{ f, Utils.stacktrace( ex ) } );
+         setStatus( "Error opening last exported file" );
+      } }
+   }
+
+   private File getLastExport () {
+      String path = prefs.get( "export.last_file", null );
+      if ( path == null ) return null;
+      File lastExport = new File( path );
+      if ( ! lastExport.exists() || ! lastExport.isFile() )
+         return null;
+      return lastExport;
+   }
+
 
    private FileChooser dlgCreateView;
 
@@ -364,15 +386,19 @@ public class SceneMain extends Scene {
          dlgCreateView.getExtensionFilters().addAll(
             new FileChooser.ExtensionFilter( "4e Offline Compendium", "4e_database.html" ),
             new FileChooser.ExtensionFilter( "Any file", "*.*" ) );
-         dlgCreateView.setInitialDirectory( new File( System.getProperty( "user.home" ) ) );
+         File initialDir = new File( prefs.get( "export.dir", System.getProperty( "user.home" ) ) );
+         if ( ! initialDir.exists() || ! initialDir.isDirectory() )
+            initialDir = new File( System.getProperty( "user.home" ) );
+         dlgCreateView.setInitialDirectory( initialDir );
          dlgCreateView.setInitialFileName( "4e_database.html" );
       }
       File target = dlgCreateView.showSaveDialog( getWindow() );
       if ( target == null ) return;
 
       setStatus( "Starting export" );
-      loader.startExport( target );
+      loader.startExport( target ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );
       stateRunning();
+      prefs.put( "export.dir", target.getParent() );
    }
 
    public void stateBusy ( String message ) { runFX( () -> {
@@ -393,6 +419,7 @@ public class SceneMain extends Scene {
       setStatus( status );
       allowAction();
       setLeft( "Download", this::action_download );
+      setRight( "Exit", this::action_exit );
    } ); }
 
    public void stateCanExport ( String status ) { runFX( () -> {
@@ -400,6 +427,11 @@ public class SceneMain extends Scene {
       setStatus( status );
       allowAction();
       setLeft( "Export", this::action_export );
+      File f = getLastExport();
+      if ( f == null )
+         setRight( "Exit", this::action_exit );
+      else
+         setRight( "View", this::action_view );
    } ); }
 
    public void stateRunning () { runFX( () -> {

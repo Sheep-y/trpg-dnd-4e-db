@@ -102,7 +102,7 @@ class Exporter {
 
    private void write ( CharSequence postfix, Writer writer, StringBuilder buf ) throws IOException {
       if ( ! ( postfix.charAt( 0 ) == ',' ) )
-         buf.setLength( buf.length() - 1 ); // Remove last comma
+         buf.setLength( buf.length() - 1 ); // Remove last comma if postfix does not start with comma
       buf.append( postfix );
       writer.write( buf.toString() );
       buf.setLength( 0 );
