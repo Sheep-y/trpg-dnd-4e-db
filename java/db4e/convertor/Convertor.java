@@ -59,6 +59,7 @@ public class Convertor {
    }
 
    private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
+   private final Matcher regxOpenClose = Pattern.compile( "<(/?)(p|span|b|i)\\b" ).matcher( "" );
 
    protected void convertEntry ( Entry entry ) {
       if ( entry.display_name == null )
@@ -72,10 +73,28 @@ public class Convertor {
          entry.fulltext = textData( entry.data );
 
       if ( debug ) {
+         // Validate content tags
          if ( entry.data.contains( "<img " ) || entry.data.contains( "<a " ) )
             log.log( Level.WARNING, "Unremoved image or link in {0} ({1})", new Object[]{ entry.id, entry.name } );
+
+         int unclosed_p = 0, unclosed_span = 0, unclosed_b = 0, unclosed_i = 0;
+         regxOpenClose.reset( entry.data );
+         while ( regxOpenClose.find() ) {
+            switch( regxOpenClose.group( 2 ) ) {
+               case "p":    unclosed_p += regxOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
+               case "span": unclosed_span += regxOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
+               case "b":    unclosed_b += regxOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
+               case "i":    unclosed_i += regxOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
+            }
+         }
+         if ( ( unclosed_p | unclosed_span | unclosed_p | unclosed_i ) != 0 )
+            log.log( Level.WARNING, "Unbalanced open and closing bracket in {0} ({1})", new Object[]{ entry.id, entry.name } );
+
+         // Validate fulltext
          if ( regxCheckFulltext.reset( entry.fulltext ).find() )
             log.log( Level.WARNING, "Unremoved html tag in fulltext of {0} ({1})", new Object[]{ entry.id, entry.name } );
+         if ( ! entry.fulltext.endsWith( "." ) ) // Item144 & Item152 fails this check
+            log.log( Level.WARNING, "Not ending in full stop: {0} ({1})", new Object[]{ entry.id, entry.name } );
       }
    }
 

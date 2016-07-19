@@ -74,7 +74,10 @@ public class Main extends Application {
          private volatile boolean closed = false;
          @Override public void publish( LogRecord record ) {
             if ( closed ) return;
-            JavaFX.appendText( textInput, getFormatter().format( record ) );
+            String msg = getFormatter().format( record );
+            JavaFX.appendText( textInput, msg );
+            if ( record.getLevel().intValue() >= Level.WARNING.intValue() )
+               System.err.print( msg );
          }
          @Override public void flush() {}
          @Override public void close() throws SecurityException { closed = true; }
