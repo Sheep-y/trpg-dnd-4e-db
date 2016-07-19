@@ -403,7 +403,7 @@ public class Controller {
    }
 
    private void convertDataForExport () {
-      checkStop( "Formatting and Indexing" );
+      checkStop( "Indexing" );
       state.done = 0;
       state.update();
       for ( Category category : categories ) {

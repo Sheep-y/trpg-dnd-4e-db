@@ -187,6 +187,8 @@ public class Convertor {
       return data.trim();
    }
 
+   private final Matcher regxPowerFlav = Pattern.compile( "(<h1 class=\\w{5,9}power>.*?</h1>)<p class=flavor><i>[^>]+</i></p>" ).matcher( "" );
+   private final Matcher regxItemFlav  = Pattern.compile( "(<h1 class=mihead>.*?</h1>)<p class=miflavor>[^>]+</p>" ).matcher( "" );
    private final Matcher regxHtmlTag = Pattern.compile( "</?\\w+[^>]*>" ).matcher( "" );
    private final Matcher regxSpaces  = Pattern.compile( " +" ).matcher( " " );
 
@@ -199,6 +201,10 @@ public class Convertor {
    protected String textData ( String data ) {
       // Strip HTML tags
       data = data.replace( '\u00A0', ' ' );
+      if ( data.indexOf( "power>" ) > 0 ) // Remove power flavour
+         data = regxPowerFlav.reset( data ).replaceAll( "$1" );
+      if ( data.indexOf( "mihead>" ) > 0 )
+         data = regxItemFlav.reset( data ).replaceAll( "$1" );
       data = regxHtmlTag.reset( data ).replaceAll( " " );
       data = regxSpaces.reset( data ).replaceAll( " " );
       // HTML unescape. Compendium has relatively few escapes.
