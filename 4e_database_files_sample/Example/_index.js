@@ -1,1 +1,0 @@
-﻿od.reader.jsonp_data_index(20130616,"Example",{"Example-exampleId001.html":"Example Data 1 Flavor Text Published in Dungeon Master's Guide, page(s) 47, Rules Compendium, page(s) 999.","Example-exampleId002.html":"Example Data 2 Flavor Text Published in Dungeon Master's Guide, page(s) 47, Rules Compendium, page(s) 999."})
