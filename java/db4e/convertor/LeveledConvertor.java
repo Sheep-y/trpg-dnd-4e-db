@@ -1,6 +1,5 @@
 package db4e.convertor;
 
-import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.Arrays;
@@ -9,18 +8,15 @@ import java.util.Map;
 
 class LeveledConvertor extends Convertor {
 
-   private int levelMetaIndex = -1;
+   private int LEVEL = -1;
 
    protected LeveledConvertor ( Category category, boolean debug ) {
       super( category, debug );
    }
 
-   @Override public void convert ( ProgressState state ) {
-      if ( category.meta == null )
-         category.meta = category.fields;
-      levelMetaIndex = Arrays.asList( category.meta ).indexOf( "Level" );
-      if ( levelMetaIndex < 0 ) throw new IllegalStateException( "Level field not in " + category.name );
-      super.convert( state );
+   @Override public void initialise () {
+      LEVEL = metaIndex( "Level" );
+      if ( LEVEL < 0 ) throw new IllegalStateException( "Level field not in " + category.name );
    }
 
    static Map<String, String> levelText = new HashMap<>(); // Cache level text
@@ -28,28 +24,18 @@ class LeveledConvertor extends Convertor {
 
    @Override protected void convertEntry ( Entry entry ) {
       super.convertEntry( entry );
-      String level = entry.meta[ levelMetaIndex ].toString();
+      String level = entry.meta[ LEVEL ].toString();
       if ( levelText.containsKey( level ) ) {
-         entry.meta[ levelMetaIndex ] = level = levelText.get( level );
+         entry.meta[ LEVEL ] = level = levelText.get( level );
       } else {
          if ( level.endsWith( "Minion" ) && category.id.equals( "Trap" ) ) {
             // 7 traps in Dungeon 214-215 has level like "8 Minion" and no group role.
             entry.meta[ Arrays.asList( category.meta ).indexOf( "GroupRole" ) ] = "Minion";
-            entry.meta[ levelMetaIndex ] = level = level.substring( 0, level.length() - "Minion".length() - 1 );
+            entry.meta[ LEVEL ] = level = level.substring( 0, level.length() - "Minion".length() - 1 );
          }
          levelText.put( level, level );
          levelNumber.put( level, parseLevel( level ) );
       }
-   }
-
-   @Override protected int sortEntity ( Entry a, Entry b ) {
-      float level = levelNumber.get( a.meta[ levelMetaIndex ] ) - levelNumber.get( b.meta[ levelMetaIndex ] );
-      if ( level < 0 )
-         return -1;
-      else if ( level > 0 )
-         return 1;
-      else
-         return a.name.compareTo( b.name );
    }
 
    private float parseLevel ( Object value ) {
@@ -80,4 +66,13 @@ class LeveledConvertor extends Convertor {
       }
    }
 
+   @Override protected int sortEntity ( Entry a, Entry b ) {
+      float level = levelNumber.get( a.meta[ LEVEL ] ) - levelNumber.get( b.meta[ LEVEL ] );
+      if ( level < 0 )
+         return -1;
+      else if ( level > 0 )
+         return 1;
+      else
+         return super.sortEntity( a, b );
+   }
 }

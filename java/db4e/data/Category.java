@@ -2,7 +2,6 @@ package db4e.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
@@ -21,7 +20,7 @@ public class Category {
 
    // Transformed data for export
    public String[] meta; // Transform field list
-   public TreeSet<Entry> sorted; // Sorted entry list
+   public Entry[] sorted; // Sorted entry list
 
    public Category( String id, String name, String type, String[] fields ) {
       this.id = id;

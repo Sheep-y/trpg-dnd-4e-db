@@ -4,7 +4,10 @@ import db4e.Main;
 import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
-import java.util.TreeSet;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -27,14 +30,16 @@ public class Convertor {
 
    public static Convertor getConvertor ( Category category, boolean debug ) {
       switch ( category.id ) {
-         case "Power":
          case "Ritual":
          case "Monster":
          case "Trap":
-         case "Item":
          case "Poison":
          case "Disease":
             return new LeveledConvertor( category, debug );
+         case "Item":
+            return new ItemConvertor( category, debug );
+         case "Power":
+            return new PowerConvertor( category, debug );
          default:
             return new Convertor( category, debug );
       }
@@ -43,15 +48,29 @@ public class Convertor {
    public void convert ( ProgressState state ) {
       if ( category.meta == null )
          category.meta = category.fields;
-      if ( category.sorted == null )
-         category.sorted = new TreeSet<>( this::sortEntity );
 
-      for ( Entry entry : category.entries ) {
+      initialise();
+
+      final List<Entry> entries = category.entries;
+      for ( Entry entry : entries ) {
          if ( entry.content == null ) throw new IllegalStateException( entry.name + " (" + category.name + ") has no content" );
          convertEntry( entry );
-         category.sorted.add( entry ); // addAll yields no speed improvement if source is not sorted
          state.addOne();
       }
+
+      if ( category.sorted == null ) {
+         category.sorted = entries.toArray( new Entry[ entries.size() ] );
+         Arrays.sort( category.sorted, this::sortEntity );
+      }
+
+      if ( category.sorted.length != category.total_entry.get() )
+         throw new IllegalStateException( "Sorted entry count mismatch with total" );
+   }
+
+   protected void initialise()  { }
+
+   protected int metaIndex ( String field ) {
+      return Arrays.asList( category.meta ).indexOf( field );
    }
 
    protected int sortEntity ( Entry a, Entry b ) {
@@ -60,6 +79,7 @@ public class Convertor {
 
    private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
    private final Matcher regxOpenClose = Pattern.compile( "<(/?)(p|span|b|i)\\b" ).matcher( "" );
+   private final Map<String, Entry> shortId = new HashMap<>();
 
    protected void convertEntry ( Entry entry ) {
       if ( entry.display_name == null )
@@ -73,6 +93,12 @@ public class Convertor {
          entry.fulltext = textData( entry.data );
 
       if ( debug ) {
+         // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
+         if ( shortId.containsKey( entry.shortid ) )
+            log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.id, entry.name, entry.shortid, shortId.get( entry.shortid ).name } );
+         else
+            shortId.put( entry.shortid, entry );
+
          // Validate content tags
          if ( entry.data.contains( "<img " ) || entry.data.contains( "<a " ) )
             log.log( Level.WARNING, "Unremoved image or link in {0} ({1})", new Object[]{ entry.id, entry.name } );

@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Logger;
 import sheepy.util.ResourceUtils;
@@ -19,8 +19,6 @@ import sheepy.util.ResourceUtils;
 class Exporter {
 
    private static final Logger log = Main.log;
-
-   private static final Charset utf8 = Charset.forName( "UTF-8" );
 
    void writeCatalog ( String target, List<Category> categories ) throws IOException {
       StringBuilder buffer = new StringBuilder( 300 );
@@ -99,7 +97,7 @@ class Exporter {
    /////////////////////////////////////////////////////////////////////////////
 
    private OutputStreamWriter openStream ( String path ) throws FileNotFoundException {
-      return new OutputStreamWriter( new BufferedOutputStream( new FileOutputStream( path, false ) ), utf8 );
+      return new OutputStreamWriter( new BufferedOutputStream( new FileOutputStream( path, false ) ), StandardCharsets.UTF_8 );
    }
 
    private void write ( CharSequence postfix, Writer writer, StringBuilder buf ) throws IOException {
