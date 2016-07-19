@@ -76,8 +76,8 @@
       <launch4j configFile="launch4j.xml" />
    </target>
 
-   <!-- Wrap jar file into exe -->
-   <target name="make_viewer" depends="-make-html" description="Compile the HTML viewer and moves it to default location (user home)" >
+   <!-- Compile viewer and copy to user home -->
+   <target name="make_viewer" depends="-make-html" description="Compile the HTML viewer and moves it to default export location (user home)" >
       <copy todir="${user.home}"><fileset file="res/4e_database.html"/></copy>
    </target>
 

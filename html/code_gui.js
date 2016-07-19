@@ -12,7 +12,7 @@ od.gui = {
    action: null,
    /** List of initiated actions. */
    initialized: [],
-   /** Array of words to highlight */
+   /** Array of regexp string to highlight */
    hl: null,
    /** True to show highlight, false to not show */
    hl_enabled : true,
@@ -164,9 +164,8 @@ od.gui = {
    "set_highlight" : function gui_set_highlight ( highlights ) {
       od.gui.hl = highlights;
       if ( ! highlights ) return;
-      highlights = highlights.map( function ( e ) { return _.escRegx( _.escHtml( e ) ); } );
       // Join as alternatives and add a negative lookahead to prevent changing HTML tag.
-      highlights = '(' + highlights.join( '|' ) + ')(?![^<]*>)';
+      highlights = '((?:' + highlights.join( ')|(?:' ) + '))(?![^<]*>)';
       od.gui.hlp = new RegExp( highlights, 'ig' );
    },
 
@@ -179,6 +178,7 @@ od.gui = {
    "highlight" : function gui_highlight ( html ) {
       var gui = od.gui, hl = gui.hl;
       if ( ! hl ) return html; // Nothing to highlight (e.g. all exclude search)
+      // Apply highlight, then concat space separated highlights
       html = html.replace( gui.hlp, '<span class="highlight">$1</span>' ).replace( /<\/span>(\s+)<span class="highlight">/g, '$1' );
       if ( ! gui.hl_enabled ) html = html.replace( /class="highlight">/g, 'class="highlight disabled">' );
       return html;

@@ -170,36 +170,43 @@ od.search = {
          do {
             var term = parts[i];
             var part = "";
+            var is_whole_word = false;
             // Detect whether to include or exclude term
             if ( term.charAt(0) === '-' ) {
                term = term.substr(1);
                part += '(?!.*'; // Exclude
                hasExclude = true;
             } else {
-               if ( term.charAt(0) === '+' ) term = term.substr(1);
+               if ( term.charAt(0) === '+' ) {
+                  term = term.substr(1);
+                  is_whole_word = true;
+               }
                part += '(?=.*'; // Include
             }
             if ( term ) {
                // Regular expression is used as is.
                if ( /^\/.+\/$/.test( term ) ) {
-                  part += term.substr( 1, term.length-2 );
-                  term = ''; // prevent term highlight
+                  term = term.substr( 1, term.length-2 );
 
                // Quoted terms need to be unquoted first
-               } else if ( /^"[^"]+"$/.test( term ) ) {
-                  term = term.substr( 1, term.length-2 );
-                  part += _.escRegx( term );
+               } else if ( /^"[^"]*"$/.test( term ) ) {
+                  term = term.length > 2 ? _.escRegx( term.substr( 1, term.length-2 ) ) : '';
 
                // Otherwise is normal word, just need to unescape
                } else {
                   // Remove leading double quote for incomplete terms
                   if ( term.charAt(0) === '"' ) term = term.substr( 1 );
-                  if ( term ) part += _.escRegx(term);
+                  if ( term ) term = _.escRegx( term );
+               }
+               if ( term ) {
+                  if ( is_whole_word ) term = '\\b' + term + '\\b';
+                  part += term;
                }
 
                // If not exclude, add term to highlight
                if ( part ) {
-                  if ( part.indexOf( '(?=' ) === 0 && term ) hl.push( term );
+                  if ( part.indexOf( '(?=' ) === 0 && term && term.length > 2 )
+                     hl.push( term );
                   part += '.*)';
                   addPart.push( part );
                }

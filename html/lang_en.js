@@ -98,6 +98,8 @@ _.l.set( 'action.about', {
       " &nbsp; e.g. <kbd>\"extra damage\"</kbd> matches the exact term <q>Extra damage</q>, instead of <q>Extra</q> and <q>Damage</q>. <br/>"+
       "<li> To exclude a term from result, prefix it with minus <q>-</q>. <br/>"+
       " &nbsp; e.g. <kbd>-\"feat bonus\"</kbd> will exclude results containing the term <q>Feat bonus</q>. <br/>"+
+      "<li> To search for a whole word, prefix it with plus <q>+</q>. <br/>"+
+      " &nbsp; e.g. <kbd>+power</kbd> will include result containing the word <q>power</q>, but not <q>empower</q> or <q>powerful</q>. <br/>"+
       "<li> To specify an OR condition, use an uppercase <q>OR</q>. <br/>"+
       " &nbsp; e.g. <kbd>ranger OR rogue blind</kbd> will search for results containing <q>Blind</q> and either <q>Ranger</q> or <q>Rogue</q>. <br/>"+
       "<li> Use '*' as wild cast. <br/>"+

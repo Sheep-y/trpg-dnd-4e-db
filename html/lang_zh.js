@@ -126,7 +126,9 @@ _.l.set( 'action.about', {
       "<li> 要搜尋特定詞組，可以用半形雙引號 <q>\"</q> 包裹它。 <br/>"+
       " &nbsp; 例、<kbd>\"extra damage\"</kbd> 只符合詞組 <q>Extra damage</q>，而不是分成 <q>Extra</q> 和 <q>Damage</q>。 <br/>"+
       "<li> 要自結果排除字詞，可以在前面加半型減號 <q>-</q>。 <br/>"+
-      " &nbsp; 例、<kbd>-\"feat bonus\"</kbd> 會排除包含 <q>Feat bonus</q> 詞組的組果。 <br/>"+
+      " &nbsp; 例、<kbd>-\"feat bonus\"</kbd> 會排除包含 <q>Feat bonus</q> 詞組的結果。 <br/>"+
+      "<li> 要搜尋獨立的單字，可以在前面加半型加減號 <q>+</q>。 <br/>"+
+      " &nbsp; 例、<kbd>+power</kbd> 會找出含 <q>power</q> 單字的結果，而不會找出 <q>empower</q>、<q>powerful</q> 等部分匹配的字。 <br/>"+
       "<li> 要指定'或者'條件，可用大寫 <q>OR</q>. <br/>"+
       " &nbsp; 例、<kbd>ranger OR rogue blind</kbd> 會搜尋包含 <q>Blind</q> 以及 <q>Ranger</q> 或 <q>Rogue</q>。 <br/>"+
       "<li> 用 '*' 作萬用字符。 <br/>"+
