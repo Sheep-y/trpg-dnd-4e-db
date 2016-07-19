@@ -64,8 +64,6 @@ od.data = {
 
 od.data.Category = function Category ( name ) {
    this.name = name;
-   this.raw_columns = [];
-   this.raw = [];
    this.ext_columns = [];
    this.extended = [];
    this.index = {};
@@ -79,8 +77,6 @@ od.data.Category.prototype = {
    "count": 0,
 
    /** Raw data used to compose list property */
-   "raw_columns": [],  // e.g. ["ID","Name","SourceBook", ... ]
-   "raw": [],          // e.g. [ ["sampleId001","Sample Data 1","Git,Csv"], ... ]
    "ext_columns": [],  // e.g. ["ID","Name","Level","SourceBook", ... ]
    "extended": [],     // e.g. [ ["sampleId001","Sample",["1+",1,3],["Multiple","Git","Csv"]], ... ]
    "index": {},        // e.g. { "sampleId001":"Sample Data 1 Published in ...", ... }
@@ -96,10 +92,6 @@ od.data.Category.prototype = {
     */
    "getTitle" : function data_Cat_getTitle() {
       return _.l( 'data.category.' + this.name, this.name );
-   },
-
-   "load_raw" : function data_Cat_load_raw ( ondone, onerror ) {
-      od.reader.read_data_raw( this.name, ondone, _.callonce( onerror ) );
    },
 
    "load_listing" : function data_Cat_load_listing ( ondone, onerror ) {

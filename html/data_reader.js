@@ -40,25 +40,6 @@ od.reader = {
 
    /////////////////////////////////////////////////////////
 
-   // Raw is the main listing of items in a category.
-
-   read_data_raw: function reader_read_data_raw( category, onload, onerror ) {
-      var path = od.config.url.raw( category );
-      this._read(
-         path,
-         function(){ return od.data.get(category).raw.length > 0; },
-         onload,
-         onerror ? onerror : 'Cannot read ' + category + ' listing from ' + path );
-   },
-
-   jsonp_data_raw: function reader_jsonp_data_raw( version, category, columns, data ) {
-      var cat = od.data.get(category);
-      cat.raw_columns = columns;
-      cat.raw = data;
-   },
-
-   /////////////////////////////////////////////////////////
-
    // Listing is a processed listing of items in a category.
 
    read_data_listing: function reader_read_data_listing( category, onload, onerror ) {
@@ -81,7 +62,6 @@ od.reader = {
 
       if ( version < 20130616 )
          // Milestone 1 data, file name changed, not worth supporting.
-         // Can manually rename _listing.js to _raw.js and run reindex.
          return _.alert( _.l( 'error.need_reget' ) );
       if ( version < 20130703 ) {
          // 20130616 format use url as id instead of simplified id
