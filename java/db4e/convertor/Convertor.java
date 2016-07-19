@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class Convertor {
 
-   private static final Logger log = Main.log;
+   protected static final Logger log = Main.log;
 
    protected final Category category;
    private final boolean debug;
@@ -140,6 +140,8 @@ public class Convertor {
    // Combined link pattern
    private final Matcher regxLinks = Pattern.compile( "<a(?: target=\"_new\")? href=\"(?:http://ww[w2].wizards.com/[^\"]*)?\"(?: target=\"_new\")?>([^<]*)</a>" ).matcher( "" );
 
+   private final Matcher regxAttr = Pattern.compile( "<([^<>\"]+) (\\w+)=\"(\\w+)\">" ).matcher( "" );
+
    protected String normaliseData ( String data ) {
       // Replace images with character. Every image really appears in the compendium.
       data = data.replace( "<img src=\"images/bullet.gif\" alt=\"\">", "✦" ); // Four pointed star, 11x11, most common image at 100k hits
@@ -167,6 +169,8 @@ public class Convertor {
       data = regxSpaces.reset( data ).replaceAll( " " );
       // Convert ’ to ' so that people can actually search for it
       data = data.replace( "’", "'" );
+      // Convert attribute="value" to attribute=value, for cleaner data
+      data = regxAttr.reset( data ).replaceAll( "<$1 $2=$3>" );
       // Convert some rare line breaks
       if ( data.indexOf( '\n' ) >= 0 ) {
          data = data.replace( "\n,", "," );
