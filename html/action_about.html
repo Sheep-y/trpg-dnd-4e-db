@@ -72,7 +72,8 @@
                </figure>
             <p>
                It all started with online Character Builder.
-               I was, and still is, spending 3 hours on public transport each day.  Sometimes I spent them on the original, offline Character Builder.
+               For many years, I was spending 3 hours on public transport each day.
+               Sometimes I spent them on the original, offline Character Builder.
             </p><p>
                Until it went online.
                Wanting better offline access, the prototype as seen on right was born.
@@ -118,7 +119,7 @@
             </p>
          </section>
          <section lang="en">
-            <h2> 3<sup>rd</sup> Version Prototype </h2>
+            <h2> 3<sup>rd</sup> Version </h2>
                <figure class='left'>
                   <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/src/img/History - 3rd alpha.jpg"><img alt='' id="action_about_history_3" src=''/></a>
                   <figcaption>Screenshot version: <time>2012-05-16</time></figcaption>
@@ -130,10 +131,29 @@
                Sadly, when first prototype is working, Firefox <a title="Security Checks and enablePrivilege in Gecko, part 1" href="https://blog.mozilla.org/mrbkap/2012/09/12/">killed file writing</a> permanently.
             </p><p>
                After playtesting D&amp;D Next (5th edition) for a few months, work restarted in May 2013.
-               With a simplified database structure, the second prototype works like a charm.  Development continued for two months until a new Next project demanded full attention.
-               It concluded beautifully on Feb 2014, so we are back, but you can figure out this project's on and off development by now.
+               With a simplified database structure, the second prototype works like a charm.
+               But then my time diverted to 5e and other games, and major development stopped around May 2014.
+            </p>
+         </section>
+         <section lang="en">
+            <h2> 3.5<sup>th</sup> Version </h2>
+               <figure class='right'>
+                  <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/src/img/History - v3.5 viewer.png"><img alt='' id="action_about_history_3_5" src=''/></a>
+                  <figcaption>Screenshot version: <time>2016-07-20</time></figcaption>
+               </figure>
+            <p>
+               By 2016, I gave up 5e and switch back.  The world changed a lot.
+               Mobile has overtaken desktop, Internet Explorer <a href='https://blogs.msdn.microsoft.com/ie/2015/02/26/a-break-from-the-past-the-birth-of-microsofts-new-web-rendering-engine/'>is dead</a>,
+               DDI <a href='http://www.enworld.org/forum/content.php?3087-4e-DnD-Insider-Moving'>has frozen</a> and switched login system,
+               <a href='https://en.wikipedia.org/wiki/JavaFX'>JavaFX 8</a> brings a <a href='https://docs.oracle.com/javase/8/javafx/api/javafx/scene/web/WebEngine.html'>scriptable browser</a> to standard Java.
+               Our firstborn is due in October, too, so I better to fix the <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/9'>download</a> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/12'>problems</a> <i>asap</i>.
             </p><p>
-               Hope it won't be far from finish this time.
+               In <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/commit/0fede587e31f7ec90f00e779f906822ddb3413a6#diff-49da3f7f21ed8673cfa993016bea63a7'>July 2016</a>,
+               a downloader is coded in Java in two weeks.
+               Code is simple.  No need to check new data, no need to fool JavaScript security, and it makes some v3 plans come true.
+               Power listing now shows frequency and keywords, and full text search now excludes flavour text.
+            </p><p>
+               The plan was to bug fix the old viewer and call it a version, but it works pretty well, so maybe I'll put more work on this version before putting it down to teach my baby D&amp;D.
             </p>
          </section>
       </article>
@@ -142,13 +162,16 @@
          <h1 class='i18n'> action.about.h_version_history </h1>
          <p class="i18n"> action.about.lbl_english_only </p>
          <dl>
-            <dt> 3.0 M3 <time pubdate>2014-05-12</time> </dt>
+            <dt> 3.5.0 <time>2016-07-20</time> </dt>
+            <dd> Faster result display; improves layout, highlight, and search. Fix IE 11 and Chrome 51 compatibility. </dd>
+
+            <dt> 3.0 M3 <time>2014-05-12</time> </dt>
             <dd> Improved search flow, guide, and navigation; implemented filter, sort, next, prev. </dd>
 
-            <dt> 3.0 M2 <time pubdate>2013-06-25</time> </dt>
+            <dt> 3.0 M2 <time>2013-06-25</time> </dt>
             <dd> Added local data reindex/delete, navbar, responsive layout, simplify data storage, proper download state tracking, sort &amp; style category, background image, style all entries. </dd>
 
-            <dt> 3.0 M1 <time pubdate>2013-05-29</time> </dt>
+            <dt> 3.0 M1 <time>2013-05-29</time> </dt>
             <dd> Added style for power, content image conversion, help doc, AGPL license, view source, email, regx terms. </dd>
 
             <dt> 3.0 M0 <time>2013-05-25</time> </dt>
@@ -191,6 +214,7 @@ od.action.about = {
       _('#action_about_history_1')[0].src = _('#img_about_history_1')[0].src;
       _('#action_about_history_2')[0].src = _('#img_about_history_2')[0].src;
       _('#action_about_history_3')[0].src = _('#img_about_history_3')[0].src;
+      _('#action_about_history_3_5')[0].src = _('#img_about_history_3_5')[0].src;
    },
 
    "setup": function act_about_setup () {
