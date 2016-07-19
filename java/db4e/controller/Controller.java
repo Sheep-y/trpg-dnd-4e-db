@@ -6,6 +6,8 @@ import db4e.convertor.Convertor;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.time.Instant;
@@ -368,6 +370,12 @@ public class Controller {
       log.log( Level.CONFIG, "Export target: {0}", target );
       return runTask( () -> {
          // Export process is mainly IO limited. Not wasting time to make it multi-thread.
+         try {
+            exporter.testViewerExists();
+         } catch ( IOException ex ) {
+            throw new FileNotFoundException( "No viewer. Run ant make." );
+         }
+
          String root = target.getPath().replaceFirst( "\\.html?$", "_files/" );
          log.log( Level.CONFIG, "Export root: {0}", target );
          new File( root ).mkdirs();

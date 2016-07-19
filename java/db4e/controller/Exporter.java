@@ -80,6 +80,10 @@ class Exporter {
       }
    }
 
+   void testViewerExists () throws IOException {
+      ResourceUtils.getText( "res/4e_database.html" );
+   }
+
    void writeViewer ( File target ) throws IOException {
       try ( FileOutputStream out = new FileOutputStream( target, false );
             InputStream in = ResourceUtils.getStream( "res/4e_database.html" );
