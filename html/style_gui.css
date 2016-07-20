@@ -1,4 +1,4 @@
-/*  
+/*
  * style_gui.css
  * Contains CSS styles that applies to general UI (instead of data entries)
  */
@@ -139,4 +139,23 @@ button.pressable {
 button.pressable[aria-pressed="true"] {
    color: black;
    opacity: 1;
+}
+
+input[placeholder=Action] ,
+input[placeholder=Alignment] ,
+input[placeholder=Campaign] ,
+input[placeholder=Category] ,
+input[placeholder=Cost] ,
+input[placeholder=Frequency] ,
+input[placeholder=Price] ,
+input[placeholder=Tier] ,
+input[placeholder=Type] {
+   width: 120px;
+}
+input[placeholder=Group] ,
+input[placeholder=Level] ,
+input[placeholder=Power\ Source] ,
+input[placeholder=Rarity] ,
+input[placeholder=Size] {
+   width: 80px;
 }

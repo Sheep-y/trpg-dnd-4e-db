@@ -1,4 +1,4 @@
-/*  
+/*
  * style_data.css
  * Contains CSS styles that applies to content data (instead of other UI)
  */
@@ -89,6 +89,11 @@
 #detail span.power h1 {
    border-top-left-radius: 10px;
    border-top-right-radius: 10px;
+}
+
+/* Embeded */
+#detail h1[class$=power]:not(:first-child),
+#detail h1[class$=power]:not(:first-child) + p {
 }
 
 /********************** Items *************************/

@@ -17,7 +17,7 @@ public class PowerConvertor extends LeveledConvertor {
 
    public PowerConvertor ( Category category, boolean debug ) {
       super( category, debug );
-      category.meta = new String[]{ "ClassName", "Level", "Frequency", "ActionType", "Keywords", "SourceBook" };
+      category.meta = new String[]{ "ClassName", "Level", "Frequency", "Action", "Keywords", "SourceBook" };
    }
 
    private Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]+</b>(?:, <b>[\\w ]+</b>)*)" ).matcher( "" );
