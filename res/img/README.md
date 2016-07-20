@@ -1,0 +1,1 @@
+Images in these folders are high quality sources for the embedded images in downloader and viewer.

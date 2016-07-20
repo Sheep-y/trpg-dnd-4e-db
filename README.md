@@ -1,26 +1,40 @@
-# Offline 4e Database #
+# 4e Compendium Downloader #
 
-**For executable code please see <a href="http://github.com/Sheep-y/trpg-dnd-4e-db/tree/deployment">deployment branch</a>.**
-
-This script can be used to reterives and locally stores entries from online 4e <a href="http://www.wizards.com/dndinsider/compendium/database.aspx">D&D Compendium</a>.
+This app can be used to reterives and locally stores entries from online 4e [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx).
  <br/>
-Stored entries can be browsed and searched using a Google-like index with multi-word term search, wildcast, exclusion, inclusion ("OR"), and even regular expression.
+Stored entries can be exported, then browsed and searched with exact phase search, wildcast, exclusion, join ("OR"), and even regular expression.
 
-This is a fan-made project and does not contain any copyrighted data.
-You will need an active <a href="http://www.wizards.com/DnD/Subscription.aspx">Dungeons & Dragons Insider subscription</a> to reterive or update data.
-This is not an independent program, nor is it automated.
- <br/>
-The script is in Alpha prototype stage. 
-Basic feature is usable, but is far from stable and mature.
+This is a fan-made project and does not come with copyrighted data.
 
-The source code is split into multiple files for easy management, and must be put together by the included Ant script before it can be run.
-The <a href="http://github.com/Sheep-y/trpg-dnd-4e-db/tree/deployment">deployment branch</a> contains compiled releases. <br/>
-Due to technical reason the download page only works in Internet Explorer, but browsing would work in any modern browsers, including mobile phones.
+## How To Download Data ##
 
-When importing the project into your favorite IDE, consider using the src folder as root so that the IDE won't scan data folder for changes.
-Because, when fully loaded, there will be 25k+ files for it to scan.
+1. You need an active [Dungeons & Dragons Insider subscription](http://ddi.wizards.com/) to retrieve data.
+2. [Download](http://www.java.com/) and install Java (latest version 8 or above).
+3. [Download](https://github.com/Sheep-y/trpg-dnd-4e-db/releases/) the downloader exe (Windows) or downloader jar (Linux/Mac).
+4. Open a folder for the downloader, put it in, and run it.
+   5. (Jar version) If the file is opened by a compression program, change system settings to let Java handles it, or open console and run "java -jar 4e_compendium_downloader.jar".
+6. In the downloader, fill in DDI username and password, then click "Download".
+   7. Download can be stopped and resumed any time.
+   8. See in-downloader help for details and troubleshoots.
+9. Once all data is downloaded, you can export the data to an HTML file, which can be opened in any browser.
+
+If you find a typo or obvious mistake in the data, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
+I cannot update the official compendium, but I can update this downloader's data export.
+
+## Building ##
+
+* Viewer source code is in html folder.
+* Downloader source code is in java folder.
+* Use Ant (build.xml) to compile both into an executable jar.
+* The jar can also be extracted to a new folder; use Ant to move the extracted files back to original structure.
+
+Part of the build process uses the [CocoDoc](https://github.com/Sheep-y/CocoDoc/) app builder, which is bundled and must run in GUI.
+Try to use 64 bits java runtime; 32 bits may stackoverfow on js minify, but won't affect functionality.
+
+If you use an IDE, be careful not to export data to project folder.
+Otherwise, it can take a long time for the IDE to scan all the data files.
 
 <small>
-This script and its documentations are open source and licensed under <a href="www.gnu.org/licenses/agpl.html‎">GNU AGPL v3</a>. <br/>
+Code, documentations, and related resources are open source and licensed under <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">GNU AGPL v3</a>. <br/>
 D&D and Dungeons & Dragons are trademarks of Wizards of the Coast LLC.
 </small>
