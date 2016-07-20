@@ -32,6 +32,7 @@ import javax.security.auth.login.LoginException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import netscape.javascript.JSException;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import org.w3c.dom.Document;
 import sheepy.util.Utils;
@@ -134,6 +135,9 @@ public class Controller {
             } else if ( err instanceof TimeoutException ) {
                enabler.accept( action + " timeout" );
                gui.setTitle( "Timeout" );
+            } else if ( err instanceof JSException ) {
+               enabler.accept( action + " failed (script error)" );
+               gui.setTitle( "Error" );
             } else {
                gui.setTitle( "Error" );
                log.log( Level.WARNING, action + " failed: {0}", Utils.stacktrace( err ) );

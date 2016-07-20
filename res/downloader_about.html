@@ -68,10 +68,10 @@ li {
             </li>
             <li>
                <b>(Optional) Transfer the exported file and data to mobile devices </b> <br/>
-               The exported <code>.html</code> file can be opened in any modern browser,
+               The exported <code>.html</code> file can be opened in most browser,
                and it comes with a same named folder that contains the data.
-               You can copy the file and the folder to other PC or mobile devices;
-               copying data to your personal devices for personal use does not violate copyright.
+               You can copy the file and the folder to other PC or <a href='https://www.google.com/search?q=transfer+file+to+android'>mobile devices</a>.
+               <!--copying data to your personal devices for personal use does not violate copyright.-->
             </li>
             <li>
                If you find a typo or obvious mistake in the compendium, please <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/'>file an issue</a>.
@@ -100,11 +100,11 @@ li {
             <li>
                <b>Connection timeout</b> <br/>
                Increase the timeout period in option tab; long pages like power list will take a while to retrieve.
+               Can also mean a broken or blocked Internet connection.
             </li>
             <li>
-               <b>Connection reset</b>
-               It usually means your Internet connection was abruptly broken.
-               Try increase retry count in option tab, or try another network.
+               <b>Connection reset</b> <br/>
+               Try increase retry count in option tab, or try a more stable network.
             </li>
             <li>
                <b>Slow download</b> <br/>
@@ -113,18 +113,38 @@ li {
                That is 14 hours if your Internet can get it at 1 per 2 seconds.
             </li>
             <li>
-               <b>How to export to my phone / pad?</b> <br/>
-               USB drive is pretty fool-proof.
-               Android <a href='https://www.google.com/search?q=transfer+file+to+android'>is also easy</a>.
-               Just remember to transfer the data folder too (Windows's File Explorer will do that for you.)
-               <br/>
-               Other mobile OS (iOS, ChromeOS, Win mobile etc) I have no clue.
-               <!--I cannot promise it will work on an <a href='http://safari-is-the-new-ie.com/'>outdated browser</a>
-               that looks good only because of a <a href='http://www.howtogeek.com/184283/why-third-party-browsers-will-always-be-inferior-to-safari-on-iphone-and-ipad/'>lockout policy</a>.-->
+               <b>~ failed (script error)</b> <br/>
+               This means the login form or compendium has been changed (again).
+               May need a programmer to solve this one. See "other errors" below.
             </li>
             <li>
-               <b>java.nio.channels.ClosedChannelException</b>
+               <b>Unknown host</b> <br/>
+               Most likely, wizards has pulled the plug on ddi.wizards.com.
+            </li>
+            <li>
+               <b>Not enough space</b> <br/>
+               Check the drive where you are exporting data.
+               Depending on its file system, 130MB free space or more may be required.
+            </li>
+            <li>
+               <b>ClosedChannelException</b> <br/>
                Only got this error once.  Simply close the downloader and re-run.
+            </li>
+            <li>
+               <b>Other errors</b> <br/>
+               Most download error should happens during download, where many things can go wrong,
+               such as if Wizards changed something <i>again</i>.<br/>
+
+               If you enable debug tabs, you can see the program log, usually with a detailed error.
+               You can also see and control the embedded browser in the worker tab.<br/>
+
+               For example, if you determine that there is a login problem,
+               you can try to login from the browser.
+               That may allows downloads to proceed normally. <br/>
+
+               If you wish to report <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/'>an issue</a>,
+               remember to copy and paste the log, including at least a few status lines above the error
+               to help determine what went wrong.
             </li>
          </ol>
       </section>
