@@ -64,7 +64,7 @@ public class Controller {
    private volatile SqlJetDb db;
    private volatile DbAbstraction dal;
    private Thread currentThread;
-   private ProgressState state;
+   private final ProgressState state;
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
 
@@ -113,7 +113,13 @@ public class Controller {
       }
    }
 
-   // Return a function that is used to clean up running task and perhaps display error message
+   /**
+    * Return a function that is used to clean up running task and perhaps display error message
+    *
+    * @param action Action name (noun) to update gui status
+    * @param enabler Called when any error happened
+    * @return A cleanup function that accepts second parameter as an error (can be null).
+    */
    private BiConsumer<Void,Throwable> terminate ( String action, Consumer<String> enabler ) {
       return ( result, err ) -> {
          if ( err != null ) {
@@ -279,7 +285,7 @@ public class Controller {
       return runTask( () -> {
          setPriority( Thread.NORM_PRIORITY );
          if ( categories.stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
-            runAndCheckLogin( "Connect compendium", crawler::randomGlossary );
+            runAndCheckLogin( "Test login", crawler::randomGlossary );
          downloadCategory();
          downloadEntities();
          gui.stateCanExport( "Download complete, may export data" );
@@ -422,8 +428,8 @@ public class Controller {
    private CompletableFuture<Void> runTask ( RunExcept task ) {
       final CompletableFuture<Void> result = new CompletableFuture<>();
       threadPool.execute( ()-> { try {
-         synchronized ( this ) { currentThread = Thread.currentThread(); }
-         synchronized ( categories ) {
+         synchronized ( this ) { currentThread = Thread.currentThread(); } // Unset (cleanup) by terminate()
+         synchronized ( categories ) { // Sync data
             task.run();
          }
          result.complete( null );
@@ -438,6 +444,16 @@ public class Controller {
       Thread.currentThread().setPriority( priority );
    } catch ( SecurityException ignored ) {} }
 
+   /**
+    * Run a browsing task and check whether it request login.
+    * If so, it will get credentials from main window and try to login.
+    * If login is successful, it will rerun the task,
+    * otherwise it throws LoginException.
+    *
+    * @param taskName Name to display on gui status
+    * @param task Task to run.  Must change browser document.
+    * @throws Exception InterruptedException and LoginException are most common.
+    */
    private void runAndCheckLogin ( String taskName, RunExcept task ) throws Exception {
       runAndGet( taskName, task );
       if ( crawler.needLogin() ) {
@@ -454,6 +470,7 @@ public class Controller {
    }
 
    private Instant lastLoad = Instant.now();
+
    /**
     * Call a task and wait for browser to finish loading... or timeout.
     * The task must cause the browser's loader to change state for this to work.
@@ -485,7 +502,7 @@ public class Controller {
 
          } catch ( Exception err ) {
             browser.handle( null, null );
-            log.log( Level.WARNING, "{0} finished exceptionally: {0}", new Object[]{ taskName, err } );
+            log.log( Level.WARNING, "{0} finished exceptionally: {1}", new Object[]{ taskName, err } );
 
             if ( err instanceof TimeoutException && retry.incrementAndGet() <= RETRY_COUNT ) {
                int sleep_sec = retry.get() > 3 ? 300 : new int[]{ 0, 10, 60, 120 }[ retry.get() ];
@@ -501,6 +518,9 @@ public class Controller {
       } while ( true );
    }
 
+   /**
+    * Same as Runnable, but throws Exception.
+    */
    private static interface RunExcept {
       void run ( ) throws Exception;
    }

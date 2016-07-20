@@ -215,9 +215,10 @@ public class SceneMain extends Scene {
 
    // Called by Main after stage show
    void startup() {
-      loader.open( tblCategory ).thenRun( () -> Platform.runLater( () ->
-         btnLeft.requestFocus()
-      ) );
+      loader.open( tblCategory ).thenRun( () -> Platform.runLater( () -> {
+         setTitle( "ver. " + Main.VERSION );
+         btnLeft.requestFocus();
+      } ) );
    }
 
    // Called by Main during stage shutdown
@@ -481,6 +482,7 @@ public class SceneMain extends Scene {
       if ( ! ButtonType.YES.equals( result ) )
          return;
 
+      stateBusy( null );
       loader.resetDb();
       pnlC.getSelectionModel().select( tabData );
    }

@@ -29,6 +29,7 @@ public class Main extends Application {
    }
 
    static String TITLE = "Compendium downloader";
+   static String VERSION = "3.5.0 (development)";
 
    // Global log ang preference
    public static final Logger log = Logger.getLogger( Main.class.getName() );
