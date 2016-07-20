@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="oddi" default="make" basedir=".">
+   <description> D&amp;D 4e Compendium Viewer / Downloader </description>
+
    <!-- Launch4j directory -->
    <property name="launch4j.dir" location="C:/Program Files (x86)/Launch4j" />
 
@@ -17,30 +19,31 @@
    <target name="-make-html">
       <!-- Build viewer.  -->
       <delete file="res/4e_database.html" failonerror="false" />
-      <java jar="CocoDoc.1.1.1.jar">
+      <java jar="java_lib/CocoDoc.1.1.1.jar">
          <arg line="html/html_template.html" />
       </java>
    </target>
 
    <target name="make" depends="-make-html" description="Compile html and jar">
-      <!-- Build downloager: cleanup -->
+      <!-- Cleanup -->
       <delete file="${jar.name}" />
       <delete includeemptydirs="true" failonerror="false"><fileset dir ="${dir.jar}" /></delete>
       <mkdir dir="${dir.jar}" />
 
-      <!-- Build downloader: compile -->
+      <!-- Compile -->
       <javac srcdir="${dir.src}" destdir="${dir.jar}" encoding="UTF-8" debug="true" includeantruntime="false">
          <classpath>
             <pathelement path="java_lib/sqljet/sqljet-1.1.10.jar" />
          </classpath>
       </javac>
-      <!-- Build downloader: copy support files -->
+
+      <!-- Copy support files -->
       <property name="jar.root" value="${dir.jar}" />
-      <copy todir="${jar.root}/res"><fileset dir="res"/></copy>
+      <copy todir="${jar.root}/res"><fileset dir="res" excludes="img/" /></copy>
       <unjar src="java_lib/antlr/antlr-3.5.2-runtime.jar" dest="${jar.root}" />
       <unjar src="java_lib/sqljet/sqljet-1.1.10.jar" dest="${jar.root}" />
 
-      <!-- Build downloader: copy source code -->
+      <!-- Copy source code -->
       <copy todir="${jar.root}">
          <fileset file="build.xml" />
          <fileset file="launch4j.xml" />
@@ -50,7 +53,7 @@
       <copy todir="${jar.root}/src/html"><fileset dir="html"/></copy>
       <copy todir="${jar.root}/src/java"><fileset dir="java"/></copy>
 
-      <!-- Build downloader: make jar -->
+      <!-- Make jar -->
       <jar destfile="${jar.name}">
          <fileset dir="${dir.jar}"/>
          <manifest>
@@ -61,6 +64,40 @@
       </jar>
    </target>
 
+   <!-- Wrap jar file into exe, will make jar if not exists -->
+   <target name="make_exe" depends="-make-if-no-jar" description="Compile and build a Windows deliverable.">
+      <!-- Call launch4j -->
+      <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.dir}/launch4j.jar:${launch4j.dir}/lib/xstream.jar" />
+      <launch4j configFile="launch4j.xml" />
+   </target>
+
+   <!-- With an extracted jar structure, convert it back to original (pre-make) structure. -->
+   <target name="setup_from_jar" depends="-check-is-jar-structure" if="is.jar.structure" description="Restore a jar folder structure to original project structures.">
+      <move todir=".">
+         <fileset dir="src"/>
+      </move>
+      <zip destfile="java_lib/antlr/antlr-3.5.2-runtime.jar">
+         <fileset dir="." includes="org/antlr/**/*"/>
+      </zip>
+      <zip destfile="java_lib/sqljet/sqljet-1.1.10.jar">
+         <fileset dir="." includes="org/tmatesoft/**/*,sqljet.build.properties"/>
+      </zip>
+      <delete includeemptydirs="true">
+         <fileset dir="org"/>
+         <fileset dir="db4e"/>
+         <fileset dir="sheepy"/>
+         <fileset dir="META-INF"/>
+         <fileset file="sqljet.build.properties"/>
+      </delete>
+      <get src="https://github.com/Sheep-y/CocoDoc/releases/download/v1.1.1.0/CocoDoc.1.1.1.jar"
+         dest="java_lib/CocoDoc.1.1.1.jar" verbose="true" skipexisting="true" ignoreerrors="true" />
+   </target>
+
+   <!-- Compile viewer and copy to user home, will always rebuild -->
+   <target name="make_viewer" depends="-make-html" description="Compile the HTML viewer and moves it to default export location (user home)" >
+      <copy todir="${user.home}"><fileset file="res/4e_database.html"/></copy>
+   </target>
+
    <target name="-check-jar">
       <available file="${jar.name}" property="has.jar"/>
    </target>
@@ -69,16 +106,8 @@
       <antcall target="make" />
    </target>
 
-   <!-- Wrap jar file into exe -->
-   <target name="make_exe" depends="-make-if-no-jar" description="Compile and build a Windows deliverable.">
-      <!-- Call launch4j -->
-      <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.dir}/launch4j.jar:${launch4j.dir}/lib/xstream.jar" />
-      <launch4j configFile="launch4j.xml" />
-   </target>
-
-   <!-- Compile viewer and copy to user home -->
-   <target name="make_viewer" depends="-make-html" description="Compile the HTML viewer and moves it to default export location (user home)" >
-      <copy todir="${user.home}"><fileset file="res/4e_database.html"/></copy>
+   <target name="-check-is-jar-structure">
+      <available file="sqljet.build.properties" property="is.jar.structure"/>
    </target>
 
 </project>

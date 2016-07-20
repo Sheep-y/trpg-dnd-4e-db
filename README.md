@@ -18,16 +18,18 @@ This is a fan-made project and does not come with copyrighted data.
    8. See in-downloader help for more details.
 9. Once all data is downloaded, you can export the data to an HTML file, which can be opened in any browser.
 
-## Development ##
+## Building ##
 
-A built script is included to compile everything into an executable jar.
+An Ant script is included to compile everything into an executable jar.
+The jar can also be extracted to a new folder, one of the Ant targets can move the extracted files back to original structure.
+
 Part of the build process uses the [CocoDoc](https://github.com/Sheep-y/CocoDoc/) app builder, which is bundled and must run in GUI.
 Try to use 64 bits java runtime; 32 bits may stackoverfow on js minify, but won't affect functionality.
 
-If you use an IDE, becareful not to export data to project folder.
+If you use an IDE, be careful not to export data to project folder.
 Otherwise, it can take a long time for the IDE to scan all the data files.
 
 <small>
-Code, documentations, and related resources are open source and licensed under <a href="www.gnu.org/licenses/agpl.html‎">GNU AGPL v3</a>. <br/>
+Code, documentations, and related resources are open source and licensed under <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">GNU AGPL v3</a>. <br/>
 D&D and Dungeons & Dragons are trademarks of Wizards of the Coast LLC.
 </small>

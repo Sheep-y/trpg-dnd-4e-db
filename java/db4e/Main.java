@@ -52,7 +52,7 @@ public class Main extends Application {
       stage.setTitle( TITLE );
       stage.setScene( sceneMain );
       try {
-         stage.getIcons().add( new Image( ResourceUtils.getStream( "img/icon.png" ) ) );
+         stage.getIcons().add( new Image( ResourceUtils.getStream( "res/icon.png" ) ) );
       } catch ( Exception err ) {
          log.warning( Utils.stacktrace( err ) );
       }
