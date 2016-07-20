@@ -36,6 +36,8 @@ public class Convertor {
          case "Poison":
          case "Disease":
             return new LeveledConvertor( category, debug );
+         case "Feat":
+            return new FeatConvertor( category, debug );
          case "Item":
             return new ItemConvertor( category, debug );
          case "Power":
@@ -87,8 +89,10 @@ public class Convertor {
       if ( entry.shortid == null )
          entry.shortid = entry.id.replace( ".aspx?id=", "" );
       copyMeta( entry );
-      if ( entry.data == null )
+      if ( entry.data == null ) {
          entry.data = normaliseData( entry.content );
+         correctEntry( entry );
+      }
       if ( entry.fulltext == null )
          entry.fulltext = textData( entry.data );
 
@@ -129,6 +133,15 @@ public class Convertor {
       final int length = entry.fields.length;
       entry.meta = new Object[ length ];
       System.arraycopy( entry.fields, 0, entry.meta, 0, length );
+   }
+
+   protected void correctEntry ( Entry entry ) {
+      // Entry specific content data fixes. No need to call super when overriden.
+      switch ( entry.shortid ) {
+         case "monster2248": // Cambion Stalwart
+            entry.data = entry.data.replace( "bit points", "hit points" );
+            break;
+      }
    }
 
    // Products, Magazines of "published in". May be site root (Class Compendium) or empty (associate.93/Earth-Friend)
@@ -199,17 +212,22 @@ public class Convertor {
     * @return Text data
     */
    protected String textData ( String data ) {
-      // Strip HTML tags
-      data = data.replace( '\u00A0', ' ' );
+      // Removes excluded text
       if ( data.indexOf( "power>" ) > 0 ) // Remove power flavour
          data = regxPowerFlav.reset( data ).replaceAll( "$1" );
       if ( data.indexOf( "mihead>" ) > 0 )
          data = regxItemFlav.reset( data ).replaceAll( "$1" );
+      data = data.replace( "<p class=publishedIn>Published in", "" );
+
+      // Strip HTML tags then redundent spaces
+      data = data.replace( '\u00A0', ' ' );
       data = regxHtmlTag.reset( data ).replaceAll( " " );
       data = regxSpaces.reset( data ).replaceAll( " " );
+
       // HTML unescape. Compendium has relatively few escapes.
       data = data.replace( "&amp;", "&" );
       data = data.replace( "&gt;", ">" ); // glossary.433/"Weapons and Size"
+
       return data.trim();
    }
 }

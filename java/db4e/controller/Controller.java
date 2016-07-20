@@ -277,6 +277,7 @@ public class Controller {
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
       log.log( Level.CONFIG, "Timeout {0} ms / Interval {1} ms ", new Object[]{ TIMEOUT_MS, INTERVAL_MS } );
       return runTask( () -> {
+         setPriority( Thread.NORM_PRIORITY );
          if ( categories.stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
             runAndCheckLogin( "Connect compendium", crawler::randomGlossary );
          downloadCategory();
@@ -376,6 +377,7 @@ public class Controller {
             throw new FileNotFoundException( "No viewer. Run ant make." );
          }
 
+         setPriority( Thread.MIN_PRIORITY );
          String root = target.getPath().replaceFirst( "\\.html?$", "_files/" );
          log.log( Level.CONFIG, "Export root: {0}", target );
          new File( root ).mkdirs();
@@ -431,6 +433,10 @@ public class Controller {
       } } );
       return result;
    }
+
+   private void setPriority ( int priority ) { try {
+      Thread.currentThread().setPriority( priority );
+   } catch ( SecurityException ignored ) {} }
 
    private void runAndCheckLogin ( String taskName, RunExcept task ) throws Exception {
       runAndGet( taskName, task );
