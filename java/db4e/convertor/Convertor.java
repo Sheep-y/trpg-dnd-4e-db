@@ -83,18 +83,20 @@ public class Convertor {
    private final Matcher regxOpenClose = Pattern.compile( "<(/?)(p|span|b|i)\\b" ).matcher( "" );
    private final Map<String, Entry> shortId = new HashMap<>();
 
+   /**
+    * Apply common conversions to entry data.
+    * entry.meta may be set, but other prorerties will be overwritten.
+    *
+    * @param entry
+    */
    protected void convertEntry ( Entry entry ) {
-      if ( entry.display_name == null )
-         entry.display_name = entry.name.replace( "’", "'" );
-      if ( entry.shortid == null )
-         entry.shortid = entry.id.replace( ".aspx?id=", "" );
+      entry.display_name = entry.name.replace( "’", "'" );
+      entry.shortid = entry.id.replace( ".aspx?id=", "" );
       copyMeta( entry );
-      if ( entry.data == null ) {
-         entry.data = normaliseData( entry.content );
-         correctEntry( entry );
-      }
-      if ( entry.fulltext == null )
-         entry.fulltext = textData( entry.data );
+      entry.data = normaliseData( entry.content );
+      correctEntry( entry );
+      parseSourceBook( entry );
+      entry.fulltext = textData( entry.data );
 
       if ( debug ) {
          // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
@@ -124,7 +126,7 @@ public class Convertor {
          if ( regxCheckFulltext.reset( entry.fulltext ).find() )
             log.log( Level.WARNING, "Unremoved html tag in fulltext of {0} ({1})", new Object[]{ entry.id, entry.name } );
          if ( ! entry.fulltext.endsWith( "." ) ) // Item144 & Item152 fails this check
-            log.log( Level.WARNING, "Not ending in full stop: {0} ({1})", new Object[]{ entry.id, entry.name } );
+            log.log( Level.WARNING, "Not ending in full stop: {0} ({1})", new Object[]{ entry.shortid, entry.name } );
       }
    }
 
@@ -135,12 +137,129 @@ public class Convertor {
       System.arraycopy( entry.fields, 0, entry.meta, 0, length );
    }
 
-   protected void correctEntry ( Entry entry ) {
-      // Entry specific content data fixes. No need to call super when overriden.
-      switch ( entry.shortid ) {
-         case "monster2248": // Cambion Stalwart
-            entry.data = entry.data.replace( "bit points", "hit points" );
-            break;
+   // Entry specific content data fixes. No need to call super when overriden.
+   protected void correctEntry ( Entry entry ) {}
+
+   private final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]+)</p>" ).matcher( "" );
+   private final Matcher regxBook = Pattern.compile( "([^,.]+)(?:, page[^,.]+|\\.)" ).matcher( "" );
+
+   private static Map<String, String> books = new HashMap<>();
+
+   static {
+      books.put( "Adventurer's Vault", "AV" );
+      books.put( "Adventurer's Vault 2", "AV2" );
+      books.put( "Arcane Power", "AP" );
+      books.put( "Dark Sun Campaign Setting", "DSCS" );
+      books.put( "Dark Sun Creature Catalog", "DSCC" );
+      books.put( "Divine Power", "DP" );
+      books.put( "Dragons of Eberron", "DoE" );
+      books.put( "Draconomicon: Chromatic Dragons", "Draconomicon: Chromatic" );
+      books.put( "Draconomicon: Metallic Dragons", "Draconomicon: Metallic" );
+      books.put( "Dungeon Delve", "DD" );
+      books.put( "Dungeon Master's Guide", "DMG" );
+      books.put( "Dungeon Master's Guide 2", "DMG2" );
+      books.put( "Dungeon Master's Kit", "DMK" );
+      books.put( "E1 Death's Reach", "E1" );
+      books.put( "E2 Kingdom of the Ghouls", "E2" );
+      books.put( "E3 Prince of Undeath", "E3" );
+      books.put( "Eberron Campaign Setting", "ECS" );
+      books.put( "Eberron Player's Guide", "EPG" );
+      books.put( "FR1 Scepter Tower of Spellgard", "FR1" );
+      books.put( "Forgotten Realms Campaign Guide", "FRCG" );
+      books.put( "Forgotten Realms Player's Guide", "FRPG" );
+      books.put( "H1 Keep on the Shadowfell", "H1" );
+      books.put( "H2 Thunderspire Labyrinth", "H2" );
+      books.put( "H3 Pyramid of Shadows", "H3" );
+      books.put( "HS1 The Slaying Stone", "HS1" );
+      books.put( "HS2 Orcs of Stonefang Pass", "HS2" );
+      books.put( "Heroes of Shadow", "HoS" );
+      books.put( "Heroes of the Elemental Chaos", "HotEC" );
+      books.put( "Heroes of the Fallen Lands", "HotFL" );
+      books.put( "Heroes of the Feywild", "HotF" );
+      books.put( "Heroes of the Forgotten Kingdoms", "HotFK" );
+      books.put( "Into the Unknown: The Dungeon Survival Handbook", "DSH" );
+      books.put( "Manual of the Planes", "MotP" );
+      books.put( "Martial Power", "MP" );
+      books.put( "Martial Power 2", "MP2" );
+      books.put( "Monster Manual", "MM" );
+      books.put( "Monster Manual 2", "MM2" );
+      books.put( "Monster Manual 3", "MM3" );
+      books.put( "Monster Vault", "MV" );
+      books.put( "Mordenkainen's Magnificent Emporium", "MME" );
+      books.put( "Neverwinter Campaign Setting", "NCS" );
+      books.put( "P1 King of the Trollhaunt Warrens", "P1" );
+      books.put( "P2 Demon Queen Enclave", "P2" );
+      books.put( "P3 Assault on Nightwyrm Fortress", "P3" );
+      books.put( "Player's Handbook", "PHB" );
+      books.put( "Player's Handbook 2", "PHB2" );
+      books.put( "Player's Handbook 3", "PHB3" );
+      books.put( "Player's Handbook Races: Dragonborn", "PHR:D" );
+      books.put( "Player's Handbook Races: Tiefling", "PHR:T" );
+      books.put( "Primal Power", "PP" );
+      books.put( "Psionic Power", "PsP" );
+      books.put( "Rules Compendium", "RC" );
+      books.put( "The Plane Above", "TPA" );
+      books.put( "The Plane Below", "TPB" );
+      books.put( "The Shadowfell", "TS" );
+      books.put( "Vor Rukoth: An Ancient Ruins Adventure Site", "Vor Rukoth" );
+      /*
+Beyond the Crystal Cave
+City of Stormreach
+Demonomicon
+Elder Evils
+Fortress of the Yuan-ti
+Halls of Undermountain
+Hammerfast
+Madness at Gardmore Abbey
+Marauders of the Dune Sea
+Monster Vault: Threats to the Nentir Vale
+Open Grave
+Player's Handbook Races: Dragonborn
+Player's Handbook Races: Tiefling
+Revenge of the Giants
+Seekers of the Ashen Crown
+The Book of Vile Darkness
+Tomb of Horrors
+Underdark
+Vor Rukoth
+      */
+   }
+
+   protected void parseSourceBook ( Entry entry ) {
+      if ( regxPublished.reset( entry.data ).find() ) {
+
+         String published = regxPublished.group( 1 );
+         StringBuilder sourceBook = new StringBuilder();
+         String lastSource = "";
+         regxBook.reset( published );
+         while ( regxBook.find() ) {
+            String book = regxBook.group( 1 ).trim();
+            String abbr = books.get( book );
+            if ( abbr == null ) {
+               if ( book.equals( "Class Compendium" ) ) continue; // Never published
+               if ( book.contains( " Magazine " ) )
+                  abbr = book.replace( "gon Magazine ", "" ).replace( "geon Magazine ", "" );
+               else {
+                  books.put( book, book );
+                  log.log( Level.FINE, "Source without abbrivation: {0}", book );
+                  abbr = book;
+               }
+            }
+            if ( sourceBook.length() > 0 ) sourceBook.append( ", " );
+            sourceBook.append( abbr );
+            lastSource = abbr;
+         }
+         if ( lastSource.isEmpty() )
+            if ( published.equals( "Class Compendium." ) )
+               lastSource = "CC"; // 11 feats and 2 powers does not list any other source book, only class compendium.
+            else
+               log.log(Level.WARNING, "Entry with unparsed book: {0} {1} - {2}", new Object[]{ entry.shortid, entry.name, published} );
+         entry.meta[ entry.meta.length-1 ] = sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource;
+
+      } else if ( entry.data.contains( "ublished in" ) ) {
+         log.log( Level.WARNING, "Entry with unparsed source: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+      } else {
+         log.log( Level.INFO, "Entry without source book: {0} {1}", new Object[]{ entry.shortid, entry.name } );
       }
    }
 

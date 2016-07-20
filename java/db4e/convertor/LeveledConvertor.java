@@ -75,4 +75,18 @@ class LeveledConvertor extends Convertor {
       else
          return super.sortEntity( a, b );
    }
+
+   protected void correctEntry ( Entry entry ) {
+      if ( category.id.equals( "Poison" ) ) {
+         entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
+
+      } else if ( category.id.equals( "Monster" ) ) {
+         switch ( entry.shortid ) {
+            case "monster2248": // Cambion Stalwart
+               entry.data = entry.data.replace( "bit points", "hit points" );
+               break;
+         }
+      }
+   }
+
 }

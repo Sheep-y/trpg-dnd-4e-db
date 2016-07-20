@@ -2,7 +2,7 @@
 
 This app can be used to reterives and locally stores entries from online 4e [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx).
  <br/>
-Stored entries can be exported, then browsed and searched using a Google-like index with multi-word term search, wildcast, exclusion, inclusion ("OR"), and even regular expression.
+Stored entries can be exported, then browsed and searched with exact phase search, wildcast, exclusion, join ("OR"), and even regular expression.
 
 This is a fan-made project and does not come with copyrighted data.
 
@@ -18,10 +18,15 @@ This is a fan-made project and does not come with copyrighted data.
    8. See in-downloader help for more details.
 9. Once all data is downloaded, you can export the data to an HTML file, which can be opened in any browser.
 
+If you find a typo or obvious mistake in the data, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
+I cannot update the official compendium, but I can update this downloader's data export.
+
 ## Building ##
 
-An Ant script is included to compile everything into an executable jar.
-The jar can also be extracted to a new folder, one of the Ant targets can move the extracted files back to original structure.
+* Viewer source code is in html folder.
+* Downloader source code is in java folder.
+* Use Ant (build.xml) to compile both into an executable jar.
+* The jar can also be extracted to a new folder; use Ant to move the extracted files back to original structure.
 
 Part of the build process uses the [CocoDoc](https://github.com/Sheep-y/CocoDoc/) app builder, which is bundled and must run in GUI.
 Try to use 64 bits java runtime; 32 bits may stackoverfow on js minify, but won't affect functionality.
