@@ -16,7 +16,7 @@ class LeveledConvertor extends Convertor {
 
    @Override public void initialise () {
       LEVEL = metaIndex( "Level" );
-      if ( LEVEL < 0 ) throw new IllegalStateException( "Level field not in " + category.name );
+      // if ( LEVEL < 0 ) throw new IllegalStateException( "Level field not in " + category.name );
    }
 
    static Map<String, String> levelText = new HashMap<>(); // Cache level text
@@ -24,6 +24,7 @@ class LeveledConvertor extends Convertor {
 
    @Override protected void convertEntry ( Entry entry ) {
       super.convertEntry( entry );
+      if ( LEVEL < 0 ) return;
       String level = entry.meta[ LEVEL ].toString();
       if ( levelText.containsKey( level ) ) {
          entry.meta[ LEVEL ] = level = levelText.get( level );
@@ -67,18 +68,24 @@ class LeveledConvertor extends Convertor {
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
-      float level = levelNumber.get( a.meta[ LEVEL ] ) - levelNumber.get( b.meta[ LEVEL ] );
-      if ( level < 0 )
-         return -1;
-      else if ( level > 0 )
-         return 1;
-      else
-         return super.sortEntity( a, b );
+      if ( LEVEL >= 0 ) {
+         float level = levelNumber.get( a.meta[ LEVEL ] ) - levelNumber.get( b.meta[ LEVEL ] );
+         if ( level < 0 )
+            return -1;
+         else if ( level > 0 )
+            return 1;
+      }
+      return super.sortEntity( a, b );
    }
 
    protected void correctEntry ( Entry entry ) {
       if ( category.id.equals( "Poison" ) ) {
          entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
+         switch ( entry.shortid ) {
+            case "poison19": // Granny's Grief
+               entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
+               break;
+         }
 
       } else if ( category.id.equals( "Monster" ) ) {
          switch ( entry.shortid ) {

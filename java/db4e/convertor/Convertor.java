@@ -36,10 +36,12 @@ public class Convertor {
          case "Poison":
          case "Disease":
             return new LeveledConvertor( category, debug );
+         case "Companion":
+         case "Item":
+         case "Terrain":
+            return new FieldSortConvertor( category, 0, debug ); // Sort by first field
          case "Feat":
             return new FeatConvertor( category, debug );
-         case "Item":
-            return new ItemConvertor( category, debug );
          case "Power":
             return new PowerConvertor( category, debug );
          default:
@@ -141,10 +143,16 @@ public class Convertor {
    }
 
    // Entry specific content data fixes. No need to call super when overriden.
-   protected void correctEntry ( Entry entry ) {}
-
-   private final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]+)</p>" ).matcher( "" );
-   private final Matcher regxBook = Pattern.compile( "([^,.]+)(?:, page[^,.]+|\\.)" ).matcher( "" );
+   protected void correctEntry ( Entry entry ) {
+      if ( category.id.equals( "Glossary" ) ) {
+         switch ( entry.shortid ) {
+            case "glossary679": // Familiar - an empty monster keyword from Dungeon 211. Too late in development to remove in v3.5
+               entry.data = entry.data.replace( "</p><p class=publishedIn>Published in .",
+                  "An enemy familiar appeared in Dungeon Magazine 211, but not even a monster. This entry should be removed.</p><p class=publishedIn>Published in Dungeon Magazine 211." );
+               break;
+         }
+      }
+   }
 
    private static Map<String, String> books = new HashMap<>();
 
@@ -201,30 +209,18 @@ public class Convertor {
       books.put( "Player's Handbook Races: Tiefling", "PHR:T" );
       books.put( "Primal Power", "PP" );
       books.put( "Psionic Power", "PsP" );
+      books.put( "PH Heroes: Series 1", "PHH:S1" );
+      books.put( "PH Heroes: Series 2", "PHH:S2" );
+      books.put( "Red Box Starter Set", "Red Box" );
       books.put( "Rules Compendium", "RC" );
       books.put( "The Plane Above", "TPA" );
       books.put( "The Plane Below", "TPB" );
       books.put( "The Shadowfell", "TS" );
       books.put( "Vor Rukoth: An Ancient Ruins Adventure Site", "Vor Rukoth" );
-      /*
-Beyond the Crystal Cave
-City of Stormreach
-Demonomicon
-Elder Evils
-Fortress of the Yuan-ti
-Halls of Undermountain
-Hammerfast
-Madness at Gardmore Abbey
-Marauders of the Dune Sea
-Open Grave
-Revenge of the Giants
-Seekers of the Ashen Crown
-The Book of Vile Darkness
-Tomb of Horrors
-Underdark
-Vor Rukoth
-      */
    }
+
+   private final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]+)</p>" ).matcher( "" );
+   private final Matcher regxBook = Pattern.compile( "([A-Z][^,.]*)(?:, page[^,.]+|\\.)" ).matcher( "" );
 
    protected void parseSourceBook ( Entry entry ) {
       if ( regxPublished.reset( entry.data ).find() ) {
@@ -242,7 +238,7 @@ Vor Rukoth
                   abbr = book.replace( "gon Magazine ", "" ).replace( "geon Magazine ", "" );
                else {
                   books.put( book, book );
-                  log.log( Level.FINE, "Source without abbrivation: {0}", book );
+                  log.log( Level.FINE, "Source without abbrivation: {0} ({1})", new Object[]{ book, entry.shortid } );
                   abbr = book;
                }
             }
