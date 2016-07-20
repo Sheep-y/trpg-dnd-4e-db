@@ -1,4 +1,4 @@
-/*  
+/*
  * lang_en.js
  *
  * English localization resources
@@ -14,6 +14,7 @@ _.l.set( 'data', {
    },
    'field' : {
       "PowerSourceText" : 'Power Source',
+      "CombatRole" : 'Role',
       "RoleName" : 'Role',
       "KeyAbilities" : 'Abilities',
       "GroupRole" : 'Group',

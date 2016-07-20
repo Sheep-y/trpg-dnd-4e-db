@@ -141,6 +141,14 @@ button.pressable[aria-pressed="true"] {
    opacity: 1;
 }
 
+input[placeholder=Group] ,
+input[placeholder=Level] ,
+input[placeholder=Power\ Source] ,
+input[placeholder=Rarity] ,
+input[placeholder=Size] {
+   width: 80px;
+}
+
 input[placeholder=Action] ,
 input[placeholder=Alignment] ,
 input[placeholder=Campaign] ,
@@ -148,14 +156,11 @@ input[placeholder=Category] ,
 input[placeholder=Cost] ,
 input[placeholder=Frequency] ,
 input[placeholder=Price] ,
-input[placeholder=Tier] ,
-input[placeholder=Type] {
+input[placeholder=Role] ,
+input[placeholder=Tier] {
    width: 120px;
 }
-input[placeholder=Group] ,
-input[placeholder=Level] ,
-input[placeholder=Power\ Source] ,
-input[placeholder=Rarity] ,
-input[placeholder=Size] {
-   width: 80px;
+
+input[placeholder=Type] {
+   width: 140px;
 }
