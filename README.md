@@ -1,4 +1,4 @@
-# Offline 4e Database #
+# 4e Compendium Downloader #
 
 This app can be used to reterives and locally stores entries from online 4e [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx).
  <br/>
@@ -15,7 +15,7 @@ This is a fan-made project and does not come with copyrighted data.
    5. (Jar version) If the file is opened by a compression program, change system settings to let Java handles it, or open console and run "java -jar 4e_compendium_downloader.jar".
 6. In the downloader, fill in DDI username and password, then click "Download".
    7. Download can be stopped and resumed any time.
-   8. See in-downloader help for more details.
+   8. See in-downloader help for details and troubleshoots.
 9. Once all data is downloaded, you can export the data to an HTML file, which can be opened in any browser.
 
 If you find a typo or obvious mistake in the data, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).

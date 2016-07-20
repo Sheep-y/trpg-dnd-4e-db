@@ -37,6 +37,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -132,6 +133,7 @@ public class SceneMain extends Scene {
 
    private void initControls () {
       // Data tab - save preference on change
+      prgProgress.addEventFilter( MouseEvent.MOUSE_CLICKED, ( evt ) -> this.action_view( null ) );
       txtPass.setText( prefs.get( "ddi.pass", "" ) );
       txtUser.setPromptText( "DDI login username (not email)" );
       txtPass.setPromptText( "DDI login password" );
@@ -240,7 +242,8 @@ public class SceneMain extends Scene {
    } ); }
 
    public void setProgress ( Double progress ) { runFX( () -> {
-      log.log( Level.FINE, "Progress: {0}.", progress );
+      if ( Math.round( progress * 100 ) % 10 == 0 )
+         log.log( Level.FINE, "Progress: {0}.", progress );
       prgProgress.setProgress( progress );
    } ); }
 
@@ -406,6 +409,7 @@ public class SceneMain extends Scene {
       if ( message != null ) setStatus( message );
       log.log( Level.FINE, "State: Busy" );
       disallowAction();
+      setRight( "Exit", this::action_exit );
    } ); }
 
    public void stateBadData () { runFX( () -> {
@@ -463,11 +467,10 @@ public class SceneMain extends Scene {
          }
       } else {
          log.setLevel( Level.CONFIG );
-         if ( tabs.contains( tabLog ) )
-            tabs.removeAll( tabLog, tabWorker );
-         txtLog.clear();
-         pnlWorker.getConsoleOutput().clear();
-         log.config( "Log cleared by switching off debug." );
+         tabs.removeAll( tabLog, tabWorker );
+         //txtLog.clear();
+         //pnlWorker.getConsoleOutput().clear();
+         //log.config( "Log cleared by switching off debug." );
       }
    }
 

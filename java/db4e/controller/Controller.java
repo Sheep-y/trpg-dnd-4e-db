@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -268,11 +270,34 @@ public class Controller {
          }
       }
 
+      backupDb();
+
       if ( state.done < state.total || categories.stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
          gui.stateCanDownload( "Ready to download" );
       else
          gui.stateCanExport( "Ready to export" );
       state.update();
+   }
+
+   /**
+    * If current database is bigger than last backup, update the backup.
+    */
+   private void backupDb () {
+      File current = db.getFile();
+      File backup = new File( current.getPath() + ".backup" );
+      final long currentSize = current.length();
+      final long backupSize = backup.length();
+      if ( currentSize <= backupSize ) {
+         log.log( Level.INFO, "No need to back up {0} ({1} <= {2})", new Object[]{ current, currentSize, backupSize } );
+         return;
+      }
+      threadPool.execute( () -> { try {
+         log.log( Level.INFO, "Backing up {0} ({1} > {2})", new Object[]{ current, currentSize, backupSize } );
+         Files.copy( current.toPath(), backup.toPath(), REPLACE_EXISTING );
+         log.log( Level.FINE, "Created backup {0}", backup );
+      } catch ( Exception e ) {
+         log.log( Level.WARNING, "Cannot create backup {0}: {1}", new Object[]{ backup, Utils.stacktrace( e ) } );
+      } } );
    }
 
    /////////////////////////////////////////////////////////////////////////////
