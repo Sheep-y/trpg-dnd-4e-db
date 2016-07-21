@@ -24,8 +24,10 @@ class Exporter {
       StringBuilder buffer = new StringBuilder( 300 );
       try ( OutputStreamWriter writer = openStream( target + "/catalog.js" ) ) {
          buffer.append( "od.reader.jsonp_catalog(20130616,{" );
-         for ( Category category : categories )
-            str( buffer, category.id ).append( ':' ).append( category.total_entry.get() ).append( ',' );
+         for ( Category category : categories ) {
+            final int total = category.total_entry.get() - category.blacklisted_entry.get();
+            str( buffer, category.id ).append( ':' ).append( total ).append( ',' );
+         }
          write( "})", writer, buffer );
       }
    }
@@ -52,24 +54,28 @@ class Exporter {
          write( ",{", index, buffer );
 
          for ( Entry entry : category.sorted ) {
-            str( buffer.append( '[' ), entry.id ).append( ',' );
-            str( buffer, entry.display_name ).append( ',' );
-            for ( Object field : entry.meta )
-               str( buffer, field.toString() ).append( ',' );
-            write( "],", listing, buffer );
+            if ( ! "null".equals( entry.shortid ) ) {
+               // Add to listing
+               str( buffer.append( '[' ), entry.id ).append( ',' );
+               str( buffer, entry.display_name ).append( ',' );
+               for ( Object field : entry.meta )
+                  str( buffer, field.toString() ).append( ',' );
+               write( "],", listing, buffer );
 
-            str( buffer, entry.id ).append( ':' );
-            str( buffer, entry.fulltext );
-            write( ",", index, buffer );
+               // Add to full text
+               str( buffer, entry.id ).append( ':' );
+               str( buffer, entry.fulltext );
+               write( ",", index, buffer );
 
-            try ( OutputStreamWriter item = openStream( catPath + "/" + entry.shortid + ".js" ) ) {
-               buffer.append( "od.reader.jsonp_data(20130330," );
-               str( buffer, category.id ).append( ',' );
-               str( buffer, entry.id ).append( ',' );
-               str( buffer, entry.data ).append( ',' );
-               write( ")", item, buffer );
+               // Write actual content
+               try ( OutputStreamWriter item = openStream( catPath + "/" + entry.shortid + ".js" ) ) {
+                  buffer.append( "od.reader.jsonp_data(20130330," );
+                  str( buffer, category.id ).append( ',' );
+                  str( buffer, entry.id ).append( ',' );
+                  str( buffer, entry.data ).append( ',' );
+                  write( ")", item, buffer );
+               }
             }
-
             state.addOne();
          }
 

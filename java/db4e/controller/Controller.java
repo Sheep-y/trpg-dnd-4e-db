@@ -422,6 +422,8 @@ public class Controller {
          log.log( Level.CONFIG, "Export root: {0}", target );
          new File( root ).mkdirs();
 
+         Convertor.beforeExport( categories );
+
          checkStop( "Writing main catlog" );
          exporter.writeCatalog( root, categories );
 
