@@ -1,5 +1,7 @@
 # 4e Compendium Downloader #
 
+![Screenshot of program](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History%20-%20v3.5%20viewer.png)
+
 Version 3.5.1 development branch
 
 This app can be used to reterives and locally stores entries from online 4e [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx).
