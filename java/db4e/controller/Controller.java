@@ -68,6 +68,7 @@ public class Controller {
    private volatile DbAbstraction dal;
    private Thread currentThread;
    private final ProgressState state;
+   private boolean hasReset = false;
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
 
@@ -170,6 +171,7 @@ public class Controller {
          categories.clear();
       }
       state.done = state.total = 0;
+      hasReset = true;
 
       threadPool.execute( () -> { try {
          synchronized ( this ) { // Lock database for the whole duration
@@ -272,9 +274,12 @@ public class Controller {
 
       backupDb();
 
-      if ( state.done < state.total || categories.stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
+      final boolean downloadIncomplete = categories.stream().anyMatch( e -> e.downloaded_entry.get() <= 0 );
+      if ( downloadIncomplete ) {
          gui.stateCanDownload( "Ready to download" );
-      else
+         if ( state.done <= 0 && ! hasReset )
+            gui.selectTab( "help" );
+      } else
          gui.stateCanExport( "Ready to export" );
       state.update();
    }
@@ -416,6 +421,8 @@ public class Controller {
          String root = target.getPath().replaceFirst( "\\.html?$", "_files/" );
          log.log( Level.CONFIG, "Export root: {0}", target );
          new File( root ).mkdirs();
+
+         Convertor.beforeExport( categories );
 
          checkStop( "Writing main catlog" );
          exporter.writeCatalog( root, categories );

@@ -16,8 +16,8 @@ public class FeatConvertor extends Convertor {
       category.meta = new String[]{ "Tier", "Prerequisite", "SourceBook" };
    }
 
-   private Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite</b>:\\s*([^<>]+)<" ).matcher( "" );
-   private Matcher regxLevel = Pattern.compile( "(?:, )?([12]?\\d)(?:st|nd|th)[- ]level(?:, )?" ).matcher( "" );
+   private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite</b>:\\s*([^<>]+)<" ).matcher( "" );
+   private final Matcher regxLevel = Pattern.compile( "(?:, )?([12]?\\d)(?:st|nd|th)[- ]level(?:, )?" ).matcher( "" );
 
    @Override protected void convertEntry ( Entry entry ) {
       entry.meta = new Object[]{ "Heroic","", entry.fields[1] };
@@ -37,12 +37,13 @@ public class FeatConvertor extends Convertor {
                log.log( Level.WARNING, "Feat with multiple level: {0} {1}", new Object[]{ entry.shortid, entry.name } );
             if ( level == 11 || level == 21 )
                text = regxLevel.reset( text ).replaceFirst( "" );
-            if ( ! text.isEmpty() ) {
-               text = Character.toUpperCase( text.charAt( 0 ) ) + text.substring( 1 );
-               entry.meta[ PREREQUISITE ] = text;
-            }
          } else if ( text.contains( "level" ) && ! text.contains( "has a level" ) )
             log.log( Level.WARNING, "Feat with unparsed level: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+
+         if ( ! text.isEmpty() ) {
+            text = Character.toUpperCase( text.charAt( 0 ) ) + text.substring( 1 );
+            entry.meta[ PREREQUISITE ] = text;
+         }
 
       } else if ( data.contains( "rerequi" ) ) {
          log.log( Level.WARNING, "Feat with unparsed prerequisites: {0} {1}", new Object[]{ entry.shortid, entry.name } );

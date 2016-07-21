@@ -1,5 +1,9 @@
 # 4e Compendium Downloader #
 
+![Screenshot of program](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History%20-%20v3.5%20viewer.png)
+
+Version 3.5.0.1
+
 This app can be used to reterives and locally stores entries from online 4e [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx).
  <br/>
 Stored entries can be exported, then browsed and searched with exact phase search, wildcast, exclusion, join ("OR"), and even regular expression.
@@ -12,7 +16,7 @@ This is a fan-made project and does not come with copyrighted data.
 2. [Download](http://www.java.com/) and install Java (latest version 8 or above).
 3. [Download](https://github.com/Sheep-y/trpg-dnd-4e-db/releases/) the downloader exe (Windows) or downloader jar (Linux/Mac).
 4. Open a folder for the downloader, put it in, and run it.
-   5. (Jar version) If the file is opened by a compression program, change system settings to let Java handles it, or open console and run "java -jar 4e_compendium_downloader.jar".
+   5. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar".
 6. In the downloader, fill in DDI username and password, then click "Download".
    7. Download can be stopped and resumed any time.
    8. See in-downloader help for details and troubleshoots.

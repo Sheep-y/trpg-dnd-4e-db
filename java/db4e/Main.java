@@ -29,13 +29,13 @@ public class Main extends Application {
    }
 
    static String TITLE = "Compendium downloader";
-   static String VERSION = "3.5.0";
+   static String VERSION = "3.5.0.1";
 
    // Global log ang preference
    public static final Logger log = Logger.getLogger( Main.class.getName() );
    static final Preferences prefs = Preferences.userNodeForPackage( Main.class );
 
-   // Main method.  Do virtually nothing.
+   // Main method.  Check java version and then launch platform.
    public static void main( String[] args ) {
       try {
          Class.forName( "java.util.concurrent.CompletableFuture" );

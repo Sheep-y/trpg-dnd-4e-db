@@ -12,8 +12,12 @@ public class Category {
    public final String id; // Compendium id
    public final String name; // Display name
    public final String type; // Manually assigned category group - PC and DM.
+   // Number of entry on the compendium. Either 0 (no listing) or the final count (listing done).
    public final IntegerProperty total_entry = new SimpleIntegerProperty();
+   // Number of entry with downloaded content. Will increase during the download process.
    public final IntegerProperty downloaded_entry = new SimpleIntegerProperty();
+   // Number of entry that is blacklisteg and won't be exported. Must be set before exporting.
+   public final IntegerProperty blacklisted_entry = new SimpleIntegerProperty();
 
    public final String[] fields; // Name (id) of compendium fields
    public final List<Entry> entries = new ArrayList<>(); // Entry list

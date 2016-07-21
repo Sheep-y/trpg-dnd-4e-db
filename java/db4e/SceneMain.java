@@ -247,6 +247,17 @@ public class SceneMain extends Scene {
       prgProgress.setProgress( progress );
    } ); }
 
+   public void selectTab ( String id ) { runFX( () -> {
+      switch ( id ) {
+         case "help":
+            pnlC.getSelectionModel().select( tabHelp );
+            break;
+
+         default:
+            log.log( Level.WARNING, "Unknown GUI tab id: {0}", id );
+      }
+   } ); }
+
    private void runFX ( Runnable r ) {
       if ( Platform.isFxApplicationThread() ) {
          r.run();

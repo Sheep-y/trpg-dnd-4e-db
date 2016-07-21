@@ -24,12 +24,12 @@
     <runtimeBits>64/32</runtimeBits>
   </jre>
   <versionInfo>
-    <fileVersion>3.5.0.0</fileVersion>
+    <fileVersion>3.5.0.1</fileVersion>
     <txtFileVersion>4e Compendium Downloader</txtFileVersion>
     <fileDescription>4e Compendium Downloader</fileDescription>
     <copyright>2012-2016</copyright>
-    <productVersion>3.5.0.0</productVersion>
-    <txtProductVersion>v3.5</txtProductVersion>
+    <productVersion>3.5.0.1</productVersion>
+    <txtProductVersion>3.5.0.1</txtProductVersion>
     <productName>4e Compendium Downloader</productName>
     <companyName></companyName>
     <internalName>oddi</internalName>

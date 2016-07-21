@@ -23,6 +23,16 @@ public class Convertor {
    protected final Category category;
    private final boolean debug;
 
+   /**
+    * Called before doing any export.
+    * Can be used to fix entry count before catalog is saved.
+    *
+    * @param categories
+    */
+   public static void beforeExport ( List<Category> categories ) {
+      categories.stream().filter( category -> category.id.equals( "Glossary" ) ).findAny().get().blacklisted_entry.set( 1 );
+   }
+
    protected Convertor ( Category category, boolean debug ) {
       this.category = category;
       this.debug = debug;
@@ -98,6 +108,7 @@ public class Convertor {
       copyMeta( entry );
       entry.data = normaliseData( entry.content );
       correctEntry( entry );
+      if ( "null".equals( entry.shortid ) ) return;
       parseSourceBook( entry );
       entry.fulltext = textData( entry.data );
 
@@ -144,17 +155,40 @@ public class Convertor {
 
    // Entry specific content data fixes. No need to call super when overriden.
    protected void correctEntry ( Entry entry ) {
-      if ( category.id.equals( "Glossary" ) ) {
+      switch ( category.id ) {
+      case "Glossary":
          switch ( entry.shortid ) {
-            case "glossary679": // Familiar - an empty monster keyword from Dungeon 211. Too late in development to remove in v3.5
-               entry.data = entry.data.replace( "</p><p class=publishedIn>Published in .",
-                  "An enemy familiar appeared in Dungeon Magazine 211, but not even a monster. This entry should be removed.</p><p class=publishedIn>Published in Dungeon Magazine 211." );
-               break;
-         }
+
+         case "glossary679":
+            // Familiar - an empty "monster keyword" from Dungeon 211. That don't even has a stat block.
+            entry.shortid = "null"; // Just blacklist it and forget it ever existed.
+            break;
+
+         } break;
+
+      case  "Poison":
+         entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
+         switch ( entry.shortid ) {
+
+         case "poison19": // Granny's Grief
+            entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
+            break;
+
+         } break;
+
+      case "Monster":
+         switch ( entry.shortid ) {
+
+         case "monster2248": // Cambion Stalwart
+            entry.data = entry.data.replace( "bit points", "hit points" );
+            break;
+
+         } break;
       }
    }
 
-   private static Map<String, String> books = new HashMap<>();
+
+   private static final Map<String, String> books = new HashMap<>();
 
    static {
       books.put( "Adventurer's Vault", "AV" );
