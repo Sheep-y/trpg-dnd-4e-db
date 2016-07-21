@@ -78,22 +78,4 @@ class LeveledConvertor extends Convertor {
       return super.sortEntity( a, b );
    }
 
-   protected void correctEntry ( Entry entry ) {
-      if ( category.id.equals( "Poison" ) ) {
-         entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
-         switch ( entry.shortid ) {
-            case "poison19": // Granny's Grief
-               entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
-               break;
-         }
-
-      } else if ( category.id.equals( "Monster" ) ) {
-         switch ( entry.shortid ) {
-            case "monster2248": // Cambion Stalwart
-               entry.data = entry.data.replace( "bit points", "hit points" );
-               break;
-         }
-      }
-   }
-
 }
