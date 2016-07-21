@@ -188,7 +188,7 @@ public class Convertor {
    }
 
 
-   private static Map<String, String> books = new HashMap<>();
+   private static final Map<String, String> books = new HashMap<>();
 
    static {
       books.put( "Adventurer's Vault", "AV" );
