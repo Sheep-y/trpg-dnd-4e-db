@@ -4,6 +4,7 @@ import db4e.Main;
 import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.regex.Pattern;
 public class Convertor {
 
    protected static final Logger log = Main.log;
+   protected static final List<Entry> corrected = new ArrayList<>();
 
    protected final Category category;
    protected final boolean debug;
@@ -29,8 +31,17 @@ public class Convertor {
     *
     * @param categories
     */
-   public static void beforeExport ( List<Category> categories ) {
+   public static void beforeConvert ( List<Category> categories ) {
       categories.stream().filter( category -> category.id.equals( "Glossary" ) ).findAny().get().blacklisted_entry.set( 1 );
+      synchronized( corrected ) {
+         corrected.clear();
+      }
+   }
+
+   public static void afterConvert () {
+      synchronized( corrected ) {
+         log.log( Level.INFO, "Corrected {0} entries", corrected.size() );
+      }
    }
 
    protected Convertor ( Category category, boolean debug ) {
@@ -108,7 +119,9 @@ public class Convertor {
       entry.shortid = entry.id.replace( ".aspx?id=", "" );
       copyMeta( entry );
       entry.data = normaliseData( entry.content );
-      correctEntry( entry );
+      if ( correctEntry( entry ) != null ) synchronized ( corrected ) {
+         corrected.add( entry );
+      }
       if ( "null".equals( entry.shortid ) ) return;
       parseSourceBook( entry );
       entry.fulltext = textData( entry.data );
@@ -155,39 +168,36 @@ public class Convertor {
    }
 
    // Entry specific content data fixes. No need to call super when overriden.
-   protected void correctEntry ( Entry entry ) {
+   protected Object correctEntry ( Entry entry ) {
       switch ( category.id ) {
       case "Glossary":
          switch ( entry.shortid ) {
 
          case "glossary679":
             // Familiar - an empty "monster keyword" from Dungeon 211. That don't even has a stat block.
-            entry.shortid = "null"; // Just blacklist it and forget it ever existed.
-            break;
+            return entry.shortid = "null"; // Just blacklist it and forget it ever existed.
 
-         } break;
+         } return null;
 
       case  "Poison":
          entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
          switch ( entry.shortid ) {
 
          case "poison19": // Granny's Grief
-            entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
-            break;
+            return entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
 
-         } break;
+         } return null;
 
       case "Monster":
          switch ( entry.shortid ) {
 
          case "monster2248": // Cambion Stalwart
-            entry.data = entry.data.replace( "bit points", "hit points" );
-            break;
+            return entry.data = entry.data.replace( "bit points", "hit points" );
 
-         } break;
+         } return null;
       }
+      return null;
    }
-
 
    private static final Map<String, String> books = new HashMap<>();
 

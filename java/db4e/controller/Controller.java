@@ -422,7 +422,7 @@ public class Controller {
          log.log( Level.CONFIG, "Export root: {0}", target );
          new File( root ).mkdirs();
 
-         Convertor.beforeExport( categories );
+         Convertor.beforeConvert( categories );
 
          checkStop( "Writing main catlog" );
          exporter.writeCatalog( root, categories );
@@ -430,6 +430,7 @@ public class Controller {
          checkStop( "Loading content" );
          dal.loadEntityContent( categories, state );
          convertDataForExport();
+         Convertor.afterConvert();
 
          checkStop( "Writing data" );
          state.done = 0;
