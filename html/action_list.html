@@ -50,8 +50,7 @@
          font-weight: normal;
       }
       /* Result list */
-      #act_list_lbl_filter {
-         clear: left;
+      #act_list_lbl_showing {
          padding-top: 10px;
       }
       #action_list input.txt_filter {
@@ -109,7 +108,14 @@
    <div id='act_list_pnl_category' role="tablist"></div>
 
    <div>
-      <div id='act_list_lbl_filter'></div>
+      <div style='clear:left'>
+         <span id='act_list_lbl_showing'></span>
+         <span id='act_list_pnl_paging'>
+            <button onclick='od.action.list.btn_flip_page(-1)'>&lt;</button>
+            <span id='act_list_page'> </span> / <span id='act_list_page_total'></span>
+            <button onclick='od.action.list.btn_flip_page(1)'>&gt;</button>
+         </span>
+      </div>
       <div id='act_list_pnl_list' contextmenu="menu_view"></div>
    </div>
 
@@ -121,7 +127,7 @@
 
 </section>
 
-<script><?coco-start js(minify) ?>   'use strict';(function action_list_init(){
+<script><?coco-start ?>   'use strict';(function action_list_init(){
 od.action.list = {
    'url' : /^list\b/,
    'last_url' : null,
@@ -129,6 +135,7 @@ od.action.list = {
    'initialize' : function act_list_init () {
       // Set initial search state (e.g. button pressed status)
       od.action.list.search( od.action.list.search_type );
+      _.hide( '#act_list_pnl_paging' );
    },
 
    "l10n" : function act_list_l10n() {
@@ -196,6 +203,18 @@ od.action.list = {
    },
 
    /**
+    * Event handler for page flip button
+    *
+    * @param {int} deviation -1 to go back, 1 to go forward
+    */
+   'btn_flip_page' : function act_list_btn_flip_page ( deviation ) {
+      var action = od.action.list, gui = od.gui;
+      _.time();
+      gui.page += deviation;
+      action.show_list();
+   },
+
+   /**
     * When user clicked in the result table,
     * we try to detect the clicked row and do some preparation before showing the entry.
     *
@@ -228,6 +247,7 @@ od.action.list = {
          _.attr( od.action.list.category_dom[ cat ? cat.name : "" ], 'aria-pressed', 'true' );
       }
    },
+
 
    /*************************************************************************/
 
@@ -451,7 +471,6 @@ od.action.list = {
    /** Filter given data and returns a copy. */
    'filter_data' : function act_list_filter_data ( col, data ) {
       var orig_len = data.length;
-      _.attr( '#act_list_lbl_filter', 'text', '' );
       _.ary( _( '.txt_filter' ) ).forEach( function act_list_filter_data_col( e, i ) {
          if ( ! e.value ) return;
          var num = e.value.match( /^(\d+[kmg]?)\s*-\s*(\d+[kmg]?)|([<>]=?)\s*(\d+[kmg]?)?|(\d+[kmg]?)([+-]?)$/i );
@@ -521,8 +540,10 @@ od.action.list = {
             } );
          }
       } );
-      if ( orig_len !== data.length ) {
-         _.attr( '#act_list_lbl_filter', 'text', _.l( 'action.list.lbl_filter', '%1/%2',  data.length, orig_len ) );
+      if ( orig_len === data.length ) {
+         _.attr( '#act_list_lbl_showing', 'text', _.l( 'action.list.lbl_showing', '%1/%2',  data.length, orig_len ) );
+      } else {
+         _.attr( '#act_list_lbl_showing', 'text', _.l( 'action.list.lbl_filter', '%1/%2',  data.length, orig_len ) );
       }
       return data;
    },
@@ -570,14 +591,20 @@ od.action.list = {
 
       // Filter and sort data
       data = action.filter_data( col, data );
-      if ( action.sort_field && data.length && data[0][ action.sort_field ] !== undefined ) {
+      var count = count = data.length;
+      if ( action.sort_field && count && data[0][ action.sort_field ] !== undefined ) {
          data = action.sort_data( data );
       }
 
+      // Calculate paging
+      gui.total_page = Math.ceil( count / gui.row_per_page );
+      gui.page = Math.min( Math.max( 0, gui.page ), gui.total_page - 1 );
+      var start = gui.page * gui.row_per_page, end = Math.min( count, start + gui.row_per_page );
+
       // Show data
-      _.time( 'Listing ' + data.length + ' results (' + col + ')' );
-      var list = [], doc = document, html = '';
-      for ( var i = 0, l = data.length ; i < l ; i++ ) { // Create row; intensive (up to tens of thousands).
+      var doc = document, html = '';
+      _.time( 'Listing results ' + start + ' to ' + end + ' (' + col + ')' );
+      for ( var i = start ; i < end ; i++ ) { // Create row; intensive
          var line = data[i];
          if ( ! line ) continue;
 
@@ -585,22 +612,28 @@ od.action.list = {
          html += '<tr role="menuitem" aria-label="' + _.escHtml( line.Name ) + '" data-id="' + _.escHtml( id ) + '"';
          if ( ! action.category ) html += ' data-category="' + _.escHtml( cat_name ) + '"';
          html += '>';
-         for ( var j = 1 ; j < cl ; j++ ) { // Note: VERY intensive loop - a hundred thousand if user clicks 'all'.
+         for ( var j = 1 ; j < cl ; j++ ) { // Note: Very intensive loop.
             html += '<td>';
             var d = line[ col[ j ] ];
             if ( d ) html += gui.highlight( d.text ? d.text : d );
          }
-         //html += "<td class='hide'><input type='checkbox' class='list_sel'>";
          html += "<td>";
-         list.push( cat_name + "." + id );
       }
-      od.action.view.siblings = list;
+      od.action.view.siblings = data.concat();
+
+      if ( count <= gui.row_per_page ) {
+         _.hide( '#act_list_pnl_paging' );
+      } else {
+         _( '#act_list_page' )[0].textContent = gui.page + 1;
+         _( '#act_list_page_total' )[0].textContent = gui.total_page;
+         _.show( '#act_list_pnl_paging' );
+      }
 
       body.insertAdjacentHTML( 'beforeend', html );
       table.appendChild( body );
       _.show( table ); // Android Firefox v27 needs an extra kick to trigger redraw
 
-      _.time( 'Listed ' + data.length + ' results.' );
+      _.time( 'Listed ' + ( end - start ) + ' / ' + count + ' results.' );
    }
 };
 

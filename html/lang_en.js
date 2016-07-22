@@ -57,7 +57,8 @@ _.l.set( 'action.list', {
    'a_all' : "All Category",
    'lbl_count' : '%1 / %2',
 
-   'lbl_filter' : 'Filter showing %1 result(s) from a total of %2',
+   'lbl_showing' : 'Total %1 result(s)',
+   'lbl_filter'   : 'Filter left %1 result(s) out of %2',
    'lbl_no_result' : "No result"
 });
 
