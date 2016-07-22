@@ -41,6 +41,10 @@ public class FeatConvertor extends Convertor {
             log.log( Level.WARNING, "Feat with unparsed level: {0} {1}", new Object[]{ entry.shortid, entry.name } );
 
          if ( ! text.isEmpty() ) {
+            text = Character.toLowerCase( text.charAt( 0 ) ) + text.substring( 1 );
+            text = text.replace( " class feature", "" );
+            text = text.replace( "you have a spellscar", "spellscar" );
+            text = text.replace( " have the ", " have " ).replace( " has the ", " has ");
             text = Character.toUpperCase( text.charAt( 0 ) ) + text.substring( 1 );
             entry.meta[ PREREQUISITE ] = text;
          }
@@ -61,14 +65,14 @@ public class FeatConvertor extends Convertor {
       return super.sortEntity( a, b );
    }
 
-   @Override protected void correctEntry ( Entry entry ) {
+   @Override protected Object correctEntry ( Entry entry ) {
       switch ( entry.shortid ) {
          case "feat2254": // Traveler's Celerity
-            entry.data = entry.data.replace( "11th-level, ", "11th level, " );
-            break;
+            return entry.data = entry.data.replace( "11th-level, ", "11th level, " );
+
          case "feat3667": // Powerful Lure
-            entry.data = entry.data.replace( "Level 11, ", "11th level, " );
-            break;
+            return entry.data = entry.data.replace( "Level 11, ", "11th level, " );
       }
+      return null;
    }
 }
