@@ -3,7 +3,10 @@ package db4e.convertor;
 import db4e.data.Category;
 import db4e.data.Entry;
 
-public class FieldSortConvertor extends LeveledConvertor {
+/**
+ * Sort by a field, then by name.
+ */
+public class FieldSortConvertor extends Convertor {
 
    private final int SORT_FIELD;
 

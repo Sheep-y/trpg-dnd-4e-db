@@ -21,7 +21,7 @@ public class Convertor {
    protected static final Logger log = Main.log;
 
    protected final Category category;
-   private final boolean debug;
+   protected final boolean debug;
 
    /**
     * Called before doing any export.
@@ -47,11 +47,12 @@ public class Convertor {
          case "Disease":
             return new LeveledConvertor( category, debug );
          case "Companion":
-         case "Item":
          case "Terrain":
             return new FieldSortConvertor( category, 0, debug ); // Sort by first field
          case "Feat":
             return new FeatConvertor( category, debug );
+         case "Item":
+            return new ItemConvertor( category, debug );
          case "Power":
             return new PowerConvertor( category, debug );
          default:
@@ -121,7 +122,7 @@ public class Convertor {
 
          // Validate content tags
          if ( entry.data.contains( "<img " ) || entry.data.contains( "<a " ) )
-            log.log( Level.WARNING, "Unremoved image or link in {0} ({1})", new Object[]{ entry.id, entry.name } );
+            log.log( Level.WARNING, "Unremoved image or link in {0} {1}", new Object[]{ entry.shortid, entry.name } );
 
          int unclosed_p = 0, unclosed_span = 0, unclosed_b = 0, unclosed_i = 0;
          regxCheckOpenClose.reset( entry.data );
