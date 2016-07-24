@@ -57,8 +57,9 @@ _.l.set( 'action.list', {
    'a_all' : "All Category",
    'lbl_count' : '%1 / %2',
 
-   'lbl_showing' : 'Total %1 result(s)',
+   'lbl_showing' : '%1 result(s)',
    'lbl_filter'   : 'Filter left %1 result(s) out of %2',
+   'lbl_page' : '頁數 %1/%2',
    'lbl_no_result' : "No result"
 });
 

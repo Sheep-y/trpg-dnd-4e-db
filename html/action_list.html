@@ -97,6 +97,10 @@
       }
    <?coco-end?></style>
 
+   <nav>
+      <button id="act_list_btn_prev" class="btn_prev" onclick="od.action.list.btn_flip_page(-1)">&lt;</button>
+      <button id="act_list_btn_next" class="btn_next" onclick="od.action.list.btn_flip_page(1)">&gt;</button>
+   </nav>
    <div id="act_list_pnl_term" role="search">
       <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" accesskey='s' autocomplete />
    </div>
@@ -110,18 +114,14 @@
    <div>
       <div style='clear:left'>
          <span id='act_list_lbl_showing'></span>
-         <span id='act_list_pnl_paging'>
-            <button onclick='od.action.list.btn_flip_page(-1)'>&lt;</button>
-            <span id='act_list_page'> </span> / <span id='act_list_page_total'></span>
-            <button onclick='od.action.list.btn_flip_page(1)'>&gt;</button>
-         </span>
+         <span id='act_list_lbl_page'></span>
       </div>
       <div id='act_list_pnl_list' contextmenu="menu_view"></div>
    </div>
 
    <header role="navigation">
       <button class='i18n' onclick='od.gui.go("about")'> action.about.link_text </button>
-      <h1 class='i18n'>action.list.title</h1>
+      <h1 id='act_list_h_title' class='i18n'>action.list.title</h1>
       <button class='i18n' onclick='scrollTo(0,0)'> gui.top </button>
    </header>
 
@@ -135,7 +135,7 @@ od.action.list = {
    'initialize' : function act_list_init () {
       // Set initial search state (e.g. button pressed status)
       od.action.list.search( od.action.list.search_type );
-      _.hide( '#act_list_pnl_paging' );
+      _.hide( '#act_list_lbl_page, #act_list_btn_prev, #act_list_btn_next' );
    },
 
    "l10n" : function act_list_l10n() {
@@ -619,22 +619,34 @@ od.action.list = {
          }
          html += "<td>";
       }
-      od.action.view.siblings = data.concat();
+      od.action.view.siblings = data.map( function( e ) { return e._category.name + '.' + e.ID });
 
-      if ( count <= gui.row_per_page ) {
-         _.hide( '#act_list_pnl_paging' );
-      } else {
-         _( '#act_list_page' )[0].textContent = gui.page + 1;
-         _( '#act_list_page_total' )[0].textContent = gui.total_page;
-         _.show( '#act_list_pnl_paging' );
-      }
+      action.update_paging();
 
       body.insertAdjacentHTML( 'beforeend', html );
       table.appendChild( body );
       _.show( table ); // Android Firefox v27 needs an extra kick to trigger redraw
 
       _.time( 'Listed ' + ( end - start ) + ' / ' + count + ' results.' );
-   }
+   },
+
+   /** Update paging state */
+   'update_paging' : function act_list_update_paging () {
+      var action = od.action.list, gui = od.gui;
+      var count = action.data.length;
+      var title = _.l( 'action.list.lbl_page', '%1/%2', gui.page + 1, gui.total_page );
+      _('#act_view_h_title')[0].textContent = title;
+      od.gui.update_title();
+
+      if ( count <= gui.row_per_page ) {
+         _.hide( '#act_list_lbl_page, #act_list_btn_prev, #act_list_btn_next' );
+      } else {
+         _.visible( '#act_list_btn_prev', gui.page > 0 );
+         _.visible( '#act_list_btn_next', gui.page < gui.total_page - 1  );
+         _( '#act_list_lbl_page' )[0].textContent = title;
+         _.show( '#act_list_lbl_page' );
+      }
+   },
 };
 
 })();<?coco-end?></script>

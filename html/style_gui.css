@@ -72,6 +72,30 @@ figure { margin: 0; }
    background-color: transparent;
 }
 
+/** Back / Forward button */
+.btn_prev, .btn_next {
+   position: fixed;
+   margin: auto;
+   top: 0; left: 1ex; bottom: 0; right: 1ex;
+   height: 2cm; width: 2cm;
+   border-radius: 1cm;
+   font-size: 1cm;
+   opacity: 0.3;
+}
+@media (max-width: 12cm) {
+   .btn_prev, .btn_next {
+      height: 1cm; width: 1cm;
+      border-radius: 0.5cm;
+      font-size: 0.5cm;
+   }
+}
+.btn_prev {
+   margin-left: 0;
+}
+.btn_next {
+   margin-right: 0;
+}
+
 /********************** Utility classes **************************/
 
 .right { float: right; }
