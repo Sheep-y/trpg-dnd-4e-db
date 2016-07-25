@@ -120,6 +120,10 @@ public class Convertor {
       copyMeta( entry );
       entry.data = normaliseData( entry.content );
       if ( correctEntry( entry ) != null ) synchronized ( corrected ) {
+         if ( entry.shortid.equals( "null" ) )
+            log.log(Level.FINE, "Skipped {0} {1}", new Object[]{ entry.id, entry.name });
+         else
+            log.log(Level.FINE, "Corrected {0} {1}", new Object[]{ entry.shortid, entry.name });
          corrected.add( entry );
       }
       if ( "null".equals( entry.shortid ) ) return;
@@ -193,6 +197,14 @@ public class Convertor {
 
          case "monster2248": // Cambion Stalwart
             return entry.data = entry.data.replace( "bit points", "hit points" );
+
+         case "monster3222": // Veln
+         case "monster3931": // Demon Furor
+            return entry.data = entry.data.replace( "basic melee or basic ranged attack", "melee or ranged basic attack" );
+
+         default:
+            if ( entry.data.contains( "basic melee attack") )
+               return entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
 
          } return null;
       }

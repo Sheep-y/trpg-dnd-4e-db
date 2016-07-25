@@ -24,6 +24,7 @@ This is a fan-made project and does not come with copyrighted data.
 
 If you find a typo or obvious mistake in the data, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 I cannot update the official compendium, but I can update this downloader's data export.
+As of latest version, over 190 entries has been corrected.
 
 ## Source code and building ##
 

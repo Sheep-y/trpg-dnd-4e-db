@@ -67,6 +67,9 @@ public class FeatConvertor extends Convertor {
 
    @Override protected Object correctEntry ( Entry entry ) {
       switch ( entry.shortid ) {
+         case "feat1111": // Bane's Tactics
+            return entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
+           
          case "feat2254": // Traveler's Celerity
             return entry.data = entry.data.replace( "11th-level, ", "11th level, " );
 
