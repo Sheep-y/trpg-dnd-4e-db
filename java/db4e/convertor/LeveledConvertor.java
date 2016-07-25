@@ -29,11 +29,6 @@ class LeveledConvertor extends Convertor {
       if ( levelText.containsKey( level ) ) {
          entry.meta[ LEVEL ] = level = levelText.get( level );
       } else {
-         if ( level.endsWith( "Minion" ) && category.id.equals( "Trap" ) ) {
-            // 7 traps in Dungeon 214-215 has level like "8 Minion" and no group role.
-            entry.meta[ Arrays.asList( category.meta ).indexOf( "GroupRole" ) ] = "Minion";
-            entry.meta[ LEVEL ] = level = level.substring( 0, level.length() - "Minion".length() - 1 );
-         }
          levelText.put( level, level );
          levelNumber.put( level, parseLevel( level ) );
       }
@@ -77,5 +72,46 @@ class LeveledConvertor extends Convertor {
       }
       return super.sortEntity( a, b );
    }
+
+   @Override protected Object correctEntry ( Entry entry ) {
+      switch ( category.id ) {
+      case  "Poison":
+         int orig_length = entry.data.length();
+         entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
+
+         switch ( entry.shortid ) {
+         case "poison19": // Granny's Grief
+            return entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
+         }
+         return entry.data.length() == orig_length ? null : entry;
+
+      case "Trap":
+         // 7 traps in Dungeon 214-215 has level like "8 Minion" and no group role.
+         String level = entry.meta[ LEVEL ].toString();
+         if ( level.endsWith( "Minion" ) ) {
+            entry.meta[ Arrays.asList( category.meta ).indexOf( "GroupRole" ) ] = "Minion";
+            return entry.meta[ LEVEL ] = level.substring( 0, level.length() - " Minion".length() );
+         }
+         return null;
+
+      case "Monster":
+         switch ( entry.shortid ) {
+
+         case "monster2248": // Cambion Stalwart
+            return entry.data = entry.data.replace( "bit points", "hit points" );
+
+         case "monster3222": // Veln
+         case "monster3931": // Demon Furor
+            return entry.data = entry.data.replace( "basic melee or basic ranged attack", "melee or ranged basic attack" );
+
+         default:
+            if ( entry.data.contains( "basic melee attack") )
+               return entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
+
+         } return null;
+      }
+      return null;
+   }
+
 
 }

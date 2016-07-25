@@ -32,7 +32,7 @@ public class Convertor {
     * @param categories
     */
    public static void beforeConvert ( List<Category> categories ) {
-      categories.stream().filter( category -> category.id.equals( "Glossary" ) ).findAny().get().blacklisted_entry.set( 1 );
+      categories.stream().filter( category -> category.id.equals( "Glossary" ) ).findAny().get().blacklisted_entry.set( 79 );
       synchronized( corrected ) {
          corrected.clear();
       }
@@ -175,38 +175,9 @@ public class Convertor {
    protected Object correctEntry ( Entry entry ) {
       switch ( category.id ) {
       case "Glossary":
-         switch ( entry.shortid ) {
-
-         case "glossary679":
-            // Familiar - an empty "monster keyword" from Dungeon 211. That don't even has a stat block.
-            return entry.shortid = "null"; // Just blacklist it and forget it ever existed.
-
-         } return null;
-
-      case  "Poison":
-         entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
-         switch ( entry.shortid ) {
-
-         case "poison19": // Granny's Grief
-            return entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
-
-         } return null;
-
-      case "Monster":
-         switch ( entry.shortid ) {
-
-         case "monster2248": // Cambion Stalwart
-            return entry.data = entry.data.replace( "bit points", "hit points" );
-
-         case "monster3222": // Veln
-         case "monster3931": // Demon Furor
-            return entry.data = entry.data.replace( "basic melee or basic ranged attack", "melee or ranged basic attack" );
-
-         default:
-            if ( entry.data.contains( "basic melee attack") )
-               return entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
-
-         } return null;
+         // Various empty glossaries. Such as "male" or "female".  "familiar" does not even have text in publish block.
+         if ( entry.data.contains( "</h1><p class=flavor></p><p class=publishedIn>" ) )
+            return entry.shortid = "null"; // Just blacklist them and forget they ever existed.
       }
       return null;
    }
