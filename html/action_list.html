@@ -127,7 +127,7 @@
 
 </section>
 
-<script><?coco-start ?>   'use strict';(function action_list_init(){
+<script><?coco-start js(minify) ?>   'use strict';(function action_list_init(){
 od.action.list = {
    'url' : /^list\b/,
    'last_url' : null,
@@ -552,7 +552,7 @@ od.action.list = {
    /** List the current result, e.g. after changing sorting. */
    'show_list' : function act_list_show_list ( table ) {
       var action = od.action.list, gui = od.gui;
-      var data = action.data, col = action.columns;
+      var data = action.data, col = action.columns, cat = action.get_search_category();
       var cl = col.length, idField = col[ 0 ];
 
       if ( ! table ) table = _( '#act_list_pnl_list table' )[0];
@@ -589,9 +589,29 @@ od.action.list = {
          if ( ! action.category ) html += ' data-category="' + _.escHtml( cat_name ) + '"';
          html += '>';
          var cells = '';
-         for ( var j = 1 ; j < cl ; j++ ) { // Note: Very intensive loop.
-            var d = line[ col[ j ] ] || '';
-            cells += '<td>' + ( d.text ? d.text : d );
+         if ( cat ) {
+            for ( var j = 1 ; j < cl ; j++ ) { // Note: Very intensive loop.
+               var d = line[ col[ j ] ] || '';
+               cells += '<td>' + ( d.text ? d.text : d );
+            }
+         } else {
+            cells += '<td>' + line.Name; // Name
+            switch ( line._category.name ) {
+               case "Race":
+                  cells += '<td>Race<td>';
+                  break;
+               case "ParagonPath":
+                  cells += '<td>Paragon Path<td>';
+                  break;
+               case "EpicDestiny":
+                  cells += '<td>Epic Destiny<td>';
+                  break;
+               default:
+                  cells += '<td>' + line._category.name; // Category name
+                  cells += '<td>' + line[ line._category.columns[2] ]; // Second column
+            }
+            cells += '<td>' + ( line.Level || '' );
+            cells += '<td>' + line.SourceBook;
          }
          html += gui.highlight( cells );
       }
