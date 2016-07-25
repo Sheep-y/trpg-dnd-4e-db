@@ -1,5 +1,15 @@
 package db4e;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -7,12 +17,12 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javax.swing.JOptionPane;
 import sheepy.util.JavaFX;
 import sheepy.util.ResourceUtils;
 import sheepy.util.Utils;
@@ -30,20 +40,15 @@ public class Main extends Application {
 
    static String TITLE = "Compendium downloader";
    static String VERSION = "3.5.1 (development)";
+   static String UPDATE_TIME = "2016-07-30"; // Any release beyond this time is an update
 
    // Global log ang preference
    public static final Logger log = Logger.getLogger( Main.class.getName() );
    static final Preferences prefs = Preferences.userNodeForPackage( Main.class );
 
-   // Main method.  Check java version and then launch platform.
+   // Main method. No need to check java version because min version is compile target.
    public static void main( String[] args ) {
-      try {
-         Class.forName( "java.util.concurrent.CompletableFuture" );
-         launch( args );
-      } catch ( ClassNotFoundException ex ) {
-         JOptionPane.showMessageDialog( null, "Requires Java 1.8 or above", TITLE, JOptionPane.ERROR_MESSAGE );
-         Platform.exit();
-      }
+      launch( args );
    }
 
    @Override public void start( Stage stage ) throws Exception {
@@ -85,5 +90,40 @@ public class Main extends Application {
       };
       handler.setFormatter( new SimpleFormatter() );
       log.addHandler( handler );
+   }
+
+   public static CompletableFuture<Boolean> checkUpdate ( boolean forceCheck ) {
+      if ( ! forceCheck ) {
+         try {
+            Instant nextCheck = Instant.parse( prefs.get( "app.check_update" , Instant.now().toString() ) );
+            if ( nextCheck.isAfter( Instant.now() ) ) {
+               log.log( Level.INFO, "Skipping update check. Next check at {0}", nextCheck );
+               return CompletableFuture.completedFuture( false );
+            }
+         } catch ( DateTimeParseException ex ) { }
+      }
+
+      CompletableFuture<Boolean> result = new CompletableFuture<>();
+      ForkJoinPool.commonPool().execute( () -> { try {
+         URL url = new URL( "https://api.github.com/repos/Sheep-y/trpg-dnd-4e-db/releases/latest" );
+         log.log( Level.FINE, "Checking update from {0}", url );
+         String txt = ResourceUtils.getText( url.openStream() ), lastCreated = "0000";
+         Matcher regxCreated = Pattern.compile( "\"created_at\"\\s*:\\s*\"([^\"]+)\"" ).matcher( txt );
+         while ( regxCreated.find() )
+            if ( regxCreated.group( 1 ).compareTo( lastCreated ) > 0 )
+               lastCreated = regxCreated.group( 1 );
+         prefs.put( "app.check_update", Instant.now().plus( 7, ChronoUnit.DAYS ).toString() );
+
+         log.log( Level.INFO, "Checked update. Lastest release is {0}. Current {1}", new Object[]{ lastCreated, UPDATE_TIME } );
+         result.complete( lastCreated.compareTo( UPDATE_TIME ) > 0 );
+      } catch ( IOException e ) {
+         log.log( Level.INFO, "Cannot check update: {0}", Utils.stacktrace( e ) );
+      } } );
+      return result;
+   }
+
+   public static void doUpdate () { try {
+      Desktop.getDesktop().browse( new URI( "https://github.com/Sheep-y/trpg-dnd-4e-db/releases/latest" ) );
+      } catch ( URISyntaxException | IOException e ) { }
    }
 }
