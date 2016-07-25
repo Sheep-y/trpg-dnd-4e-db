@@ -1,4 +1,4 @@
-/*  
+/*
  * data_search.js
  *
  * Handle search logic, including parsing search pattern, marking highlight terms,
@@ -133,6 +133,30 @@ od.search = {
             _.call( onload, null, ["ID","Name","Category","Type","Level","SourceBook"], data, null, null );
          } );
       }
+   },
+
+   /** Sort given data and returns a copy. */
+   'sort_data' : function data_search_sort_data ( data, sort_field, direction ) {
+      var sorter, ab = direction === 'asc' ? 1 : -1, ba = ab * -1;
+      _.time( 'Sorting ' + data.length + ' results by ' + sort_field );
+      switch( sort_field ) {
+         case 'Cost' :
+         case 'Level' :
+         case 'Price' :
+            sorter = function (a,b) {
+               a = od.config.level_to_int( a[ sort_field ] );
+               b = od.config.level_to_int( b[ sort_field ] );
+               return a > b ? ab : ( a < b ? ba : 0 );
+            };
+            break;
+         default :
+            sorter = function (a,b) {
+               a = a[ sort_field ];
+               b = b[ sort_field ];
+               return a > b ? ab : ( a < b ? ba : 0 );
+            };
+      }
+      return data.sort( sorter );
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

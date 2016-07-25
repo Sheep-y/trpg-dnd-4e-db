@@ -205,7 +205,7 @@ od.action.list = {
    /**
     * Event handler for page flip button
     *
-    * @param {int} deviation -1 to go back, 1 to go forward
+    * @param {int} deviation -1 to go back 1 page, 1 to go forward 1 page
     */
    'btn_flip_page' : function act_list_btn_flip_page ( deviation ) {
       var action = od.action.list, gui = od.gui;
@@ -328,6 +328,7 @@ od.action.list = {
       _( '#act_list_txt_search' )[0].focus();
    },
 
+   /** Update result count for each category */
    'update_counts' : function act_list_update_counts ( counts ) {
       var total = 0, dom = od.action.list.category_dom;
       // Update each category's count
@@ -548,31 +549,6 @@ od.action.list = {
       return data;
    },
 
-   /** Sort given data and returns a copy. */
-   'sort_data' : function act_list_sort_data ( data ) {
-      var action = od.action.list, sorter, sort = action.sort_field;
-      var ab = action.sort_asc ? 1 : -1, ba = ab * -1;
-      _.time( 'Sorting ' + data.length + ' results by ' + action.sort_field );
-      switch( sort ) {
-         case 'Cost' :
-         case 'Level' :
-         case 'Price' :
-            sorter = function (a,b) {
-               a = od.config.level_to_int( a[ sort ] );
-               b = od.config.level_to_int( b[ sort ] );
-               return a > b ? ab : ( a < b ? ba : 0 );
-            };
-            break;
-         default :
-            sorter = function (a,b) {
-               a = a[ sort ];
-               b = b[ sort ];
-               return a > b ? ab : ( a < b ? ba : 0 );
-            };
-      }
-      return data.concat().sort( sorter );
-   },
-
    /** List the current result, e.g. after changing sorting. */
    'show_list' : function act_list_show_list ( table ) {
       var action = od.action.list, gui = od.gui;
@@ -593,7 +569,7 @@ od.action.list = {
       data = action.filter_data( col, data );
       var count = count = data.length;
       if ( action.sort_field && count && data[0][ action.sort_field ] !== undefined ) {
-         data = action.sort_data( data );
+         od.search.sort_data( data, action.sort_field, action.sort_asc ? 'asc' : 'desc' );
       }
 
       // Calculate paging
@@ -612,12 +588,12 @@ od.action.list = {
          html += '<tr role="menuitem" aria-label="' + _.escHtml( line.Name ) + '" data-id="' + _.escHtml( id ) + '"';
          if ( ! action.category ) html += ' data-category="' + _.escHtml( cat_name ) + '"';
          html += '>';
+         var cells = '';
          for ( var j = 1 ; j < cl ; j++ ) { // Note: Very intensive loop.
-            html += '<td>';
-            var d = line[ col[ j ] ];
-            if ( d ) html += gui.highlight( d.text ? d.text : d );
+            var d = line[ col[ j ] ] || '';
+            cells += '<td>' + ( d.text ? d.text : d );
          }
-         html += "<td>";
+         html += gui.highlight( cells );
       }
       od.action.view.siblings = data.map( function( e ) { return e._category.name + '.' + e.ID });
 
