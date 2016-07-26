@@ -121,6 +121,10 @@
       background-color: transparent;
       }
 
+#detail ul {
+   margin-left: 1em;
+   }
+
 #detail table {
    border-spacing: 0;
    }
@@ -201,10 +205,11 @@
       }
 
 #detail .monster ~ h2 ,
-#detail .thHead ~ h2 {
+#detail .thHead ~ h2 ,
+#detail .ah1 ,
+#detail .ah2 {
    font-size: 110%;
    }
-
 
 #detail .trapblocktitle {
    display: block;
