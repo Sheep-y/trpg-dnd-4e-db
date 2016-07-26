@@ -135,6 +135,58 @@ od.search = {
       }
    },
 
+   "filter_column": function data_search_filter_column ( search, col_name ) {
+      if ( ! search ) return;
+      var num = search.match( /^(\d+[kmg]?)\s*-\s*(\d+[kmg]?)|([<>]=?)\s*(\d+[kmg]?)?|(\d+[kmg]?)([+-]?)$/i );
+      if ( ! num ) {
+         // Text based search; parse pattern.
+         var pattern = search ? od.search.gen_search( search ) : null;
+         if ( ! pattern ) return;
+         return function act_list_filter_data_txt_filter( data ) {
+            var str = data[ col_name ];
+            return pattern.regexp.test( str.text ? str.text : str );
+         };
+      } else {
+         // Number based search.
+         var min, max;
+         if ( num[ 1 ] ) {
+            // Range: 123-456
+            min = Math.min( _.si( num[ 1 ] ), _.si( num[ 2 ] ) );
+            max = Math.max( _.si( num[ 1 ] ), _.si( num[ 2 ] ) );
+         } else if ( num[ 3 ] ) {
+            // Open range: <=3
+            // Value may be unavailable if user is still inputting.
+            // This is designed to avoid clearing result list after user has typed '>' or '<=' but not yet finished
+            if ( ! num[4] ) return;
+            var i = _.si( num[ 4 ] );
+            if ( num[ 3 ].substr(0,1) === '>' ) {
+               min = i;
+               if ( num[ 3 ].length > 1 ) min++;
+            } else {
+               max = i;
+               if ( num[ 3 ].length > 1 ) max--;
+            }
+         } else {
+            // Open range: 5+
+            var i = _.si( num[ 5 ] );
+            if ( ! num[ 6 ] ) {
+               min = max = i;
+            } else if ( num[ 6 ] === '+' ) {
+               min = i;
+            } else {
+               max = i;
+            }
+         }
+         return function act_list_filter_data_num_filter ( data ) {
+            var val = ~~data[ col_name ].replace( /[^\d.]/g, '' );
+            if ( val === 0 ) return false; // Don't show heroic/paragon/epic as level;
+            if ( max !== undefined && val > max ) return false;
+            if ( min !== undefined && val < min ) return false;
+            return true;
+         };
+      }
+   },
+
    /** Sort given data and returns a copy. */
    'sort_data' : function data_search_sort_data ( data, sort_field, direction ) {
       var sorter, ab = direction === 'asc' ? 1 : -1, ba = ab * -1;

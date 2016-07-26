@@ -131,6 +131,8 @@
 od.action.list = {
    'url' : /^list\b/,
    'last_url' : null,
+   'last_cat' : null,
+   'last_filter': null,
 
    'initialize' : function act_list_init () {
       // Set initial search state (e.g. button pressed status)
@@ -471,75 +473,14 @@ od.action.list = {
 
    /** Filter given data and returns a copy. */
    'filter_data' : function act_list_filter_data ( col, data ) {
+      var action = od.action.list, gui = od.gui;
+      var cat = action.get_search_category();
+
       var orig_len = data.length;
       _.ary( _( '.txt_filter' ) ).forEach( function act_list_filter_data_col( e, i ) {
-         if ( ! e.value ) return;
-         var num = e.value.match( /^(\d+[kmg]?)\s*-\s*(\d+[kmg]?)|([<>]=?)\s*(\d+[kmg]?)?|(\d+[kmg]?)([+-]?)$/i );
-         if ( ! num ) {
-            // Text based search; parse pattern.
-            var pattern = e.value ? od.search.gen_search( e.value ) : null;
-            if ( ! pattern ) return;
-            var c = col[ i+1 ];
-            data = data.filter( function act_list_filter_data_txt_filter( e ) {
-               var str = e[ c ];
-               return pattern.regexp.test( str.text ? str.text : str );
-            } );
-         } else {
-            // Number based search.
-            var min, max, c = col[ i+1 ];
-            if ( num[ 1 ] ) {
-               // Range: 123-456
-               min = Math.min( _.si( num[ 1 ] ), _.si( num[ 2 ] ) );
-               max = Math.max( _.si( num[ 1 ] ), _.si( num[ 2 ] ) );
-            } else if ( num[ 3 ] ) {
-               // Open range: <=3
-               // Value may be unavaliable if user is still inputting.
-               // This is designed to aviod clearing result list after user has typed '>' or '<=' but not yet finished
-               if ( ! num[4] ) return;
-               var i = _.si( num[ 4 ] );
-               if ( num[ 3 ].substr(0,1) === '>' ) {
-                  min = i;
-                  if ( num[ 3 ].length > 1 ) min++;
-               } else {
-                  max = i;
-                  if ( num[ 3 ].length > 1 ) max--;
-               }
-            } else {
-               // Open range: 5+
-               var i = _.si( num[ 5 ] );
-               if ( ! num[ 6 ] ) {
-                  min = max = i;
-               } else if ( num[ 6 ] === '+' ) {
-                  min = i;
-               } else {
-                  max = i;
-               }
-            }
-            data = data.filter( function act_list_filter_data_num_filter ( e ) {
-               var val = ~~e[ c ].replace( /[^\d.]/g, '' ), low, hi;
-               //_.info( 'Num check ' + e[c] + '(' + val + ') [' + min + ',' + max + '] against ' + e[c] );
-               if ( val === 0 ) {
-                  switch ( e[c].toLowerCase() ) {
-                     case 'heroic' :
-                        low = 1;  hi = 10;
-                        break;
-                     case 'paragon' :
-                        low = 11; hi = 20;
-                        break;
-                     case 'epic' :
-                        low = 21; hi = 30;
-                        break;
-                     default:
-                        return false;
-                  }
-               } else {
-                  low = hi = val;
-               }
-               if ( max !== undefined && low > max ) return false;
-               if ( min !== undefined && hi  < min ) return false;
-               return true;
-            } );
-         }
+         var filter = od.search.filter_column( e.value, col[ i+1 ] );
+         if ( filter )
+            data = data.filter( filter );
       } );
       if ( orig_len === data.length ) {
          _.attr( '#act_list_lbl_showing', 'text', _.l( 'action.list.lbl_showing', '%1/%2',  data.length, orig_len ) );
