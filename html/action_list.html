@@ -132,7 +132,6 @@ od.action.list = {
    'url' : /^list\b/,
    'last_url' : null,
    'last_cat' : null,
-   'last_filter': null,
 
    'initialize' : function act_list_init () {
       // Set initial search state (e.g. button pressed status)
@@ -421,12 +420,14 @@ od.action.list = {
 
    /** Callback for search / list, to display the results */
    'build_list' : function act_list_build_list ( col, data, counts, highlight ) {
+      _.info( 'Building result list ' + JSON.stringify( counts ) );
       var action = od.action.list, cl = col.length;
       action.columns = col;
       action.data = data;
       od.gui.set_highlight( highlight );
 
       action.update_counts( counts );
+      var filter_txt = _.ary( _( '.txt_filter' ) ).map( function ( e ) { return e.value; } );
 
       // Remove old table and create a new one.
       var table = _( '#act_list_pnl_list table' );
@@ -463,6 +464,14 @@ od.action.list = {
       } } ) );
       head.appendChild( th );
 
+      if ( action.get_search_category() === action.last_cat ) { // Restore filter if same cat (before show_list)
+         _.ary( _( head, '.txt_filter' ) ).forEach( function ( e, i ) {
+            if ( filter_txt.length > i )
+               e.value = filter_txt[ i ];
+         } );
+      }
+      action.last_cat = action.get_search_category();
+
       action.show_list( table );
       table.addEventListener( 'click', action.table_click );
       table.addEventListener( 'keypress', function act_list_table_keypressed ( evt ) {
@@ -473,9 +482,6 @@ od.action.list = {
 
    /** Filter given data and returns a copy. */
    'filter_data' : function act_list_filter_data ( col, data ) {
-      var action = od.action.list, gui = od.gui;
-      var cat = action.get_search_category();
-
       var orig_len = data.length;
       _.ary( _( '.txt_filter' ) ).forEach( function act_list_filter_data_col( e, i ) {
          var filter = od.search.filter_column( e.value, col[ i+1 ] );
@@ -495,6 +501,7 @@ od.action.list = {
       var action = od.action.list, gui = od.gui;
       var data = action.data, col = action.columns, cat = action.get_search_category();
       var cl = col.length, idField = col[ 0 ];
+      _.info( 'Filter and sort ' + data.length + ' rows' );
 
       if ( ! table ) table = _( '#act_list_pnl_list table' )[0];
       _.hide( table );

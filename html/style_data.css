@@ -27,7 +27,7 @@
 
    #detail h1, #detail h2, #detail h3 {
       padding-top: 1ex;
-      margin-bottom: 0.5ex;
+      padding-bottom: 0.5ex;
       }
    #detail p, #detail div, #detail table {
       padding-top: 0.5ex;
@@ -181,13 +181,13 @@
    padding-right: 10px;
    width: calc( 100% + 20px );
    }
-   
+
 #detail .miright {
    display: block;
    float: right;
    width: 50%;
    }
- 
+
 #detail .ignore + .mihead { /* Item set */
    margin-top: 1em;
    }
