@@ -57,10 +57,11 @@ public class PowerConvertor extends LeveledConvertor {
       return super.sortEntity( a, b );
    }
 
-   @Override protected Object correctEntry(Entry entry) {
+   @Override protected String correctEntry(Entry entry) {
       switch ( entry.shortid ) {
          case "power6595": // Bane's Tactics
-            return entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
+            entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
+            return "basic attack correction";
       }
       return null;
    }

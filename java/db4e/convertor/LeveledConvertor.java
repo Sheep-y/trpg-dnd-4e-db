@@ -73,7 +73,7 @@ class LeveledConvertor extends Convertor {
       return super.sortEntity( a, b );
    }
 
-   @Override protected Object correctEntry ( Entry entry ) {
+   @Override protected String correctEntry ( Entry entry ) {
       switch ( category.id ) {
       case  "Poison":
          int orig_length = entry.data.length();
@@ -81,16 +81,18 @@ class LeveledConvertor extends Convertor {
 
          switch ( entry.shortid ) {
          case "poison19": // Granny's Grief
-            return entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
+            entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
+            return "missing published";
          }
-         return entry.data.length() == orig_length ? null : entry;
+         return entry.data.length() == orig_length ? null : "formatting";
 
       case "Trap":
          // 7 traps in Dungeon 214-215 has level like "8 Minion" and no group role.
          String level = entry.meta[ LEVEL ].toString();
          if ( level.endsWith( "Minion" ) ) {
             entry.meta[ Arrays.asList( category.meta ).indexOf( "GroupRole" ) ] = "Minion";
-            return entry.meta[ LEVEL ] = level.substring( 0, level.length() - " Minion".length() );
+            entry.meta[ LEVEL ] = level.substring( 0, level.length() - " Minion".length() );
+            return "formatting";
          }
          return null;
 
@@ -98,15 +100,19 @@ class LeveledConvertor extends Convertor {
          switch ( entry.shortid ) {
 
          case "monster2248": // Cambion Stalwart
-            return entry.data = entry.data.replace( "bit points", "hit points" );
+            entry.data = entry.data.replace( "bit points", "hit points" );
+            return "typo";
 
          case "monster3222": // Veln
          case "monster3931": // Demon Furor
-            return entry.data = entry.data.replace( "basic melee or basic ranged attack", "melee or ranged basic attack" );
+            entry.data = entry.data.replace( "basic melee or basic ranged attack", "melee or ranged basic attack" );
+            return "basic attack correction";
 
          default:
-            if ( entry.data.contains( "basic melee attack") )
-               return entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
+            if ( entry.data.contains( "basic melee attack") ) {
+               entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
+               return "basic attack correction";
+            }
 
          } return null;
       }

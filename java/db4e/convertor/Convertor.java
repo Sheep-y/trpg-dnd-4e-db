@@ -4,15 +4,16 @@ import db4e.Main;
 import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Convert category and entry data for export
@@ -20,7 +21,7 @@ import java.util.regex.Pattern;
 public class Convertor {
 
    protected static final Logger log = Main.log;
-   protected static final List<Entry> corrected = new ArrayList<>();
+   protected static final Map<String, AtomicInteger> corrected = new HashMap<>();
 
    protected final Category category;
    protected final boolean debug;
@@ -40,7 +41,9 @@ public class Convertor {
 
    public static void afterConvert () {
       synchronized( corrected ) {
-         log.log( Level.INFO, "Corrected {0} entries", corrected.size() );
+         log.log( Level.INFO, "Corrected {0} entries: \n{1}", new Object[]{
+            corrected.values().stream().mapToInt( e -> e.get() ).sum(),
+            corrected.entrySet().stream().map( e -> e.getKey() + " = " + e.getValue().get() ).collect( Collectors.joining( "\n" ) ) } );
       }
    }
 
@@ -120,12 +123,12 @@ public class Convertor {
       entry.shortid = entry.id.replace( ".aspx?id=", "" );
       copyMeta( entry );
       entry.data = normaliseData( entry.content );
-      if ( correctEntry( entry ) != null ) synchronized ( corrected ) {
-         if ( entry.shortid.equals( "null" ) )
-            log.log(Level.FINE, "Skipped {0} {1}", new Object[]{ entry.id, entry.name });
-         else
-            log.log(Level.FINE, "Corrected {0} {1}", new Object[]{ entry.shortid, entry.name });
-         corrected.add( entry );
+      String fixApplied = correctEntry( entry );
+      if ( fixApplied != null ) synchronized ( corrected ) {
+         log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.name, fixApplied });
+         if ( corrected.containsKey( fixApplied ) ) corrected.get( fixApplied ).incrementAndGet();
+         else corrected.put( fixApplied, new AtomicInteger( 1 ) );
+
       }
       if ( "null".equals( entry.shortid ) ) return;
       parseSourceBook( entry );
@@ -172,8 +175,11 @@ public class Convertor {
       System.arraycopy( entry.fields, 0, entry.meta, 0, length );
    }
 
-   // Entry specific content data fixes. No need to call super when overriden.
-   protected Object correctEntry ( Entry entry ) {
+   /**
+    * Entry specific data fixes. No need to call super when overriden.
+    * @return The kind of fix done for this entry. Or null if already correct.
+    */
+   protected String correctEntry ( Entry entry ) {
       return null;
    }
 

@@ -527,5 +527,4 @@ public class SceneMain extends Scene {
    /////////////////////////////////////////////////////////////////////////////
 
    public ConsoleWebView getWorker () { return pnlWorker; }
-
 }

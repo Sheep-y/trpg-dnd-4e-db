@@ -22,23 +22,29 @@ This is a fan-made project and does not come with copyrighted data.
    8. See in-downloader help for details and troubleshoots.
 9. Once all data is downloaded, you can export the data to an HTML file, which can be opened in any browser.
 
+### Fixing compendium errors ###
 
-## Fixing compendium errors ##
-
-Let's face it, the compendium has numerous errors.
+Let's face it, the official compendium has errors.
 
 I cannot update the official compendium, but I can update this downloader's data export.
-In this current version, the content of over 300 entries has been corrected or removed:
+In this version, over 300 entries has been corrected:
 
-Most are around 140 items missing power frequency, followed by around 80 empty glossaries.
+* 151 items missing power frequency. (e.g. Dantrag's Bracers, many energy weapons, dragon orbs, magical light source etc.)
+* 79 empty glossaries, delisted. (e.g. male, female, fang titan drake, etc.)
+* 35 entries that says "basic melee attack" instead of "melee basic attack" (or ranged). (e.g. Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
+* 28 entries with formatting issues, such as content cut in the middle (Mirror of Deception), "published" not properly formatted (Drow Poison), putting level and group role together (Trapped Chest) etc.
+* 12 skills missing "Imporvising with (this skill)" subtitle. (Arcana, Bluff, Diplomacy, etc.)
+* 1 typo ("bit points", Cambion Stalwart) - I remember seeing others. Let me know!
+* 1 entry with empty "published" record. (Granny's Grief) - more are coming.
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 
 ## Source code and building ##
 
 * Viewer source code is in html folder.
-* Downloader source code is in java folder.
-* Use Ant (build.xml) to compile both into an executable jar.
+* Downloader source code is in java folder, and use libraries in java_lib folder.
+* Both use resources at the root (license) and/or in the resource folder.
+* Use Ant (build.xml) to compile both downloader and viewer into an executable jar.
 * The jar can also be extracted to a new folder; use Ant to move the extracted files back to original structure.
 
 Part of the build process uses the [CocoDoc](https://github.com/Sheep-y/CocoDoc/) app builder, which is bundled and must run in GUI.
