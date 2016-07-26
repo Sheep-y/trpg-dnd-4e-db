@@ -420,7 +420,7 @@ od.action.list = {
 
    /** Callback for search / list, to display the results */
    'build_list' : function act_list_build_list ( col, data, counts, highlight ) {
-      _.info( 'Building result list ' + JSON.stringify( counts ) );
+      _.info( 'Building header for ' + JSON.stringify( col ) );
       var action = od.action.list, cl = col.length;
       action.columns = col;
       action.data = data;
@@ -485,7 +485,7 @@ od.action.list = {
       var orig_len = data.length;
       _.ary( _( '.txt_filter' ) ).forEach( function act_list_filter_data_col( e, i ) {
          var filter = od.search.filter_column( e.value, col[ i+1 ] );
-         if ( filter )
+         if ( filter && data.length )
             data = data.filter( filter );
       } );
       if ( orig_len === data.length ) {
@@ -501,7 +501,7 @@ od.action.list = {
       var action = od.action.list, gui = od.gui;
       var data = action.data, col = action.columns, cat = action.get_search_category();
       var cl = col.length, idField = col[ 0 ];
-      _.info( 'Filter and sort ' + data.length + ' rows' );
+      _.info( 'Filter, sort, and display ' + data.length + ' rows' );
 
       if ( ! table ) table = _( '#act_list_pnl_list table' )[0];
       _.hide( table );
@@ -509,61 +509,65 @@ od.action.list = {
       if ( body.length ) body[0].parentNode.removeChild( body[0] );
       body = _.create( 'tbody' );
 
-      if ( ! data || data.length <= 0 ) {
-         return body.appendChild( _.create( 'td', { 'rowspan' : cl+1, 'align' : 'center', 'text' : _.l( 'action.list.lbl_no_result' ) } ) );
-      }
-
-      // Filter and sort data
+      // Filter data and update displayed result count
       data = action.filter_data( col, data );
       var count = count = data.length;
-      if ( action.sort_field && count && data[0][ action.sort_field ] !== undefined ) {
-         od.search.sort_data( data, action.sort_field, action.sort_asc ? 'asc' : 'desc' );
-      }
 
-      // Calculate paging
-      gui.total_page = Math.ceil( count / gui.row_per_page );
-      gui.page = Math.min( Math.max( 0, gui.page ), gui.total_page - 1 );
-      var start = gui.page * gui.row_per_page, end = Math.min( count, start + gui.row_per_page );
+      if ( ! count ) {
+         gui.total_page = gui.page = 0;
+         html = '<tr><td rowspan=99 align=center>' + _.l( 'action.list.lbl_no_result' );
+         od.action.view.siblings = [];
 
-      // Show data
-      var doc = document, html = '';
-      _.time( 'Listing results ' + start + ' to ' + end + ' (' + col + ')' );
-      for ( var i = start ; i < end ; i++ ) { // Create row; intensive
-         var line = data[i];
-         if ( ! line ) continue;
-
-         var cat_name = line._category.name, id = line[ idField ];
-         html += '<tr role="menuitem" aria-label="' + _.escHtml( line.Name ) + '" data-id="' + _.escHtml( id ) + '"';
-         if ( ! action.category ) html += ' data-category="' + _.escHtml( cat_name ) + '"';
-         html += '>';
-         var cells = '';
-         if ( cat ) {
-            for ( var j = 1 ; j < cl ; j++ ) { // Note: Very intensive loop.
-               var d = line[ col[ j ] ] || '';
-               cells += '<td>' + ( d.text ? d.text : d );
-            }
-         } else {
-            cells += '<td>' + line.Name; // Name
-            switch ( line._category.name ) {
-               case "Race":
-                  cells += '<td>Race<td>';
-                  break;
-               case "ParagonPath":
-                  cells += '<td>Paragon Path<td>';
-                  break;
-               case "EpicDestiny":
-                  cells += '<td>Epic Destiny<td>';
-                  break;
-               default:
-                  cells += '<td>' + line._category.name; // Category name
-                  cells += '<td>' + line[ line._category.columns[2] ]; // Second column
-            }
-            cells += '<td>' + ( line.Level || '' );
-            cells += '<td>' + line.SourceBook;
+      } else {
+         if ( action.sort_field && data[0][ action.sort_field ] !== undefined ) {
+            od.search.sort_data( data, action.sort_field, action.sort_asc ? 'asc' : 'desc' );
          }
-         html += gui.highlight( cells );
+
+         // Calculate paging
+         gui.total_page = Math.ceil( count / gui.row_per_page );
+         gui.page = Math.min( Math.max( 0, gui.page ), gui.total_page - 1 );
+         var start = gui.page * gui.row_per_page, end = Math.min( count, start + gui.row_per_page );
+
+         // Show data
+         var doc = document, html = '';
+         _.time( 'Listing results ' + start + ' to ' + end + ' (' + col + ')' );
+         for ( var i = start ; i < end ; i++ ) { // Create row; intensive
+            var line = data[i];
+            if ( ! line ) continue;
+
+            var cat_name = line._category.name, id = line[ idField ];
+            html += '<tr role="menuitem" aria-label="' + _.escHtml( line.Name ) + '" data-id="' + _.escHtml( id ) + '"';
+            if ( ! action.category ) html += ' data-category="' + _.escHtml( cat_name ) + '"';
+            html += '>';
+            var cells = '';
+            if ( cat ) {
+               for ( var j = 1 ; j < cl ; j++ ) { // Note: Very intensive loop.
+                  var d = line[ col[ j ] ] || '';
+                  cells += '<td>' + ( d.text ? d.text : d );
+               }
+            } else {
+               cells += '<td>' + line.Name; // Name
+               switch ( line._category.name ) {
+                  case "Race":
+                     cells += '<td>Race<td>';
+                     break;
+                  case "ParagonPath":
+                     cells += '<td>Paragon Path<td>';
+                     break;
+                  case "EpicDestiny":
+                     cells += '<td>Epic Destiny<td>';
+                     break;
+                  default:
+                     cells += '<td>' + line._category.name; // Category name
+                     cells += '<td>' + line[ line._category.columns[2] ]; // Second column
+               }
+               cells += '<td>' + ( line.Level || '' );
+               cells += '<td>' + line.SourceBook;
+            }
+            html += gui.highlight( cells );
+         }
+         od.action.view.siblings = data.map( function( e ) { return e._category.name + '.' + e.ID });
       }
-      od.action.view.siblings = data.map( function( e ) { return e._category.name + '.' + e.ID });
 
       action.update_paging();
 
@@ -571,7 +575,8 @@ od.action.list = {
       table.appendChild( body );
       _.show( table ); // Android Firefox v27 needs an extra kick to trigger redraw
 
-      _.time( 'Listed ' + ( end - start ) + ' / ' + count + ' results.' );
+      if ( count )
+         _.time( 'Listed ' + ( end - start ) + ' / ' + count + ' results.' );
    },
 
    /** Update paging state */
