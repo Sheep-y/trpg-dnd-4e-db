@@ -13,7 +13,7 @@ This is a fan-made project and does not come with copyrighted data.
 ## How To Download Data ##
 
 1. You need an active [Dungeons & Dragons Insider subscription](http://ddi.wizards.com/) to retrieve data.
-2. [Download](http://www.java.com/) and install Java (latest version 8 or above).
+2. [Download](http://www.java.com/) and install Java (version 8 or above).
 3. [Download](https://github.com/Sheep-y/trpg-dnd-4e-db/releases/) the downloader exe (Windows) or downloader jar (Linux/Mac).
 4. Open a folder for the downloader, put it in, and run it.
    5. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar".
@@ -22,12 +22,17 @@ This is a fan-made project and does not come with copyrighted data.
    8. See in-downloader help for details and troubleshoots.
 9. Once all data is downloaded, you can export the data to an HTML file, which can be opened in any browser.
 
-If you find a typo or obvious mistakes in the data, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
-I cannot update the official compendium, but I can update this downloader's data export.
 
-In this current version, over 290 entries has been corrected or removed.
-Most are items missing power frequency, around 140, followed by around 80 empty glossaries.
-Please only report typo, incorrect fields, or similar text mistakes; RAW/RAI corrections are out of scope.
+## Fixing compendium errors ##
+
+Let's face it, the compendium has numerous errors.
+
+I cannot update the official compendium, but I can update this downloader's data export.
+In this current version, the content of over 300 entries has been corrected or removed:
+
+Most are around 140 items missing power frequency, followed by around 80 empty glossaries.
+
+If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 
 ## Source code and building ##
 

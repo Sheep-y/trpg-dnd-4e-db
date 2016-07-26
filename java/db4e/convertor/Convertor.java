@@ -59,6 +59,7 @@ public class Convertor {
             return new LeveledConvertor( category, debug );
          case "Companion":
          case "Terrain":
+         case "Glossary":
             return new FieldSortConvertor( category, 0, debug ); // Sort by first field
          case "Feat":
             return new FeatConvertor( category, debug );
@@ -173,12 +174,6 @@ public class Convertor {
 
    // Entry specific content data fixes. No need to call super when overriden.
    protected Object correctEntry ( Entry entry ) {
-      switch ( category.id ) {
-      case "Glossary":
-         // Various empty glossaries. Such as "male" or "female".  "familiar" does not even have text in publish block.
-         if ( entry.data.contains( "</h1><p class=flavor></p><p class=publishedIn>" ) )
-            return entry.shortid = "null"; // Just blacklist them and forget they ever existed.
-      }
       return null;
    }
 

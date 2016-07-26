@@ -21,4 +21,17 @@ public class FieldSortConvertor extends Convertor {
       return super.sortEntity( a, b );
    }
 
+   @Override protected Object correctEntry(Entry entry) {
+      switch ( category.id ) {
+      case "Glossary":
+         // Various empty glossaries. Such as "male" or "female".  "familiar" does not even have text in publish block.
+         if ( entry.data.contains( "</h1><p class=flavor></p><p class=publishedIn>" ) )
+            return entry.shortid = "null"; // Just blacklist them and forget they ever existed.
+
+         else if ( entry.shortid.startsWith( "skill" ) ) // Fix skills missing "improvising with" title
+            if ( entry.data.contains( "<p class=flavor><b></b></p><p class=flavor>" ) )
+               return entry.data = entry.data.replace( "<p class=flavor><b></b></p><p class=flavor>", "<h3>IMPROVISING WITH "+entry.name.toUpperCase()+"</h3><p class=flavor>" );
+      }
+      return null;
+   }
 }
