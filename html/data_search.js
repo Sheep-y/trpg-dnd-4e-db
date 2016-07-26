@@ -146,6 +146,11 @@ od.search = {
             var str = data[ col_name ];
             return pattern.regexp.test( str.text ? str.text : str );
          };
+      } else if ( search === '0' ) {
+         return function act_list_filter_data_zero_filter( data ) {
+            var str = data[ col_name ];
+            return ! str || str === '0';
+         };
       } else {
          // Number based search.
          var min, max;
@@ -161,10 +166,10 @@ od.search = {
             var i = _.si( num[ 4 ] );
             if ( num[ 3 ].substr(0,1) === '>' ) {
                min = i;
-               if ( num[ 3 ].length > 1 ) min++;
+               if ( num[ 3 ].length === 1 ) min++;
             } else {
                max = i;
-               if ( num[ 3 ].length > 1 ) max--;
+               if ( num[ 3 ].length === 1 ) max--;
             }
          } else {
             // Open range: 5+

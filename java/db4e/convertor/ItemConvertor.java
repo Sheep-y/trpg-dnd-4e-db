@@ -5,10 +5,16 @@ import db4e.data.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ItemConvertor extends FieldSortConvertor {
+public class ItemConvertor extends LeveledConvertor {
 
    public ItemConvertor ( Category category, boolean debug ) {
-      super( category, 0, debug ); // Sort by category
+      super( category, debug ); // Sort by category
+   }
+
+   @Override protected int sortEntity ( Entry a, Entry b ) {
+      int diff = a.meta[ 0 ].toString().compareTo( b.meta[ 0 ].toString() );
+      if ( diff != 0 ) return diff;
+      return super.sortEntity( a, b );
    }
 
    Matcher regxPowerFrequency = Pattern.compile( "✦\\s*\\(" ).matcher( "" );
