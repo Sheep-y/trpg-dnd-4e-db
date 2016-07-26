@@ -248,7 +248,7 @@ public class Convertor {
       books.put( "Vor Rukoth: An Ancient Ruins Adventure Site", "Vor Rukoth" );
    }
 
-   private final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]+)</p>" ).matcher( "" );
+   protected final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]+)</p>" ).matcher( "" );
    private final Matcher regxBook = Pattern.compile( "([A-Z][^,.]*)(?:, page[^,.]+|\\.)" ).matcher( "" );
 
    protected void parseSourceBook ( Entry entry ) {

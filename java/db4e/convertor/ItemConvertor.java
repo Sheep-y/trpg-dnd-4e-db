@@ -20,6 +20,10 @@ public class ItemConvertor extends LeveledConvertor {
    Matcher regxPowerFrequency = Pattern.compile( "✦\\s*\\(" ).matcher( "" );
 
    @Override protected String correctEntry ( Entry entry ) {
+      int orig_length = entry.data.length();
+      if ( ! regxPublished.reset( entry.data ).find() )
+         entry.data += "<p class=publishedIn>Published in " + entry.meta[ 4 ]  + ".</p>";
+
       switch ( entry.shortid ) {
          case "item467": // Alchemical Failsafe
             entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ At-Will</h2>" );
@@ -63,10 +67,8 @@ public class ItemConvertor extends LeveledConvertor {
                return "missing power frequency";
             }
 
-            if ( debug ) {
-               //if ( entry.data.contains( "Power ✦ <" ) || regxCheckPowerFrequency.reset( entry.data ).find() )
-               //   log.log( Level.WARNING, "Power without frequency: {0} {1}", new Object[]{ entry.shortid, entry.name } );
-            }
+            if ( entry.data.length() != orig_length )
+               return "missing published";
       }
       return null;
    }

@@ -118,6 +118,4 @@ class LeveledConvertor extends Convertor {
       }
       return null;
    }
-
-
 }

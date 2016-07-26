@@ -27,15 +27,15 @@ This is a fan-made project and does not come with copyrighted data.
 Let's face it, the official compendium has errors.
 
 I cannot update the official compendium, but I can update this downloader's data export.
-In this version, over 300 entries has been corrected:
+In this version, over 370 entries has been corrected:
 
 * 151 items missing power frequency. (e.g. Dantrag's Bracers, many energy weapons, dragon orbs, magical light source etc.)
 * 79 empty glossaries, delisted. (e.g. male, female, fang titan drake, etc.)
+* 67 entries without "published" record. (e.g. Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 35 entries that says "basic melee attack" instead of "melee basic attack" (or ranged). (e.g. Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 28 entries with formatting issues, such as content cut in the middle (Mirror of Deception), "published" not properly formatted (Drow Poison), putting level and group role together (Trapped Chest) etc.
 * 12 skills missing "Imporvising with (this skill)" subtitle. (Arcana, Bluff, Diplomacy, etc.)
 * 1 typo ("bit points", Cambion Stalwart) - I remember seeing others. Let me know!
-* 1 entry with empty "published" record. (Granny's Grief) - more are coming.
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 
