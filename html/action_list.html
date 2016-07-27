@@ -4,9 +4,6 @@
   -->
 <section id='action_list'>
    <style scoped><?coco-start css(minify) ?>
-      #act_list_pnl_term {
-         margin-bottom: 5px;
-      }
       #act_list_txt_search {
          width: 100%;
       }
@@ -14,71 +11,72 @@
       #act_list_tbl_search {
          width: 100%;
          border-spacing: 0;
-      }
-      #act_list_tbl_search button {
-         border-radius: 0;
-         font-weight: bold;
-      }
-      #act_list_tbl_search td button {
-         margin: 0;
-         overflow: hidden;
-         white-space: nowrap;
-         width: calc( 50% - 10px );
-      }
+         }
+         #act_list_tbl_search button {
+            border-radius: 0;
+            font-weight: bold;
+            }
+         #act_list_tbl_search td button {
+            margin: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            width: calc( 50% - 10px );
+            }
       #act_list_tbl_search td+td {
          width: 30px;
       }
       /* Category list */
       #act_list_pnl_category {
          clear: left;
-      }
-      #act_list_pnl_category button {
-         border: 1px outset #888;
-         display: block;
-         float: left;
-         font-size: 125%;
-         height: 39px;
-         line-height: 33px;
-         max-width: 360px;
-         overflow: hidden;
-         padding: 2px 5px;
-         width: 100%;
-      }
-      #act_list_pnl_category button * {
-         float: left;
-         margin-right: 5px;
-         white-space: nowrap;
-      }
-      #act_list_pnl_category button var {
-         float: right;
-         font-weight: normal;
-      }
+         }
+         #act_list_pnl_category button {
+            border: 1px outset #888;
+            display: block;
+            float: left;
+            font-size: 125%;
+            height: 39px;
+            line-height: 33px;
+            max-width: 360px;
+            overflow: hidden;
+            padding: 2px 5px;
+            width: 100%;
+            }
+            #act_list_pnl_category button * {
+               float: left;
+               margin-right: 5px;
+               white-space: nowrap;
+               }
+               #act_list_pnl_category button var {
+                  float: right;
+                  font-weight: normal;
+                  }
       /* Result list */
       #act_list_lbl_showing {
          padding-top: 10px;
       }
       #action_list input.txt_filter {
          color: red;
+         flex-grow: 1;
          font-weight: bold;
-      }
-      #action_list input.txt_filter::-webkit-input-placeholder,
-      #action_list input.txt_filter::placeholder,
-      #action_list input.txt_filter::-moz-placeholder,
-      #action_list input.txt_filter::-ms-input-placeholder {
-         color: black;
-         font-weight: bold;
-         opacity: 0.75;
-      }
+         }
+         #action_list input.txt_filter::-webkit-input-placeholder,
+         #action_list input.txt_filter::placeholder,
+         #action_list input.txt_filter::-moz-placeholder,
+         #action_list input.txt_filter::-ms-input-placeholder {
+            color: black;
+            font-weight: bold;
+            opacity: 0.75;
+            }
       #act_list_pnl_list {
          clear: left;
          font-size: 120%;
       }
       #act_list_pnl_list th {
          white-space: nowrap;
-      }
-      #act_list_pnl_list th .button {
-         padding: 0 5px;
-      }
+         }
+         #act_list_pnl_list th .button {
+            padding: 0 5px;
+            }
       #act_list_pnl_list td {
          padding: 0 5px;
       }
@@ -109,13 +107,23 @@
             width   : 100% !important;
             }
             #act_list_table > thead ,
-            #act_list_table > tfoot {
-               display : none;
-               }
             #act_list_table > tbody {
                display : block;
                width   : 100%;
                }
+               #act_list_table > thead > tr {
+                  display   : flex;
+                  flex-flow : row wrap;
+                  }
+                  #act_list_table > thead th {
+                     display: flex;
+                     }
+                  #act_list_table > thead th:not(:last-child) {
+                     width: 45%;
+                     }
+                     #act_list_table > thead th > input[type=search] {
+                        width: 45%;
+                        }
                #act_list_table > tbody > tr {
                   display   : flex;
                   flex-flow : column nowrap;
@@ -125,8 +133,8 @@
                   width     : 100%;
                   }
                   #act_list_table > tbody td {
-                     font-weight : bold;
                      display     : block;
+                     font-weight : bold;
                      }
                   #act_list_table > tbody td:first-child {
                      font-size   : larger;
@@ -134,7 +142,7 @@
                      #act_list_table > tbody td:not(:first-child)::before {
                         display : inline-block;
                         font-weight : normal;
-                        min-width : 25%;
+                        min-width : 6em;
                         padding-right: 1ex;
                         text-align: right;
                         }
@@ -471,8 +479,9 @@ od.action.list = {
          table[0].parentNode.removeChild( table[0] );
       }
       table = _.create( 'table', { 'id': 'act_list_table', 'aria-label' : _.l( 'action.list.search_result', 'Result' ) } );
-      var head = _.create( 'thead' ),  css = '';
+      var head_row = _.create( 'tr' ), head = _.create( 'thead' ),  css = '@media (max-width: 909px) {';
       table.appendChild( head );
+      head.appendChild( head_row );
 
       // Headers & styles
       for ( var i = 1 ; i < cl ; i++ ) {
@@ -490,7 +499,7 @@ od.action.list = {
             action.update_action_id();
          }; } )( col[ i ], sorter ) );
          th.appendChild( sorter );
-         head.appendChild( th );
+         head_row.appendChild( th );
          if ( i > 1 )
             css += '#act_list_table > tbody > tr > td:nth-child(' + i + ')::before{ content: "' + label + '"; }';
       }
@@ -500,11 +509,11 @@ od.action.list = {
          _.attr( '.txt_filter', 'value', '' );
          action.search();
       } } ) );
-      head.appendChild( th );
-      _( '#style_dynamic' )[0].innerHTML = css;
+      head_row.appendChild( th );
+      _( '#style_dynamic' )[0].innerHTML = css + '}';
 
       if ( action.get_search_category() === action.last_cat ) { // Restore filter if same cat (before show_list)
-         _.ary( _( head, '.txt_filter' ) ).forEach( function ( e, i ) {
+         _.ary( _( head_row, '.txt_filter' ) ).forEach( function ( e, i ) {
             if ( filter_txt.length > i )
                e.value = filter_txt[ i ];
          } );
