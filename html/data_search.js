@@ -51,7 +51,7 @@ od.search = {
          });
       } else {
          // Search in all categories
-         cols = ["ID","Name","Category","Type","Level","SourceBook"];
+         cols = ["ID","Name","_CatName","_TypeName","Level","SourceBook"];
          if ( ! pattern ) return _.call( options.ondone, null, cols );
          od.data.load_all_listing( function search_search_all () {
             if ( type === 'full' ) {

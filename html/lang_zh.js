@@ -30,6 +30,8 @@ _.l.set( 'data', {
       'Trap' : '陷阱'
    },
    'field' : {
+      "_CatName" : "類別",
+      "_TypeName" : "類型",
       'Name' : '名稱',
       'Level' : '等級',
       'Category' : '類別',

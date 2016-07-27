@@ -540,29 +540,9 @@ od.action.list = {
             if ( ! action.category ) html += ' data-category="' + _.escHtml( cat_name ) + '"';
             html += '>';
             var cells = '';
-            if ( cat ) {
-               for ( var j = 1 ; j < cl ; j++ ) { // Note: Very intensive loop.
-                  var d = line[ col[ j ] ] || '';
-                  cells += '<td>' + ( d.text ? d.text : d );
-               }
-            } else {
-               cells += '<td>' + line.Name; // Name
-               switch ( line._category.name ) {
-                  case "Race":
-                     cells += '<td>Race<td>';
-                     break;
-                  case "ParagonPath":
-                     cells += '<td>Paragon Path<td>';
-                     break;
-                  case "EpicDestiny":
-                     cells += '<td>Epic Destiny<td>';
-                     break;
-                  default:
-                     cells += '<td>' + line._category.name; // Category name
-                     cells += '<td>' + line[ line._category.columns[2] ]; // Second column
-               }
-               cells += '<td>' + ( line.Level || '' );
-               cells += '<td>' + line.SourceBook;
+            for ( var j = 1 ; j < cl ; j++ ) { // Note: Very intensive loop.
+               var d = line[ col[ j ] ] || '';
+               cells += '<td>' + ( d.text ? d.text : d );
             }
             html += gui.highlight( cells );
          }

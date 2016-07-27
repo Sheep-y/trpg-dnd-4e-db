@@ -57,7 +57,7 @@ od.reader = {
       if ( ! cat || data.length !== cat.count || version === 20140414 ) {
          // Version 20140414 was saving compressed binary as unicode, corrupting them.
          cat.count = data.length;
-         _.alert( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'listing' ) );
+         _.alert( _.l( 'error.inconsistent_category', 'Please re-export %1.', cat.getTitle(), 'listing' ) );
       }
 
       if ( version < 20130616 )
@@ -74,7 +74,7 @@ od.reader = {
    },
 
    jsonp_data_extended: function reader_jsonp_data_extended( version, category, columns, data ) {
-      return _.alert( _.l( 'error.need_reget' ) ); // Milestone 1 data (ver 20130330), not worth supporting. See above.
+      return _.alert( _.l( 'error.need_reget' ) ); // Milestone 1 data (ver 20130330), not worth supporting.
    },
 
    /////////////////////////////////////////////////////////

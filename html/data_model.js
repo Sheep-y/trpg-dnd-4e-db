@@ -1,4 +1,4 @@
-/*  
+/*
  * data_model.js
  *
  * Model and manage data in memory.
@@ -115,6 +115,21 @@ od.data.Category.prototype = {
       var data = this.extended;
       var col = this.ext_columns;
 
+      var catName = this.name, typeCol = 2;
+      switch ( catName ) {
+         case "Race":
+            typeCol = 0;
+            break;
+         case "ParagonPath":
+            catName = 'Paragon Path';
+            typeCol = 0;
+            break;
+         case "EpicDestiny":
+            catName = 'Epic Destiny';
+            typeCol = 0;
+            break;
+      }
+
       this.columns = col.concat();
       var list = this.list = new Array( data.length );
       var map = this.map = {};
@@ -132,6 +147,8 @@ od.data.Category.prototype = {
             }
          }
          item._category = this;
+         item._CatName = catName;
+         item._TypeName = typeCol ? item[ col[ typeCol ] ] : '';
          list[ i ] = item;
          map[ listing[ 0 ] ] = item;
       }

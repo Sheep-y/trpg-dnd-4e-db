@@ -13,6 +13,8 @@ _.l.set( 'data', {
       'ParagonPath' : 'Paragon Path'
    },
    'field' : {
+      "_CatName" : "Category",
+      "_TypeName" : "Type",
       "PowerSourceText" : 'Power Source',
       "CombatRole" : 'Role',
       "RoleName" : 'Role',
