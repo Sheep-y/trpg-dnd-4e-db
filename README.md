@@ -53,6 +53,10 @@ Try to use 64 bits java runtime; 32 bits may stackoverfow on js minify, but won'
 If you use an IDE, be careful not to export data to project folder.
 Otherwise, it can take a long time for the IDE to scan all the data files.
 
+Note that this program use sqljet to access sqlite database, but the data cannot be read by other SQLite libraries.
+I understand that the file format didn't change, so it should be a sqljet issue, which is discontinued.
+Since I cannot find an equally light alternative and I haven't had other issues, I'm keeping it and hoping someone can find what's wrong someday.
+
 <small>
 Code, documentations, and related resources are open source and licensed under <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">GNU AGPL v3</a>. <br/>
 D&D and Dungeons & Dragons are trademarks of Wizards of the Coast LLC.
