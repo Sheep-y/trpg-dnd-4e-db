@@ -6,14 +6,10 @@
 /********************** Baseline **************************/
 * {
    box-sizing: border-box;
-   -moz-box-sizing: border-box;
-   -webkit-box-sizing: border-box;
 }
 
 html {
-   background-position: 0 40px; /* Skip header */
-   background-color: #ED8;      /* For when background image is not available */
-   background-size: 100% auto;  /* Fill width, repeat-y */
+   background-color: #ED8;
    font: 14px sans-serif;
 }
 
@@ -116,7 +112,6 @@ header {
    height: 40px;
    background-color: black;
    text-align: center;
-   padding: 0.5em 1ex !important;
    overflow: visible;
    z-index: 1;
 }
@@ -152,16 +147,20 @@ body > section {
 }
 
 body > section > * {
-   padding: 10px; /* If use em/ex, will varies by content font size and inconsistent */
-}
+   margin: 10px;
+   }
+   body > section > header {
+      margin: 0 0 10px 0;
+      padding: 0.5em 1ex;
+      }
 
 button.pressable {
-   color: darkgrey;
+   color: #666;
    opacity: 0.7;
 }
 
 button.pressable[aria-pressed="true"] {
-   color: black;
+   color: #008;
    opacity: 1;
 }
 

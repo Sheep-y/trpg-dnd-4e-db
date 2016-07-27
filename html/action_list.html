@@ -19,9 +19,11 @@
          border-radius: 0;
          font-weight: bold;
       }
-      #act_list_tbl_search td:first-child button {
-         width: 50%;
+      #act_list_tbl_search td button {
          margin: 0;
+         overflow: hidden;
+         white-space: nowrap;
+         width: calc( 50% - 10px );
       }
       #act_list_tbl_search td+td {
          width: 30px;
@@ -31,19 +33,21 @@
          clear: left;
       }
       #act_list_pnl_category button {
+         border: 1px outset #888;
          display: block;
          float: left;
-         width: 100%;
-         height: 39px;
-         border: 1px outset #888;
-         padding: 2px 5px;
-         max-width: 360px;
          font-size: 125%;
+         height: 39px;
          line-height: 33px;
+         max-width: 360px;
+         overflow: hidden;
+         padding: 2px 5px;
+         width: 100%;
       }
       #act_list_pnl_category button * {
          float: left;
          margin-right: 5px;
+         white-space: nowrap;
       }
       #act_list_pnl_category button var {
          float: right;
@@ -58,10 +62,12 @@
          font-weight: bold;
       }
       #action_list input.txt_filter::-webkit-input-placeholder,
+      #action_list input.txt_filter::placeholder,
       #action_list input.txt_filter::-moz-placeholder,
       #action_list input.txt_filter::-ms-input-placeholder {
          color: black;
          font-weight: bold;
+         opacity: 0.75;
       }
       #act_list_pnl_list {
          clear: left;
@@ -83,17 +89,20 @@
       }
       /* Big screen: Move search buttons to the right of search box */
       @media (min-width: 768px) {
-         #act_list_pnl_term { margin-right: -300px; padding-right: 300px; float: left; width: 100%; }
+         #act_list_pnl_term { margin-right: -320px; padding-right: 320px; float: left; width: 100%; }
          #act_list_txt_search { font-size: 120%; }
-         #act_list_tbl_search { width: 300px; float: right; }
+         #act_list_tbl_search { width: 300px; float: right; margin-left: 0; }
       }
       @media (min-width: 910px) {
          #act_list_pnl_category button { max-width: 300px; }
       }
       /* Small screen: Show only selected cat */
-      @media (max-width: 889px) {
-         #act_list_pnl_category.active button { display: none; }
-         #act_list_pnl_category.active button[aria-pressed="true"] { display: block; }
+      @media (max-width: 909px) {
+         #act_list_pnl_category button {
+            font-size: 100%;
+            width: 33.3%;
+            }
+            .rpg { display: none; }
       }
    <?coco-end?></style>
 
@@ -191,13 +200,6 @@ od.action.list = {
     */
    'a_category' : function act_list_a_category ( cat ) {
       var action = od.action.list;
-      if ( document.body.clientWidth <= 980 && _.hasClass( '#act_list_pnl_category', 'active') ) {
-         // Hide results and show category list
-         _.hide( '#act_list_pnl_list' );
-         _.removeClass( '#act_list_pnl_category.active', 'active' );
-         _.attr( '#act_list_pnl_category .pressable', 'aria-pressed', 'false' );
-         return;
-      }
       action.set_search_category( cat ? od.data.get( cat ) : "" );
       action.search();
       _( '#act_list_txt_search' )[0].focus();
@@ -241,10 +243,8 @@ od.action.list = {
 
    'set_search_category' : function act_list_set_search_category ( cat ) {
       od.action.list.category = cat;
-      _.removeClass( '#act_list_pnl_category.active', 'active' );
       _.attr( '#act_list_pnl_category .pressable', 'aria-pressed', 'false' );
       if ( cat !== undefined ) {
-         _.addClass( '#act_list_pnl_category', 'active' );
          _.attr( od.action.list.category_dom[ cat ? cat.name : "" ], 'aria-pressed', 'true' );
       }
    },
