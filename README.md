@@ -35,7 +35,7 @@ In this version, over 370 entries has been corrected:
 * 35 entries that says "basic melee attack" instead of "melee basic attack" (or ranged). (e.g. Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 28 entries with formatting issues, such as content cut in the middle (Mirror of Deception), "published" not properly formatted (Drow Poison), putting level and group role together (Trapped Chest) etc.
 * 12 skills missing "Imporvising with (this skill)" subtitle. (Arcana, Bluff, Diplomacy, etc.)
-* 1 typo ("bit points", Cambion Stalwart) - I remember seeing others. Let me know!
+* 2 typos ("bit points", wrong power keyword) - I remember seeing others. Let me know!
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 

@@ -529,9 +529,9 @@ od.action.list = {
    },
 
    /** Filter given data and returns a copy. */
-   'filter_data' : function act_list_filter_data ( col, data ) {
+   'filter_data' : function act_list_filter_data ( table, col, data ) {
       var orig_len = data.length;
-      _.ary( _( '.txt_filter' ) ).forEach( function act_list_filter_data_col( e, i ) {
+      _.ary( _( table, '.txt_filter' ) ).forEach( function act_list_filter_data_col( e, i ) {
          var filter = od.search.filter_column( e.value, col[ i+1 ] );
          if ( filter && data.length )
             data = data.filter( filter );
@@ -558,7 +558,7 @@ od.action.list = {
       body = _.create( 'tbody' );
 
       // Filter data and update displayed result count
-      data = action.filter_data( col, data );
+      data = action.filter_data( table, col, data );
       var count = count = data.length;
 
       if ( ! count ) {

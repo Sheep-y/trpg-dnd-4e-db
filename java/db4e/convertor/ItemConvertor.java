@@ -49,6 +49,10 @@ public class ItemConvertor extends LeveledConvertor {
             entry.data = entry.data.replace( "basic ranged attack", "ranged basic attack" );
             return "basic attack correction";
 
+         case "item3415": // The Fifth Sword of Tyr
+            entry.data = entry.data.replace( "Power (Teleportation) ✦ Daily", "Power (Weapon) ✦ Daily" );
+            return "typo";
+
          case "item3561": // Aboleth Slime Concentrate
          case "item3562": // Gibbering Grind
          case "item3563": // Grell Bile
