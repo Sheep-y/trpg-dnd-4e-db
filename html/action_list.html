@@ -103,8 +103,44 @@
             width: 33.3%;
             }
             .rpg { display: none; }
+
+         #act_list_table {
+            display : block;
+            width   : 100% !important;
+            }
+            #act_list_table > thead ,
+            #act_list_table > tfoot {
+               display : none;
+               }
+            #act_list_table > tbody {
+               display : block;
+               width   : 100%;
+               }
+               #act_list_table > tbody > tr {
+                  display   : flex;
+                  flex-flow : column nowrap;
+                  margin-top     : 10px;
+                  padding-top    : 5px;
+                  padding-bottom : 5px;
+                  width     : 100%;
+                  }
+                  #act_list_table > tbody td {
+                     font-weight : bold;
+                     display     : block;
+                     }
+                  #act_list_table > tbody td:first-child {
+                     font-size   : larger;
+                     }
+                     #act_list_table > tbody td:not(:first-child)::before {
+                        display : inline-block;
+                        font-weight : normal;
+                        min-width : 25%;
+                        padding-right: 1ex;
+                        text-align: right;
+                        }
       }
    <?coco-end?></style>
+   <style id="style_dynamic"></style>
 
    <nav>
       <button id="act_list_btn_prev" class="btn_prev" onclick="od.action.list.btn_flip_page(-1)">&lt;</button>
@@ -430,15 +466,15 @@ od.action.list = {
       var filter_txt = _.ary( _( '.txt_filter' ) ).map( function ( e ) { return e.value; } );
 
       // Remove old table and create a new one.
-      var table = _( '#act_list_pnl_list table' );
+      var table = _( '#act_list_table' );
       if ( table.length ) {
          table[0].parentNode.removeChild( table[0] );
       }
-      table = _.create( 'table', { 'role' : 'menubar', 'aria-label' : _.l( 'action.list.search_result', 'Result' ) } );
-      var head = _.create( 'thead' );
+      table = _.create( 'table', { 'id': 'act_list_table', 'aria-label' : _.l( 'action.list.search_result', 'Result' ) } );
+      var head = _.create( 'thead' ),  css = '';
       table.appendChild( head );
 
-      // Headers
+      // Headers & styles
       for ( var i = 1 ; i < cl ; i++ ) {
          // Data field column
          var th = _.create( 'th' ), label = _.l( 'data.field.' + col[i], col[i] );
@@ -455,6 +491,8 @@ od.action.list = {
          }; } )( col[ i ], sorter ) );
          th.appendChild( sorter );
          head.appendChild( th );
+         if ( i > 1 )
+            css += '#act_list_table > tbody > tr > td:nth-child(' + i + ')::before{ content: "' + label + '"; }';
       }
       // Action column
       var th = _.create( 'th' );
@@ -463,6 +501,7 @@ od.action.list = {
          action.search();
       } } ) );
       head.appendChild( th );
+      _( '#style_dynamic' )[0].innerHTML = css;
 
       if ( action.get_search_category() === action.last_cat ) { // Restore filter if same cat (before show_list)
          _.ary( _( head, '.txt_filter' ) ).forEach( function ( e, i ) {
@@ -536,7 +575,7 @@ od.action.list = {
             if ( ! line ) continue;
 
             var cat_name = line._category.name, id = line[ idField ];
-            html += '<tr role="menuitem" aria-label="' + _.escHtml( line.Name ) + '" data-id="' + _.escHtml( id ) + '"';
+            html += '<tr data-id="' + _.escHtml( id ) + '"';
             if ( ! action.category ) html += ' data-category="' + _.escHtml( cat_name ) + '"';
             html += '>';
             var cells = '';
