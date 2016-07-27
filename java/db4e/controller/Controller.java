@@ -436,8 +436,10 @@ public class Controller {
          state.done = 0;
          state.update();
          for ( Category category : categories ) {
-            log.log( Level.FINE, "Writing {0}", category.id );
-            exporter.writeCategory( root, category, state );
+            if ( category.meta != null ) {
+               log.log( Level.FINE, "Writing {0}", category.id );
+               exporter.writeCategory( root, category, state );
+            }
          }
 
          checkStop( "Writing viewer" );
@@ -454,7 +456,8 @@ public class Controller {
       for ( Category category : categories ) {
          log.log( Level.FINE, "Indexing {0}", category.id );
          Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
-         convertor.convert( state );
+         if ( convertor != null )
+            convertor.convert( state );
       }
    }
 

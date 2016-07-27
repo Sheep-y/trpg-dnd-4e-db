@@ -27,7 +27,7 @@ _.l.set( 'data', {
       'Ritual' : '法式',
       'Terrain' : '地型',
       'Theme' : '主題',
-      'Trap' : '陷阱'
+      'Trap' : '陷阱 / 地型'
    },
    'field' : {
       "_CatName" : "類別",

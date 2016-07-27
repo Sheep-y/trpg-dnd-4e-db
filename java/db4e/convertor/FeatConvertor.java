@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FeatConvertor extends Convertor {
+public class FeatConvertor extends DefaultConvertor {
 
    private final int TIER = 0;
    private final int PREREQUISITE = 1;

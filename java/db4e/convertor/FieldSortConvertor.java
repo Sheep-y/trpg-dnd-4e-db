@@ -6,7 +6,7 @@ import db4e.data.Entry;
 /**
  * Sort by a field, then by name.
  */
-public class FieldSortConvertor extends Convertor {
+public class FieldSortConvertor extends DefaultConvertor {
 
    private final int SORT_FIELD;
 

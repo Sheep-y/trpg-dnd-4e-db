@@ -6,16 +6,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-class LeveledConvertor extends Convertor {
+class LeveledConvertor extends DefaultConvertor {
 
-   private int LEVEL = -1;
+   protected int LEVEL = -1;
 
    protected LeveledConvertor ( Category category, boolean debug ) {
       super( category, debug );
    }
 
    @Override public void initialise () {
-      LEVEL = metaIndex( "Level" );
+      LEVEL = Arrays.asList( category.meta ).indexOf( "Level" );
       // if ( LEVEL < 0 ) throw new IllegalStateException( "Level field not in " + category.name );
    }
 
@@ -85,16 +85,6 @@ class LeveledConvertor extends Convertor {
             return "missing published";
          }
          return entry.data.length() == orig_length ? null : "formatting";
-
-      case "Trap":
-         // 7 traps in Dungeon 214-215 has level like "8 Minion" and no group role.
-         String level = entry.meta[ LEVEL ].toString();
-         if ( level.endsWith( "Minion" ) ) {
-            entry.meta[ Arrays.asList( category.meta ).indexOf( "GroupRole" ) ] = "Minion";
-            entry.meta[ LEVEL ] = level.substring( 0, level.length() - " Minion".length() );
-            return "formatting";
-         }
-         return null;
 
       case "Monster":
          switch ( entry.shortid ) {

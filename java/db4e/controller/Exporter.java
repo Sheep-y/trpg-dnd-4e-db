@@ -25,17 +25,19 @@ class Exporter {
       try ( OutputStreamWriter writer = openStream( target + "/catalog.js" ) ) {
          buffer.append( "od.reader.jsonp_catalog(20130616,{" );
          for ( Category category : categories ) {
-            final int total = category.total_entry.get() - category.blacklisted_entry.get();
-            str( buffer, category.id ).append( ':' ).append( total ).append( ',' );
+            if ( category.getExportCount() > 0 )
+               str( buffer, category.id ).append( ':' ).append( category.getExportCount() ).append( ',' );
          }
          write( "})", writer, buffer );
       }
    }
 
    void writeCategory ( String target, Category category, ProgressState state ) throws IOException {
+      if ( category.total_entry.get() + category.exported_entry_deviation.get() <= 0 ) return;
       StringBuilder buffer = new StringBuilder( 1024 );
       File catPath = new File( target + "/" + category.id + "/" );
       catPath.mkdir();
+      int exported = 0;
 
       try ( OutputStreamWriter listing = openStream( catPath + "/_listing.js" );
             OutputStreamWriter   index = openStream( catPath + "/_index.js" );
@@ -75,6 +77,7 @@ class Exporter {
                   str( buffer, entry.data ).append( ',' );
                   write( ")", item, buffer );
                }
+               ++exported;
             }
             state.addOne();
          }
@@ -82,6 +85,8 @@ class Exporter {
          listing.write( "])" );
          index.write( "})" );
       }
+      if ( exported != category.getExportCount() )
+         throw new IllegalStateException( category.id + " entry exported " + category.sorted.length + " mismatch with total " + category.getExportCount() );
    }
 
    void testViewerExists () throws IOException {
