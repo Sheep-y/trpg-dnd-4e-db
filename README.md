@@ -16,11 +16,11 @@ This is a fan-made project and does not come with copyrighted data.
 2. [Download](http://www.java.com/) and install Java (version 8 or above).
 3. [Download](https://github.com/Sheep-y/trpg-dnd-4e-db/releases/) the downloader exe (Windows) or downloader jar (Linux/Mac).
 4. Open a folder for the downloader, put it in, and run it.
-   5. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar".
+   5. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar". Note that the downloader is a GUI program.
 6. In the downloader, fill in DDI username and password, then click "Download".
    7. Download can be stopped and resumed any time.
    8. See in-downloader help for details and troubleshoots.
-9. Once all data is downloaded, you can export the data to an HTML file, which can be opened in any browser.
+9. Once all data is downloaded, you can export the data to an HTML file, which can be opened in browsers.
 
 ### Fixing compendium errors ###
 
