@@ -34,6 +34,7 @@
       padding-top: 0.5ex;
       padding-bottom: 0.5ex;
       }
+      #detail p[class]:empty ,
       #detail p:empty + br {
          display: none;
          }
@@ -51,7 +52,9 @@
       padding: 8px 10px 5px;
       position: relative;
       }
-      #detail h1 .level, #detail h1 .milevel {
+      #detail h1 .level ,
+      #detail h1 .milevel ,
+      #detail h1 .thLevel {
          position: absolute;
          top: 5px;
          right: 10px;
@@ -63,8 +66,8 @@
       color: #888;
       text-align: right;
       }
-      #detail br + .publishedIn {
-         margin-top: -1.8em; /* Undo last br */
+      /* #detail br + .publishedIn {
+         margin-top: -1.8em; /* Undo last br *
          }
 
 /********************** Headers *************************/
@@ -106,7 +109,9 @@
 
 #detail h2.mihead ,
 #detail h1:not(:first-child) ,
-#detail .miflavor, #detail .flavor,
+#detail .miflavor ,
+#detail .flavor ,
+#detail .flavortext ,
 #detail > h1 + i:not(:empty) {
    margin-left: -10px;
    margin-right: -10px;
@@ -115,7 +120,9 @@
    width: calc( 100% + 20px );
    }
 
-#detail .miflavor, #detail .flavor,
+#detail .miflavor ,
+#detail .flavortext ,
+#detail .flavor:not(.indent) ,
 #detail > h1 + i:not(:empty) {
    background-color: #CCC;
    display: block;
@@ -125,6 +132,7 @@
       display: none;
       }
    #detail .player + .flavor ,
+   #detail .bodytable .flavor ,
    #detail > h1 + i + .flavor ,
    #detail > h1 + i + br + .flavor { /* racial traits */
       background-color: transparent;
@@ -141,10 +149,10 @@
    #detail table td {
       padding: 3px 10px;
       }
-      #detail table th {
+      #detail *:not(h1) + table th {
          background-color: #CCC;
          }
-      #detail table tr:nth-child(odd) {
+      #detail *:not(h1) + table tr:nth-child(odd) {
          background-color: #E0E0E0;
          }
 
@@ -161,6 +169,7 @@
 #detail .flavor > b , /* Feat */
 #detail > br + b { /* Class, PP, ED , etc. */
    display: inline-block;
+   margin-right: 0.8ex;
    margin-top: 0.8ex;
    }
 
@@ -178,9 +187,9 @@
       border-bottom-right-radius: 10px;
       margin-bottom: 0;
       }
-   #detail .power > br:last-child { /* Hide dangling br */
-      display: none;
-      }
+      #detail .power > p:last-of-type + br:last-child { /* Hide dangling br */
+         display: none;
+         }
 
 
 /********************** Other specifics **************************/
