@@ -277,7 +277,7 @@ public class Controller {
       final boolean downloadIncomplete = categories.stream().anyMatch( e -> e.downloaded_entry.get() <= 0 );
       if ( downloadIncomplete ) {
          gui.stateCanDownload( "Ready to download" );
-         if ( state.done <= 0 && ! hasReset )
+         if ( state.done <= 0 && ! hasReset && gui.getUsername().isEmpty() && gui.getPassword().isEmpty() )
             gui.selectTab( "help" );
       } else
          gui.stateCanExport( "Ready to export" );
@@ -292,8 +292,8 @@ public class Controller {
       File backup = new File( current.getPath() + ".backup" );
       final long currentSize = current.length();
       final long backupSize = backup.length();
-      if ( currentSize <= backupSize ) {
-         log.log( Level.INFO, "No need to back up {0} ({1} <= {2})", new Object[]{ current, currentSize, backupSize } );
+      if ( currentSize <= backupSize || currentSize <= 12000 ) {
+         log.log( Level.INFO, "No need to back up {0} ({1} <= {2} or 12k)", new Object[]{ current, currentSize, backupSize } );
          return;
       }
       threadPool.execute( () -> { try {
