@@ -44,11 +44,12 @@
    #detail > h1.dailypower ,
    #detail > h1.mihead ,
    #detail .power > h1:first-child {
-      padding: 8px 10px 5px;
-      margin: 0 -10px;
       border-bottom: 1px solid #666;
       border-top-left-radius: 8px;
       border-top-right-radius: 8px;
+      margin: 0 -10px;
+      padding: 8px 10px 5px;
+      position: relative;
       }
       #detail h1 .level, #detail h1 .milevel {
          position: absolute;
@@ -103,15 +104,22 @@
 
 /********************** Content *************************/
 
+#detail h2.mihead ,
+#detail h1:not(:first-child) ,
+#detail .miflavor, #detail .flavor,
+#detail > h1 + i:not(:empty) {
+   margin-left: -10px;
+   margin-right: -10px;
+   padding-left: 10px;
+   padding-right: 10px;
+   width: calc( 100% + 20px );
+   }
+
 #detail .miflavor, #detail .flavor,
 #detail > h1 + i:not(:empty) {
    background-color: #CCC;
    display: block;
-   margin-left: -10px;
-   margin-right: -10px;
    padding-bottom: 5px;
-   padding-left: 10px;
-   padding-right: 10px;
    }
    #detail > h1 + i + br {
       display: none;
@@ -179,11 +187,6 @@
 
 #detail h2.mihead { /* magic item powers */
    background-color: #FE8;
-   margin-left: -10px;
-   margin-right: -10px;
-   padding-left: 10px;
-   padding-right: 10px;
-   width: calc( 100% + 20px );
    }
 
 #detail .miright {
