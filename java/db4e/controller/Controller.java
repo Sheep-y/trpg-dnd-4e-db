@@ -226,7 +226,9 @@ public class Controller {
          }
 
          log.log( Level.CONFIG, "Opened database {0}", db_file );
-         if ( categoryTable != null ) categoryTable.setItems( categories );
+         if ( categoryTable != null ) Platform.runLater( () -> {
+            categoryTable.setItems( categories );
+         } );
          openOrCreateTable();
       } );
    }
@@ -450,11 +452,11 @@ public class Controller {
    }
 
    private void convertDataForExport () {
-      checkStop( "Indexing" );
+      checkStop( "Converting" );
       state.done = 0;
       state.update();
       for ( Category category : categories ) {
-         log.log( Level.FINE, "Indexing {0}", category.id );
+         log.log( Level.FINE, "Converting {0}", category.id );
          Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
          if ( convertor != null )
             convertor.convert( state );

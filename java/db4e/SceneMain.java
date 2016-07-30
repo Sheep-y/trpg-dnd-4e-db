@@ -242,17 +242,6 @@ public class SceneMain extends Scene {
       ( (Stage) getWindow() ).setTitle( Main.TITLE + ( title == null ? "" : " - " + title ) );
    } ); }
 
-   public void setStatus ( String msg ) { runFX( () -> {
-      log.log( Level.INFO, "Status: {0}.", msg );
-      lblStatus.setText( msg );
-   } ); }
-
-   public void setProgress ( Double progress ) { runFX( () -> {
-      if ( Math.round( progress * 100 ) % 10 == 0 )
-         log.log( Level.FINE, "Progress: {0}.", progress );
-      prgProgress.setProgress( progress );
-   } ); }
-
    public void selectTab ( String id ) { runFX( () -> {
       switch ( id ) {
          case "help":
@@ -285,6 +274,21 @@ public class SceneMain extends Scene {
       btnLeft.setDisable( true );
       btnClearData.setDisable( true );
    }
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Data tab
+   /////////////////////////////////////////////////////////////////////////////
+
+   public void setStatus ( String msg ) { runFX( () -> {
+      log.log( Level.INFO, "Status: {0}.", msg );
+      lblStatus.setText( msg );
+   } ); }
+
+   public void setProgress ( Double progress ) { runFX( () -> {
+      if ( Math.round( progress * 100 ) % 10 == 0 )
+         log.log( Level.FINE, "Progress: {0}.", progress );
+      prgProgress.setProgress( progress );
+   } ); }
 
    /////////////////////////////////////////////////////////////////////////////
    // Help & About
