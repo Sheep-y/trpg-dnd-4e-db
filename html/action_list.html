@@ -506,7 +506,7 @@ od.action.list = {
       // Action column
       var th = _.create( 'th' );
       th.appendChild( _.create( 'input', { 'type': 'button', 'value': _.l( 'action.list.btn_clear_filter', '×' ), 'onclick': function () {
-         _.attr( '.txt_filter', 'value', '' );
+         _.ary( _( '.txt_filter' ) ).forEach( function ( e ) { e.value = ''; } );
          action.search();
       } } ) );
       head_row.appendChild( th );
