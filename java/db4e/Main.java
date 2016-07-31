@@ -40,7 +40,7 @@ public class Main extends Application {
 
    static String TITLE = "Compendium downloader";
    static String VERSION = "3.5.1 (development)";
-   static String UPDATE_TIME = "2016-07-30"; // Any release beyond this time is an update
+   static String UPDATE_TIME = "9999-99-99"; // Any release beyond this time is an update
 
    // Global log ang preference
    public static final Logger log = Logger.getLogger( Main.class.getName() );

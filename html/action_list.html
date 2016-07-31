@@ -4,12 +4,15 @@
   -->
 <section id='action_list'>
    <style scoped><?coco-start css(minify) ?>
-      #act_list_txt_search {
-         width: 100%;
-      }
+      #act_list_pnl_term {
+         margin-top: 50px;
+         }
+         #act_list_txt_search {
+            width: 100%;
+            }
       /* Search buttons */
       #act_list_tbl_search {
-         width: 100%;
+         width: calc( 100% - 20px );
          border-spacing: 0;
          }
          #act_list_tbl_search button {
@@ -20,7 +23,7 @@
             margin: 0;
             overflow: hidden;
             white-space: nowrap;
-            width: calc( 50% - 10px );
+            width: 50%;
             }
       #act_list_tbl_search td+td {
          width: 30px;
@@ -87,9 +90,25 @@
       }
       /* Big screen: Move search buttons to the right of search box */
       @media (min-width: 768px) {
-         #act_list_pnl_term { margin-right: -320px; padding-right: 320px; float: left; width: 100%; }
-         #act_list_txt_search { font-size: 120%; }
-         #act_list_tbl_search { width: 300px; float: right; margin-left: 0; }
+         #act_list_pnl_term {
+            float: left;
+            margin-right: -320px;
+            margin-top: 10px;
+            padding-right: 320px;
+            width: calc( 100% - 10px );
+            }
+            #act_list_txt_search {
+               font-size: 120%;
+               width: 100%;
+               }
+         #act_list_tbl_search {
+            float: right;
+            margin-left: 0;
+            width: 300px;
+            }
+            #act_list_tbl_search td button {
+               width: 50%;
+               }
       }
       @media (min-width: 910px) {
          #act_list_pnl_category button { max-width: 300px; }
