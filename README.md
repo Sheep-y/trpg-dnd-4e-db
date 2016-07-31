@@ -2,7 +2,7 @@
 
 ![Screenshot of program](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History%20-%20v3.5%20viewer.png)
 
-Version 3.5.0.1
+Version 3.5.1
 
 This app can be used to reterives and locally stores entries from online 4e [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx).
  <br/>
@@ -13,23 +13,38 @@ This is a fan-made project and does not come with copyrighted data.
 ## How To Download Data ##
 
 1. You need an active [Dungeons & Dragons Insider subscription](http://ddi.wizards.com/) to retrieve data.
-2. [Download](http://www.java.com/) and install Java (latest version 8 or above).
+2. [Download](http://www.java.com/) and install Java (version 8 or above).
 3. [Download](https://github.com/Sheep-y/trpg-dnd-4e-db/releases/) the downloader exe (Windows) or downloader jar (Linux/Mac).
 4. Open a folder for the downloader, put it in, and run it.
-   5. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar".
+   5. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar". Note that the downloader is a GUI program.
 6. In the downloader, fill in DDI username and password, then click "Download".
    7. Download can be stopped and resumed any time.
    8. See in-downloader help for details and troubleshoots.
-9. Once all data is downloaded, you can export the data to an HTML file, which can be opened in any browser.
+9. Once all data is downloaded, you can export the data to an HTML file, which can be opened in browsers.
 
-If you find a typo or obvious mistake in the data, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
+### Fixing compendium errors ###
+
+Let's face it, the official compendium has errors.
+
 I cannot update the official compendium, but I can update this downloader's data export.
+In this version, over 370 entries has been corrected:
 
-## Building ##
+* 151 items missing power frequency. (e.g. Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
+* 79 empty glossaries, delisted. (e.g. male, female, fang titan drake, etc.)
+* 67 entries without "published" record. (e.g. Granny's Grief, Dreamheart, Deck of Many Things etc.)
+* 35 entries that says "basic melee attack" instead of "melee basic attack" (or ranged). (e.g. Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
+* 28 entries with formatting issues, such as content cut in the middle (Mirror of Deception), "published" not properly formatted (Drow Poison), putting level and group role together (Trapped Chest) etc.
+* 12 skills missing "Imporvising with (this skill)" subtitle. (Arcana, Bluff, Diplomacy, etc.)
+* 2 typos ("bit points", wrong power keyword) - I remember seeing others. Let me know!
+
+If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
+
+## Source code and building ##
 
 * Viewer source code is in html folder.
-* Downloader source code is in java folder.
-* Use Ant (build.xml) to compile both into an executable jar.
+* Downloader source code is in java folder, and use libraries in java_lib folder.
+* Both use resources at the root (license) and/or in the resource folder.
+* Use Ant (build.xml) to compile both downloader and viewer into an executable jar.
 * The jar can also be extracted to a new folder; use Ant to move the extracted files back to original structure.
 
 Part of the build process uses the [CocoDoc](https://github.com/Sheep-y/CocoDoc/) app builder, which is bundled and must run in GUI.
@@ -37,6 +52,10 @@ Try to use 64 bits java runtime; 32 bits may stackoverfow on js minify, but won'
 
 If you use an IDE, be careful not to export data to project folder.
 Otherwise, it can take a long time for the IDE to scan all the data files.
+
+Note that this program use sqljet to access sqlite database, but the data cannot be read by other SQLite libraries.
+I understand that the file format didn't change, so it should be a sqljet issue, which is discontinued.
+Since I cannot find an equally light alternative and I haven't had other issues, I'm keeping it and hoping someone can find what's wrong someday.
 
 <small>
 Code, documentations, and related resources are open source and licensed under <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">GNU AGPL v3</a>. <br/>

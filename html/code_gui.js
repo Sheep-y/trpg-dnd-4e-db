@@ -1,4 +1,4 @@
-/*  
+/*
  * code_gui.js
  *
  * GUI-related codes, but activity-specific codes are coded with activities.
@@ -12,12 +12,20 @@ od.gui = {
    action: null,
    /** List of initiated actions. */
    initialized: [],
+
    /** Array of regexp string to highlight */
    hl: null,
    /** True to show highlight, false to not show */
    hl_enabled : true,
    /** RegExp pattern used in highlight */
    hlp : null,
+
+   /** Max. row per page */
+   row_per_page: 200,
+   /** Current list page. Zero based. */
+   page: 0,
+   /** Total page count. */
+   total_page: 0,
 
    init : function gui_init () {
       _.l.detectLocale( 'en' );
@@ -59,7 +67,7 @@ od.gui = {
       if ( act_id === undefined ) act_id = gui.get_act_id();
       var action = od.action[act_id];
       _.info( "[Action] Navigate to " + act_id );
-      // If not a simple page like about/download etc., try to find the action to handle this url
+      // If not a simple page like help/license, try to find the action to handle this url
       if ( ! action ) {
          var firstword = _.ary( act_id.match( /^\w+/ ) )[ 0 ]; // Parse first word in url
          for ( var aid in od.action ) {

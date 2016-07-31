@@ -1,4 +1,4 @@
-/*  
+/*
  * lang_zh.js
  *
  * Chinese localization resources
@@ -27,9 +27,11 @@ _.l.set( 'data', {
       'Ritual' : '法式',
       'Terrain' : '地型',
       'Theme' : '主題',
-      'Trap' : '陷阱'
+      'Trap' : '陷阱 / 地型'
    },
    'field' : {
+      "_CatName" : "類別",
+      "_TypeName" : "類型",
       'Name' : '名稱',
       'Level' : '等級',
       'Category' : '類別',
@@ -86,7 +88,9 @@ _.l.set( 'action.list', {
    'a_all' : "全類別",
    'lbl_count' : '%1／%2',
 
+   'lbl_showing' : '%2 項結果',
    'lbl_filter' : '從 %2 項結果中過濾出 %1 項',
+   'lbl_page' : '頁數 %1/%2',
    'lbl_no_result' : "無結果"
 });
 

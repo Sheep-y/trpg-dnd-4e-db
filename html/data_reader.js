@@ -46,9 +46,9 @@ od.reader = {
       var path = od.config.url.listing( category );
       this._read(
          path,
-         function(){ return od.data.get(category).extended.length > 0; },
+         function(){ return od.data.get(category).raw_list.length > 0; },
          onload,
-         onerror ? onerror : 'Cannot read extended ' + category + ' listing from ' + path );
+         onerror ? onerror : 'Cannot read ' + category + ' listing from ' + path );
       // TODO: Make error handler use thrown error message (e.g. need reindex) instead of default
    },
 
@@ -57,7 +57,7 @@ od.reader = {
       if ( ! cat || data.length !== cat.count || version === 20140414 ) {
          // Version 20140414 was saving compressed binary as unicode, corrupting them.
          cat.count = data.length;
-         _.alert( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'listing' ) );
+         _.alert( _.l( 'error.inconsistent_category', 'Please re-export %1.', cat.getTitle(), 'listing' ) );
       }
 
       if ( version < 20130616 )
@@ -69,12 +69,12 @@ od.reader = {
             item[ 0 ] = od.config.id( item[ 0 ] );
          } );
       }
-      cat.ext_columns = columns;
-      cat.extended = data;
+      cat.columns = columns;
+      cat.raw_list = data;
    },
 
    jsonp_data_extended: function reader_jsonp_data_extended( version, category, columns, data ) {
-      return _.alert( _.l( 'error.need_reget' ) ); // Milestone 1 data (ver 20130330), not worth supporting. See above.
+      return _.alert( _.l( 'error.need_reget' ) ); // Milestone 1 data (ver 20130330), not worth supporting.
    },
 
    /////////////////////////////////////////////////////////

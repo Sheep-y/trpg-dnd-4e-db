@@ -95,14 +95,17 @@ public class SceneMain extends Scene {
            "Number of timeout retry.  Only apply to timeout errors." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
            "Show app log and console.  Will slow down download & export and use more memory." );
-   final Button btnClearData = JavaFX.tooltip(new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
+   final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
+   final Button btnCheckUpdate = JavaFX.tooltip( new Button( "Check update" ),
+           "Check for availability of new releases." );
    private final Pane pnlOptionTab = new VBox( 8,
            new HBox( 8, new Label( "Timeout in" ), txtTimeout, new Label( "seconds.") ),
            new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (min) per request.") ),
            new HBox( 8, new Label( "Retry" ), txtRetry, new Label( "times on timeout.") ),
            chkDebug,
-           btnClearData );
+           btnClearData,
+           btnCheckUpdate );
    private final Tab tabOption = new Tab( "Options", pnlOptionTab );
 
    // Log Screen
@@ -176,7 +179,9 @@ public class SceneMain extends Scene {
       chkDebug.selectedProperty().addListener( this::chkDebug_change );
       if ( prefs.getBoolean( "gui.debug", false ) )
          chkDebug.selectedProperty().set( true );
+
       btnClearData.addEventHandler( ActionEvent.ACTION, this::btnClearData_click );
+      btnCheckUpdate.addEventHandler( ActionEvent.ACTION, this::btnCheckUpdate_click );
 
       // Log tab
       txtLog.setEditable( false );
@@ -220,6 +225,7 @@ public class SceneMain extends Scene {
       loader.open( tblCategory ).thenRun( () -> Platform.runLater( () -> {
          setTitle( "ver. " + Main.VERSION );
          btnLeft.requestFocus();
+         Main.checkUpdate( false ).thenAccept( this::popupUpdate );
       } ) );
    }
 
@@ -234,17 +240,6 @@ public class SceneMain extends Scene {
 
    public void setTitle ( String title ) { runFX( () -> {
       ( (Stage) getWindow() ).setTitle( Main.TITLE + ( title == null ? "" : " - " + title ) );
-   } ); }
-
-   public void setStatus ( String msg ) { runFX( () -> {
-      log.log( Level.INFO, "Status: {0}.", msg );
-      lblStatus.setText( msg );
-   } ); }
-
-   public void setProgress ( Double progress ) { runFX( () -> {
-      if ( Math.round( progress * 100 ) % 10 == 0 )
-         log.log( Level.FINE, "Progress: {0}.", progress );
-      prgProgress.setProgress( progress );
    } ); }
 
    public void selectTab ( String id ) { runFX( () -> {
@@ -279,6 +274,21 @@ public class SceneMain extends Scene {
       btnLeft.setDisable( true );
       btnClearData.setDisable( true );
    }
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Data tab
+   /////////////////////////////////////////////////////////////////////////////
+
+   public void setStatus ( String msg ) { runFX( () -> {
+      log.log( Level.INFO, "Status: {0}.", msg );
+      lblStatus.setText( msg );
+   } ); }
+
+   public void setProgress ( Double progress ) { runFX( () -> {
+      if ( Math.round( progress * 100 ) % 10 == 0 )
+         log.log( Level.FINE, "Progress: {0}.", progress );
+      prgProgress.setProgress( progress );
+   } ); }
 
    /////////////////////////////////////////////////////////////////////////////
    // Help & About
@@ -501,6 +511,19 @@ public class SceneMain extends Scene {
       pnlC.getSelectionModel().select( tabData );
    }
 
+   private void btnCheckUpdate_click ( ActionEvent evt ) {
+      btnCheckUpdate.setDisable( true );
+      Main.checkUpdate( true ).thenAccept( this::popupUpdate );
+   }
+
+   private void popupUpdate ( Boolean hasUpdate ) {
+      if ( hasUpdate ) runFX( () -> {
+         if ( new Alert( Alert.AlertType.INFORMATION, "Update available. Open download page?", ButtonType.YES, ButtonType.CLOSE ).showAndWait().get().equals( ButtonType.YES ) )
+            Main.doUpdate();
+         btnCheckUpdate.setDisable( false );
+      });
+   }
+
    public boolean isDebugging () { return chkDebug.isSelected(); };
 
    /////////////////////////////////////////////////////////////////////////////
@@ -508,5 +531,4 @@ public class SceneMain extends Scene {
    /////////////////////////////////////////////////////////////////////////////
 
    public ConsoleWebView getWorker () { return pnlWorker; }
-
 }

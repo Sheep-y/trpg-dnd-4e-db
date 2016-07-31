@@ -10,9 +10,12 @@ _.l.setLocale( 'en' );
 _.l.set( 'data', {
    'category' : {
       'EpicDestiny' : 'Epic Destiny',
-      'ParagonPath' : 'Paragon Path'
+      'ParagonPath' : 'Paragon Path',
+      'Trap'        : 'Trap / Terrain'
    },
    'field' : {
+      "_CatName" : "Category",
+      "_TypeName" : "Type",
       "PowerSourceText" : 'Power Source',
       "CombatRole" : 'Role',
       "RoleName" : 'Role',
@@ -57,7 +60,9 @@ _.l.set( 'action.list', {
    'a_all' : "All Category",
    'lbl_count' : '%1 / %2',
 
-   'lbl_filter' : 'Filter showing %1 result(s) from a total of %2',
+   'lbl_showing' : '%1 result(s)',
+   'lbl_filter'   : 'Filter left %1 result(s) out of %2',
+   'lbl_page' : '頁數 %1/%2',
    'lbl_no_result' : "No result"
 });
 

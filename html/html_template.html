@@ -1,13 +1,13 @@
 <!DOCTYPE html><!---
- Source can be obtained from Github: <https://github.com/Sheep-y/trpg-dnd-4e-db/development/>.
+ Complete sourcedode: https://github.com/Sheep-y/trpg-dnd-4e-db/
  -
- This script is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published
+ This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published
  by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
- This script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
 
- A copy of the GNU Affero General Public License is built into this script, and is also available from <http://www.gnu.org/licenses/>.
+ A copy of the GNU Affero General Public License is built into this program, and is also available from <http://www.gnu.org/licenses/>.
 --><html><head><meta charset="utf-8" /><?coco-start trim(line) ?>
   <title> Offline Compendium </title>
   <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true;IE=edge" />
@@ -24,7 +24,7 @@
 </head><body>
 <!--[if lte IE 11]>
    <h1> Please upgrade browser. </h1>
-   <h1> 請升級瀏覽器，只支援 IE 11 或以上。 </h1>
+   <h1> 請升級瀏覽器。 </h1>
    <div style="display:none">
 <![endif]-->
    <div id="loading" class='i18n' style='display:none;'>gui.loading</div>
@@ -40,13 +40,13 @@
    </script><noscript>
       <h1> 　 Please enable JavaScript </h1>
       <h1> 　 請啟用 JavaScript </h1>
-      <div style="color:red;font:96px 'Arial Unicode';position:fixed;left:68%;bottom:36px;">☟</div><!-- Points to 'Allow' button. Rough position, not accurate, but enough. -->
+      <div style="color:red;font:96px 'Arial Unicode';position:fixed;left:68%;bottom:44px;">☟</div><!-- Points to 'Allow' button. Rough position, not accurate, but enough. -->
    </noscript>
    <script>
       'use strict';
       var od = { action : {} };
-     <?coco file( "config.js", "sparrow.js", "lang_en.js", "lang_zh.js",
-                  "code_gui.js", "data_model.js", "data_search.js", "data_reader.js" ) js(minify) ?>
+      <?coco file( "config.js", "sparrow.js", "lang_en.js", "lang_zh.js",
+                   "code_gui.js", "data_model.js", "data_search.js", "data_reader.js" ) js(minify) ?>
    </script>
    <menu type='context' id='menu_view'>
       <menuitem class='i18n' label='gui.menu_view_highlight' onclick='od.gui.toggle_highlight()' />
@@ -54,7 +54,6 @@
    <?coco file( "action_list.html", "action_view.html", "action_about.html" ) coco ?>
    <?coco file( "images.html" ) ?>
    <script>
-      // Init code. Running here is faster then waiting for dom ready.
       _.time( 'All code loaded.' );
       od.gui.init();
    </script>

@@ -6,14 +6,10 @@
 /********************** Baseline **************************/
 * {
    box-sizing: border-box;
-   -moz-box-sizing: border-box;
-   -webkit-box-sizing: border-box;
 }
 
 html {
-   background-position: 0 40px; /* Skip header */
-   background-color: #ED8;      /* For when background image is not available */
-   background-size: 100% auto;  /* Fill width, repeat-y */
+   background-color: #ED8;
    font: 14px sans-serif;
 }
 
@@ -72,6 +68,30 @@ figure { margin: 0; }
    background-color: transparent;
 }
 
+/** Back / Forward button */
+.btn_prev, .btn_next {
+   position: fixed;
+   margin: auto;
+   top: 0; left: 1ex; bottom: 0; right: 1ex;
+   height: 2cm; width: 2cm;
+   border-radius: 1cm;
+   font-size: 1cm;
+   opacity: 0.3;
+}
+@media (max-width: 12cm) {
+   .btn_prev, .btn_next {
+      height: 1cm; width: 1cm;
+      border-radius: 0.5cm;
+      font-size: 0.5cm;
+   }
+}
+.btn_prev {
+   margin-left: 0;
+}
+.btn_next {
+   margin-right: 0;
+}
+
 /********************** Utility classes **************************/
 
 .right { float: right; }
@@ -92,7 +112,6 @@ header {
    height: 40px;
    background-color: black;
    text-align: center;
-   padding: 0.5em 1ex !important;
    overflow: visible;
    z-index: 1;
 }
@@ -128,17 +147,25 @@ body > section {
 }
 
 body > section > * {
-   padding: 10px; /* If use em/ex, will varies by content font size and inconsistent */
-}
+   margin: 10px;
+   }
+   body > section > header {
+      margin: 0 0 10px 0;
+      padding: 0.5em 1ex;
+      }
 
 button.pressable {
-   color: darkgrey;
+   color: #666;
    opacity: 0.7;
 }
 
 button.pressable[aria-pressed="true"] {
-   color: black;
+   color: #008;
    opacity: 1;
+}
+
+input[placeholder] {
+   width: 180px;
 }
 
 input[placeholder=Group] ,
@@ -146,6 +173,7 @@ input[placeholder=Level] ,
 input[placeholder=Power\ Source] ,
 input[placeholder=Rarity] ,
 input[placeholder=Size] {
+   min-width: 80px;
    width: 80px;
 }
 
@@ -158,9 +186,15 @@ input[placeholder=Frequency] ,
 input[placeholder=Price] ,
 input[placeholder=Role] ,
 input[placeholder=Tier] {
+   min-width: 120px;
    width: 120px;
 }
 
 input[placeholder=Type] {
+   min-width: 140px;
    width: 140px;
+}
+
+input[placeholder=Name] {
+   width: 240px;
 }

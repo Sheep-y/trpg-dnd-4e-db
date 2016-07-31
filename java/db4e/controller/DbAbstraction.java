@@ -17,6 +17,7 @@ import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
+import sheepy.util.JavaFX;
 
 class DbAbstraction {
 
@@ -115,7 +116,7 @@ class DbAbstraction {
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
          ISqlJetCursor cursor = tblCategory.order( "category_order_index" );
-         if ( ! cursor.eof() ) {
+         if ( ! cursor.eof() ) { synchronized ( list ) {
             do {
                Category category = new Category(
                   cursor.getString( "id" ),
@@ -125,12 +126,14 @@ class DbAbstraction {
                category.total_entry.set( (int) cursor.getInteger( "count" ) );
                list.add( category );
             } while ( cursor.next() );
-         } else {
+         } } else {
             throw new UnsupportedOperationException( "dnd4e database does not contains category." );
          }
          cursor.close();
-         categories.clear();
-         categories.addAll( list );
+         JavaFX.runNow( () -> { synchronized ( list ) {
+            categories.clear();
+            categories.addAll( list );
+         } } );
          log.log( Level.FINE, "Loaded {0} categories.", list.size() );
 
       } finally {

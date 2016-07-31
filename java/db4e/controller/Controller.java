@@ -226,7 +226,9 @@ public class Controller {
          }
 
          log.log( Level.CONFIG, "Opened database {0}", db_file );
-         if ( categoryTable != null ) categoryTable.setItems( categories );
+         if ( categoryTable != null ) Platform.runLater( () -> {
+            categoryTable.setItems( categories );
+         } );
          openOrCreateTable();
       } );
    }
@@ -277,7 +279,7 @@ public class Controller {
       final boolean downloadIncomplete = categories.stream().anyMatch( e -> e.downloaded_entry.get() <= 0 );
       if ( downloadIncomplete ) {
          gui.stateCanDownload( "Ready to download" );
-         if ( state.done <= 0 && ! hasReset )
+         if ( state.done <= 0 && ! hasReset && gui.getUsername().isEmpty() && gui.getPassword().isEmpty() )
             gui.selectTab( "help" );
       } else
          gui.stateCanExport( "Ready to export" );
@@ -292,8 +294,8 @@ public class Controller {
       File backup = new File( current.getPath() + ".backup" );
       final long currentSize = current.length();
       final long backupSize = backup.length();
-      if ( currentSize <= backupSize ) {
-         log.log( Level.INFO, "No need to back up {0} ({1} <= {2})", new Object[]{ current, currentSize, backupSize } );
+      if ( currentSize <= backupSize || currentSize <= 12000 ) {
+         log.log( Level.INFO, "No need to back up {0} ({1} <= {2} or 12k)", new Object[]{ current, currentSize, backupSize } );
          return;
       }
       threadPool.execute( () -> { try {
@@ -422,7 +424,7 @@ public class Controller {
          log.log( Level.CONFIG, "Export root: {0}", target );
          new File( root ).mkdirs();
 
-         Convertor.beforeExport( categories );
+         Convertor.beforeConvert( categories );
 
          checkStop( "Writing main catlog" );
          exporter.writeCatalog( root, categories );
@@ -430,13 +432,16 @@ public class Controller {
          checkStop( "Loading content" );
          dal.loadEntityContent( categories, state );
          convertDataForExport();
+         Convertor.afterConvert();
 
          checkStop( "Writing data" );
          state.done = 0;
          state.update();
          for ( Category category : categories ) {
-            log.log( Level.FINE, "Writing {0}", category.id );
-            exporter.writeCategory( root, category, state );
+            if ( category.meta != null ) {
+               log.log( Level.FINE, "Writing {0}", category.id );
+               exporter.writeCategory( root, category, state );
+            }
          }
 
          checkStop( "Writing viewer" );
@@ -447,13 +452,14 @@ public class Controller {
    }
 
    private void convertDataForExport () {
-      checkStop( "Indexing" );
+      checkStop( "Converting" );
       state.done = 0;
       state.update();
       for ( Category category : categories ) {
-         log.log( Level.FINE, "Indexing {0}", category.id );
+         log.log( Level.FINE, "Converting {0}", category.id );
          Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
-         convertor.convert( state );
+         if ( convertor != null )
+            convertor.convert( state );
       }
    }
 

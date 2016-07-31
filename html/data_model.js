@@ -1,4 +1,4 @@
-/*  
+/*
  * data_model.js
  *
  * Model and manage data in memory.
@@ -64,8 +64,8 @@ od.data = {
 
 od.data.Category = function Category ( name ) {
    this.name = name;
-   this.ext_columns = [];
-   this.extended = [];
+   this.count = 0;
+   this.raw_list = [];
    this.index = {};
    this.columns = [];
    this.list = [];
@@ -75,14 +75,11 @@ od.data.Category = function Category ( name ) {
 od.data.Category.prototype = {
    "name": "",
    "count": 0,
+   "raw_list": [],     // e.g. [ ["sampleId001","Sample",["1+",1,3],["Multiple","Git","Csv"]], ... ]
 
-   /** Raw data used to compose list property */
-   "ext_columns": [],  // e.g. ["ID","Name","Level","SourceBook", ... ]
-   "extended": [],     // e.g. [ ["sampleId001","Sample",["1+",1,3],["Multiple","Git","Csv"]], ... ]
-   "index": {},        // e.g. { "sampleId001":"Sample Data 1 Published in ...", ... }
-
-   "columns": [], // e.g. [ Name","SourceBook","Level", ... ]
+   "columns": [], // e.g. [ "Name","SourceBook","Level", ... ]
    "list" : [],   // e.g. [ {ID:"sampleId001", SourceBook": { "text":"Multiple", "set": ["Git","Csv"] }, ... ]
+   "index": {},   // e.g. { "sampleId001":"Sample Data 1 Published in ...", ... }
    "map" : {},   // e.g. { "sampleId001": (point to same item in list), ... }
    "data" : {},   // e.g. { "sampleId001": "<h1 class='player'>Sample Data 1</h1><p class='flavor'>..." }, ... }
 
@@ -112,12 +109,16 @@ od.data.Category.prototype = {
 
    // Build this.columns and this.list.
    "build_listing" : function data_Cat_bulid_listing () {
-      var data = this.extended;
-      var col = this.ext_columns;
-
-      this.columns = col.concat();
-      var list = this.list = new Array( data.length );
+      var data = this.raw_list;
+      var col = this.columns;
       var map = this.map = {};
+      var list = this.list = new Array( data.length );
+
+      var catName = this.name, typeCol = 2;
+      if ( [ 'Race', 'ParagonPath', 'EpicDestiny' ].indexOf( catName ) >= 0 ) {
+            catName = catName.replace( /(?=[PD])/g, ' ' ).trim(); // Split PP/ED into two words
+         typeCol = 0;
+      }
 
       var colCount = col.length;
       for ( var i = 0, l = data.length ; i < l ; i++ ) {
@@ -132,6 +133,8 @@ od.data.Category.prototype = {
             }
          }
          item._category = this;
+         item._CatName = catName;
+         item._TypeName = typeCol ? item[ col[ typeCol ] ] : '';
          list[ i ] = item;
          map[ listing[ 0 ] ] = item;
       }
