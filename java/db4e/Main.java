@@ -39,7 +39,7 @@ public class Main extends Application {
    }
 
    static String TITLE = "Compendium downloader";
-   static String VERSION = "3.5.1 (development)";
+   static String VERSION = "3.5.2 (development)";
    static String UPDATE_TIME = "9999-99-99"; // Any release beyond this time is an update
 
    // Global log ang preference
@@ -48,8 +48,8 @@ public class Main extends Application {
 
    // Main method. No need to check java version because min version is compile target.
    public static void main( String[] args ) {
-      launch( args );
-   }
+         launch( args );
+      }
 
    @Override public void start( Stage stage ) throws Exception {
       final SceneMain sceneMain = new SceneMain( this );
