@@ -321,7 +321,7 @@ public class Controller {
       return runTask( () -> {
          setPriority( Thread.NORM_PRIORITY );
          if ( categories.stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
-            runAndCheckLogin( "Test login", crawler::randomGlossary );
+            runAndCheckLogin( "Testing login", crawler::randomGlossary );
          downloadCategory();
          downloadEntities();
          gui.stateCanExport( "Download complete, may export data" );
@@ -335,11 +335,11 @@ public class Controller {
          if ( category.total_entry.get() > 0 ) continue;
          String name = category.name.toLowerCase();
 
-         runAndGet( "Get " + name + " template", () ->
+         runAndGet( "Getting " + name + " template", () ->
             crawler.getCategoryXsl( category ) );
          Document xsl = engine.getDocument();
 
-         runAndGet( "Get " + name + " data", () ->
+         runAndGet( "Getting " + name + " data", () ->
             crawler.getCategoryData( category ) );
          Document xml = engine.getDocument();
 
@@ -500,8 +500,8 @@ public class Controller {
       runAndGet( taskName, task );
       if ( crawler.needLogin() ) {
          log.log( Level.INFO, "Requires login: {0}", engine.getLocation() );
-         runAndGet( "Open login page", crawler::openLoginPage );
-         runAndGet( "Login", () -> crawler.login( gui.getUsername(), gui.getPassword() ) );
+         runAndGet( "Opening login page", crawler::openLoginPage );
+         runAndGet( "Logging in", () -> crawler.login( gui.getUsername(), gui.getPassword() ) );
          // Post login page may contain forms (e.g. locate a store), so rerun task before check
          runAndGet( taskName, task );
          if ( crawler.needLogin() ) {
