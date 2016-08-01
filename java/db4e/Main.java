@@ -8,6 +8,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Handler;
@@ -40,7 +41,7 @@ public class Main extends Application {
 
    static String TITLE = "Compendium downloader";
    static String VERSION = "3.5.2 (development)";
-   static String UPDATE_TIME = "9999-99-99"; // Any release beyond this time is an update
+   static String UPDATE_TIME = "2016-08-01"; // Any release beyond this time is an update
 
    // Global log ang preference
    public static final Logger log = Logger.getLogger( Main.class.getName() );
@@ -92,18 +93,18 @@ public class Main extends Application {
       log.addHandler( handler );
    }
 
-   public static CompletableFuture<Boolean> checkUpdate ( boolean forceCheck ) {
+   public static CompletableFuture<Optional<Boolean>> checkUpdate ( boolean forceCheck ) {
       if ( ! forceCheck ) {
          try {
             Instant nextCheck = Instant.parse( prefs.get( "app.check_update" , Instant.now().toString() ) );
             if ( nextCheck.isAfter( Instant.now() ) ) {
                log.log( Level.INFO, "Skipping update check. Next check at {0}", nextCheck );
-               return CompletableFuture.completedFuture( false );
+               return CompletableFuture.completedFuture( Optional.empty() );
             }
          } catch ( DateTimeParseException ex ) { }
       }
 
-      CompletableFuture<Boolean> result = new CompletableFuture<>();
+      CompletableFuture<Optional<Boolean>> result = new CompletableFuture<>();
       ForkJoinPool.commonPool().execute( () -> { try {
          URL url = new URL( "https://api.github.com/repos/Sheep-y/trpg-dnd-4e-db/releases/latest" );
          log.log( Level.FINE, "Checking update from {0}", url );
@@ -113,11 +114,13 @@ public class Main extends Application {
             if ( regxCreated.group( 1 ).compareTo( lastCreated ) > 0 )
                lastCreated = regxCreated.group( 1 );
          prefs.put( "app.check_update", Instant.now().plus( 7, ChronoUnit.DAYS ).toString() );
+         if ( lastCreated.equals( "0000" ) ) throw new DateTimeParseException( "Datetime not found on github release api.", txt, 0 );
 
          log.log( Level.INFO, "Checked update. Lastest release is {0}. Current {1}", new Object[]{ lastCreated, UPDATE_TIME } );
-         result.complete( lastCreated.compareTo( UPDATE_TIME ) > 0 );
-      } catch ( IOException e ) {
+         result.complete( Optional.of( lastCreated.compareTo( UPDATE_TIME ) > 0 ) );
+      } catch ( Exception e ) {
          log.log( Level.INFO, "Cannot check update: {0}", Utils.stacktrace( e ) );
+         result.completeExceptionally( e );
       } } );
       return result;
    }

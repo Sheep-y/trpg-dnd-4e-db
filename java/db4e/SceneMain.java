@@ -225,7 +225,7 @@ public class SceneMain extends Scene {
       loader.open( tblCategory ).thenRun( () -> Platform.runLater( () -> {
          setTitle( "ver. " + Main.VERSION );
          btnLeft.requestFocus();
-         Main.checkUpdate( false ).thenAccept( this::popupUpdate );
+         checkUpdate( false );
       } ) );
    }
 
@@ -512,16 +512,31 @@ public class SceneMain extends Scene {
    }
 
    private void btnCheckUpdate_click ( ActionEvent evt ) {
-      btnCheckUpdate.setDisable( true );
-      Main.checkUpdate( true ).thenAccept( this::popupUpdate );
+      checkUpdate( true );
    }
 
-   private void popupUpdate ( Boolean hasUpdate ) {
-      if ( hasUpdate ) runFX( () -> {
-         if ( new Alert( Alert.AlertType.INFORMATION, "Update available. Open download page?", ButtonType.YES, ButtonType.CLOSE ).showAndWait().get().equals( ButtonType.YES ) )
-            Main.doUpdate();
+   private void checkUpdate ( boolean forced ) {
+      btnCheckUpdate.setText( "Checking update" );
+      btnCheckUpdate.setDisable( true );
+      Main.checkUpdate( forced ).thenAccept( ( hasUpdate ) ->
+         runFX( () -> {
+            if ( ! hasUpdate.isPresent() ) {
+               btnCheckUpdate.setText( "Check update" );
+            } else if ( hasUpdate.get() ) {
+               if ( new Alert( Alert.AlertType.INFORMATION, "Update available. Open download page?", ButtonType.YES, ButtonType.CLOSE ).showAndWait().get().equals( ButtonType.YES ) )
+                  Main.doUpdate();
+               btnCheckUpdate.setText( "Open update page" );
+               btnCheckUpdate.addEventHandler( ActionEvent.ACTION, ( evt ) -> Main.doUpdate() );
+            } else {
+               btnCheckUpdate.setText( "Check update (no update)" );
+            }
+            btnCheckUpdate.setDisable( false );
+         } )
+      ).exceptionally( ( ex ) -> {
+         btnCheckUpdate.setText( "Check update (error)" );
          btnCheckUpdate.setDisable( false );
-      });
+         return null;
+      } );
    }
 
    public boolean isDebugging () { return chkDebug.isSelected(); };
