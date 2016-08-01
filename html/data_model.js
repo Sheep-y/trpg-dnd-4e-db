@@ -48,18 +48,20 @@ od.data = {
    "load_catalog" : function data_load_catalog ( ondone, onerror ) { od.reader.read_catalog( ondone, onerror ); },
 
    "load_all_index" : function data_load_all_index ( ondone ) {
-      var lat = new _.Latch( this.list().length+1, ondone );
+      var countdown = this.list().length;
       var cats = this.category;
-      for ( var cat in cats ) cats[cat].load_index( lat.count_down_function() );
-      lat.count_down();
+      for ( var cat in cats ) cats[cat].load_index( function data_load_all_index_countdown () {
+         if ( --countdown === 0 ) ondone();
+      });
    },
 
    "load_all_listing" : function data_load_all_listing ( ondone ) {
-      var lat = new _.Latch( this.list().length+1, ondone );
+      var countdown = this.list().length;
       var cats = this.category;
-      for ( var cat in cats ) cats[cat].load_listing( lat.count_down_function() );
-      lat.count_down();
-   },
+      for ( var cat in cats ) cats[cat].load_listing( function data_load_all_index_countdown () {
+         if ( --countdown === 0 ) ondone();
+      });
+   }
 };
 
 od.data.Category = function Category ( name ) {

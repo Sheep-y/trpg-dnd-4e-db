@@ -59,11 +59,6 @@ _.l.set( 'data', {
 });
 
 _.l.set( 'error', {
-   'updating_data' : '更新 %2 的 %1 時發生錯誤 (%3)',
-
-   // 'no_cross_origin' : 'Cross Origin' // TODO: implement proper cross origin alert
-   'ajax_error' : '無法載入 %2 的 %1 的內容。',
-
    'inconsistent_category' : "分類'%1'數據有錯誤(%2)。請重新匯出此數據庫。"
 });
 
