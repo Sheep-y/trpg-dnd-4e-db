@@ -35,7 +35,7 @@ class Exporter {
    void writeCategory ( String target, Category category, ProgressState state ) throws IOException {
       if ( category.total_entry.get() + category.exported_entry_deviation.get() <= 0 ) return;
       StringBuilder buffer = new StringBuilder( 1024 );
-      File catPath = new File( target + "/" + category.id + "/" );
+      File catPath = new File( target + "/" + category.id.toLowerCase() + "/" );
       catPath.mkdir();
       int exported = 0;
 

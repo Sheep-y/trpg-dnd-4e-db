@@ -43,6 +43,16 @@ od.data = {
       return result;
    },
 
+   "category_name_of" : function data_category_name_of ( id ) {
+      var cat = id.split( /\d/, 2 )[0];
+      switch ( cat ) {
+         case 'associate': return 'companion';
+         case 'skill'    : return 'glossary';
+         case 'terrain'  : return 'trap';
+      }
+      return cat.toLowerCase();
+   },
+
    "list" : function data_list () { return Object.keys( this.category ); },
 
    "load_catalog" : function data_load_catalog ( ondone, onerror ) { od.reader.read_catalog( ondone, onerror ); },
@@ -78,7 +88,6 @@ od.data.Category.prototype = {
    "name": "",
    "count": 0,
    "raw_list": [],     // e.g. [ ["sampleId001","Sample",["1+",1,3],["Multiple","Git","Csv"]], ... ]
-
    "columns": [], // e.g. [ "Name","SourceBook","Level", ... ]
    "list" : [],   // e.g. [ {ID:"sampleId001", SourceBook": { "text":"Multiple", "set": ["Git","Csv"] }, ... ]
    "index": {},   // e.g. { "sampleId001":"Sample Data 1 Published in ...", ... }

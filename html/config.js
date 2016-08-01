@@ -1,4 +1,4 @@
-/*  
+/*
  * config.js
  *
  * System Configurations. Most are not configurable during runtime.
@@ -13,11 +13,11 @@ od.config = {
       "catalog" :
          function config_url () { return od.config.data_read_path + '/catalog.js'; },
       "listing" :
-         function config_url ( category ) { return od.config.data_read_path + '/' + category + '/_listing.js'; },
+         function config_url ( category ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/_listing.js'; },
       "index" :
-         function config_url ( category ) { return od.config.data_read_path + '/' + category + '/_index.js'; },
+         function config_url ( category ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/_index.js'; },
       "data" :
-         function config_url ( category, id ) { return od.config.data_read_path + '/' + category + '/' + od.config.id( id ) + '.js'; }
+         function config_url ( category, id ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/' + od.config.id( id ) + '.js'; }
    },
    "id" : function config_id ( id ) {
       return id.replace( /\.aspx\?id=|\W+/g, '' );
@@ -30,8 +30,8 @@ od.config = {
       if ( ! data ) return 0;
       switch ( data.toLowerCase() ) {
          case 'heroic' : return 1;
-         case 'paragon': return 11;
-         case 'epic'   : return 21;
+         case 'paragon': return 10.5;
+         case 'epic'   : return 20.5;
       }
       return +data.replace( /\D+/g, '' );
    },
@@ -63,5 +63,5 @@ od.config = {
       "Terrain",
       "Trap",
         "#LightGrey" // Default for remaining categories undefined here
-   ],
+   ]
 };
