@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +24,7 @@ public abstract class Convertor {
 
    protected static final Logger log = Main.log;
    protected static final Map<String, AtomicInteger> corrected = new HashMap<>();
+   public static AtomicBoolean stop = new AtomicBoolean();
 
    protected final Category category;
    protected static final Map<String,Category> categories = new HashMap<>( 18, 1.0f );
@@ -84,20 +88,30 @@ public abstract class Convertor {
       }
    }
 
-   public void convert ( ProgressState state ) {
-      if ( category.meta == null )
-         category.meta = category.fields;
-      initialise();
-      final List<Entry> entries = getExportEntries();
-      for ( Entry entry : entries ) {
-         if ( entry.content == null ) throw new IllegalStateException( entry.name + " (" + category.name + ") has no content" );
-         convertEntry( entry );
-         state.addOne();
-      }
-      if ( category.sorted == null ) {
-         category.sorted = entries.toArray( new Entry[ entries.size() ] );
-         Arrays.sort( category.sorted, this::sortEntity );
-      }
+   public CompletableFuture<Void> convert ( ProgressState state, Executor pool ) {
+      final CompletableFuture<Void> result = new CompletableFuture();
+      pool.execute( () -> { try {
+         if ( stop.get() ) throw new InterruptedException();
+         log.log( Level.FINE, "Converting {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
+         if ( category.meta == null )
+            category.meta = category.fields;
+         initialise();
+         final List<Entry> entries = getExportEntries();
+         for ( Entry entry : entries ) {
+            if ( entry.content == null ) throw new IllegalStateException( entry.name + " (" + category.name + ") has no content" );
+            convertEntry( entry );
+            if ( stop.get() ) throw new InterruptedException();
+            state.addOne();
+         }
+         if ( category.sorted == null ) {
+            category.sorted = entries.toArray( new Entry[ entries.size() ] );
+            Arrays.sort( category.sorted, this::sortEntity );
+         }
+         result.complete( null );
+      } catch ( Exception e ) {
+         result.completeExceptionally( e );
+      } } );
+      return result;
    }
 
    protected void initialise()  { }

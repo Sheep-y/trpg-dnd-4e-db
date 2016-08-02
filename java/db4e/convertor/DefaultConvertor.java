@@ -154,10 +154,13 @@ public class DefaultConvertor extends Convertor {
                if ( book.equals( "Class Compendium" ) ) continue; // Never published
                if ( book.contains( " Magazine " ) )
                   abbr = book.replace( "gon Magazine ", "" ).replace( "geon Magazine ", "" );
-               else {
-                  books.put( book, book );
-                  log.log( Level.FINE, "Source without abbrivation: {0} ({1})", new Object[]{ book, entry.shortid } );
-                  abbr = book;
+               else synchronized ( book ) {
+                  abbr = books.get( book );
+                  if ( abbr == null ) {
+                     books.put( book, book );
+                     log.log( Level.FINE, "Source without abbrivation: {0} ({1})", new Object[]{ book, entry.shortid } );
+                     abbr = book;
+                  }
                }
             }
             if ( sourceBook.length() > 0 ) sourceBook.append( ", " );

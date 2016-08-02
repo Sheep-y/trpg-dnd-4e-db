@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
@@ -451,15 +452,22 @@ public class Controller {
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
    }
 
-   private void convertDataForExport () {
+   private void convertDataForExport () throws InterruptedException, ExecutionException {
       checkStop( "Converting" );
       state.done = 0;
       state.update();
-      for ( Category category : categories ) {
-         log.log( Level.FINE, "Converting {0}", category.id );
-         Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
-         if ( convertor != null )
-            convertor.convert( state );
+      try {
+         Convertor.stop.set( false );
+         List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
+         for ( Category category : categories ) {
+            Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
+            if ( convertor != null )
+               tasks.add( convertor.convert( state, threadPool ) );
+         }
+         CompletableFuture.allOf( tasks.toArray( new CompletableFuture[ tasks.size() ] ) ).get();
+      } catch ( Exception e ) {
+         Convertor.stop.set( true );
+         throw e;
       }
    }
 
