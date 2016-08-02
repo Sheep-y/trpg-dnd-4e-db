@@ -118,7 +118,7 @@ public abstract class Convertor {
     */
    protected void convertEntry ( Entry entry ) {
       entry.display_name = entry.name.replace( "’", "'" );
-      entry.shortid = entry.id.replace( ".aspx?id=", "" );
+      entry.shortid = entry.id.replace( ".aspx?id=", "" ).toLowerCase();
       copyMeta( entry );
       entry.data = normaliseData( entry.content );
       String fixApplied = correctEntry( entry );

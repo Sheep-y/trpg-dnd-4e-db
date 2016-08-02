@@ -300,7 +300,7 @@ od.action.list = {
       // Find category and id and trigger navigation
       var cat = od.action.list.category;
       if ( ! cat ) cat = od.data.get( e.getAttribute( 'data-category' ) );
-      var id = od.config.id( e.getAttribute('data-id') );
+      var id = e.getAttribute('data-id');
       od.gui.go( "view=" + encodeURIComponent( cat.name + '.' +  id ) );
    },
 

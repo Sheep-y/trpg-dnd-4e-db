@@ -17,10 +17,7 @@ od.config = {
       "index" :
          function config_url ( category ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/_index.js'; },
       "data" :
-         function config_url ( category, id ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/' + od.config.id( id ) + '.js'; }
-   },
-   "id" : function config_id ( id ) {
-      return id.replace( /\.aspx\?id=|\W+/g, '' );
+         function config_url ( category, id ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/' + id + '.js'; }
    },
    "display_columns" : function  config_display_columns ( cols ) {
       if ( typeof( cols ) === 'string' ) return cols.substr( cols.length - 4 ) !== 'Sort';

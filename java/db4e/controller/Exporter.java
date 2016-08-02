@@ -44,7 +44,7 @@ class Exporter {
               ) {
 
          // List header
-         buffer.append( "od.reader.jsonp_data_listing(20130616," );
+         buffer.append( "od.reader.jsonp_data_listing(20130703," );
          str( buffer, category.id ).append( ",[\"ID\",\"Name\"," );
          for ( String header : category.meta )
             str( buffer, header ).append( ',' );
@@ -58,22 +58,22 @@ class Exporter {
          for ( Entry entry : category.sorted ) {
             if ( ! "null".equals( entry.shortid ) ) {
                // Add to listing
-               str( buffer.append( '[' ), entry.id ).append( ',' );
+               str( buffer.append( '[' ), entry.shortid ).append( ',' );
                str( buffer, entry.display_name ).append( ',' );
                for ( Object field : entry.meta )
                   str( buffer, field.toString() ).append( ',' );
                write( "],", listing, buffer );
 
                // Add to full text
-               str( buffer, entry.id ).append( ':' );
+               str( buffer, entry.shortid ).append( ':' );
                str( buffer, entry.fulltext );
                write( ",", index, buffer );
 
                // Write actual content
                try ( OutputStreamWriter item = openStream( catPath + "/" + entry.shortid + ".js" ) ) {
-                  buffer.append( "od.reader.jsonp_data(20130330," );
+                  buffer.append( "od.reader.jsonp_data(20130703," );
                   str( buffer, category.id ).append( ',' );
-                  str( buffer, entry.id ).append( ',' );
+                  str( buffer, entry.shortid ).append( ',' );
                   str( buffer, entry.data ).append( ',' );
                   write( ")", item, buffer );
                }
