@@ -171,7 +171,8 @@ public class Controller {
       synchronized ( categories ) {
          categories.clear();
       }
-      state.done = state.total = 0;
+      state.reset();
+      state.total = 0;
       hasReset = true;
 
       threadPool.execute( () -> { try {
@@ -280,7 +281,7 @@ public class Controller {
       final boolean downloadIncomplete = categories.stream().anyMatch( e -> e.downloaded_entry.get() <= 0 );
       if ( downloadIncomplete ) {
          gui.stateCanDownload( "Ready to download" );
-         if ( state.done <= 0 && ! hasReset && gui.getUsername().isEmpty() && gui.getPassword().isEmpty() )
+         if ( state.done.get() <= 0 && ! hasReset && gui.getUsername().isEmpty() && gui.getPassword().isEmpty() )
             gui.selectTab( "help" );
       } else
          gui.stateCanExport( "Ready to export" );
@@ -364,7 +365,7 @@ public class Controller {
 
    private void downloadEntities () throws Exception {
       Instant[] pastFinishTime = new Instant[ 64 ]; // Past 64 finish time
-      int remainingCount = state.total - state.done, second;
+      int remainingCount = state.total - state.done.get(), second;
       for ( Category category : categories ) {
          for ( Entry entry : category.entries ) {
             if ( ! entry.contentDownloaded ) {
@@ -410,7 +411,7 @@ public class Controller {
       gui.setTitle( "Export" );
       gui.stateRunning();
       gui.setProgress( -1.0 );
-      state.done = 0;
+      state.reset();
       log.log( Level.CONFIG, "Export target: {0}", target );
       return runTask( () -> {
          // Export process is mainly IO limited. Not wasting time to make it multi-thread.
@@ -436,14 +437,7 @@ public class Controller {
          Convertor.afterConvert();
 
          checkStop( "Writing data" );
-         state.done = 0;
-         state.update();
-         for ( Category category : categories ) {
-            if ( category.meta != null ) {
-               log.log( Level.FINE, "Writing {0}", category.id );
-               exporter.writeCategory( root, category, state );
-            }
-         }
+         exportData( root );
 
          checkStop( "Writing viewer" );
          exporter.writeViewer( target );
@@ -454,10 +448,10 @@ public class Controller {
 
    private void convertDataForExport () throws InterruptedException, ExecutionException {
       checkStop( "Converting" );
-      state.done = 0;
+      state.reset();
       state.update();
       try {
-         Convertor.stop.set( false );
+         Convertor.stop = false;
          List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
          for ( Category category : categories ) {
             Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
@@ -466,7 +460,24 @@ public class Controller {
          }
          CompletableFuture.allOf( tasks.toArray( new CompletableFuture[ tasks.size() ] ) ).get();
       } catch ( Exception e ) {
-         Convertor.stop.set( true );
+         Convertor.stop = true;
+         throw e;
+      }
+   }
+
+   private void exportData ( String root ) throws Exception {
+      state.reset();
+      state.update();
+      try {
+         Exporter.stop = false;
+         List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
+         for ( Category category : categories ) {
+            log.log( Level.FINE, "Writing {0}", category.id );
+            tasks.add( exporter.writeCategory( root, category, state, threadPool ) );
+         }
+         CompletableFuture.allOf( tasks.toArray( new CompletableFuture[ tasks.size() ] ) ).get();
+      } catch ( Exception e ) {
+         Exporter.stop = true;
          throw e;
       }
    }

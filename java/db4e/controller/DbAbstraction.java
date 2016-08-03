@@ -144,7 +144,8 @@ class DbAbstraction {
    }
 
    private void loadEntryIndex ( List<Category> categories, ProgressState state ) throws SqlJetException {
-      int downCount = state.done = 0;
+      int downCount = 0;
+      state.reset();
 
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
@@ -181,7 +182,7 @@ class DbAbstraction {
       } finally {
          db.commit();
       }
-      state.done = downCount;
+      state.done.set( downCount );
    }
 
    synchronized void loadEntityContent ( List<Category> categories, ProgressState state ) throws SqlJetException {
