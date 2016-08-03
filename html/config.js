@@ -18,9 +18,10 @@ od.config = {
          function config_url ( category ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/_index.js'; },
       "data" :
          function config_url ( category, id ) {
-            var matches = id.match( /([a-z]+).*?(\d{1,2})/ );
+            var matches = id.match( /^([a-z]+).*?(\d{1,2})$/ );
             if ( ! matches ) matches = [ , id, '' ];
-            return od.config.data_read_path + '/' + category.toLowerCase() + '/' + matches[1] + matches[2] + '.js';
+            else matches[2] = ~~matches[2]; // Remove leading 0
+            return od.config.data_read_path + '/' + category.toLowerCase() + '/' + matches[1] + '-' + matches[2] + '.js';
          }
    },
    "display_columns" : function  config_display_columns ( cols ) {
