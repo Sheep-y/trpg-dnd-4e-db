@@ -49,8 +49,9 @@ public class Main extends Application {
 
    // Main method. No need to check java version because min version is compile target.
    public static void main( String[] args ) {
-         launch( args );
-      }
+      log.setLevel( Level.CONFIG );
+      launch( args );
+   }
 
    @Override public void start( Stage stage ) throws Exception {
       final SceneMain sceneMain = new SceneMain( this );

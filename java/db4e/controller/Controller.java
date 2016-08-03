@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -566,13 +565,16 @@ public class Controller {
    private void forEachCategory ( FunctionExcept<Category, CompletableFuture<Void>> task, AtomicBoolean stop ) throws Exception {
       state.reset();
       state.update();
+      log.log( Level.CONFIG, "Running category export in {0} threads.", threadPool.getParallelism() );
       try {
          stop.set( false );
          List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
-         for ( Category category : categories ) {
+         categories.stream().sorted( (a,b) -> b.getExportCount() - a.getExportCount() ).forEachOrdered( ( category ) -> { try {
             CompletableFuture<Void> future = task.apply( category );
             if ( future != null ) tasks.add( future );
-         }
+         } catch ( Exception e ) {
+            throw new RuntimeException( e );
+         } } );
          CompletableFuture.allOf( tasks.toArray( new CompletableFuture[ tasks.size() ] ) ).get();
       } catch ( Exception e ) {
          stop.set( true );
