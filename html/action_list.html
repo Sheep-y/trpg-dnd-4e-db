@@ -604,8 +604,8 @@ od.action.list = {
 
             var cat_name = line._category.name, id = line[ idField ];
             html += '<tr data-id="' + _.escHtml( id ) + '">';
-            var cells = '';
-            for ( var j = 1 ; j < cl ; j++ ) { // Note: Very intensive loop.
+            var cells = '<td><a href="?view=' + id + '">' + line.Name + '</a>';
+            for ( var j = 2 ; j < cl ; j++ ) { // Note: Very intensive loop.
                var d = line[ col[ j ] ] || '';
                cells += '<td>' + ( d.text ? d.text : d );
             }
