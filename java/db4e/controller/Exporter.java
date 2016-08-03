@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.ResourceUtils;
@@ -22,7 +23,7 @@ class Exporter {
 
 //   private static final Logger log = Main.log;
 
-   public static volatile boolean stop = false;
+   public static AtomicBoolean stop = new AtomicBoolean();
 
    void writeCatalog ( String target, List<Category> categories ) throws IOException {
       StringBuilder buffer = new StringBuilder( 300 );
@@ -45,7 +46,7 @@ class Exporter {
       final CompletableFuture<Void> result = new CompletableFuture();
 
       pool.execute( () -> { try { synchronized( category ) {
-         if ( stop ) throw new InterruptedException();
+         if ( stop.get() ) throw new InterruptedException();
          
          StringBuilder buffer = new StringBuilder( 1024 );
          File catPath = new File( target + "/" + category.id.toLowerCase() + "/" );
@@ -101,7 +102,7 @@ class Exporter {
                   write( ",", writers[grp], buffer );
                   ++exported;
                }
-               if ( stop ) throw new InterruptedException();
+               if ( stop.get() ) throw new InterruptedException();
                state.addOne();
             }
 

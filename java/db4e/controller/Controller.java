@@ -22,9 +22,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -433,6 +435,8 @@ public class Controller {
 
          checkStop( "Loading content" );
          dal.loadEntityContent( categories, state );
+
+         checkStop( "Converting" );
          convertDataForExport();
          Convertor.afterConvert();
 
@@ -446,40 +450,20 @@ public class Controller {
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
    }
 
-   private void convertDataForExport () throws InterruptedException, ExecutionException {
-      checkStop( "Converting" );
-      state.reset();
-      state.update();
-      try {
-         Convertor.stop = false;
-         List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
-         for ( Category category : categories ) {
+   private void convertDataForExport () throws Exception {
+      forEachCategory( ( category ) -> {
             Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
             if ( convertor != null )
-               tasks.add( convertor.convert( state, threadPool ) );
-         }
-         CompletableFuture.allOf( tasks.toArray( new CompletableFuture[ tasks.size() ] ) ).get();
-      } catch ( Exception e ) {
-         Convertor.stop = true;
-         throw e;
-      }
+               return convertor.convert( state, threadPool );
+            return null;
+         }, Convertor.stop );
    }
 
    private void exportData ( String root ) throws Exception {
-      state.reset();
-      state.update();
-      try {
-         Exporter.stop = false;
-         List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
-         for ( Category category : categories ) {
-            log.log( Level.FINE, "Writing {0}", category.id );
-            tasks.add( exporter.writeCategory( root, category, state, threadPool ) );
-         }
-         CompletableFuture.allOf( tasks.toArray( new CompletableFuture[ tasks.size() ] ) ).get();
-      } catch ( Exception e ) {
-         Exporter.stop = true;
-         throw e;
-      }
+      forEachCategory( ( category ) -> {
+         log.log( Level.FINE, "Writing {0}", category.id );
+         return exporter.writeCategory( root, category, state, threadPool );
+      }, Exporter.stop );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -579,10 +563,34 @@ public class Controller {
       } while ( true );
    }
 
+   private void forEachCategory ( FunctionExcept<Category, CompletableFuture<Void>> task, AtomicBoolean stop ) throws Exception {
+      state.reset();
+      state.update();
+      try {
+         stop.set( false );
+         List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
+         for ( Category category : categories ) {
+            CompletableFuture<Void> future = task.apply( category );
+            if ( future != null ) tasks.add( future );
+         }
+         CompletableFuture.allOf( tasks.toArray( new CompletableFuture[ tasks.size() ] ) ).get();
+      } catch ( Exception e ) {
+         stop.set( true );
+         throw e;
+      }
+   }
+
    /**
     * Same as Runnable, but throws Exception.
     */
    private static interface RunExcept {
       void run ( ) throws Exception;
+   }
+
+   /**
+    * Same as Consumer, but throws Exception.
+    */
+   private static interface FunctionExcept<T,R> {
+      R apply ( T t ) throws Exception;
    }
 }
