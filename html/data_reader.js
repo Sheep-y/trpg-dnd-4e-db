@@ -104,9 +104,14 @@ od.reader = {
    },
 
    jsonp_data: function reader_jsonp_data( version, category, id, data ) {
-      if ( version < 20130703 )
+      return _.alert( _.l( 'error.old_format' ) ); // Old unbatched data
+   },
+
+   jsonp_batch_data: function reader_jsonp_batch_data( version, category, data ) {
+      if ( version < 20160803 )
          return _.alert( _.l( 'error.old_format' ) );
       var cat = od.data.get(category);
-      cat.data[id] = data;
+      for ( var id in data )
+         cat.data[id] = data[id];
    }
 };

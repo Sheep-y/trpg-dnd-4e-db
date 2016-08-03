@@ -12,8 +12,11 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import sheepy.util.ResourceUtils;
 
 class Exporter {
@@ -31,6 +34,8 @@ class Exporter {
          write( "})", writer, buffer );
       }
    }
+
+   Matcher regxIdGroup = Pattern.compile( "/([a-z]+).*?(\\d{1,2})/" ).matcher( "" );
 
    void writeCategory ( String target, Category category, ProgressState state ) throws IOException {
       if ( category.total_entry.get() + category.exported_entry_deviation.get() <= 0 ) return;
@@ -55,31 +60,43 @@ class Exporter {
          str( buffer, category.id );
          write( ",{", index, buffer );
 
-         for ( Entry entry : category.sorted ) {
-            if ( ! "null".equals( entry.shortid ) ) {
-               // Add to listing
-               str( buffer.append( '[' ), entry.shortid ).append( ',' );
-               str( buffer, entry.display_name ).append( ',' );
-               for ( Object field : entry.meta )
-                  str( buffer, field.toString() ).append( ',' );
-               write( "],", listing, buffer );
+         OutputStreamWriter[] writers = new OutputStreamWriter[ 100 ];
 
-               // Add to full text
-               str( buffer, entry.shortid ).append( ':' );
-               str( buffer, entry.fulltext );
-               write( ",", index, buffer );
+         try {
+            for ( Entry entry : category.sorted ) {
+               if ( ! "null".equals( entry.shortid ) ) {
+                  // Add to listing
+                  str( buffer.append( '[' ), entry.shortid ).append( ',' );
+                  str( buffer, entry.display_name ).append( ',' );
+                  for ( Object field : entry.meta )
+                     str( buffer, field.toString() ).append( ',' );
+                  write( "],", listing, buffer );
 
-               // Write actual content
-               try ( OutputStreamWriter item = openStream( catPath + "/" + entry.shortid + ".js" ) ) {
-                  buffer.append( "od.reader.jsonp_data(20130703," );
-                  str( buffer, category.id ).append( ',' );
-                  str( buffer, entry.shortid ).append( ',' );
+                  // Add to full text
+                  str( buffer, entry.shortid ).append( ':' );
+                  str( buffer, entry.fulltext );
+                  write( ",", index, buffer );
+
+                  // Group content
+                  if ( ! regxIdGroup.reset( entry.shortid ).find() )
+                     throw new IllegalStateException( "Invalid id " + entry.shortid );
+                  int grp = Integer.parseUnsignedInt( regxIdGroup.group( 2 ) );
+                  if ( writers[ grp ] == null ) {
+                     writers[ grp ] = openStream( catPath + "/" + regxIdGroup.group( 1 ) + grp + ".js" );
+                     buffer.append( "od.reader.jsonp_batch_data(20160803," );
+                     str( buffer, category.id ).append( ',' );
+                     write( "{", writers[grp], buffer );
+                  }
+                  str( buffer, entry.shortid ).append( ':' );
                   str( buffer, entry.data ).append( ',' );
-                  write( ")", item, buffer );
+                  ++exported;
                }
-               ++exported;
+               state.addOne();
             }
-            state.addOne();
+         } finally {
+            buffer.setLength( 0 );
+            for ( OutputStreamWriter writer :writers )
+               write( "})", writer, buffer );
          }
 
          listing.write( "])" );

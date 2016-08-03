@@ -17,7 +17,11 @@ od.config = {
       "index" :
          function config_url ( category ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/_index.js'; },
       "data" :
-         function config_url ( category, id ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/' + id + '.js'; }
+         function config_url ( category, id ) {
+            var matches = id.match( /([a-z]+).*?(\d{1,2})/ );
+            if ( ! matches ) matches = [ , id, '' ];
+            return od.config.data_read_path + '/' + category.toLowerCase() + '/' + matches[1] + matches[2] + '.js';
+         }
    },
    "display_columns" : function  config_display_columns ( cols ) {
       if ( typeof( cols ) === 'string' ) return cols.substr( cols.length - 4 ) !== 'Sort';
