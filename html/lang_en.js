@@ -9,9 +9,9 @@ _.l.setLocale( 'en' );
 
 _.l.set( 'data', {
    'category' : {
-      'EpicDestiny' : 'Epic Destiny',
-      'ParagonPath' : 'Paragon Path',
-      'Trap'        : 'Trap / Terrain'
+      'epicdestiny' : 'Epic Destiny',
+      'paragonpath' : 'Paragon Path',
+      'trap'        : 'Trap / Terrain'
    },
    'field' : {
       "_CatName" : "Category",

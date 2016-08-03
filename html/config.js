@@ -18,10 +18,9 @@ od.config = {
          function config_url ( category ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/_index.js'; },
       "data" :
          function config_url ( category, id ) {
-            var matches = id.match( /^([a-z]+).*?(\d{1,2})$/ );
-            if ( ! matches ) matches = [ , id, '' ];
-            else matches[2] = ~~matches[2]; // Remove leading 0
-            return od.config.data_read_path + '/' + category.toLowerCase() + '/' + matches[1] + '-' + matches[2] + '.js';
+            var matches = id.match( /(\d{1,2})$/ ) || [];
+            matches[1] = ~~matches[1]; // Removes leading 0
+            return od.config.data_read_path + '/' + category.toLowerCase() + '/data' + matches[1] + '.js';
          }
    },
    "display_columns" : function  config_display_columns ( cols ) {
@@ -41,29 +40,29 @@ od.config = {
    "category_order" : [
         "#LightGray",
       "{All}",
-      "Glossary",
+      "glossary",
         "#LightBlue",
-      "Race",
-      "Background",
-      "Theme",
+      "race",
+      "background",
+      "theme",
         "#Gold",
-      "Class",
-      "ParagonPath",
-      "EpicDestiny",
+      "class",
+      "paragonpath",
+      "epicdestiny",
         "#Coral",
-      "Power",
-      "Feat",
-      "Item",
-      "Ritual",
+      "power",
+      "feat",
+      "item",
+      "ritual",
         "#LightPink",
-      "Companion",
-      "Deity",
-      "Poison",
+      "companion",
+      "deity",
+      "poison",
         "#LightGreen",
-      "Disease",
-      "Monster",
-      "Terrain",
-      "Trap",
+      "disease",
+      "monster",
+      "terrain",
+      "trap",
         "#LightGrey" // Default for remaining categories undefined here
    ]
 };

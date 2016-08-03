@@ -301,7 +301,7 @@ od.action.list = {
       var cat = od.action.list.category;
       if ( ! cat ) cat = od.data.get( e.getAttribute( 'data-category' ) );
       var id = e.getAttribute('data-id');
-      od.gui.go( "view=" + encodeURIComponent( cat.name + '.' +  id ) );
+      od.gui.go( "view=" + encodeURIComponent( id ) );
    },
 
    'set_search_category' : function act_list_set_search_category ( cat ) {
@@ -603,9 +603,7 @@ od.action.list = {
             if ( ! line ) continue;
 
             var cat_name = line._category.name, id = line[ idField ];
-            html += '<tr data-id="' + _.escHtml( id ) + '"';
-            if ( ! action.category ) html += ' data-category="' + _.escHtml( cat_name ) + '"';
-            html += '>';
+            html += '<tr data-id="' + _.escHtml( id ) + '">';
             var cells = '';
             for ( var j = 1 ; j < cl ; j++ ) { // Note: Very intensive loop.
                var d = line[ col[ j ] ] || '';
@@ -613,7 +611,7 @@ od.action.list = {
             }
             html += gui.highlight( cells );
          }
-         od.action.view.siblings = data.map( function( e ) { return e._category.name + '.' + e.ID });
+         od.action.view.siblings = data.map( function( e ) { return e.ID });
       }
 
       action.update_paging();

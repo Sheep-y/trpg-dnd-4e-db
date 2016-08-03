@@ -31,7 +31,7 @@ class Exporter {
          buffer.append( "od.reader.jsonp_catalog(20130616,{" );
          for ( Category category : categories ) {
             if ( category.getExportCount() > 0 )
-               str( buffer, category.id ).append( ':' ).append( category.getExportCount() ).append( ',' );
+               str( buffer, category.id.toLowerCase() ).append( ':' ).append( category.getExportCount() ).append( ',' );
          }
          write( "})", writer, buffer );
       }
@@ -47,9 +47,10 @@ class Exporter {
 
       pool.execute( () -> { try { synchronized( category ) {
          if ( stop.get() ) throw new InterruptedException();
+         String cat_id = category.id.toLowerCase();
          
          StringBuilder buffer = new StringBuilder( 1024 );
-         File catPath = new File( target + "/" + category.id.toLowerCase() + "/" );
+         File catPath = new File( target + "/" + cat_id + "/" );
          catPath.mkdir();
          int exported = 0;
          OutputStreamWriter[] writers = new OutputStreamWriter[ 100 ];
@@ -61,14 +62,14 @@ class Exporter {
 
             // List header
             buffer.append( "od.reader.jsonp_data_listing(20130703," );
-            str( buffer, category.id ).append( ",[\"ID\",\"Name\"," );
+            str( buffer, cat_id ).append( ",[\"ID\",\"Name\"," );
             for ( String header : category.meta )
                str( buffer, header ).append( ',' );
             write( "],[", listing, buffer );
 
             // Index header
             buffer.append( "od.reader.jsonp_data_index(20130616," );
-            str( buffer, category.id );
+            str( buffer, cat_id );
             write( ",{", index, buffer );
 
             for ( Entry entry : category.sorted ) {
@@ -92,9 +93,9 @@ class Exporter {
 
                   // Write content
                   if ( writers[ grp ] == null ) {
-                     writers[ grp ] = openStream( catPath + "/" + regxIdGroup.group( 1 ) + "-" + grp + ".js" );
+                     writers[ grp ] = openStream( catPath + "/data" + grp + ".js" );
                      buffer.append( "od.reader.jsonp_batch_data(20160803," );
-                     str( buffer, category.id );
+                     str( buffer, cat_id );
                      write( ",{", writers[grp], buffer );
                   }
                   str( buffer, entry.shortid ).append( ':' );

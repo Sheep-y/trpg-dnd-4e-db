@@ -48,12 +48,10 @@ od.action.view = {
       var id = od.gui.act_id, action = od.action.view;
       var idList = id.substr( 'view='.length ).split( ',' );
       action.clear();
-      idList.forEach( function act_view_show_each ( id, i ) {
+      idList.forEach( function act_view_show_each ( id ) {
          // Parse id
-         id = id.match( /^([^.]+?)\.(.+)$/ ) || ['','',''];
-         var cat = od.data.create( id[ 1 ] );
-         id = id[ 2 ];
-         if ( ! cat || ! id ) return;
+         _.info( "Parsing " + id );
+         var cat = od.data.create( od.data.category_name_of( id ) );
          _.info( "Display " + cat.name + "." + id );
          // Create div
          var div = _.create( 'div' );

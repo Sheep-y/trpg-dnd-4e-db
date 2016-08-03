@@ -99,7 +99,7 @@ od.data.Category.prototype = {
     * @returns {_L8.data_Cat_unload}
     */
    "getTitle" : function data_Cat_getTitle() {
-      return _.l( 'data.category.' + this.name, this.name );
+      return _.l( 'data.category.' + this.name, this.name.charAt(0).toUpperCase() + this.name.slice(1) );
    },
 
    "load_listing" : function data_Cat_load_listing ( ondone, onerror ) {
