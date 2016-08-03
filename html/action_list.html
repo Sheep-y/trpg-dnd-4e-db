@@ -289,9 +289,7 @@ od.action.list = {
     * @param {Event} evt Event object.
     */
    'table_click' : function act_list_table_click ( evt ) {
-      // If user clicked on check box, ignore.
-      if ( ! evt || evt.target.tagName === 'INPUT' ) return;
-
+      _.noDef( evt );
       // Find the row that user clicked.
       var e = evt.target;
       while ( e && e.tagName !== 'TR' ) e = e.parentNode;

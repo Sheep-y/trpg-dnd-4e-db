@@ -267,50 +267,6 @@ _.map = function _map ( data, field ) {
       return Array.prototype.map.apply( data, _.mapper.apply( null, _.ary( arguments, 1 ) ) );
 };
 
-/**
- * Flatten and returns a new array.
- *
- * Self-referencing array will be referencd in the new array,
- * but the reference will stay the same and no longer self-referencing.
- *
- * @param {*} stack Source array, will not be modified.
- * @returns {*} Flattened array, or elem if it is not an Array
- */
-_.flatten = function _flatten ( stack /*, ary */ ) {
-   var result = [], ary;
-   if ( arguments.length <= 1 ) {
-      ary = stack;
-      if ( ! Array.isArray( ary ) || ary.length <= 0 ) return ary;
-      stack = [];
-   } else {
-      ary = arguments[ 1 ]; // Recursion call, ary is new array to be added.
-   }
-   stack.push( ary );
-   for ( var i in ary ) {
-      var e = ary[ i ];
-      if ( Array.isArray( e ) ) {
-         if ( e.length <= 0 ) continue;
-         if ( stack.indexOf( e ) >= 0 ) result.push( e );
-         else result = result.concat( _flatten( stack, e ) );
-      } else result.push( e );
-   }
-   stack.pop();
-   return result;
-};
-
-/**
- * Remove duplicates from an array.
- *
- * @param {Array} ary Source array, will not be modified.
- * @returns {Array} A new array without duplicates.
- */
-_.unique = function _unique ( ary ) {
-   if ( ! Array.isArray( ary ) ) return ary;
-   return ary.filter( function _unique_each ( e, i ) {
-      return ary.indexOf( e ) === i;
-   } );
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Text Helpers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -572,19 +528,6 @@ _.is = {
    },
 
    /**
-    * Detect whether browser has ActiveX. Works with IE 11.
-    * @returns {boolean} True if ActiveX is enabled, false otherwise.
-    */
-   activeX : function _is_activeX () {
-      var result = false;
-      try {
-         result = !! new ActiveXObject( 'htmlfile' ); // IE 11 need actual new to not report undefined
-      } catch ( ignored ) {}
-      _.is.activeX = function () { return result; };
-      return result;
-   },
-
-   /**
     * Retuan true if given value is a literal value (instead of an object)
     * @param {*} val Value to check.
     * @returns {(undefined|null|boolean)} True if value is boolean, number, or string. Undefined or null if input is one of them.  False otherwise.
@@ -604,26 +547,6 @@ _.is = {
       if ( val === undefined || val === null ) return val;
       var type = typeof( val );
       return type === 'object' || type === 'function';
-   },
-
-   /**
-    * Return true if input is 'true', 'on', 'yes', '1'.
-    * Return false if 'false', 'off', 'no', '0'.
-    * Return null otherwise.
-    *
-    * @param {(string|boolean|number)} val Value to check.
-    * @returns {(boolean|null)} True, false, or null.
-    */
-   yes : function _is_yes ( val ) {
-      var type = typeof( val );
-      if ( type === 'string' ) {
-         val = val.trim().toLowerCase();
-         if ( [ 'true', 'on', 'yes', '1' ].indexOf( val ) >= 0 ) return true;
-         else if ( [ 'false', 'off', 'no', '0' ].indexOf( val ) >= 0 ) return false;
-      } else {
-         if ( type === 'boolean' || type === 'number' ) return val ? true : false;
-      }
-      return null;
    }
 };
 
@@ -855,27 +778,6 @@ _.si = function _si ( val, decimal ) {
    }
 };
 
-/**
- * Count the number of half width of a string.
- * CJK characters and symbols are often full width, double the width of latin characters and symbols which are half width.
- *
- * @param {string} src Text to calculate width of.
- * @returns {integer}  Character width.
- */
-_.halfwidth = function _halfwidth( src ) {
-   // A copy of PHP's mb_strwidth: http://www.php.net/manual/en/function.mb-strwidth.php
-   var result = 0;
-   for ( var i = 0, l = src.length ; i < l ; i++ ) {
-      var code = src.charCodeAt( i );
-      if ( code < 0x19 ) continue;
-      else if ( code < 0x1FF ) result += 1;
-      else if ( code < 0xFF60 ) result += 2;
-      else if ( code < 0xFF9F ) result += 1;
-      else result += 2;
-   }
-   return result;
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object helpers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -889,18 +791,6 @@ _.halfwidth = function _halfwidth( src ) {
 _.proto = function _proto ( e ) {
    if ( e === null || e === undefined || ! _.is.object( e ) ) return e;
    return Object.getPrototypeOf( e );
-};
-
-/**
- * If subject is null or is exactly same as prototype, create a new object from the prototype.
- *
- * @param {Object|null|undefined} subject Subject to control creation.
- * @param {Object} prototype Prototype of result if new object need to be created.
- * @returns {Object|null|undefined} Prototype of e, or null|undefined if e is null|undefined.
- */
-_.newIfSame = function _newIfSame ( subject, prototype ) {
-   if ( subject === undefined || subject === null ) subject = prototype;
-   return subject !== prototype ? subject : Object.create( prototype );
 };
 
 /**
@@ -999,23 +889,6 @@ _.prop = function _prop ( ary, obj, flag ) {
    }
    _.forEach( ary, setter );
    return ary;
-};
-
-/**
- * Remove properities from an object. Will not touch its prototype.
- *
- * @param {Object} target Target object, will have its properties removed.
- * @param {*} prop Array like property list, or an object with properties.
- * @returns {Object} Curtailed target object
- */
-_.curtail = function _curtail( target, prop ) {
-   if ( prop.length !== undefined ) prop = _.ary( prop );
-   else prop = Object.keys( prop );
-   for ( var i in prop ) {
-      var e = prop[ i ];
-      if ( target.hasOwnProperty( e ) ) delete target[ e ];
-   }
-   return target;
 };
 
 /**
