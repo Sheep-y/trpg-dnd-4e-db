@@ -420,7 +420,7 @@ public class Controller {
          try {
             exporter.testViewerExists();
          } catch ( IOException ex ) {
-            throw new FileNotFoundException( "No viewer. Run ant make." );
+            throw new FileNotFoundException( "No viewer. Run ant make-viewer." );
          }
 
          setPriority( Thread.MIN_PRIORITY );

@@ -21,16 +21,15 @@ public class FieldSortConvertor extends DefaultConvertor {
       return super.sortEntity( a, b );
    }
 
-   @Override protected String correctEntry(Entry entry) {
+   @Override protected void correctEntry(Entry entry) {
       switch ( category.id ) {
       case "Glossary":
          if ( entry.shortid.startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
             if ( entry.data.contains( "<p class=flavor><b></b></p><p class=flavor>" ) ) {
                entry.data = entry.data.replace( "<p class=flavor><b></b></p><p class=flavor>", "<h3>IMPROVISING WITH "+entry.name.toUpperCase()+"</h3><p class=flavor>" );
-               return "missing subtitle";
+               corrections.add( "missing subtitle" );
             }
          }
       }
-      return null;
    }
 }

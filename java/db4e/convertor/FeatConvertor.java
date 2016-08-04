@@ -65,20 +65,22 @@ public class FeatConvertor extends DefaultConvertor {
       return super.sortEntity( a, b );
    }
 
-   @Override protected String correctEntry ( Entry entry ) {
+   @Override protected void correctEntry ( Entry entry ) {
       switch ( entry.shortid ) {
          case "feat1111": // Bane's Tactics
             entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
-            return "basic attack correction";
+            corrections.add( "fix basic attack" );
+            break;
 
          case "feat2254": // Traveler's Celerity
             entry.data = entry.data.replace( "11th-level, ", "11th level, " );
-            return "consistency";
+            corrections.add( "consistency" );
+            break;
 
          case "feat3667": // Powerful Lure
             entry.data = entry.data.replace( "Level 11, ", "11th level, " );
-            return "consistency";
+            corrections.add( "consistency" );
+            break;
       }
-      return null;
    }
 }

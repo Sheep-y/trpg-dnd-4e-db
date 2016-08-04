@@ -6,9 +6,11 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,10 +26,12 @@ import java.util.stream.Collectors;
 public abstract class Convertor {
 
    protected static final Logger log = Main.log;
-   protected static final Map<String, AtomicInteger> corrected = new HashMap<>();
    public static AtomicBoolean stop = new AtomicBoolean();
+   private static final Map<String, AtomicInteger> fixCount = new HashMap<>();
+   private static final Set<String> fixedEntry = new HashSet<>();
 
    protected final Category category;
+   protected final Set<String> corrections = new HashSet<>();
 
    /**
     * Called before doing any export.
@@ -37,9 +41,6 @@ public abstract class Convertor {
     */
    public static void beforeConvert ( List<Category> categories, List<Category> exportCategories ) {
       if ( exportCategories.size() > 0 ) return;
-      synchronized( corrected ) {
-         corrected.clear();
-      }
       synchronized ( categories ) {
          Map<String,Category> map = new HashMap<>( 18, 1.0f );
          exportCategories.clear();
@@ -61,7 +62,7 @@ public abstract class Convertor {
                         if ( entry.content.contains( "<b>Consumable: </b>Assassin poison" ) ) {
                            i.remove();
                            map.get( "Poison" ).entries.add( entry );
-                           corrected( entry, "recatogarise" );
+                           // Correction handled by correctEntry
                         }
                      }
                      break;
@@ -86,10 +87,12 @@ public abstract class Convertor {
    }
 
    public static void afterConvert () {
-      synchronized( corrected ) {
+      synchronized( fixCount ) {
          log.log( Level.INFO, "Corrected {0} entries: \n{1}", new Object[]{
-            corrected.values().stream().mapToInt( e -> e.get() ).sum(),
-            corrected.entrySet().stream().map( e -> e.getKey() + " = " + e.getValue().get() ).collect( Collectors.joining( "\n" ) ) } );
+            fixedEntry.size(),
+            fixCount.entrySet().stream()
+               .sorted( (a,b) -> b.getValue().get() - a.getValue().get() )
+               .map( e -> e.getKey() + " = " + e.getValue().get() ).collect( Collectors.joining( "\n" ) ) } );
       }
    }
 
@@ -133,9 +136,14 @@ public abstract class Convertor {
          final List<Entry> entries = category.entries;
          for ( Entry entry : entries ) {
             if ( entry.fulltext == null ) {
-               if ( entry.content == null ) throw new IllegalStateException( "No content: " + entry.id + " " + entry.name );
                convertEntry( entry );
-               if ( entry.fulltext == null ) throw new IllegalStateException( "No converted data: " + entry.name + " " + category.name );
+               if ( ! corrections.isEmpty() ) {
+                  for ( String fix : corrections )
+                     corrected( entry, fix );
+                  if ( corrections.size() > 1 )
+                     corrected( entry, "multiple fix " + corrections.size() + " (bookkeep)" );
+                  corrections.clear();
+               }
             }
             if ( stop.get() ) throw new InterruptedException();
             state.addOne();
@@ -168,18 +176,18 @@ public abstract class Convertor {
       entry.shortid = entry.id.replace( ".aspx?id=", "" ).toLowerCase();
       copyMeta( entry );
       entry.data = normaliseData( entry.content );
-      String fixApplied = correctEntry( entry );
-      if ( fixApplied != null ) corrected(entry, fixApplied);
+      correctEntry( entry );
       parseSourceBook( entry );
       entry.fulltext = textData( entry.data );
       // DefaultConvertor will do some checking if debug is on.
    }
 
-   private static void corrected ( Entry entry, String fixApplied ) {
-      synchronized ( corrected ) {
-         log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.name, fixApplied });
-         if ( corrected.containsKey( fixApplied ) ) corrected.get( fixApplied ).incrementAndGet();
-         else corrected.put( fixApplied, new AtomicInteger( 1 ) );
+   private static void corrected ( Entry entry, String fix ) {
+      synchronized ( fixCount ) {
+         log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.name, fix });
+         if ( fixCount.containsKey( fix ) ) fixCount.get( fix ).incrementAndGet();
+         else fixCount.put( fix, new AtomicInteger( 1 ) );
+         fixedEntry.add( entry.id );
       }
    }
 
@@ -194,7 +202,7 @@ public abstract class Convertor {
     * Entry specific data fixes. No need to call super when overriden.
     * @return The kind of fix done for this entry. Or null if already correct.
     */
-   protected abstract String correctEntry ( Entry entry );
+   protected abstract void correctEntry ( Entry entry );
 
    /**
     * Remove / convert images, unicode, and redundent whitespace

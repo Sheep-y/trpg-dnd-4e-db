@@ -20,8 +20,7 @@ public class DefaultConvertor extends Convertor {
       this.debug = debug;
    }
 
-   @Override protected String correctEntry ( Entry entry ) {
-      return null;
+   @Override protected void correctEntry ( Entry entry ) {
    }
 
    private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );

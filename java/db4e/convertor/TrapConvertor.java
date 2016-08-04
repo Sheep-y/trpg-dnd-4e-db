@@ -10,20 +10,20 @@ public class TrapConvertor extends LeveledConvertor {
       super( category, debug );
    }
 
-   @Override protected String correctEntry (Entry entry) {
+   @Override protected void correctEntry (Entry entry) {
       if ( entry.meta.length == 4 ) { // Trap
          // 7 traps in Dungeon 214-215 has level like "8 Minion" and no group role.
          String level = entry.meta[ LEVEL ].toString();
          if ( level.endsWith( "Minion" ) ) {
             entry.meta[ Arrays.asList( category.meta ).indexOf( "GroupRole" ) ] = "Minion";
             entry.meta[ LEVEL ] = level.substring( 0, level.length() - " Minion".length() );
-            return "formatting";
+            corrections.add( "formatting" );
          }
       } else {
          // Terrain; change meta to fit into Trap
          entry.meta = new Object[]{ "Terrain", entry.fields[ 0 ], entry.fields[ 1 ] };
+         // corrections.add( "recatogrise" ); // Not exactly a fix; doesn't count
       }
-      return null;
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {

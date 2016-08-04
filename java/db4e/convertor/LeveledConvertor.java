@@ -73,46 +73,60 @@ class LeveledConvertor extends DefaultConvertor {
       return super.sortEntity( a, b );
    }
 
-   @Override protected String correctEntry ( Entry entry ) {
+   @Override protected void correctEntry ( Entry entry ) {
       switch ( category.id ) {
       case  "Poison":
-         int orig_length = entry.data.length();
-         entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
+         if ( entry.data.contains( "<p>Published in" ) ) {
+            entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
+            corrections.add( "formatting" );
+         }
+
+
+         switch ( entry.shortid ) {
+         case "poison19": // Granny's Grief
+            entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
+            corrections.add( "missing published" );
+            break;
+         case "item3561": // Aboleth Slime Concentrate
+         case "item3562": // Gibbering Grind
+         case "item3563": // Grell Bile
+         case "item3564": // Umber Dust
+         case "item3565": // Heart of Mimic Powder
+         case "item3566": // Mind Flayer Tentacle Extract
+            entry.data = entry.data.replace( " (Consumable)", "" ).replace( "(Consumable, ", "(" );
+            entry.data = entry.data.replace( " ✦ (", " ✦ Consumable (" );
+            corrections.add( "missing power frequency" );
+         }
 
          // Convert from item to poison
          if ( entry.meta.length == 5 ) {
             entry.meta = new Object[]{ entry.meta[1], "", entry.meta[4] };
             entry.shortid = entry.shortid.replace( "item", "poison0" );
             entry.data = entry.data.replace( "<h1 class=mihead>", "<h1 class=poison>" );
+            corrections.add( "recategorise" );
          }
-
-         switch ( entry.shortid ) {
-         case "poison19": // Granny's Grief
-            entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
-            return "missing published";
-         }
-         return entry.data.length() == orig_length ? null : "formatting";
+         break;
 
       case "Monster":
          switch ( entry.shortid ) {
 
          case "monster2248": // Cambion Stalwart
             entry.data = entry.data.replace( "bit points", "hit points" );
-            return "typo";
+            corrections.add( "typo" );
+            break;
 
          case "monster3222": // Veln
          case "monster3931": // Demon Furor
             entry.data = entry.data.replace( "basic melee or basic ranged attack", "melee or ranged basic attack" );
-            return "basic attack correction";
+            corrections.add( "fix basic attack" );
+            break;
 
          default:
             if ( entry.data.contains( "basic melee attack") ) {
                entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
-               return "basic attack correction";
+               corrections.add( "fix basic attack" );
             }
-
-         } return null;
+         }
       }
-      return null;
    }
 }
