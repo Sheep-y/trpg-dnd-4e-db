@@ -17,7 +17,8 @@ public class ItemConvertor extends LeveledConvertor {
       return super.sortEntity( a, b );
    }
 
-   Matcher regxPowerFrequency = Pattern.compile( "✦\\s*\\(" ).matcher( "" );
+   private final Matcher regxPowerFrequency = Pattern.compile( "✦\\s*\\(" ).matcher( "" );
+   private final Matcher regxWhichIsReproduced = Pattern.compile( " \\([^)]+\\), which is reproduced below(?=.)" ).matcher( "" );
 
    @Override protected String correctEntry ( Entry entry ) {
       int orig_length = entry.data.length();
@@ -69,6 +70,11 @@ public class ItemConvertor extends LeveledConvertor {
             if ( regxPowerFrequency.reset( entry.data ).find() ) {
                entry.data = regxPowerFrequency.replaceAll( "✦ At-Will (" );
                return "missing power frequency";
+            }
+
+            if ( entry.data.contains( ", which is reproduced below." ) ) {
+               entry.data = regxWhichIsReproduced.reset( entry.data ).replaceFirst( "" );
+               return "consistency";
             }
 
             if ( entry.data.length() != orig_length )

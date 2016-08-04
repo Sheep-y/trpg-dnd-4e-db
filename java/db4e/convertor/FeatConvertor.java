@@ -73,11 +73,11 @@ public class FeatConvertor extends DefaultConvertor {
 
          case "feat2254": // Traveler's Celerity
             entry.data = entry.data.replace( "11th-level, ", "11th level, " );
-            return "formatting";
+            return "consistency";
 
          case "feat3667": // Powerful Lure
             entry.data = entry.data.replace( "Level 11, ", "11th level, " );
-            return "formatting";
+            return "consistency";
       }
       return null;
    }
