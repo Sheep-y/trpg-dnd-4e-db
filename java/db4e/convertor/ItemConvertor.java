@@ -7,12 +7,14 @@ import java.util.regex.Pattern;
 
 public class ItemConvertor extends LeveledConvertor {
 
+   private static final int CATEGORY = 0;
+
    public ItemConvertor ( Category category, boolean debug ) {
       super( category, debug ); // Sort by category
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
-      int diff = a.meta[ 0 ].toString().compareTo( b.meta[ 0 ].toString() );
+      int diff = a.meta[ CATEGORY ].toString().compareTo( b.meta[ 0 ].toString() );
       if ( diff != 0 ) return diff;
       return super.sortEntity( a, b );
    }
@@ -25,8 +27,10 @@ public class ItemConvertor extends LeveledConvertor {
       if ( ! regxPublished.reset( entry.data ).find() )
          entry.data += "<p class=publishedIn>Published in " + entry.meta[ 4 ]  + ".</p>";
 
-      if ( entry.data.contains( ">Arms Slot: <" ) && entry.data.contains( " shield" ) )
-         entry.meta[0] = "Shield";
+      if ( entry.meta[CATEGORY].equals( "Arms" ) && entry.data.contains( ">Arms Slot: <" ) && entry.data.contains( " shield" ) )
+         entry.meta[ CATEGORY ] = "Shield";
+      else if ( entry.meta[CATEGORY].equals( "Wondrous" ) && entry.name.contains( "Tattoo" ) )
+         entry.meta[ CATEGORY ] = "Tattoo";
 
       switch ( entry.shortid ) {
          case "item467": // Alchemical Failsafe
@@ -83,6 +87,8 @@ public class ItemConvertor extends LeveledConvertor {
             if ( entry.data.length() != orig_length )
                return "missing published";
       }
+      if ( entry.meta[ CATEGORY ] == "Shield" || entry.meta[ CATEGORY ] == "Tattoo" )
+         return "recategorise";
       return null;
    }
 }
