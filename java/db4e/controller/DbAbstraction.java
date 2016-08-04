@@ -138,8 +138,6 @@ class DbAbstraction {
       } finally {
          db.commit();
       }
-
-      // TODO: Backup good db.
    }
 
    private void loadEntryIndex ( List<Category> categories, ProgressState state ) throws SqlJetException {

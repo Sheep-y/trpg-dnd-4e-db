@@ -130,15 +130,24 @@ li {
             <li>
                <b>Not enough space</b> <br/>
                Check the drive where you are exporting data.
-               Depending on its file system, several hundred MB free space <a href='http://www.howtogeek.com/180369/why-is-there-a-big-difference-between-size-and-size-on-disk/'>may be required</a>.
+               Exported data is 60 MB in slze,
+               but some devices <a href='http://www.howtogeek.com/180369/why-is-there-a-big-difference-between-size-and-size-on-disk/'>may require</a> 100+ MB.
+               <br/>
+               If you have used old version (3.5.1 or before) and is overwriting older export, please delete old export first.
+               New version use a more efficient format that dramatically reduce waste space and speedup file copy.
             </li>
             <li>
-               <b>ClosedChannelException</b> <br/>
-               Only got this error once.  Simply close the downloader and re-run.
+               <b>Data is different from official compendium</b> <br/>
+               This downloader will fix known mistakes and re-catogarise some data.
+               See <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/#user-content-fixing-compendium-errors'>project homepage</a> for a summary,
+               and the in-app debug log will log each affected entry.
             </li>
             <li>
                <b>Other errors</b> <br/>
-               Many things can go wrong in the download process,
+               For export problem - like a ClosedChannelException that I ran into once -
+               try close program and re-export.<br/>
+
+               For download problem, many things can go wrong,
                such as if Wizards changed something <i>again</i>.<br/>
 
                If you enable debug tabs and restart program, you can see a detailed log,

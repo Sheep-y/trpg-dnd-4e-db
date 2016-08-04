@@ -47,12 +47,25 @@ public abstract class Convertor {
             for ( Category c : categories )
                map.put( c.id, c );
 
+            // This pre-processing does not move progress, and is not MT, and thus should be done very fast.
             for ( Category c : categories ) {
                if ( c.id.equals( "Terrain" ) ) continue;
                Category exported = new Category( c.id, c.name, c.type, c.fields );
                exportCategories.add( exported );
                exported.entries.addAll( c.entries );
                switch ( c.id ) {
+                  case "Item" :
+                     // May convert to parallel stream if this part grows too much...
+                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+                        Entry entry = i.next();
+                        if ( entry.content.contains( "<b>Consumable: </b>Assassin poison" ) ) {
+                           i.remove();
+                           map.get( "Poison" ).entries.add( entry );
+                           corrected( entry, "recatogarise" );
+                        }
+                     }
+                     break;
+
                   case "Glossary" :
                      for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
                         Entry entry = i.next();

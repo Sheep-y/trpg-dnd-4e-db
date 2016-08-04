@@ -79,6 +79,13 @@ class LeveledConvertor extends DefaultConvertor {
          int orig_length = entry.data.length();
          entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
 
+         // Convert from item to poison
+         if ( entry.meta.length == 5 ) {
+            entry.meta = new Object[]{ entry.meta[1], "", entry.meta[4] };
+            entry.shortid = entry.shortid.replace( "item", "poison0" );
+            entry.data = entry.data.replace( "<h1 class=mihead>", "<h1 class=poison>" );
+         }
+
          switch ( entry.shortid ) {
          case "poison19": // Granny's Grief
             entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );

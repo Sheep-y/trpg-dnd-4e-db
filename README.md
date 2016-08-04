@@ -27,13 +27,14 @@ This is a fan-made project and does not come with copyrighted data.
 Let's face it, the official compendium has errors.
 
 I cannot update the official compendium, but I can update this downloader's data export.
-In this version, over 370 entries has been corrected:
+In this version, over 380 entries has been corrected:
 
 * 151 items missing power frequency. (e.g. Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
 * 79 empty glossaries, delisted. (e.g. male, female, fang titan drake, etc.)
 * 67 entries without "published" record. (e.g. Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 35 entries that says "basic melee attack" instead of "melee basic attack" (or ranged). (e.g. Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 28 entries with formatting issues, such as content cut in the middle (Mirror of Deception), "published" not properly formatted (Drow Poison), putting level and group role together (Trapped Chest) etc.
+* 19 assassin poisons moved from item to poison.
 * 12 skills missing "Imporvising with (this skill)" subtitle. (Arcana, Bluff, Diplomacy, etc.)
 * 2 typos ("bit points", wrong power keyword) - I remember seeing others. Let me know!
 
