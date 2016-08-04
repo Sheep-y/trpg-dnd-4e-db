@@ -37,6 +37,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import netscape.javascript.JSException;
+import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import org.w3c.dom.Document;
 import sheepy.util.Utils;
@@ -259,6 +260,7 @@ public class Controller {
          synchronized ( categories ) {
             dal.setDb( db, categories, state );
          }
+         loadIndex();
 
       } catch ( Exception e1 ) {
 
@@ -268,6 +270,7 @@ public class Controller {
             synchronized ( categories ) {
                dal.setDb( db, categories, state );
             }
+         loadIndex();
 
          } catch ( Exception e2 ) {
             log.log( Level.SEVERE, "Cannot create tables: {0}", Utils.stacktrace( e2 ) );
@@ -287,6 +290,10 @@ public class Controller {
       } else
          gui.stateCanExport( "Ready to export" );
       state.update();
+   }
+
+   private void loadIndex() throws SqlJetException {
+      dal.loadEntryIndex( categories, state );
    }
 
    /**
@@ -565,7 +572,7 @@ public class Controller {
    private void forEachCategory ( FunctionExcept<Category, CompletableFuture<Void>> task, AtomicBoolean stop ) throws Exception {
       state.reset();
       state.update();
-      log.log( Level.CONFIG, "Running category export in {0} threads.", threadPool.getParallelism() );
+      log.log( Level.CONFIG, "Running category task in {0} threads.", threadPool.getParallelism() );
       try {
          stop.set( false );
          List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );

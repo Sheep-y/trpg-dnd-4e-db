@@ -23,16 +23,11 @@ class DbAbstraction {
 
    private static final Logger log = Main.log;
 
-   private SqlJetDb db;
-      private ISqlJetTable tblConfig;
-      private ISqlJetTable tblCategory;
-      private ISqlJetTable tblEntry;
+   private volatile SqlJetDb db;
 
-   synchronized void setDb ( SqlJetDb db, ObservableList<Category> categories, ProgressState state ) throws SqlJetException {
+   void setDb ( SqlJetDb db, ObservableList<Category> categories, ProgressState state ) throws SqlJetException {
       this.db = db;
-      tblConfig = db.getTable( "config" );
-      tblCategory = db.getTable( "category" );
-      tblEntry = db.getTable( "entry" );
+      ISqlJetTable tblConfig = db.getTable( "config" );
 
       // Check version
       log.fine( "Tables loaded. Checking data version." );
@@ -51,10 +46,9 @@ class DbAbstraction {
       log.log( Level.CONFIG, "Database version {0,number,#}, opened.", version );
 
       loadCategory( categories );
-      loadEntryIndex( categories, state );
    }
 
-   synchronized void createTables () throws SqlJetException {
+   void createTables () throws SqlJetException {
       db.beginTransaction( SqlJetTransactionMode.WRITE );
       try {
          db.createTable( "CREATE TABLE 'config' ('key' TEXT PRIMARY KEY NOT NULL, 'value' TEXT NOT NULL);" );
@@ -77,9 +71,8 @@ class DbAbstraction {
                  + " 'data' TEXT);" );
          db.createIndex( "CREATE INDEX entry_category_index ON entry(category, hasData)" );
 
-         tblConfig = db.getTable( "config" );
-         tblCategory = db.getTable( "category" );
-         tblEntry = db.getTable( "entry" );
+         ISqlJetTable tblConfig = db.getTable( "config" );
+         ISqlJetTable tblCategory = db.getTable( "category" );
 
          tblConfig.insert( "version", "20160718" );
 
@@ -115,6 +108,7 @@ class DbAbstraction {
 
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
+         ISqlJetTable tblCategory = db.getTable( "category" );
          ISqlJetCursor cursor = tblCategory.order( "category_order_index" );
          if ( ! cursor.eof() ) { synchronized ( list ) {
             do {
@@ -143,12 +137,13 @@ class DbAbstraction {
       // TODO: Backup good db.
    }
 
-   private void loadEntryIndex ( List<Category> categories, ProgressState state ) throws SqlJetException {
+   void loadEntryIndex ( List<Category> categories, ProgressState state ) throws SqlJetException {
       int downCount = 0;
       state.reset();
 
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
+         ISqlJetTable tblEntry = db.getTable( "entry" );
          ISqlJetCursor cursor = tblEntry.open();
          final int total = (int) cursor.getRowCount();
          state.total = total;
@@ -185,9 +180,10 @@ class DbAbstraction {
       state.done.set( downCount );
    }
 
-   synchronized void loadEntityContent ( List<Category> categories, ProgressState state ) throws SqlJetException {
+   void loadEntityContent ( List<Category> categories, ProgressState state ) throws SqlJetException {
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
+         ISqlJetTable tblEntry = db.getTable( "entry" );
          for ( Category category : categories ) {
             log.log( Level.FINE, "Loading {0} content", category.id );
             for ( Entry entry : category.entries ) {
@@ -206,10 +202,12 @@ class DbAbstraction {
       }
    }
 
-   synchronized void saveEntryList ( Category category, List<Entry> entries ) throws SqlJetException {
+   void saveEntryList ( Category category, List<Entry> entries ) throws SqlJetException {
       int count = entries.size();
       db.beginTransaction( SqlJetTransactionMode.WRITE );
       try {
+         ISqlJetTable tblCategory = db.getTable( "category" );
+         ISqlJetTable tblEntry = db.getTable( "entry" );
          int i = 0;
          for ( Entry entry : entries ) {
             log.log( Level.FINER, "Saving {0} - {1}", new Object[]{ entry.id, entry.name } );
@@ -243,13 +241,14 @@ class DbAbstraction {
 
    private Map<String, Object> entryUpdateMap;
 
-   synchronized void saveEntry ( Entry entry ) throws SqlJetException {
+   void saveEntry ( Entry entry ) throws SqlJetException {
       if ( entryUpdateMap == null ) {
          entryUpdateMap = new HashMap<>( 2, 1.0f );
          entryUpdateMap.put( "hasData", 1 );
       }
       db.beginTransaction( SqlJetTransactionMode.WRITE );
       try {
+         ISqlJetTable tblEntry = db.getTable( "entry" );
          ISqlJetCursor cursor = tblEntry.lookup( null, entry.id );
          if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.name + "' not in database" );
          entryUpdateMap.put( "data", entry.content );
@@ -266,7 +265,7 @@ class DbAbstraction {
    // Utils
    /////////////////////////////////////////////////////////////////////////////
 
-   private final String csvTokenPattern = "(?<=^|,)([^\"\\r\\n,]*|\"(?:\"\"|[^\"])*\")(?:,|$)";
+   private static final String csvTokenPattern = "(?<=^|,)([^\"\\r\\n,]*|\"(?:\"\"|[^\"])*\")(?:,|$)";
    private final Matcher csvToken = Pattern.compile( csvTokenPattern ).matcher( "" );
    private final List<String> csvBuffer = new ArrayList<>();
 
