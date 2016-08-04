@@ -19,6 +19,10 @@ import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import sheepy.util.JavaFX;
 
+/**
+ * Database abstraction.
+ * Note that SqlJet does not support multi-thread.
+ */
 class DbAbstraction {
 
    private static final Logger log = Main.log;
@@ -46,6 +50,7 @@ class DbAbstraction {
       log.log( Level.CONFIG, "Database version {0,number,#}, opened.", version );
 
       loadCategory( categories );
+      loadEntryIndex( categories, state );
    }
 
    void createTables () throws SqlJetException {
@@ -137,7 +142,7 @@ class DbAbstraction {
       // TODO: Backup good db.
    }
 
-   void loadEntryIndex ( List<Category> categories, ProgressState state ) throws SqlJetException {
+   private void loadEntryIndex ( List<Category> categories, ProgressState state ) throws SqlJetException {
       int downCount = 0;
       state.reset();
 
@@ -149,7 +154,7 @@ class DbAbstraction {
          state.total = total;
          cursor.close();
 
-         for ( Category category : categories ) {
+         for ( Category category : categories ) synchronized( category ) {
             int countWithData = 0, size = category.total_entry.get();
             List<Entry> list = category.entries;
             list.clear();
@@ -184,7 +189,7 @@ class DbAbstraction {
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
          ISqlJetTable tblEntry = db.getTable( "entry" );
-         for ( Category category : categories ) {
+         for ( Category category : categories ) synchronized( category ) {
             log.log( Level.FINE, "Loading {0} content", category.id );
             for ( Entry entry : category.entries ) {
                if ( entry.fields == null || entry.content == null ) {
@@ -265,7 +270,7 @@ class DbAbstraction {
    // Utils
    /////////////////////////////////////////////////////////////////////////////
 
-   private static final String csvTokenPattern = "(?<=^|,)([^\"\\r\\n,]*|\"(?:\"\"|[^\"])*\")(?:,|$)";
+   private final String csvTokenPattern = "(?<=^|,)([^\"\\r\\n,]*|\"(?:\"\"|[^\"])*\")(?:,|$)";
    private final Matcher csvToken = Pattern.compile( csvTokenPattern ).matcher( "" );
    private final List<String> csvBuffer = new ArrayList<>();
 
