@@ -30,8 +30,7 @@ class Exporter {
       try ( OutputStreamWriter writer = openStream( target + "/catalog.js" ) ) {
          buffer.append( "od.reader.jsonp_catalog(20130616,{" );
          for ( Category category : categories ) {
-            if ( category.getExportCount() > 0 )
-               str( buffer, category.id.toLowerCase() ).append( ':' ).append( category.getExportCount() ).append( ',' );
+            str( buffer, category.id.toLowerCase() ).append( ':' ).append( category.getExportCount() ).append( ',' );
          }
          write( "})", writer, buffer );
       }
@@ -39,16 +38,12 @@ class Exporter {
 
 
    CompletableFuture<Void> writeCategory ( String target, Category category, ProgressState state, Executor pool ) throws IOException {
-      synchronized ( category ) {
-         if ( category.meta == null || category.total_entry.get() + category.exported_entry_deviation.get() <= 0 )
-            return CompletableFuture.completedFuture( null );
-      }
       final CompletableFuture<Void> result = new CompletableFuture();
 
       pool.execute( () -> { try { synchronized( category ) {
          if ( stop.get() ) throw new InterruptedException();
          String cat_id = category.id.toLowerCase();
-         
+
          StringBuilder buffer = new StringBuilder( 1024 );
          File catPath = new File( target + "/" + cat_id + "/" );
          catPath.mkdir();
@@ -73,36 +68,35 @@ class Exporter {
             write( ",{", index, buffer );
 
             for ( Entry entry : category.sorted ) {
-               if ( ! "null".equals( entry.shortid ) ) {
-                  // Add to listing
-                  str( buffer.append( '[' ), entry.shortid ).append( ',' );
-                  str( buffer, entry.display_name ).append( ',' );
-                  for ( Object field : entry.meta )
-                     str( buffer, field.toString() ).append( ',' );
-                  write( "],", listing, buffer );
+               // Add to listing
+               str( buffer.append( '[' ), entry.shortid ).append( ',' );
+               str( buffer, entry.display_name ).append( ',' );
+               for ( Object field : entry.meta )
+                  str( buffer, field.toString() ).append( ',' );
+               write( "],", listing, buffer );
 
-                  // Add to full text
-                  str( buffer, entry.shortid ).append( ':' );
-                  str( buffer, entry.fulltext );
-                  write( ",", index, buffer );
+               // Add to full text
+               str( buffer, entry.shortid ).append( ':' );
+               str( buffer, entry.fulltext );
+               write( ",", index, buffer );
 
-                  // Group content
-                  if ( ! regxIdGroup.reset( entry.shortid ).find() )
-                     throw new IllegalStateException( "Invalid id " + entry.shortid );
-                  int grp = Integer.parseUnsignedInt( regxIdGroup.group( 2 ) );
+               // Group content
+               if ( ! regxIdGroup.reset( entry.shortid ).find() )
+                  throw new IllegalStateException( "Invalid id " + entry.shortid );
+               int grp = Integer.parseUnsignedInt( regxIdGroup.group( 2 ) );
 
-                  // Write content
-                  if ( writers[ grp ] == null ) {
-                     writers[ grp ] = openStream( catPath + "/data" + grp + ".js" );
-                     buffer.append( "od.reader.jsonp_batch_data(20160803," );
-                     str( buffer, cat_id );
-                     write( ",{", writers[grp], buffer );
-                  }
-                  str( buffer, entry.shortid ).append( ':' );
-                  str( buffer, entry.data );
-                  write( ",", writers[grp], buffer );
-                  ++exported;
+               // Write content
+               if ( writers[ grp ] == null ) {
+                  writers[ grp ] = openStream( catPath + "/data" + grp + ".js" );
+                  buffer.append( "od.reader.jsonp_batch_data(20160803," );
+                  str( buffer, cat_id );
+                  write( ",{", writers[grp], buffer );
                }
+               str( buffer, entry.shortid ).append( ':' );
+               str( buffer, entry.data );
+               write( ",", writers[grp], buffer );
+               ++exported;
+
                if ( stop.get() ) throw new InterruptedException();
                state.addOne();
             }

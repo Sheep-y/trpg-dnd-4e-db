@@ -2,22 +2,12 @@ package db4e.convertor;
 
 import db4e.data.Category;
 import db4e.data.Entry;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class TrapConvertor extends LeveledConvertor {
 
    public TrapConvertor ( Category category, boolean debug ) {
       super( category, debug );
-   }
-
-   @Override protected List<Entry> getExportEntries() {
-      Category terrain = categories.get( "Terrain" );
-      List<Entry> result = new ArrayList<>( category.entries.size() + terrain.total_entry.get() );
-      result.addAll( category.entries );
-      result.addAll( terrain.entries );
-      return result;
    }
 
    @Override protected String correctEntry (Entry entry) {

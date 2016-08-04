@@ -38,7 +38,6 @@ public class DefaultConvertor extends Convertor {
    @Override protected void convertEntry ( Entry entry ) {
       super.convertEntry( entry );
       if ( debug ) {
-         if ( "null".equals( entry.shortid ) ) return;
          // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
          if ( shortId.containsKey( entry.shortid ) )
             log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.id, entry.name, entry.shortid, shortId.get( entry.shortid ).name } );

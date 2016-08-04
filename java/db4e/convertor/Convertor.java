@@ -6,6 +6,7 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +28,6 @@ public abstract class Convertor {
    public static AtomicBoolean stop = new AtomicBoolean();
 
    protected final Category category;
-   protected static final Map<String,Category> categories = new HashMap<>( 18, 1.0f );
 
    /**
     * Called before doing any export.
@@ -35,19 +35,40 @@ public abstract class Convertor {
     *
     * @param categories
     */
-   public static void beforeConvert ( List<Category> categories ) {
-      synchronized ( Convertor.categories ) {
-         if ( Convertor.categories.isEmpty() ) {
-            for ( Category c : categories )
-               Convertor.categories.put( c.id, c );
-            int terrainCount = Convertor.categories.get( "Terrain" ).total_entry.get();
-            Convertor.categories.get( "Terrain" ).exported_entry_deviation.set( -terrainCount );
-            Convertor.categories.get( "Trap" ).exported_entry_deviation.set( terrainCount );
-            Convertor.categories.get( "Glossary" ).exported_entry_deviation.set( -79 );
-         }
-      }
+   public static void beforeConvert ( List<Category> categories, List<Category> exportCategories ) {
+      if ( exportCategories.size() > 0 ) return;
       synchronized( corrected ) {
          corrected.clear();
+      }
+      synchronized ( categories ) {
+         Map<String,Category> map = new HashMap<>( 18, 1.0f );
+         exportCategories.clear();
+         if ( map.isEmpty() ) {
+            for ( Category c : categories )
+               map.put( c.id, c );
+
+            for ( Category c : categories ) {
+               if ( c.id.equals( "Terrain" ) ) continue;
+               Category exported = new Category( c.id, c.name, c.type, c.fields );
+               exportCategories.add( exported );
+               exported.entries.addAll( c.entries );
+               switch ( c.id ) {
+                  case "Glossary" :
+                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+                        Entry entry = i.next();
+                        // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
+                        if ( entry.id.equals( "glossary.aspx?id=679" ) || entry.content.contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
+                           i.remove();
+                           corrected( entry, "blacklist" );
+                        }
+                     }
+                     break;
+
+                  case "Trap" :
+                     exported.entries.addAll( map.get( "Terrain" ).entries );
+               }
+            }
+         }
       }
    }
 
@@ -96,10 +117,13 @@ public abstract class Convertor {
          if ( category.meta == null )
             category.meta = category.fields;
          initialise();
-         final List<Entry> entries = getExportEntries();
+         final List<Entry> entries = category.entries;
          for ( Entry entry : entries ) {
-            if ( entry.content == null ) throw new IllegalStateException( entry.name + " (" + category.name + ") has no content" );
-            convertEntry( entry );
+            if ( entry.fulltext == null ) {
+               if ( entry.content == null ) throw new IllegalStateException( "No content: " + entry.id + " " + entry.name );
+               convertEntry( entry );
+               if ( entry.fulltext == null ) throw new IllegalStateException( "No converted data: " + entry.name + " " + category.name );
+            }
             if ( stop.get() ) throw new InterruptedException();
             state.addOne();
          }
@@ -115,10 +139,6 @@ public abstract class Convertor {
    }
 
    protected void initialise()  { }
-
-   protected List<Entry> getExportEntries() {
-      return category.entries;
-   }
 
    protected int sortEntity ( Entry a, Entry b ) {
       return a.name.compareTo( b.name );
@@ -136,15 +156,18 @@ public abstract class Convertor {
       copyMeta( entry );
       entry.data = normaliseData( entry.content );
       String fixApplied = correctEntry( entry );
-      if ( fixApplied != null ) synchronized ( corrected ) {
+      if ( fixApplied != null ) corrected(entry, fixApplied);
+      parseSourceBook( entry );
+      entry.fulltext = textData( entry.data );
+      // DefaultConvertor will do some checking if debug is on.
+   }
+
+   private static void corrected ( Entry entry, String fixApplied ) {
+      synchronized ( corrected ) {
          log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.name, fixApplied });
          if ( corrected.containsKey( fixApplied ) ) corrected.get( fixApplied ).incrementAndGet();
          else corrected.put( fixApplied, new AtomicInteger( 1 ) );
       }
-      if ( "null".equals( entry.shortid ) ) return;
-      parseSourceBook( entry );
-      entry.fulltext = textData( entry.data );
-      // DefaultConvertor will do some checking if debug is on.
    }
 
    protected void copyMeta ( Entry entry ) {

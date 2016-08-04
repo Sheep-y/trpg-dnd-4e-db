@@ -73,6 +73,7 @@ public class Controller {
    private boolean hasReset = false;
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
+   public final ObservableList<Category> exportCategories = new ObservableArrayList<>();
 
    private final SceneMain gui;
    private final ConsoleWebView browser;
@@ -427,13 +428,13 @@ public class Controller {
          log.log( Level.CONFIG, "Export root: {0}", target );
          new File( root ).mkdirs();
 
-         Convertor.beforeConvert( categories );
-
-         checkStop( "Writing main catlog" );
-         exporter.writeCatalog( root, categories );
-
          checkStop( "Loading content" );
          dal.loadEntityContent( categories, state );
+
+         checkStop( "Writing main catlog" );
+         Convertor.beforeConvert( categories, exportCategories );
+         exporter.writeCatalog( root, exportCategories );
+         state.total = exportCategories.stream().mapToInt( e -> e.getExportCount() ).sum();
 
          checkStop( "Converting" );
          convertDataForExport();
@@ -450,7 +451,7 @@ public class Controller {
    }
 
    private void convertDataForExport () throws Exception {
-      forEachCategory( ( category ) -> {
+      exportEachCategory( ( category ) -> {
             Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
             if ( convertor != null )
                return convertor.convert( state, threadPool );
@@ -459,7 +460,7 @@ public class Controller {
    }
 
    private void exportData ( String root ) throws Exception {
-      forEachCategory( ( category ) -> {
+      exportEachCategory( ( category ) -> {
          log.log( Level.FINE, "Writing {0}", category.id );
          return exporter.writeCategory( root, category, state, threadPool );
       }, Exporter.stop );
@@ -562,14 +563,14 @@ public class Controller {
       } while ( true );
    }
 
-   private void forEachCategory ( FunctionExcept<Category, CompletableFuture<Void>> task, AtomicBoolean stop ) throws Exception {
+   private void exportEachCategory ( FunctionExcept<Category, CompletableFuture<Void>> task, AtomicBoolean stop ) throws Exception {
       state.reset();
       state.update();
       log.log( Level.CONFIG, "Running category task in {0} threads.", threadPool.getParallelism() );
       try {
          stop.set( false );
          List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
-         categories.stream().sorted( (a,b) -> b.getExportCount() - a.getExportCount() ).forEachOrdered( ( category ) -> { try {
+         exportCategories.stream().sorted( (a,b) -> b.getExportCount() - a.getExportCount() ).forEachOrdered( ( category ) -> { try {
             CompletableFuture<Void> future = task.apply( category );
             if ( future != null ) tasks.add( future );
          } catch ( Exception e ) {

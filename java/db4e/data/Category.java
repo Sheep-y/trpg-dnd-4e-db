@@ -16,10 +16,6 @@ public class Category {
    public final IntegerProperty total_entry = new SimpleIntegerProperty();
    // Number of entry with downloaded content. Will increase during the download process.
    public final IntegerProperty downloaded_entry = new SimpleIntegerProperty();
-   // Negative if some in-database entries are blacklisted and won't be exported.
-   // Positive if some non-database entries are added into this category.
-   // Must be set before exporting.
-   public final IntegerProperty exported_entry_deviation = new SimpleIntegerProperty();
 
    public final String[] fields; // Name (id) of compendium fields
    public final List<Entry> entries = new ArrayList<>(); // Entry list
@@ -34,17 +30,11 @@ public class Category {
       this.fields = fields;
    }
 
-   @Override public String toString () {
-      StringBuilder str = new StringBuilder().append( id ).append( ' ' );
-      str.append( entries.size() ).append( '/' ).append( total_entry );
-      return str.toString();
-   }
-
    public String getName() { return name; }
    public IntegerProperty totalEntryProperty() { return total_entry; }
    public IntegerProperty downloadedEntryProperty() { return downloaded_entry; }
 
    public int getExportCount () {
-      return total_entry.get() + exported_entry_deviation.get();
+      return entries.size();
    }
 }
