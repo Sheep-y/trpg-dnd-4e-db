@@ -25,6 +25,9 @@ public class ItemConvertor extends LeveledConvertor {
       if ( ! regxPublished.reset( entry.data ).find() )
          entry.data += "<p class=publishedIn>Published in " + entry.meta[ 4 ]  + ".</p>";
 
+      if ( entry.data.contains( ">Arms Slot: <" ) && entry.data.contains( " shield" ) )
+         entry.meta[0] = "Shield";
+
       switch ( entry.shortid ) {
          case "item467": // Alchemical Failsafe
             entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ At-Will</h2>" );
