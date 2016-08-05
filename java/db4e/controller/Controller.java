@@ -424,7 +424,8 @@ public class Controller {
          }
 
          setPriority( Thread.MIN_PRIORITY );
-         String root = target.getPath().replaceFirst( "\\.html?$", "_files/" );
+         String base = target.getPath().replaceFirst( "\\.html?$", "" );
+         String root = base + "_files/";
          log.log( Level.CONFIG, "Export root: {0}", target );
          new File( root ).mkdirs();
 
@@ -444,7 +445,7 @@ public class Controller {
          exportData( root );
 
          checkStop( "Writing viewer" );
-         exporter.writeViewer( target );
+         exporter.writeViewer( base, target );
 
          gui.stateCanExport( "Export complete, may view data" );
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );

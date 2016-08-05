@@ -28,6 +28,7 @@ od.gui = {
    total_page: 0,
 
    init : function gui_init () {
+      _( 'link[rel="icon"]' )[0].href = od.config.data_read_path + "/res/icon.png";
       _.l.detectLocale( 'en' );
       od.gui.l10n();
       od.gui.go();

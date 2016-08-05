@@ -410,7 +410,7 @@ public class SceneMain extends Scene {
          dlgCreateView = new FileChooser();
          dlgCreateView.getExtensionFilters().addAll(
             new FileChooser.ExtensionFilter( "4e Offline Compendium", "4e_database.html" ),
-            new FileChooser.ExtensionFilter( "Any file", "*.*" ) );
+            new FileChooser.ExtensionFilter( "Any html file", "*.html" ) );
          File initialDir = new File( prefs.get( "export.dir", System.getProperty( "user.home" ) ) );
          if ( ! initialDir.exists() || ! initialDir.isDirectory() )
             initialDir = new File( System.getProperty( "user.home" ) );
@@ -418,7 +418,7 @@ public class SceneMain extends Scene {
          dlgCreateView.setInitialFileName( "4e_database.html" );
       }
       File target = dlgCreateView.showSaveDialog( getWindow() );
-      if ( target == null ) return;
+      if ( target == null || ! target.getName().toLowerCase().endsWith( ".html" ) ) return;
 
       setStatus( "Starting export" );
       loader.startExport( target ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );

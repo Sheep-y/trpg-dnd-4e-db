@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -126,14 +127,10 @@ class Exporter {
       ResourceUtils.getText( "res/4e_database.html" );
    }
 
-   void writeViewer ( File target ) throws IOException {
-      try ( FileOutputStream out = new FileOutputStream( target, false );
-            InputStream in = ResourceUtils.getStream( "res/4e_database.html" );
-              ) {
-        byte[] buffer =  new byte[ 32768 ];
-        for ( int length ; (length = in.read( buffer ) ) != -1; )
-            out.write( buffer, 0, length );
-      }
+   void writeViewer ( String root, File target ) throws IOException {
+      new File( root + "_files/res" ).mkdir();
+      copyRes( root + "_files/res/icon.png", "res/icon.png" );
+      copyRes( target.getPath(), "res/4e_database.html" );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -160,4 +157,13 @@ class Exporter {
       return in.replace( "\\", "\\\\" ).replace( "\"", "\\\"" );
    }
 
+   void copyRes ( String target, String source ) throws IOException {
+      try ( OutputStream out = new FileOutputStream( target, false );
+            InputStream in = ResourceUtils.getStream( source );
+              ) {
+         byte[] buffer =  new byte[ 32768 ];
+         for ( int length ; (length = in.read( buffer ) ) != -1; )
+            out.write( buffer, 0, length );
+      }
+   }
 }
