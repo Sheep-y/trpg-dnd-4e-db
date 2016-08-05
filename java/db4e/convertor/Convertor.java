@@ -140,7 +140,7 @@ public abstract class Convertor {
          case "Feat":
             return new FeatConvertor( category, debug );
          case "Item":
-         case "Armour":
+         case "Armor":
          case "Implement":
          case "Weapon":
             return new ItemConvertor( category, debug );
@@ -158,8 +158,7 @@ public abstract class Convertor {
       pool.execute( () -> { try { synchronized ( category ) {
          if ( stop.get() ) throw new InterruptedException();
          log.log( Level.FINE, "Converting {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
-         if ( category.meta == null )
-            category.meta = category.fields;
+         category.meta = category.fields;
          initialise();
          final List<Entry> entries = category.entries;
          for ( Entry entry : entries ) {

@@ -13,6 +13,12 @@ public class ItemConvertor extends LeveledConvertor {
       super( category, debug ); // Sort by category
    }
 
+   @Override public void initialise () {
+      if ( category.id.equals( "Item" ) )
+         category.meta = new String[]{ "Category", "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
+      super.initialise();
+   }
+
    @Override protected int sortEntity ( Entry a, Entry b ) {
       int diff = a.meta[ CATEGORY ].toString().compareTo( b.meta[ 0 ].toString() );
       if ( diff != 0 ) return diff;
@@ -21,6 +27,29 @@ public class ItemConvertor extends LeveledConvertor {
 
    private final Matcher regxPowerFrequency = Pattern.compile( "✦\\s*\\(" ).matcher( "" );
    private final Matcher regxWhichIsReproduced = Pattern.compile( " \\([^)]+\\), which is reproduced below(?=.)" ).matcher( "" );
+
+   @Override protected void convertEntry ( Entry entry ) {
+      if ( category.id.equals( "Item" ) ) {
+         String[] fields = entry.fields;
+         entry.meta = new Object[]{ fields[0], "", fields[1], fields[2], fields[3], fields[4] };
+      }
+      super.convertEntry( entry );
+      if ( ! category.id.equals( "Item" ) )
+         entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
+      // Group Items
+      switch ( entry.meta[0].toString() ) {
+         case "Arms" :
+            if ( category.id.equals( "Armor" ) )
+               entry.meta[0] = "Shield";
+            else
+               entry.meta[1] = "Bracers";
+            break;
+
+         case "Wondrous" :
+            if ( entry.name.contains( "Tattoo" ) )
+               entry.meta[1] = "Tattoo";
+      }
+   }
 
    @Override protected void correctEntry ( Entry entry ) {
       if ( ! regxPublished.reset( entry.data ).find() ) {
@@ -31,10 +60,6 @@ public class ItemConvertor extends LeveledConvertor {
       if ( entry.data.contains( ", which is reproduced below." ) ) {
          entry.data = regxWhichIsReproduced.reset( entry.data ).replaceFirst( "" );
          corrections.add( "consistency" );
-      }
-
-      if ( entry.meta[CATEGORY].equals( "Wondrous" ) && entry.name.contains( "Tattoo" ) ) {
-         entry.meta[ CATEGORY ] = "Tattoo";
       }
 
       switch ( entry.shortid ) {
@@ -79,10 +104,6 @@ public class ItemConvertor extends LeveledConvertor {
                entry.data = regxPowerFrequency.replaceAll( "✦ At-Will (" );
                corrections.add( "missing power frequency" );
             }
-      }
-
-      if ( ! category.id.equals( "Item" ) ) {
-         entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
       }
    }
 }
