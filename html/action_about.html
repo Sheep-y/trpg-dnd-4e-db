@@ -38,7 +38,6 @@
          <p class='i18n'> action.about.p_license </p>
          <p>
             <button class='i18n' onclick='od.gui.go("license")'> action.license.link_text </button>
-            <button class='i18n' onclick='od.action.about.show_source()'> action.about.a_source </button>
             <a class='button i18n' href='https://github.com/Sheep-y/trpg-dnd-4e-db'> action.about.a_github </a>
             <button class='i18n' href='mailto:your.sheepy@gmail.com' accesskey="9" > action.about.a_email </button>
          </p>
@@ -230,12 +229,6 @@ od.action.about = {
       _.l.saveLocale( lang );
       od.gui.l10n();
    },
-
-   "show_source" : function act_about_show_source () {
-      // Chrome and Mozilla series (Firefox, SeaMonkey, Web) support view-source.
-      if ( ! /\b(Gecko\/|Chrome\/)/.test( navigator.userAgent ) ) return alert( _.l( 'action.about.lbl_source_manual' ) );
-      location.href = "view-source:" + location.href;
-   }
 };
 
 od.action.license = {

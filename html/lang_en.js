@@ -79,7 +79,6 @@ _.l.set( 'action.about', {
 
    'h_license' : "License",
    'p_license' : "This script is free software and is licensed under GNU AGPL v3.<br/>This script does not collect any personally identifiable information.",
-   'a_source'  : "View Source",
    'a_github'  : "Githib Source",
    'a_email'  : "Email",
    'lbl_source_manual' : "Please right click and select 'View Source' after closing this message, since your browser does not let us do it programmatically.",
