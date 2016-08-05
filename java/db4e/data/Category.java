@@ -11,7 +11,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 public class Category {
    public final String id; // Compendium id
    public final String name; // Display name
-   public final String type; // Manually assigned category group - PC and DM.
    // Number of entry on the compendium. Either 0 (no listing) or the final count (listing done).
    public final IntegerProperty total_entry = new SimpleIntegerProperty();
    // Number of entry with downloaded content. Will increase during the download process.
@@ -23,10 +22,9 @@ public class Category {
    public String[] meta; // Transform field list for export.
    public Entry[] sorted; // Sorted entry list for export.
 
-   public Category( String id, String name, String type, String[] fields ) {
+   public Category( String id, String name, String[] fields ) {
       this.id = id;
       this.name = name;
-      this.type = type;
       this.fields = fields;
    }
 

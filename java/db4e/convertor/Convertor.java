@@ -48,10 +48,18 @@ public abstract class Convertor {
             for ( Category c : categories )
                map.put( c.id, c );
 
+            String[] itemMeta =new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
+            Category armour    = new Category( "Armor"   , "Armor"    , itemMeta );
+            Category implement = new Category( "Implement", "implement", itemMeta );
+            Category weapon    = new Category( "Weapon"   , "weapon"   , itemMeta );
+            exportCategories.add( armour );
+            exportCategories.add( implement );
+            exportCategories.add( weapon );
+
             // This pre-processing does not move progress, and is not MT, and thus should be done very fast.
             for ( Category c : categories ) {
                if ( c.id.equals( "Terrain" ) ) continue;
-               Category exported = new Category( c.id, c.name, c.type, c.fields );
+               Category exported = new Category( c.id, c.name, c.fields );
                exportCategories.add( exported );
                exported.entries.addAll( c.entries );
                switch ( c.id ) {
@@ -59,10 +67,27 @@ public abstract class Convertor {
                      // May convert to parallel stream if this part grows too much...
                      for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
                         Entry entry = i.next();
-                        if ( entry.content.contains( "<b>Consumable: </b>Assassin poison" ) ) {
-                           i.remove();
-                           map.get( "Poison" ).entries.add( entry );
-                           // Correction handled by correctEntry
+                        switch ( entry.fields[0] ) {
+                           case "Arms":
+                              if ( ! entry.content.contains( ">Arms Slot: <" ) || ! entry.content.contains( " shield" ) ) break;
+                           case "Armor":
+                              i.remove();
+                              armour.entries.add( entry );
+                              break;
+                           case "Implement":
+                              i.remove();
+                              implement.entries.add( entry );
+                              break;
+                           case "Weapon":
+                              i.remove();
+                              weapon.entries.add( entry );
+                              break;
+                           case "Wondrous":
+                              if ( entry.content.contains( "<b>Consumable: </b>Assassin poison" ) ) {
+                                 i.remove();
+                                 map.get( "Poison" ).entries.add( entry );
+                                 // Correction handled by correctEntry
+                              }
                         }
                      }
                      break;
@@ -115,6 +140,9 @@ public abstract class Convertor {
          case "Feat":
             return new FeatConvertor( category, debug );
          case "Item":
+         case "Armour":
+         case "Implement":
+         case "Weapon":
             return new ItemConvertor( category, debug );
          case "Power":
             return new PowerConvertor( category, debug );

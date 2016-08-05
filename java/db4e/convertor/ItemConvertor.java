@@ -33,9 +33,7 @@ public class ItemConvertor extends LeveledConvertor {
          corrections.add( "consistency" );
       }
 
-      if ( entry.meta[CATEGORY].equals( "Arms" ) && entry.data.contains( ">Arms Slot: <" ) && entry.data.contains( " shield" ) ) {
-         entry.meta[ CATEGORY ] = "Shield";
-      } else if ( entry.meta[CATEGORY].equals( "Wondrous" ) && entry.name.contains( "Tattoo" ) ) {
+      if ( entry.meta[CATEGORY].equals( "Wondrous" ) && entry.name.contains( "Tattoo" ) ) {
          entry.meta[ CATEGORY ] = "Tattoo";
       }
 
@@ -81,6 +79,10 @@ public class ItemConvertor extends LeveledConvertor {
                entry.data = regxPowerFrequency.replaceAll( "✦ At-Will (" );
                corrections.add( "missing power frequency" );
             }
+      }
+
+      if ( ! category.id.equals( "Item" ) ) {
+         entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
       }
    }
 }

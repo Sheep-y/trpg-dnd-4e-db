@@ -8,6 +8,7 @@ _.l.setLocale( 'zh' );
 
 _.l.set( 'data', {
    'category' : {
+      'armor' : '護甲',
       'background' : '背景',
       'class' : '職業',
       'companion' : '伙伴',
@@ -17,15 +18,16 @@ _.l.set( 'data', {
       'feat' : '專長',
       'glossary' : '詞目',
       'item' : '裝備',
+      'implement' : '法器',
       'monster' : '怪物',
       'paragonpath' : '典範',
       'poison' : '蠱毒',
       'power' : '威能',
       'race' : '種族',
       'ritual' : '法式',
-      'terrain' : '地型',
       'theme' : '主題',
-      'trap' : '陷阱 / 地型'
+      'trap' : '陷阱 / 地型',
+      'weapon' : '武器'
    },
    'field' : {
       "_CatName" : "類別",

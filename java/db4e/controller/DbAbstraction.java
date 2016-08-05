@@ -120,7 +120,6 @@ class DbAbstraction {
                Category category = new Category(
                   cursor.getString( "id" ),
                   cursor.getString( "name" ),
-                  cursor.getString( "type" ),
                   parseCsvLine( cursor.getString( "fields" ) ) );
                category.total_entry.set( (int) cursor.getInteger( "count" ) );
                list.add( category );
