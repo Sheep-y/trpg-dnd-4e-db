@@ -80,7 +80,10 @@ public abstract class Convertor {
                               break;
                            case "Weapon":
                               i.remove();
-                              weapon.entries.add( entry );
+                              if ( entry.content.contains( "<br>Superior <br>" ) )
+                                 implement.entries.add( entry );
+                              else
+                                 weapon.entries.add( entry );
                               break;
                            case "Wondrous":
                               if ( entry.content.contains( "<b>Consumable: </b>Assassin poison" ) ) {

@@ -8,20 +8,24 @@ import java.util.regex.Pattern;
 public class ItemConvertor extends LeveledConvertor {
 
    private static final int CATEGORY = 0;
+   private final boolean isGeneric;
 
    public ItemConvertor ( Category category, boolean debug ) {
       super( category, debug ); // Sort by category
+      isGeneric = category.id.equals( "Item" );
    }
 
    @Override public void initialise () {
-      if ( category.id.equals( "Item" ) )
+      if ( isGeneric )
          category.meta = new String[]{ "Category", "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
       super.initialise();
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
-      int diff = a.meta[ CATEGORY ].toString().compareTo( b.meta[ 0 ].toString() );
-      if ( diff != 0 ) return diff;
+      if ( isGeneric ) {
+         int diff = a.meta[ CATEGORY ].toString().compareTo( b.meta[ 0 ].toString() );
+         if ( diff != 0 ) return diff;
+      }
       return super.sortEntity( a, b );
    }
 
@@ -29,12 +33,12 @@ public class ItemConvertor extends LeveledConvertor {
    private final Matcher regxWhichIsReproduced = Pattern.compile( " \\([^)]+\\), which is reproduced below(?=.)" ).matcher( "" );
 
    @Override protected void convertEntry ( Entry entry ) {
-      if ( category.id.equals( "Item" ) ) {
+      if ( isGeneric ) {
          String[] fields = entry.fields;
          entry.meta = new Object[]{ fields[0], "", fields[1], fields[2], fields[3], fields[4] };
       }
       super.convertEntry( entry );
-      if ( ! category.id.equals( "Item" ) )
+      if ( ! isGeneric )
          entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
       // Group Items
       switch ( entry.meta[0].toString() ) {

@@ -290,15 +290,13 @@ od.action.list = {
     */
    'table_click' : function act_list_table_click ( evt ) {
       _.noDef( evt );
-      // Find the row that user clicked.
-      var e = evt.target;
-      while ( e && e.tagName !== 'TR' ) e = e.parentNode;
-      if ( ! e ) return;
+      var tr = _.parent( evt.target, '#act_list_pnl_list tr' );
+      if ( ! tr ) return;
 
-      // Find category and id and trigger navigation
       var cat = od.action.list.category;
-      if ( ! cat ) cat = od.data.get( e.getAttribute( 'data-category' ) );
-      var id = e.getAttribute('data-id');
+      var id = tr.getAttribute('data-id');
+      if ( ! id ) return;
+      if ( ! cat ) cat = od.data.get( od.data.category_name_of( id ) );
       od.gui.go( "view=" + encodeURIComponent( id ) );
    },
 

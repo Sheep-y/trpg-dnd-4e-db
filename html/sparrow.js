@@ -932,7 +932,7 @@ _.noDef = function _noDef ( e ) { if ( e && e.preventDefault ) e.preventDefault(
 _.parent = function _parent ( node, condition ) {
    if ( ! node ) return node;
    if ( typeof( condition ) === 'string' ) {
-      var list = _( condition );
+      var list = _.array( _( condition ) );
       condition = function ( e ) { return list.indexOf( e ) >= 0; };
    } else if ( condition === undefined )
       condition = function (){ return true; };
