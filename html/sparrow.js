@@ -289,7 +289,7 @@ _.ucfirst = function _ucfirst ( txt ) {
  * @returns {String} Converted string.
  */
 _.ucword = function _ucword ( txt ) {
-   return txt ? String(txt).split( /\b(?=[a-zA-Z])/g ).map( ns.ucfirst ).join( '' ) : txt;
+   return txt ? String(txt).split( /\b(?=[a-zA-Z])/g ).map( _.ucfirst ).join( '' ) : txt;
 };
 
 /**

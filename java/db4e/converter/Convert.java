@@ -137,7 +137,7 @@ public abstract class Convert {
                   case "item.aspx?id=128": // Von Zarovich Family Sword
                   case "item.aspx?id=152": // Nightbringer
                   case "item.aspx?id=162": // Justice's Edge
-                     moveArtifact( i, weapon, entry, "Longsword" ); break; // Holy symbol
+                     moveArtifact( i, weapon, entry, "Longsword" ); break;
                   case "item.aspx?id=158": // Wand of Orcus
                      moveArtifact( i, weapon, entry, "Mace" ); break;
                   case "item.aspx?id=126": // Sword of Kas
@@ -185,6 +185,8 @@ public abstract class Convert {
                   case "item.aspx?id=146": // Seed of Winter
                      moveArtifact( i, implement, entry, "Wand or totem" ); break;
 
+                  case "item.aspx?id=130": // Adamantine Horse of Xarn
+                     markArtifact( entry, "Companion" ); break;
                   case "item.aspx?id=110": // Figurine of Tantron
                      markArtifact( entry, "Figurine" ); break;
                   case "item.aspx?id=134": // Rash and Reckless
@@ -215,7 +217,6 @@ public abstract class Convert {
                   case "item.aspx?id=109": // The Immortal Game
                   case "item.aspx?id=112": // Wayfinder Badge
                   case "item.aspx?id=122": // Mirror of Secrets
-                  case "item.aspx?id=130": // Adamantine Horse of Xarn <<< shuold be moved to companion
                   case "item.aspx?id=133": // Emblem of Ossandrya
                   case "item.aspx?id=137": // Blood of Io
                   case "item.aspx?id=153": // Head of Vyrellis

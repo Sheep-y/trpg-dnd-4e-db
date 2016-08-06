@@ -125,9 +125,9 @@ od.data.Category.prototype = {
       var map = this.map = {};
       var list = this.list = new Array( data.length );
 
-      var catName = this.name, typeCol = 2;
-      if ( [ 'Race', 'ParagonPath', 'EpicDestiny' ].indexOf( catName ) >= 0 ) {
-            catName = catName.replace( /(?=[PD])/g, ' ' ).trim(); // Split PP/ED into two words
+      var catName = _.ucfirst( this.name ), typeCol = 2;
+      if ( [ 'Race', 'Paragonpath', 'Epicdestiny' ].indexOf( catName ) >= 0 ) {
+            catName = _.ucword( catName.replace( /(?=path$|destiny$)/, ' ' ) ); // Split PP/ED into two words
          typeCol = 0;
       }
 

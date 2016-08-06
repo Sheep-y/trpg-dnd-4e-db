@@ -34,16 +34,22 @@ public class ItemConverter extends LeveledConverter {
 
    private final Matcher regxPowerFrequency = Pattern.compile( "✦\\s*\\(" ).matcher( "" );
    private final Matcher regxWhichIsReproduced = Pattern.compile( " \\([^)]+\\), which is reproduced below(?=.)" ).matcher( "" );
+   private final Matcher regxTier = Pattern.compile( "\\b(?:Heroic|Paragon|Epic)\\b" ).matcher( "" );
 
    @Override protected void convertEntry ( Entry entry ) {
       if ( isGeneric ) {
          String[] fields = entry.fields;
-         if ( entry.meta == null )
+         if ( entry.meta == null ) // Fix level field position before sorting
             entry.meta = new Object[]{ fields[0], "", fields[1], fields[2], fields[3], fields[4] };
       }
       super.convertEntry( entry );
       if ( ! isGeneric )
          entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
+      if ( ( ! isGeneric && entry.meta[0].toString().startsWith( "Artifact" ) ) ||
+             ( isGeneric && entry.meta[1].equals( "Artifact" ) ) ) {
+         regxTier.reset( entry.data ).find();
+         entry.meta[ isGeneric ? 2 : 1 ] = regxTier.group();
+      }
       // Group Items
       switch ( entry.meta[0].toString() ) {
          case "Arms" :
@@ -81,7 +87,6 @@ public class ItemConverter extends LeveledConverter {
          if ( entry.meta[0].toString().split( ", " ).length >= 5 ) {
             entry.data = regxArmorType.replaceFirst( "<b>$1</b>: Any" );
             entry.meta[0] = "Any";
-            System.out.println( entry.name );
             corrections.add( "consistency" );
          }
 
@@ -160,7 +165,6 @@ public class ItemConverter extends LeveledConverter {
 
       if ( entry.data.contains( ", which is reproduced below." ) ) {
          entry.data = regxWhichIsReproduced.reset( entry.data ).replaceFirst( "" );
-         System.out.println( entry.name );
          corrections.add( "consistency" );
       }
 
