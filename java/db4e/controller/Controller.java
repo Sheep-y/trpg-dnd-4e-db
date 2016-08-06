@@ -132,7 +132,7 @@ public class Controller {
          if ( err != null ) {
             if ( err instanceof CompletionException && err.getCause() != null )
                err = err.getCause();
-            while ( ( err instanceof RuntimeException || err instanceof ExecutionException ) && err.getCause() != null )
+            while ( ( err.getClass() == RuntimeException.class || err instanceof ExecutionException ) && err.getCause() != null )
                err = err.getCause(); // Unwrap RuntimeException and ExecutionExceptiom
 
             if ( err instanceof InterruptedException ) {

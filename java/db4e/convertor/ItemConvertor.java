@@ -2,6 +2,7 @@ package db4e.convertor;
 
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.Utils;
@@ -42,6 +43,7 @@ public class ItemConvertor extends LeveledConvertor {
       if ( ! isGeneric )
          entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
       // Group Items
+      Matcher regxGroup = null;
       switch ( entry.meta[0].toString() ) {
          case "Arms" :
             if ( category.id.equals( "Armor" ) )
@@ -55,6 +57,17 @@ public class ItemConvertor extends LeveledConvertor {
                entry.meta[0] = Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) );
                if ( entry.meta[0].equals( "Symbol" ) ) entry.meta[0] = "Holy Symbol";
                corrections.add( "recategorise" );
+            }
+            break;
+
+         case "Implement" :
+            if ( entry.data.contains( "<b>Implement: </b>" ) ) {
+               if ( regxGroup == null )
+                  regxGroup = Pattern.compile( "<b>Implement: </b>([A-Za-z, ]+)" ).matcher( "" );
+               regxGroup.reset( entry.data ).find();
+               entry.meta[0] = regxGroup.group(1).trim();
+            } else {
+               log.log( Level.WARNING, "Implement group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
             }
             break;
 

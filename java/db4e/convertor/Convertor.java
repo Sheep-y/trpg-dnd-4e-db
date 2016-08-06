@@ -165,7 +165,7 @@ public abstract class Convertor {
          initialise();
          final List<Entry> entries = category.entries;
          for ( Entry entry : entries ) {
-            if ( entry.fulltext == null ) {
+            if ( entry.fulltext == null ) try {
                convertEntry( entry );
                if ( ! corrections.isEmpty() ) {
                   for ( String fix : corrections )
@@ -174,6 +174,8 @@ public abstract class Convertor {
                      corrected( entry, "multiple fix " + corrections.size() + " (bookkeep)" );
                   corrections.clear();
                }
+            } catch ( Exception e ) {
+               throw new UnsupportedOperationException( "Error converting " + entry.shortid, e );
             }
             if ( stop.get() ) throw new InterruptedException();
             state.addOne();
