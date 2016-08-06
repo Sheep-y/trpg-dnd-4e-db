@@ -4,6 +4,7 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import sheepy.util.Utils;
 
 public class ItemConvertor extends LeveledConvertor {
 
@@ -47,6 +48,14 @@ public class ItemConvertor extends LeveledConvertor {
                entry.meta[0] = "Shield";
             else
                entry.meta[1] = "Bracers";
+            break;
+
+         case "Weapon" :
+            if ( category.id.equals( "Implement" ) ) { // Superior implement
+               entry.meta[0] = Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) );
+               if ( entry.meta[0].equals( "Symbol" ) ) entry.meta[0] = "Holy Symbol";
+               corrections.add( "recategorise" );
+            }
             break;
 
          case "Wondrous" :

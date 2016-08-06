@@ -5,6 +5,7 @@ import db4e.data.Entry;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import sheepy.util.Utils;
 
 public class FeatConvertor extends DefaultConvertor {
 
@@ -45,7 +46,7 @@ public class FeatConvertor extends DefaultConvertor {
             text = text.replace( " class feature", "" );
             text = text.replace( "you have a spellscar", "spellscar" );
             text = text.replace( " have the ", " have " ).replace( " has the ", " has ");
-            text = Character.toUpperCase( text.charAt( 0 ) ) + text.substring( 1 );
+            text = Utils.ucfirst( text );
             entry.meta[ PREREQUISITE ] = text;
          }
 

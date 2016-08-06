@@ -27,17 +27,22 @@ This is a fan-made project and does not come with copyrighted data.
 Let's face it, the official compendium has errors.
 
 I cannot update the official compendium, but I can update this downloader's data export.
-In this version, over 395 entries has been corrected:
+In this version, over 420 entries has been corrected:
 
 * 151 items missing power frequency. (e.g. Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
-* 79 empty glossaries, delisted. (e.g. male, female, fang titan drake, etc.)
+* 79 empty glossaries, removed. (e.g. male, female, fang titan drake, etc.)
 * 67 entries without "published" record. (e.g. Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 35 entries that says "basic melee attack" instead of "melee basic attack" (or ranged). (e.g. Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
-* 26 entries with formatting issues, such as content cut in the middle (Mirror of Deception), "published" not properly formatted (Drow Poison), putting level and group role together (Trapped Chest) etc.
-* 19 assassin poisons moved from item to poison.
+* 39 entries moved to correct category:
+ * 19 Assassin's poisons moved from item to poison.
+ * 20 Superior implements moved from weapon to implement.
+* 26 entries with formatting issues, such as
+ * Content cut in the middle (e.g. Mirror of Deception),
+ * "published" not properly formatted (e.g. Drow Poison),
+ * Putting level and group role together (e.g. Trapped Chest), etc.
 * 12 skills missing "Imporvising with (this skill)" subtitle. (Arcana, Bluff, Diplomacy, etc.)
-* 10 entries with inconsistent content (e.g. Powerful Lure feat says "Level 11" instead of "11th level")
-* 2 typos ("bit points", wrong power keyword) - I remember seeing others. Let me know!
+* 10 entries with inconsistent content. (e.g. Powerful Lure feat says "Level 11" instead of "11th level")
+* 2 typos. ("bit points" of Cambion Stalwart, power keyword of Fifth Sword of Tyr)
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 

@@ -22,4 +22,7 @@ public class Utils {
       };
    }
 
+   public static String ucfirst ( String text ) {
+      return Character.toUpperCase( text.charAt( 0 ) ) + text.substring(1);
+   }
 }
