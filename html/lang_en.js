@@ -58,7 +58,7 @@ _.l.set( 'action.list', {
 
    'lbl_showing' : '%1 result(s)',
    'lbl_filter'   : 'Filter left %1 result(s) out of %2',
-   'lbl_page' : '頁數 %1/%2',
+   'lbl_page' : 'Page %1/%2',
    'lbl_no_result' : "No result"
 });
 
