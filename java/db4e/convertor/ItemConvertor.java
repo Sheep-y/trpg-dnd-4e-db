@@ -58,28 +58,8 @@ public class ItemConvertor extends LeveledConvertor {
                entry.meta[0] = Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) );
                if ( entry.meta[0].equals( "Symbol" ) ) entry.meta[0] = "Holy Symbol";
                corrections.add( "recategorise" );
-            } else if ( entry.data.contains( "<b>Damage</b>: " ) ) {
-               int groupPos = entry.data.indexOf( "<b>Group</b>: " );
-               if ( groupPos > 0 ) {
-                  String region = entry.data.substring( groupPos );
-                  List<String> grp = Utils.matchAll( Pattern.compile( "<br>([A-Za-z ]+?)(?= \\()" ).matcher( "" ), region, 1 );
-                  if ( grp.isEmpty() )
-                     log.log( Level.WARNING, "Weapon group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
-                  else
-                     entry.meta[ 0 ] = String.join( ", ", grp );
-               } else {
-                  switch ( entry.shortid ) {
-                     case "weapon3677" : // Double scimitar - secondary end
-                        entry.meta[ 0 ] = "Heavy blade";
-                        break;
-                     case "weapon3624" : case "weapon3626" : case "weapon3634" :
-                        entry.meta[ 0 ] = "Improvised";
-                        break;
-                     default:
-                        log.log( Level.WARNING, "Unknown mundane weapon: {0} {1}", new Object[]{ entry.shortid, entry.name} );
-                  }
-               }
-            }
+            } else
+               setWeaponType( entry );
             break;
 
          case "Implement" :
@@ -94,9 +74,47 @@ public class ItemConvertor extends LeveledConvertor {
             break;
 
          case "Wondrous" :
-            if ( entry.name.contains( "Tattoo" ) )
-               entry.meta[1] = "Tattoo";
+            setWondrousType( entry );
       }
+   }
+
+   private Matcher regxWeaponType = Pattern.compile( "<b>Weapon: </b>([A-Za-z, ]+)" ).matcher( "" );
+
+   private void setWeaponType ( Entry entry ) {
+      String data = entry.data;
+      // Mundane weapons with groups
+      if ( data.contains( "<b>Group</b>: " ) ) {
+         int groupPos = data.indexOf( "<b>Group</b>: " );
+         String region = data.substring( groupPos );
+         List<String> grp = Utils.matchAll( Pattern.compile( "<br>([A-Za-z ]+?)(?= \\()" ).matcher( "" ), region, 1 );
+         if ( grp.isEmpty() )
+            log.log( Level.WARNING, "Weapon group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+         else
+            entry.meta[ 0 ] = String.join( ", ", grp );
+         return;
+      }
+      // Magical weapons
+      if ( data.contains( "<b>Weapon: </b>" ) ) {
+         regxWeaponType.reset( data ).find();
+         entry.meta[0] = regxWeaponType.group( 1 );
+         return;
+      }
+      // Manual assign
+      switch ( entry.shortid ) {
+         case "weapon3677" : // Double scimitar - secondary end
+            entry.meta[ 0 ] = "Heavy blade";
+            break;
+         case "weapon3624" : case "weapon3626" : case "weapon3634" : // Improvised weapons
+            entry.meta[ 0 ] = "Improvised";
+            break;
+         default:
+            log.log( Level.WARNING, "Unknown weapon type: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+      }
+   }
+
+   private void setWondrousType ( Entry entry ) {
+      if ( entry.name.contains( "Tattoo" ) )
+         entry.meta[1] = "Tattoo";
    }
 
    @Override protected void correctEntry ( Entry entry ) {
@@ -110,45 +128,46 @@ public class ItemConvertor extends LeveledConvertor {
          corrections.add( "consistency" );
       }
 
+      String data = entry.data;
       switch ( entry.shortid ) {
          case "item467": // Alchemical Failsafe
-            entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ At-Will</h2>" );
+            entry.data = data.replaceFirst( "Power ✦ </h2>", "Power ✦ At-Will</h2>" );
             corrections.add( "missing power frequency" );
             break;
 
          case "item1007": // Dantrag's Bracers, first (arm) power is daily, second (feet) power is encounter
-            entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ Daily</h2>" );
-            entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ Encounter</h2>" );
+            entry.data = data.replaceFirst( "Power ✦ </h2>", "Power ✦ Daily</h2>" );
+            entry.data = data.replaceFirst( "Power ✦ </h2>", "Power ✦ Encounter</h2>" );
             corrections.add( "missing power frequency" );
             break;
 
          case "item1006": // Dancing Weapon
          case "item1261": // Feral Armor
          case "item2451": // Shadowfell Blade
-            entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
+            entry.data = data.replace( "basic melee attack", "melee basic attack" );
             corrections.add( "fix basic attack" );
             break;
 
          case "item1864": // Mirror of Deception
-            entry.data = entry.data.replace( " ✦ (Standard", " ✦ At-Will (Standard" );
-            entry.data = entry.data.replace( "alter</p><p class=\"mistat indent\">sound", "alter sound" );
+            entry.data = data.replace( " ✦ (Standard", " ✦ At-Will (Standard" );
+            entry.data = data.replace( "alter</p><p class=\"mistat indent\">sound", "alter sound" );
             corrections.add( "formatting" );
             break;
 
          case "item3328": // Scepter of the Chosen Tyrant
-            entry.data = entry.data.replace( "basic ranged attack", "ranged basic attack" );
+            entry.data = data.replace( "basic ranged attack", "ranged basic attack" );
             corrections.add( "fix basic attack" );
             break;
 
          case "item3415": // The Fifth Sword of Tyr
-            entry.data = entry.data.replace( "Power (Teleportation) ✦ Daily", "Power (Weapon) ✦ Daily" );
+            entry.data = data.replace( "Power (Teleportation) ✦ Daily", "Power (Weapon) ✦ Daily" );
             corrections.add( "typo" );
             break;
 
          default:
             // Add "At-Will" to the ~150 items missing a power frequency.
             // I checked each one and the exceptions are above.
-            if ( regxPowerFrequency.reset( entry.data ).find() ) {
+            if ( regxPowerFrequency.reset( data ).find() ) {
                entry.data = regxPowerFrequency.replaceAll( "✦ At-Will (" );
                corrections.add( "missing power frequency" );
             }
