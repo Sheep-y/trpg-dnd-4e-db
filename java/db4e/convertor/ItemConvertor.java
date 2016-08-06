@@ -80,6 +80,7 @@ public class ItemConvertor extends LeveledConvertor {
          if ( entry.meta[0].toString().split( ", " ).length >= 5 ) {
             entry.data = regxArmorType.replaceFirst( "<b>$1</b>: Any" );
             entry.meta[0] = "Any";
+            System.out.println( entry.name );
             corrections.add( "consistency" );
          }
 
@@ -158,6 +159,7 @@ public class ItemConvertor extends LeveledConvertor {
 
       if ( entry.data.contains( ", which is reproduced below." ) ) {
          entry.data = regxWhichIsReproduced.reset( entry.data ).replaceFirst( "" );
+         System.out.println( entry.name );
          corrections.add( "consistency" );
       }
 

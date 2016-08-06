@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Convert category and entry data for export.
  * This class contains high level skeleton code; DefaulfConvertor has fine implementations.
  */
-public abstract class Convertor {
+public abstract class Convert {
 
    protected static final Logger log = Main.log;
    public static AtomicBoolean stop = new AtomicBoolean();
@@ -199,10 +199,6 @@ public abstract class Convertor {
       }
    }
 
-   protected Convertor ( Category category ) {
-      this.category = category;
-   }
-
    public static Convertor getConvertor ( Category category, boolean debug ) {
       switch ( category.id ) {
          case "Ritual":
@@ -227,8 +223,12 @@ public abstract class Convertor {
          case "Terrain":
             return null;
          default:
-            return new DefaultConvertor( category, debug );
+            return new Convertor( category, debug );
       }
+   }
+
+   protected Convert ( Category category ) {
+      this.category = category;
    }
 
    public CompletableFuture<Void> convert ( ProgressState state, Executor pool ) {
@@ -276,12 +276,16 @@ public abstract class Convertor {
     * Apply common conversions to entry data.
     * entry.meta may be set, but other prorerties will be overwritten.
     *
-    * @param entry
+    * @param entry Entry to be converted
     */
    protected void convertEntry ( Entry entry ) {
       entry.display_name = entry.name.replace( "’", "'" );
       entry.shortid = entry.id.replace( ".aspx?id=", "" ).toLowerCase();
-      copyMeta( entry );
+      if ( entry.meta == null ) {
+         final int length = entry.fields.length;
+         entry.meta = new Object[ length ];
+         System.arraycopy( entry.fields, 0, entry.meta, 0, length );
+      }
       entry.data = normaliseData( entry.content );
       correctEntry( entry );
       parseSourceBook( entry );
@@ -289,6 +293,11 @@ public abstract class Convertor {
       // DefaultConvertor will do some checking if debug is on.
    }
 
+   /**
+    * Log correction and keep track of correction count.
+    * @param entry Fixed entry.
+    * @param fix Type of fix.
+    */
    private static void corrected ( Entry entry, String fix ) {
       synchronized ( fixCount ) {
          log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.name, fix });
@@ -298,16 +307,9 @@ public abstract class Convertor {
       }
    }
 
-   protected void copyMeta ( Entry entry ) {
-      if ( entry.meta != null ) return;
-      final int length = entry.fields.length;
-      entry.meta = new Object[ length ];
-      System.arraycopy( entry.fields, 0, entry.meta, 0, length );
-   }
-
    /**
     * Entry specific data fixes. No need to call super when overriden.
-    * @return The kind of fix done for this entry. Or null if already correct.
+    * @param entry Entry to be corrected.
     */
    protected abstract void correctEntry ( Entry entry );
 
@@ -318,6 +320,10 @@ public abstract class Convertor {
     */
    protected abstract String normaliseData ( String data );
 
+   /**
+    * Read the sourcebook meta data and convert to abbreviated form.
+    * @param entry
+    */
    protected abstract void parseSourceBook ( Entry entry );
 
    /**

@@ -11,11 +11,11 @@ import java.util.regex.Pattern;
 /**
  * Default entry handling goes here.
  */
-public class DefaultConvertor extends Convertor {
+public class Convertor extends Convert {
 
    protected final boolean debug;
 
-   public DefaultConvertor ( Category category, boolean debug ) {
+   public Convertor ( Category category, boolean debug ) {
       super( category );
       this.debug = debug;
    }

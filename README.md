@@ -40,8 +40,11 @@ In this version, over 420 entries has been corrected:
  * Content cut in the middle (e.g. Mirror of Deception),
  * "published" not properly formatted (e.g. Drow Poison),
  * Putting level and group role together (e.g. Trapped Chest), etc.
+* 14 entries with inconsistent content:
+ * 8 items that says a power is reproduced but isn't (e.g. Iron Wand, Shielding Wand etc.)
+ * 4 armors that is any type but does not say so (e.g. Winged Armor, Wall Armor etc.)
+ * 2 feats with different level format (Powerful Lure, Traveler's Celerity)
 * 12 skills missing "Imporvising with (this skill)" subtitle. (Arcana, Bluff, Diplomacy, etc.)
-* 10 entries with inconsistent content. (e.g. Powerful Lure feat says "Level 11" instead of "11th level")
 * 2 typos. ("bit points" of Cambion Stalwart, power keyword of Fifth Sword of Tyr)
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).

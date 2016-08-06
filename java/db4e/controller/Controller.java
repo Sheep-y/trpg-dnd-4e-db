@@ -2,6 +2,7 @@ package db4e.controller;
 
 import db4e.Main;
 import db4e.SceneMain;
+import db4e.convertor.Convert;
 import db4e.convertor.Convertor;
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -415,7 +416,7 @@ public class Controller {
       gui.setProgress( -1.0 );
       state.reset();
       log.log( Level.CONFIG, "Export target: {0}", target );
-      return runTask( () -> {
+      return runTask(() -> {
          // Export process is mainly IO limited. Not wasting time to make it multi-thread.
          try {
             exporter.testViewerExists();
@@ -433,13 +434,13 @@ public class Controller {
          dal.loadEntityContent( categories, state );
 
          checkStop( "Writing main catlog" );
-         Convertor.beforeConvert( categories, exportCategories );
+         Convert.beforeConvert( categories, exportCategories );
          exporter.writeCatalog( root, exportCategories );
          state.total = exportCategories.stream().mapToInt( e -> e.getExportCount() ).sum();
 
          checkStop( "Converting" );
          convertDataForExport();
-         Convertor.afterConvert();
+         Convert.afterConvert();
 
          checkStop( "Writing data" );
          exportData( root );
@@ -452,12 +453,12 @@ public class Controller {
    }
 
    private void convertDataForExport () throws Exception {
-      exportEachCategory( ( category ) -> {
-            Convertor convertor = Convertor.getConvertor( category, gui.isDebugging() );
+      exportEachCategory(( category ) -> {
+            Convertor convertor = Convert.getConvertor( category, gui.isDebugging() );
             if ( convertor != null )
                return convertor.convert( state, threadPool );
             return null;
-         }, Convertor.stop );
+         }, Convert.stop );
    }
 
    private void exportData ( String root ) throws Exception {

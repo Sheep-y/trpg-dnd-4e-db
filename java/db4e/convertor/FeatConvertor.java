@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.Utils;
 
-public class FeatConvertor extends DefaultConvertor {
+public class FeatConvertor extends Convertor {
 
    private final int TIER = 0;
    private final int PREREQUISITE = 1;

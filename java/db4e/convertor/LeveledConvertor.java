@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-class LeveledConvertor extends DefaultConvertor {
+class LeveledConvertor extends Convertor {
 
    protected int LEVEL = -1;
 
