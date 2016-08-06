@@ -44,41 +44,74 @@ public class ItemConvertor extends LeveledConvertor {
       if ( ! isGeneric )
          entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
       // Group Items
-      Matcher regxGroup = null;
       switch ( entry.meta[0].toString() ) {
          case "Arms" :
             if ( category.id.equals( "Armor" ) )
-               entry.meta[0] = "Shield";
+               setArmorType( entry );
             else
                entry.meta[1] = "Bracers";
             break;
 
-         case "Weapon" :
-            if ( category.id.equals( "Implement" ) ) { // Superior implement
-               entry.meta[0] = Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) );
-               if ( entry.meta[0].equals( "Symbol" ) ) entry.meta[0] = "Holy Symbol";
-               corrections.add( "recategorise" );
-            } else
-               setWeaponType( entry );
+         case "Armor" :
+            setArmorType( entry );
             break;
 
          case "Implement" :
-            if ( entry.data.contains( "<b>Implement: </b>" ) ) {
-               if ( regxGroup == null )
-                  regxGroup = Pattern.compile( "<b>Implement: </b>([A-Za-z, ]+)" ).matcher( "" );
-               regxGroup.reset( entry.data ).find();
-               entry.meta[0] = regxGroup.group(1).trim();
-            } else {
-               log.log( Level.WARNING, "Implement group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
-            }
+            setImplementType( entry );
+            break;
+
+         case "Weapon" :
+            if ( category.id.equals( "Implement" ) ) { // Superior implement
+               setImplementType( entry );
+            } else
+               setWeaponType( entry );
             break;
 
          case "Wondrous" :
             setWondrousType( entry );
       }
    }
+   private final Matcher regxArmorType = Pattern.compile( "<b>(Type|Armor|Arms Slot)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
 
-   private Matcher regxWeaponType = Pattern.compile( "<b>Weapon: </b>([A-Za-z, ]+)" ).matcher( "" );
+   private void setArmorType ( Entry entry ) {
+      if ( regxArmorType.reset( entry.data ).find() ) {
+         entry.meta[0] = regxArmorType.group(2).trim();
+         // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
+         if ( entry.meta[0].toString().split( ", " ).length >= 5 ) {
+            entry.data = regxArmorType.replaceFirst( "<b>$1</b>: Any" );
+            entry.meta[0] = "Any";
+            corrections.add( "consistency" );
+         }
+
+      } else
+         switch ( entry.shortid ) {
+            case "armor49": case "armor50": case "armor51": case "armor52":
+               entry.meta[0] = "Barding";
+               break;
+            default:
+               log.log( Level.WARNING, "Armor type not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+         }
+   }
+
+   private final Matcher regxImplementType = Pattern.compile( "<b>Implement: </b>([A-Za-z, ]+)" ).matcher( "" );
+
+   private void setImplementType ( Entry entry ) {
+      // Superior implements
+      if ( entry.meta[0].equals( "Weapon" ) ) {
+         entry.meta[0] = Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) );
+         if ( entry.meta[0].equals( "Symbol" ) ) entry.meta[0] = "Holy Symbol";
+         corrections.add( "recategorise" );
+
+      // Magical implements
+      } else if ( regxImplementType.reset( entry.data ).find() ) {
+         entry.meta[0] = regxImplementType.group(1).trim();
+
+      } else
+         log.log( Level.WARNING, "Implement group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+   }
+
+   private final Matcher regxWeaponType = Pattern.compile( "<b>Weapon: </b>([A-Za-z, ]+)" ).matcher( "" );
+   private final Matcher regxWeaponGroup = Pattern.compile( "<br>([A-Za-z ]+?)(?= \\()" ).matcher( "" );
 
    private void setWeaponType ( Entry entry ) {
       String data = entry.data;
@@ -86,7 +119,7 @@ public class ItemConvertor extends LeveledConvertor {
       if ( data.contains( "<b>Group</b>: " ) ) {
          int groupPos = data.indexOf( "<b>Group</b>: " );
          String region = data.substring( groupPos );
-         List<String> grp = Utils.matchAll( Pattern.compile( "<br>([A-Za-z ]+?)(?= \\()" ).matcher( "" ), region, 1 );
+         List<String> grp = Utils.matchAll( regxWeaponGroup, region, 1 );
          if ( grp.isEmpty() )
             log.log( Level.WARNING, "Weapon group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
          else
