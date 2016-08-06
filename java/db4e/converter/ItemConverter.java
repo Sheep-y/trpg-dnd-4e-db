@@ -1,4 +1,4 @@
-package db4e.convertor;
+package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -8,12 +8,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.Utils;
 
-public class ItemConvertor extends LeveledConvertor {
+public class ItemConverter extends LeveledConverter {
 
    private static final int CATEGORY = 0;
    private final boolean isGeneric;
 
-   public ItemConvertor ( Category category, boolean debug ) {
+   public ItemConverter ( Category category, boolean debug ) {
       super( category, debug ); // Sort by category
       isGeneric = category.id.equals( "Item" );
    }

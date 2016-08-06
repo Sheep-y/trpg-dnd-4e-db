@@ -1,4 +1,4 @@
-package db4e.convertor;
+package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -9,13 +9,13 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PowerConvertor extends LeveledConvertor {
+public class PowerConverter extends LeveledConverter {
 
    private final int CLASS = 0;
    private final int FREQUENCY = 2;
    private final int KEYWORDS = 4;
 
-   public PowerConvertor ( Category category, boolean debug ) {
+   public PowerConverter ( Category category, boolean debug ) {
       super( category, debug );
       category.meta = new String[]{ "ClassName", "Level", "Frequency", "Action", "Keywords", "SourceBook" };
    }

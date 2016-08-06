@@ -1,4 +1,4 @@
-package db4e.convertor;
+package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -6,11 +6,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-class LeveledConvertor extends Convertor {
+class LeveledConverter extends Converter {
 
    protected int LEVEL = -1;
 
-   protected LeveledConvertor ( Category category, boolean debug ) {
+   protected LeveledConverter ( Category category, boolean debug ) {
       super( category, debug );
    }
 

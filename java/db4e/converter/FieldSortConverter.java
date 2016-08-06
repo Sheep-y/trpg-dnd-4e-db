@@ -1,4 +1,4 @@
-package db4e.convertor;
+package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -6,11 +6,11 @@ import db4e.data.Entry;
 /**
  * Sort by a field, then by name.
  */
-public class FieldSortConvertor extends Convertor {
+public class FieldSortConverter extends Converter {
 
    private final int SORT_FIELD;
 
-   public FieldSortConvertor(Category category, int sort_field, boolean debug) {
+   public FieldSortConverter(Category category, int sort_field, boolean debug) {
       super(category, debug);
       SORT_FIELD = sort_field;
    }

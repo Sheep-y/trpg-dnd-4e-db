@@ -1,4 +1,4 @@
-package db4e.convertor;
+package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -11,11 +11,11 @@ import java.util.regex.Pattern;
 /**
  * Default entry handling goes here.
  */
-public class Convertor extends Convert {
+public class Converter extends Convert {
 
    protected final boolean debug;
 
-   public Convertor ( Category category, boolean debug ) {
+   public Converter ( Category category, boolean debug ) {
       super( category );
       this.debug = debug;
    }

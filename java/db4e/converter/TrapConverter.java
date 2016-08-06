@@ -1,12 +1,12 @@
-package db4e.convertor;
+package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.Arrays;
 
-public class TrapConvertor extends LeveledConvertor {
+public class TrapConverter extends LeveledConverter {
 
-   public TrapConvertor ( Category category, boolean debug ) {
+   public TrapConverter ( Category category, boolean debug ) {
       super( category, debug );
    }
 

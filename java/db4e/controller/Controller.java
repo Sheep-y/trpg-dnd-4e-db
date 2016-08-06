@@ -2,8 +2,8 @@ package db4e.controller;
 
 import db4e.Main;
 import db4e.SceneMain;
-import db4e.convertor.Convert;
-import db4e.convertor.Convertor;
+import db4e.converter.Convert;
+import db4e.converter.Converter;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.io.File;
@@ -454,9 +454,9 @@ public class Controller {
 
    private void convertDataForExport () throws Exception {
       exportEachCategory(( category ) -> {
-            Convertor convertor = Convert.getConvertor( category, gui.isDebugging() );
-            if ( convertor != null )
-               return convertor.convert( state, threadPool );
+            Converter converter = Convert.getConverter( category, gui.isDebugging() );
+            if ( converter != null )
+               return converter.convert( state, threadPool );
             return null;
          }, Convert.stop );
    }

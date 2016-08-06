@@ -1,4 +1,4 @@
-package db4e.convertor;
+package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -7,12 +7,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.Utils;
 
-public class FeatConvertor extends Convertor {
+public class FeatConverter extends Converter {
 
    private final int TIER = 0;
    private final int PREREQUISITE = 1;
 
-   public FeatConvertor ( Category category, boolean debug ) {
+   public FeatConverter ( Category category, boolean debug ) {
       super( category, debug );
       category.meta = new String[]{ "Tier", "Prerequisite", "SourceBook" };
    }

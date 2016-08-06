@@ -1,4 +1,4 @@
-package db4e.convertor;
+package db4e.converter;
 
 import db4e.Main;
 import db4e.controller.ProgressState;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 /**
  * Convert category and entry data for export.
- * This class contains high level skeleton code; DefaulfConvertor has fine implementations.
+ * This class contains high level skeleton code; Converter has fine implementations.
  */
 public abstract class Convert {
 
@@ -199,31 +199,31 @@ public abstract class Convert {
       }
    }
 
-   public static Convertor getConvertor ( Category category, boolean debug ) {
+   public static Converter getConverter ( Category category, boolean debug ) {
       switch ( category.id ) {
          case "Ritual":
          case "Monster":
          case "Poison":
          case "Disease":
-            return new LeveledConvertor( category, debug );
+            return new LeveledConverter( category, debug );
          case "Companion":
          case "Glossary":
-            return new FieldSortConvertor( category, 0, debug ); // Sort by first field
+            return new FieldSortConverter( category, 0, debug ); // Sort by first field
          case "Trap":
-            return new TrapConvertor( category, debug );
+            return new TrapConverter( category, debug );
          case "Feat":
-            return new FeatConvertor( category, debug );
+            return new FeatConverter( category, debug );
          case "Item":
          case "Armor":
          case "Implement":
          case "Weapon":
-            return new ItemConvertor( category, debug );
+            return new ItemConverter( category, debug );
          case "Power":
-            return new PowerConvertor( category, debug );
+            return new PowerConverter( category, debug );
          case "Terrain":
             return null;
          default:
-            return new Convertor( category, debug );
+            return new Converter( category, debug );
       }
    }
 
@@ -290,7 +290,7 @@ public abstract class Convert {
       correctEntry( entry );
       parseSourceBook( entry );
       entry.fulltext = textData( entry.data );
-      // DefaultConvertor will do some checking if debug is on.
+      // Converter will do some checking if debug is on.
    }
 
    /**
