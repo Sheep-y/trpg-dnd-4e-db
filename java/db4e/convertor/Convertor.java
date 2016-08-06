@@ -64,35 +64,7 @@ public abstract class Convertor {
                exported.entries.addAll( c.entries );
                switch ( c.id ) {
                   case "Item" :
-                     // May convert to parallel stream if this part grows too much...
-                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
-                        Entry entry = i.next();
-                        switch ( entry.fields[0] ) {
-                           case "Arms":
-                              if ( ! entry.content.contains( ">Arms Slot: <" ) || ! entry.content.contains( " shield" ) ) break;
-                           case "Armor":
-                              i.remove();
-                              armour.entries.add( entry );
-                              break;
-                           case "Implement":
-                              i.remove();
-                              implement.entries.add( entry );
-                              break;
-                           case "Weapon":
-                              i.remove();
-                              if ( entry.content.contains( "<br>Superior <br>" ) )
-                                 implement.entries.add( entry );
-                              else
-                                 weapon.entries.add( entry );
-                              break;
-                           case "Wondrous":
-                              if ( entry.content.contains( "<b>Consumable: </b>Assassin poison" ) ) {
-                                 i.remove();
-                                 map.get( "Poison" ).entries.add( entry );
-                                 // Correction handled by correctEntry
-                              }
-                        }
-                     }
+                     transferItem( exported, armour, implement, weapon, map );
                      break;
 
                   case "Glossary" :
@@ -110,6 +82,109 @@ public abstract class Convertor {
                      exported.entries.addAll( map.get( "Terrain" ).entries );
                }
             }
+         }
+      }
+   }
+
+   private static void transferItem(Category exported, Category armour, Category implement, Category weapon, Map<String, Category> map) {
+      // May convert to parallel stream if this part grows too much...
+      for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+         Entry entry = i.next();
+         switch ( entry.fields[0] ) {
+            case "Arms":
+               if ( ! entry.content.contains( ">Arms Slot: <" ) || ! entry.content.contains( " shield" ) ) break;
+               // falls through
+            case "Armor":
+               i.remove();
+               armour.entries.add( entry );
+               break;
+            case "Implement":
+               i.remove();
+               implement.entries.add( entry );
+               break;
+            case "Weapon":
+               i.remove();
+               if ( entry.content.contains( "<br>Superior <br>" ) )
+                  implement.entries.add( entry );
+               else
+                  weapon.entries.add( entry );
+               break;
+            case "Wondrous":
+               if ( entry.content.contains( "<b>Consumable: </b>Assassin poison" ) ) {
+                  i.remove();
+                  map.get( "Poison" ).entries.add( entry );
+                  // Correction handled by correctEntry
+               }
+               break;
+            case "Artifact":
+               switch ( entry.id ) {
+                  case "item.aspx?id=113": // Blue Orb of Dragonkind
+                  case "item.aspx?id=118": // Ilthuviel's Blackened Heart
+                  case "item.aspx?id=119": // Spear of Urrok the Brave
+                  case "item.aspx?id=120": // Unconquered Standard of Arkhosia
+                  case "item.aspx?id=137": // Blood of Io
+                  case "item.aspx?id=138": // Seal of the Lawbringer
+                  case "item.aspx?id=107": // Spear of the Skylord
+                  case "item.aspx?id=108": // Broken Blade of Banatruul
+                  case "item.aspx?id=110": // Figurine of Tantron
+                  case "item.aspx?id=111": // Helm of the Madman’s Blood
+                  case "item.aspx?id=109": // The Immortal Game
+                  case "item.aspx?id=112": // Wayfinder Badge
+                  case "item.aspx?id=161": // Xraunran Crown of Eyes
+                  case "item.aspx?id=163": // Crown of Whispers (Dragon 413)
+                  case "item.aspx?id=165": // Chromodactylic Loom
+                  case "item.aspx?id=145": // The Deluvian Hourglass
+                  case "item.aspx?id=146": // Seed of Winter
+                  case "item.aspx?id=147": // Arrow of Fate
+                  case "item.aspx?id=144": // The Deck of Many Things (Paragon)
+                  case "item.aspx?id=148": // Faarlung's Algorithm
+                  case "item.aspx?id=149": // Dreamheart
+                  case "item.aspx?id=150": // Heartwood Spear
+                  case "item.aspx?id=151": // Orb of Kalid-Ma
+                  case "item.aspx?id=162": // Justice's Edge
+                  case "item.aspx?id=164": // Staff of Fraz-Urb'luu
+                  case "item.aspx?id=114": // Axe of the Dwarvish Lords
+                  case "item.aspx?id=115": // The Eye of Vecna
+                  case "item.aspx?id=116": // The Hand of Vecna
+                  case "item.aspx?id=117": // The Invulnerable Coat of Arnd
+                  case "item.aspx?id=130": // Adamantine Horse of Xarn
+                  case "item.aspx?id=131": // Amulet of Passage
+                  case "item.aspx?id=132": // Cup and Talisman of Al'Akbar
+                  case "item.aspx?id=133": // Emblem of Ossandrya
+                  case "item.aspx?id=134": // Rash and Reckless
+                  case "item.aspx?id=135": // Rod of Seven Parts
+                  case "item.aspx?id=136": // Standard of Eternal Battle
+                  case "item.aspx?id=155": // Eye of the Old Gods
+                  case "item.aspx?id=156": // Audaviator
+                  case "item.aspx?id=158": // Wand of Orcus
+                  case "item.aspx?id=153": // Head of Vyrellis
+                  case "item.aspx?id=143": // The Deck of Many Things (Heroic)
+                  case "item.aspx?id=159": // Crown of Dust (First Fragment)
+                  case "item.aspx?id=100": // Book of Infinite Spells
+                  case "item.aspx?id=101": // Codex of Infinite Planes
+                  case "item.aspx?id=102": // Hammer of Thunderbolts
+                  case "item.aspx?id=103": // Jacinth of Inestimable Beauty
+                  case "item.aspx?id=105": // Shield of Prator
+                  case "item.aspx?id=104": // The Shadowstaff
+                  case "item.aspx?id=106": // Zax, Cloak of Kings
+                  case "item.aspx?id=121": // Jet Black Ioun Stone
+                  case "item.aspx?id=122": // Mirror of Secrets
+                  case "item.aspx?id=123": // Orb of Light
+                  case "item.aspx?id=124": // Silver Mask of Kas
+                  case "item.aspx?id=125": // Soul Sword
+                  case "item.aspx?id=126": // Sword of Kas
+                  case "item.aspx?id=127": // Tome of Shadow
+                  case "item.aspx?id=128": // Von Zarovich Family Sword
+                  case "item.aspx?id=129": // Whelm
+                  case "item.aspx?id=152": // Nightbringer
+                  case "item.aspx?id=154": // Skull of Sartine
+                  case "item.aspx?id=157": // The Ashen Crown
+                  case "item.aspx?id=160": // Book of Vile Darkness
+                  case "item.aspx?id=140": // Crystal of Ebon Flame
+                  case "item.aspx?id=139": // Plastron of Tziphal
+                  case "item.aspx?id=141": // Wave
+                  case "item.aspx?id=142": // Ruinblade
+               }
          }
       }
    }
