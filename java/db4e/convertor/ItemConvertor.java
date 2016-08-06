@@ -2,6 +2,7 @@ package db4e.convertor;
 
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,6 +58,27 @@ public class ItemConvertor extends LeveledConvertor {
                entry.meta[0] = Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) );
                if ( entry.meta[0].equals( "Symbol" ) ) entry.meta[0] = "Holy Symbol";
                corrections.add( "recategorise" );
+            } else if ( entry.data.contains( "<b>Damage</b>: " ) ) {
+               int groupPos = entry.data.indexOf( "<b>Group</b>: " );
+               if ( groupPos > 0 ) {
+                  String region = entry.data.substring( groupPos );
+                  List<String> grp = Utils.matchAll( Pattern.compile( "<br>([A-Za-z ]+?)(?= \\()" ).matcher( "" ), region, 1 );
+                  if ( grp.isEmpty() )
+                     log.log( Level.WARNING, "Weapon group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+                  else
+                     entry.meta[ 0 ] = String.join( ", ", grp );
+               } else {
+                  switch ( entry.shortid ) {
+                     case "weapon3677" : // Double scimitar - secondary end
+                        entry.meta[ 0 ] = "Heavy blade";
+                        break;
+                     case "weapon3624" : case "weapon3626" : case "weapon3634" :
+                        entry.meta[ 0 ] = "Improvised";
+                        break;
+                     default:
+                        log.log( Level.WARNING, "Unknown mundane weapon: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+                  }
+               }
             }
             break;
 

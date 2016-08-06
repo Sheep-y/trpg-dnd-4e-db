@@ -2,7 +2,10 @@ package sheepy.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
 
 public class Utils {
 
@@ -20,6 +23,17 @@ public class Utils {
             task.run();
          }
       };
+   }
+
+   public static List<String> matchAll ( Matcher m, String src ) {
+      return matchAll( m, src, 0 );
+   }
+
+   public static List<String> matchAll ( Matcher m, String src, int group ) {
+      List<String> result = new ArrayList<>();
+      m.reset( src );
+      while ( m.find() ) result.add( m.group( group ) );
+      return result;
    }
 
    public static String ucfirst ( String text ) {
