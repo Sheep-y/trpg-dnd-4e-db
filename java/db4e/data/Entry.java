@@ -27,4 +27,16 @@ public class Entry {
       this.fields = fields;
    }
 
+   /**
+    * Return an unconverted copy of this object
+    */
+   public Entry clone() {
+      assert( contentDownloaded );
+      Entry copy = new Entry( id, name );
+      copy.fields = this.fields;
+      copy.contentDownloaded = true;
+      copy.content = this.content;
+      return copy;
+   }
+
 }

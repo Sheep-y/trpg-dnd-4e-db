@@ -118,75 +118,124 @@ public abstract class Convert {
                break;
             case "Artifact":
                switch ( entry.id ) {
-                  case "item.aspx?id=113": // Blue Orb of Dragonkind
-                  case "item.aspx?id=118": // Ilthuviel's Blackened Heart
-                  case "item.aspx?id=119": // Spear of Urrok the Brave
-                  case "item.aspx?id=120": // Unconquered Standard of Arkhosia
-                  case "item.aspx?id=137": // Blood of Io
-                  case "item.aspx?id=138": // Seal of the Lawbringer
-                  case "item.aspx?id=107": // Spear of the Skylord
+                  case "item.aspx?id=105": // Shield of Prator
+                     moveArtifact( i, armour, entry, "Heavy shield" ); break;
+                  case "item.aspx?id=117": // The Invulnerable Coat of Arnd
+                     moveArtifact( i, armour, entry, "Chain, scale or plate" ); break;
+                  case "item.aspx?id=139": // Plastron of Tziphal
+                     moveArtifact( i, armour, entry, "Plate" ); break;
+
+                  case "item.aspx?id=114": // Axe of the Dwarvish Lords
+                     moveArtifact( i, weapon, entry, "Greataxe" ); break;
                   case "item.aspx?id=108": // Broken Blade of Banatruul
-                  case "item.aspx?id=110": // Figurine of Tantron
-                  case "item.aspx?id=111": // Helm of the Madman’s Blood
-                  case "item.aspx?id=109": // The Immortal Game
-                  case "item.aspx?id=112": // Wayfinder Badge
-                  case "item.aspx?id=161": // Xraunran Crown of Eyes
-                  case "item.aspx?id=163": // Crown of Whispers (Dragon 413)
-                  case "item.aspx?id=165": // Chromodactylic Loom
+                  case "item.aspx?id=125": // Soul Sword
+                  case "item.aspx?id=142": // Ruinblade
+                     moveArtifact( i, weapon, entry, "Greatsword" ); break;
+                  case "item.aspx?id=107": // Spear of the Skylord
+                  case "item.aspx?id=119": // Spear of Urrok the Brave
+                     moveArtifact( i, weapon, entry, "Longspear" ); break;
+                  case "item.aspx?id=128": // Von Zarovich Family Sword
+                  case "item.aspx?id=152": // Nightbringer
+                  case "item.aspx?id=162": // Justice's Edge
+                     moveArtifact( i, weapon, entry, "Longsword" ); break; // Holy symbol
+                  case "item.aspx?id=158": // Wand of Orcus
+                     moveArtifact( i, weapon, entry, "Mace" ); break;
+                  case "item.aspx?id=126": // Sword of Kas
+                     moveArtifact( i, weapon, entry, "Short sword" ); break;
+                  case "item.aspx?id=150": // Heartwood Spear
+                     moveArtifact( i, weapon, entry, "Spear" ); break;
+                  case "item.aspx?id=141": // Wave
+                     moveArtifact( i, weapon, entry, "Trident" ); break;
+                  case "item.aspx?id=102": // Hammer of Thunderbolts
+                  case "item.aspx?id=129": // Whelm
+                     moveArtifact( i, weapon, entry, "Warhammer" ); break;
+
                   case "item.aspx?id=145": // The Deluvian Hourglass
-                  case "item.aspx?id=146": // Seed of Winter
-                  case "item.aspx?id=147": // Arrow of Fate
-                  case "item.aspx?id=144": // The Deck of Many Things (Paragon)
+                     moveArtifact( i, implement, entry, null ); break;
+                  case "item.aspx?id=140": // Crystal of Ebon Flame
+                     moveArtifact( i, implement, entry, "Any" ); break;
+                  case "item.aspx?id=123": // Orb of Light
+                  case "item.aspx?id=132": // Cup and Talisman of Al'Akbar
+                  case "item.aspx?id=138": // Seal of the Lawbringer
+                     moveArtifact( i, implement, entry, "Holy Symbol" ); break;
+                  case "item.aspx?id=113": // Blue Orb of Dragonkind
+                  case "item.aspx?id=127": // Tome of Shadow
                   case "item.aspx?id=148": // Faarlung's Algorithm
                   case "item.aspx?id=149": // Dreamheart
-                  case "item.aspx?id=150": // Heartwood Spear
                   case "item.aspx?id=151": // Orb of Kalid-Ma
-                  case "item.aspx?id=162": // Justice's Edge
-                  case "item.aspx?id=164": // Staff of Fraz-Urb'luu
-                  case "item.aspx?id=114": // Axe of the Dwarvish Lords
-                  case "item.aspx?id=115": // The Eye of Vecna
-                  case "item.aspx?id=116": // The Hand of Vecna
-                  case "item.aspx?id=117": // The Invulnerable Coat of Arnd
-                  case "item.aspx?id=130": // Adamantine Horse of Xarn
-                  case "item.aspx?id=131": // Amulet of Passage
-                  case "item.aspx?id=132": // Cup and Talisman of Al'Akbar
-                  case "item.aspx?id=133": // Emblem of Ossandrya
-                  case "item.aspx?id=134": // Rash and Reckless
-                  case "item.aspx?id=135": // Rod of Seven Parts
-                  case "item.aspx?id=136": // Standard of Eternal Battle
-                  case "item.aspx?id=155": // Eye of the Old Gods
-                  case "item.aspx?id=156": // Audaviator
-                  case "item.aspx?id=158": // Wand of Orcus
-                  case "item.aspx?id=153": // Head of Vyrellis
-                  case "item.aspx?id=143": // The Deck of Many Things (Heroic)
-                  case "item.aspx?id=159": // Crown of Dust (First Fragment)
-                  case "item.aspx?id=100": // Book of Infinite Spells
-                  case "item.aspx?id=101": // Codex of Infinite Planes
-                  case "item.aspx?id=102": // Hammer of Thunderbolts
-                  case "item.aspx?id=103": // Jacinth of Inestimable Beauty
-                  case "item.aspx?id=105": // Shield of Prator
-                  case "item.aspx?id=104": // The Shadowstaff
-                  case "item.aspx?id=106": // Zax, Cloak of Kings
-                  case "item.aspx?id=121": // Jet Black Ioun Stone
-                  case "item.aspx?id=122": // Mirror of Secrets
-                  case "item.aspx?id=123": // Orb of Light
-                  case "item.aspx?id=124": // Silver Mask of Kas
-                  case "item.aspx?id=125": // Soul Sword
-                  case "item.aspx?id=126": // Sword of Kas
-                  case "item.aspx?id=127": // Tome of Shadow
-                  case "item.aspx?id=128": // Von Zarovich Family Sword
-                  case "item.aspx?id=129": // Whelm
-                  case "item.aspx?id=152": // Nightbringer
                   case "item.aspx?id=154": // Skull of Sartine
-                  case "item.aspx?id=157": // The Ashen Crown
+                     moveArtifact( i, implement, entry, "Orb" ); break;
+                  case "item.aspx?id=135": // Rod of Seven Parts
+                     moveArtifact( i, implement, entry, "Rod" ); break;
+                  case "item.aspx?id=100": // Book of Infinite Spells
+                  case "item.aspx?id=143": // The Deck of Many Things (Heroic)
+                  case "item.aspx?id=144": // The Deck of Many Things (Paragon)
                   case "item.aspx?id=160": // Book of Vile Darkness
-                  case "item.aspx?id=140": // Crystal of Ebon Flame
-                  case "item.aspx?id=139": // Plastron of Tziphal
-                  case "item.aspx?id=141": // Wave
-                  case "item.aspx?id=142": // Ruinblade
+                     moveArtifact( i, implement, entry, "Tome" ); break;
+                  case "item.aspx?id=104": // The Shadowstaff
+                  case "item.aspx?id=156": // Audaviator
+                     moveArtifact( i, implement, entry, "Staff" ); break;
+                  case "item.aspx?id=147": // Arrow of Fate
+                     Entry copy = entry.clone();
+                     moveArtifact( null, weapon, entry, "Spear or arrow" );
+                     entry = copy;
+                     // fall through
+                  case "item.aspx?id=164": // Staff of Fraz-Urb'luu
+                     moveArtifact( i, implement, entry, "Rod, staff or wand" ); break;
+                  case "item.aspx?id=146": // Seed of Winter
+                     moveArtifact( i, implement, entry, "Wand or totem" ); break;
+
+                  case "item.aspx?id=110": // Figurine of Tantron
+                     markArtifact( entry, "Figurine" ); break;
+                  case "item.aspx?id=134": // Rash and Reckless
+                     markArtifact( entry, "Feet" ); break;
+                  case "item.aspx?id=116": // The Hand of Vecna
+                     markArtifact( entry, "Hands" ); break;
+                  case "item.aspx?id=111": // Helm of the Madman’s Blood
+                  case "item.aspx?id=115": // The Eye of Vecna
+                  case "item.aspx?id=121": // Jet Black Ioun Stone
+                  case "item.aspx?id=124": // Silver Mask of Kas
+                  case "item.aspx?id=155": // Eye of the Old Gods
+                  case "item.aspx?id=157": // The Ashen Crown
+                  case "item.aspx?id=159": // Crown of Dust (First Fragment)
+                  case "item.aspx?id=161": // Xraunran Crown of Eyes
+                  case "item.aspx?id=163": // Crown of Whispers (Dragon 413)
+                     markArtifact( entry, "Head" ); break;
+                  case "item.aspx?id=165": // Chromodactylic Loom
+                     markArtifact( entry, "Lair" ); break;
+                  case "item.aspx?id=103": // Jacinth of Inestimable Beauty
+                  case "item.aspx?id=106": // Zax, Cloak of Kings
+                  case "item.aspx?id=118": // Ilthuviel's Blackened Heart
+                  case "item.aspx?id=131": // Amulet of Passage
+                     markArtifact( entry, "Neck" ); break;
+                  case "item.aspx?id=120": // Unconquered Standard of Arkhosia
+                  case "item.aspx?id=136": // Standard of Eternal Battle
+                     markArtifact( entry, "Standard" ); break;
+                  case "item.aspx?id=101": // Codex of Infinite Planes
+                  case "item.aspx?id=109": // The Immortal Game
+                  case "item.aspx?id=112": // Wayfinder Badge
+                  case "item.aspx?id=122": // Mirror of Secrets
+                  case "item.aspx?id=130": // Adamantine Horse of Xarn <<< shuold be moved to companion
+                  case "item.aspx?id=133": // Emblem of Ossandrya
+                  case "item.aspx?id=137": // Blood of Io
+                  case "item.aspx?id=153": // Head of Vyrellis
+                     markArtifact( entry, "Wondrous" ); break;
                }
          }
       }
+   }
+
+   private static void moveArtifact ( Iterator<Entry> i, Category target, Entry entry, String type ) {
+      if ( i != null ) i.remove();
+      target.entries.add( entry );
+      String[] fields = entry.fields;
+      type = type == null ? "" : ": " + type;
+      entry.meta = new Object[]{ "Artifact" + type, fields[1], fields[2], fields[3], fields[4] };
+   }
+
+   private static void markArtifact ( Entry entry, String type ) {
+      String[] fields = entry.fields;
+      entry.meta = new Object[]{ type, "Artifact", fields[1], fields[2], fields[3], fields[4] };
    }
 
    public static void afterConvert () {

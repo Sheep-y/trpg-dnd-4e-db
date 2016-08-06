@@ -38,7 +38,8 @@ public class ItemConverter extends LeveledConverter {
    @Override protected void convertEntry ( Entry entry ) {
       if ( isGeneric ) {
          String[] fields = entry.fields;
-         entry.meta = new Object[]{ fields[0], "", fields[1], fields[2], fields[3], fields[4] };
+         if ( entry.meta == null )
+            entry.meta = new Object[]{ fields[0], "", fields[1], fields[2], fields[3], fields[4] };
       }
       super.convertEntry( entry );
       if ( ! isGeneric )
