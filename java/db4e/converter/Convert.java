@@ -123,6 +123,7 @@ public abstract class Convert {
                i.remove();
                implement.entries.add( entry );
                break;
+            case "Ammunition":
             case "Weapon":
                i.remove();
                if ( entry.content.contains( "<br>Superior <br>" ) )
@@ -207,7 +208,7 @@ public abstract class Convert {
                      moveArtifact( i, implement, entry, "Wand or totem" ); break;
 
                   case "item.aspx?id=130": // Adamantine Horse of Xarn
-                     markArtifact( entry, "Companion" ); break;
+                     markArtifact( entry, "Steed" ); break;
                   case "item.aspx?id=110": // Figurine of Tantron
                      markArtifact( entry, "Figurine" ); break;
                   case "item.aspx?id=134": // Rash and Reckless

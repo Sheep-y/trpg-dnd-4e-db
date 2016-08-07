@@ -263,6 +263,7 @@ od.action.list = {
     */
    'a_category' : function act_list_a_category ( cat ) {
       var action = od.action.list;
+      od.gui.page = 1;
       action.set_search_category( cat ? od.data.get( cat ) : "" );
       action.search();
       _( '#act_list_txt_search' )[0].focus();

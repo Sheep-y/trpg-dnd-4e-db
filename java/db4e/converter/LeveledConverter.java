@@ -61,8 +61,14 @@ class LeveledConverter extends Converter {
             return -1f;
          case "Mundane":
             return 0f;
+         case "Improvised":
+            return 0.1f;
+         case "Simple":
+            return 0.2f;
+         case "Military":
+            return 0.3f;
          case "Superior":
-            return 0.5f;
+            return 0.4f;
          case "Heroic":
             return 10.5f;
          case "Paragon":

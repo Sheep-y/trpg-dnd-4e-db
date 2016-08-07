@@ -124,11 +124,14 @@ public class ItemConverter extends LeveledConverter {
          log.log( Level.WARNING, "Implement group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
    }
 
+   private final Matcher regxWeaponDifficulty = Pattern.compile( "\\bSimple|Military|Superior\\b" ).matcher( "" );
    private final Matcher regxWeaponType = Pattern.compile( "<b>Weapon: </b>([A-Za-z, ]+)" ).matcher( "" );
    private final Matcher regxWeaponGroup = Pattern.compile( "<br>([A-Za-z ]+?)(?= \\()" ).matcher( "" );
 
    private void setWeaponType ( Entry entry ) {
       String data = entry.data;
+      // Ammunitions does not need processing
+      if ( entry.meta[0].equals( "Ammunition" ) ) return;
       // Mundane weapons with groups
       if ( data.contains( "<b>Group</b>: " ) ) {
          int groupPos = data.indexOf( "<b>Group</b>: " );
@@ -138,8 +141,12 @@ public class ItemConverter extends LeveledConverter {
             log.log( Level.WARNING, "Weapon group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
          else
             entry.meta[ 0 ] = String.join( ", ", grp );
-         if ( ! entry.meta[2].equals( "" ) || entry.name.endsWith( "secondary end" ) || entry.name.equals( "Shuriken" ) )
-            entry.meta[ 1 ] = "Mundane";
+         if ( ! entry.meta[2].equals( "" ) || entry.name.endsWith( "secondary end" ) || entry.name.equals( "Shuriken" ) ) {
+            regxWeaponDifficulty.reset( entry.data ).find();
+            entry.meta[ 1 ] = regxWeaponDifficulty.group();
+         }
+         if ( entry.meta[ 1 ].toString().isEmpty() )
+            entry.meta[ 1 ] = entry.meta[ 0 ].equals( "Unarmed" ) ? "Improvised" : "(Level)";
          return;
       }
       // Magical weapons
@@ -152,11 +159,11 @@ public class ItemConverter extends LeveledConverter {
       switch ( entry.shortid ) {
          case "weapon3677": // Double scimitar - secondary end
             entry.meta[ 0 ] = "Heavy blade";
-            entry.meta[ 1 ] = "Mundane";
+            entry.meta[ 1 ] = "Superior";
             break;
          case "weapon3624": case "weapon3626": case "weapon3634": // Improvised weapons
             entry.meta[ 0 ] = "Improvised";
-            entry.meta[ 1 ] = "Mundane";
+            entry.meta[ 1 ] = "Improvised";
             break;
          case "weapon176": case "weapon180": case "weapon181": case "weapon219": case "weapon220": case "weapon221": case "weapon222": case "weapon259": // Arrows, magazine, etc.
             entry.meta[ 0 ] = "Ammunition";
