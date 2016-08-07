@@ -70,6 +70,9 @@ public class ItemConverter extends LeveledConverter {
             case "Armor" :
                setArmorType( entry );
                break;
+            case "Item Set" :
+               setItemSetType( entry );
+               break;
             case "Wondrous" :
                setWondrousType( entry );
          }
@@ -172,6 +175,90 @@ public class ItemConverter extends LeveledConverter {
          default:
             log.log( Level.WARNING, "Unknown weapon type: {0} {1}", new Object[]{ entry.shortid, entry.name} );
       }
+   }
+
+   private void setItemSetType ( Entry entry ) {
+      String type = "";
+      switch ( entry.shortid ) {
+         case "item425": // Mirror of Nessecar
+            type = "Arcane"; break;
+         case "item429": // Tinkerer's Inventions
+            type = "Artificer"; break;
+         case "item439": // Xenda-Dran’s Array
+            type = "Assassin";
+            entry.meta[2] = "Heroic";
+            break;
+         case "item406": // Radiant Temple Treasures
+            type = "Avenger"; break;
+         case "item403": // Golden Lion's Battle Regalia
+            type = "Barbarian"; break;
+         case "item415": // Champion's Flame
+            type = "Cleric"; break;
+         case "item413": // Aspect of the Ram
+            type = "Charge"; break;
+         case "item404": // Kamestiri Uniform
+            type = "Crossbow"; break;
+         case "item414": // Ayrkashna Armor
+            type = "Deva"; break;
+         case "item399": // Aleheart Companions' Gear
+         case "item419": // Panoply of the Shepherds of Ghest
+         case "item421": // Raiment of the World Spirit
+            type = "Defense"; break;
+         case "item424": // Relics of the Forgotten One
+            type = "Divine"; break;
+         case "item436": // Silver Dragon Regalia
+            type = "Dragonborn"; break;
+         case "item409": // Skin of the Panther
+            type = "Druid"; break;
+         case "item402": // Gadgeteer's Garb
+            type = "Gadget"; break;
+         case "item430": // Armory of the Unvanquished
+         case "item433": // Heirlooms of Mazgorax
+         case "item435": // Implements of Argent
+         case "item434": // Rings of the Akarot
+         case "item438": // The Returning Beast
+            type = "Group"; break;
+         case "item431": // Caelynnvala's Boons
+            type = "Group: Fey"; break;
+         case "item432": // Fortune Stones
+            type = "Group: Reroll"; break;
+         case "item407": // Resplendent Finery
+            type = "Illusion"; break;
+         case "item427": // Relics of Creation
+            type = "Invoker"; break;
+         case "item422": // Reaper's Array
+            type = "Offense"; break;
+         case "item400": // Arms of War
+            type = "Opportunity"; break;
+         case "item417": // Gifts for the Queen
+            type = "Lightning/Radiant"; break;
+         case "item412": // Arms of Unbreakable Honor
+            type = "Paladin"; break;
+         case "item401": // Blade Dancer's Regalia
+            type = "Ranger"; break;
+         case "item410": // Tools of Zane's Vengeance
+            type = "Shaman"; break;
+         case "item418": // Offerings of Celestian
+            type = "Sorcerer"; break;
+         case "item408": // Shadowdancer's Garb
+            type = "Stealth"; break;
+         case "item416": // Eldritch Panoply
+         case "item405": // Marjam's Dream
+            type = "Swordmage"; break;
+         case "item437": // Royal Regalia of Chessenta
+            type = "Tiamat"; break;
+         case "item428": // Time Wizard's Tools
+            type = "Time"; break;
+         case "item420": // Raiment of Shadows
+         case "item426": // Points of the Constellation
+         case "item411": // Zy Tormtor's Trinkets
+            type = "Warlock"; break;
+         case "item423": // Regalia of the Golden General
+            type = "Warlord"; break;
+         default:
+            log.log( Level.WARNING, "Unknown item set: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+      }
+      entry.meta[1] = type;
    }
 
    private void setWondrousType ( Entry entry ) {
