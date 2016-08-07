@@ -53,7 +53,7 @@ _.l.set( 'action.list', {
    'txt_search_full_placeholder' : "Type search keywords. e.g. ranger OR martial bonus -\"feat bonus\" and then select category.",
    'btn_search_name' : "<u>N</u>ame Search",
    'btn_search_body' : "<u>F</u>ull Search",
-   'a_all' : "All Category",
+   'a_all' : "Everything",
    'lbl_count' : '%1 / %2',
 
    'lbl_showing' : '%1 result(s)',
