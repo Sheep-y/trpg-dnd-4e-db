@@ -19,9 +19,9 @@ public class ItemConverter extends LeveledConverter {
    }
 
    @Override public void initialise () {
-      super.initialise();
       if ( isGeneric )
          category.meta = new String[]{ "Category", "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
+      super.initialise();
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {

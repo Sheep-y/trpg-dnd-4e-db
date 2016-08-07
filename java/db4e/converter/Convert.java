@@ -343,7 +343,8 @@ public abstract class Convert {
     * Called at the beginning of entity conversion.  Will be called in every export.
     */
    protected void initialise()  {
-      category.meta = category.fields;
+      if ( category.meta == null )
+         category.meta = category.fields;
    }
 
    /**
