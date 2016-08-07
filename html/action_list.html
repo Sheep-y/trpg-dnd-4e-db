@@ -89,39 +89,15 @@
          cursor: pointer;
          color: red;
       }
-      /* Big screen: Move search buttons to the right of search box */
-      @media (min-width: 768px) {
-         #act_list_pnl_term {
-            float: left;
-            margin-right: -320px;
-            margin-top: 10px;
-            padding-right: 320px;
-            width: calc( 100% - 10px );
-            }
-            #act_list_txt_search {
-               font-size: 120%;
-               width: 100%;
-               }
-         #act_list_tbl_search {
-            float: right;
-            margin-left: 0;
-            width: 300px;
-            }
-            #act_list_tbl_search td button {
-               width: 50%;
-               }
+      /* 1024 cut point: try to fit four button and switch to vertical list */
+      @media (min-width: 1024px) {
+         #act_list_pnl_category button { max-width: 220px; }
       }
-      @media (min-width: 1020px) {
-         #act_list_pnl_category button { max-width: 250px; }
-      }
-      /* Small screen: Show only selected cat */
-      @media (max-width: 1019px) {
+      @media (max-width: 1023px) {
          #act_list_pnl_category button {
             font-size: 100%;
-            width: 33.3%;
+            width: 25%;
             }
-            .rpg { display: none; }
-
          #act_list_table {
             display : block;
             width   : 100% !important;
@@ -166,6 +142,41 @@
                         padding-right: 1ex;
                         text-align: right;
                         }
+      }
+      /* 1270 cut point: hide icon */
+      @media (min-width: 1270px) {
+         #act_list_pnl_category button { max-width: 250px; }
+      }
+      @media (max-width: 1269px) {
+         .rpg { display: none; }
+      }
+      /* 768 cut point: Move search buttons to bottom of search box */
+      @media (min-width: 767px) {
+         #act_list_pnl_term {
+            float: left;
+            margin-right: -320px;
+            margin-top: 10px;
+            padding-right: 320px;
+            width: calc( 100% - 10px );
+            }
+            #act_list_txt_search {
+               font-size: 120%;
+               width: 100%;
+               }
+         #act_list_tbl_search {
+            float: right;
+            margin-left: 0;
+            width: 300px;
+            }
+            #act_list_tbl_search td button {
+               width: 50%;
+               }
+      }
+      @media (max-width: 768px) {
+         #act_list_pnl_category button {
+            font-size: 100%;
+            width: 33.3%;
+            }
       }
    <?coco-end?></style>
    <style id="style_dynamic"></style>
@@ -496,7 +507,7 @@ od.action.list = {
          table[0].parentNode.removeChild( table[0] );
       }
       table = _.create( 'table', { 'id': 'act_list_table', 'aria-label' : _.l( 'action.list.search_result', 'Result' ) } );
-      var head_row = _.create( 'tr' ), head = _.create( 'thead' ),  css = '@media (max-width: 909px) {';
+      var head_row = _.create( 'tr' ), head = _.create( 'thead' ),  css = '@media (max-width: 1023px) {';
       table.appendChild( head );
       head.appendChild( head_row );
 
