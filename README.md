@@ -32,9 +32,10 @@ In this version, over 440 entries has been corrected:
 * 151 items missing power frequency. (e.g. Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
 * 79 empty glossaries, removed. (e.g. male, female, fang titan drake, etc.)
 * 68 entries without "published" record. (e.g. Granny's Grief, Dreamheart, Deck of Many Things etc.)
-* 58 entries moved to correct category:
- * 19 Assassin's poisons moved from item to poison.
+* 60 entries moved to correct category:
  * 39 Superior implements moved from weapon to implement.
+ * 19 Assassin's poisons moved from item to poison.
+ * 2 Wondrous items moved to consumable.
 * 35 entries that says "basic melee attack" instead of "melee basic attack" (or ranged). (e.g. Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 27 entries with formatting issues, such as
  * Content cut in the middle (e.g. Mirror of Deception),

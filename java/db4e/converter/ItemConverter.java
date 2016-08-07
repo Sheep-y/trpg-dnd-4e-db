@@ -294,6 +294,11 @@ public class ItemConverter extends LeveledConverter {
             corrections.add( "missing power frequency" );
             break;
 
+         case "item588":  // Bahamut's Golden Canary
+         case "item1632": // Instant Portal
+            entry.meta[0] = "Consumable";
+            corrections.add( "recategorise" );
+
          case "item1007": // Dantrag's Bracers, first (arm) power is daily, second (feet) power is encounter
             entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ Daily</h2>" );
             entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ Encounter</h2>" );
