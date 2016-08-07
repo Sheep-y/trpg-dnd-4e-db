@@ -86,7 +86,7 @@ public abstract class Convert {
       }
    }
 
-   private static void transferItem(Category exported, Category armour, Category implement, Category weapon, Map<String, Category> map) {
+   private static void transferItem( Category exported, Category armour, Category implement, Category weapon, Map<String, Category> map ) {
       // May convert to parallel stream if this part grows too much...
       for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
          Entry entry = i.next();
@@ -97,6 +97,27 @@ public abstract class Convert {
             case "Armor":
                i.remove();
                armour.entries.add( entry );
+               break;
+            case "Equipment":
+               switch ( entry.name ) {
+                  case "Arrow": case "Arrows":
+                  case "Crossbow Bolt": case "Crossbow Bolts":
+                  case "Sling Bullet": case "Sling Bullets":
+                  case "Blowgun Needles": case "Magazine":
+                     i.remove();
+                     weapon.entries.add( entry );
+                     break;
+                  case "Holy Symbol":
+                  case "Ki Focus":
+                     i.remove();
+                     implement.entries.add( entry );
+                     break;
+                  default:
+                     if ( entry.name.endsWith( "Implement" ) ) {
+                        i.remove();
+                        implement.entries.add( entry );
+                     }
+               }
                break;
             case "Implement":
                i.remove();
@@ -286,8 +307,8 @@ public abstract class Convert {
       pool.execute( () -> { try { synchronized ( category ) {
          if ( stop.get() ) throw new InterruptedException();
          log.log( Level.FINE, "Converting {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
-         category.meta = category.fields;
-         initialise();
+         if ( category.meta == null )
+            initialise();
          final List<Entry> entries = category.entries;
          for ( Entry entry : entries ) {
             if ( entry.fulltext == null ) try {
@@ -306,6 +327,7 @@ public abstract class Convert {
             state.addOne();
          }
          if ( category.sorted == null ) {
+            beforeSort();
             category.sorted = entries.toArray( new Entry[ entries.size() ] );
             Arrays.sort( category.sorted, this::sortEntity );
          }
@@ -316,7 +338,17 @@ public abstract class Convert {
       return result;
    }
 
-   protected void initialise()  { }
+   /**
+    * Called at the beginning of entity conversion.  Will be called in every export.
+    */
+   protected void initialise()  {
+      category.meta = category.fields;
+   }
+
+   /**
+    * Called at the end of entity conversion but before sort.  Will be called in every export.
+    */
+   protected void beforeSort()  { }
 
    protected int sortEntity ( Entry a, Entry b ) {
       return a.name.compareTo( b.name );

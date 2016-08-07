@@ -14,7 +14,11 @@ public class FeatConverter extends Converter {
 
    public FeatConverter ( Category category, boolean debug ) {
       super( category, debug );
+   }
+
+   @Override protected void initialise () {
       category.meta = new String[]{ "Tier", "Prerequisite", "SourceBook" };
+      super.initialise();
    }
 
    private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite</b>:\\s*([^<>]+)<" ).matcher( "" );

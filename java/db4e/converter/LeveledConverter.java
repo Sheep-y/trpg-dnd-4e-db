@@ -5,6 +5,7 @@ import db4e.data.Entry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 class LeveledConverter extends Converter {
 
@@ -14,7 +15,8 @@ class LeveledConverter extends Converter {
       super( category, debug );
    }
 
-   @Override public void initialise () {
+   @Override protected void initialise () {
+      super.initialise();
       LEVEL = Arrays.asList( category.meta ).indexOf( "Level" );
       // if ( LEVEL < 0 ) throw new IllegalStateException( "Level field not in " + category.name );
    }
@@ -22,15 +24,21 @@ class LeveledConverter extends Converter {
    static Map<String, String> levelText = new HashMap<>(); // Cache level text
    static Map<Object, Float> levelNumber = new HashMap<>();
 
-   @Override protected void convertEntry ( Entry entry ) {
-      super.convertEntry( entry );
-      if ( LEVEL < 0 ) return;
-      String level = entry.meta[ LEVEL ].toString();
-      if ( levelText.containsKey( level ) ) {
-         entry.meta[ LEVEL ] = level = levelText.get( level );
-      } else {
-         levelText.put( level, level );
-         levelNumber.put( level, parseLevel( level ) );
+   @Override protected void beforeSort () {
+      super.beforeSort();
+      synchronized ( levelText ) { // Make sure that sortEntity has all the numbers in this category
+         if ( LEVEL < 0 ) return;
+         for ( Entry entry : category.entries ) {
+            String level = entry.meta[ LEVEL ].toString();
+            if ( levelText.containsKey( level ) ) {
+               entry.meta[ LEVEL ] = levelText.get( level ); // Share string to save some memory
+            } else {
+               float lv = parseLevel( level );
+               levelText.put( level, level );
+               levelNumber.put( level, lv );
+               if ( lv < -10 ) log.log( Level.WARNING, "Unknown level \"{0}\": {1} {2}", new Object[]{level, entry.shortid, entry.name} );
+            }
+         }
       }
    }
 
@@ -46,10 +54,15 @@ class LeveledConverter extends Converter {
          } catch ( NumberFormatException ex2 ) {
          }
       }
-      switch ( value.toString() ) {
+      final String valueText = value.toString();
+      switch ( valueText ) {
          case "-": // Rubble Topple, Brazier Topple, Donjon's Cave-in.
          case "":
+            return -1f;
+         case "Mundane":
             return 0f;
+         case "Superior":
+            return 0.5f;
          case "Heroic":
             return 10.5f;
          case "Paragon":
@@ -57,8 +70,13 @@ class LeveledConverter extends Converter {
          case "Epic":
             return 30.5f;
          default:
-            // variable / Variable / Varies / (Level) / Party's Level
-            return 40.5f;
+            if ( valueText.startsWith( "Min" ) )
+               return Integer.valueOf( valueText.substring( 5 ) ) / 10f;
+            else if ( valueText.toLowerCase().startsWith( "vari" ) || valueText.toLowerCase().contains( "level" ) )
+               // variable / Variable / Varies / (Level) / Party's Level
+               return 40.5f;
+            else
+               return -1000f;
       }
    }
 
@@ -80,7 +98,6 @@ class LeveledConverter extends Converter {
             entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
             corrections.add( "formatting" );
          }
-
 
          switch ( entry.shortid ) {
          case "poison19": // Granny's Grief

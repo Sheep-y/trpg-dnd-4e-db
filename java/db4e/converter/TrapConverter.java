@@ -21,7 +21,7 @@ public class TrapConverter extends LeveledConverter {
          }
       } else {
          // Terrain; change meta to fit into Trap
-         entry.meta = new Object[]{ "Terrain", entry.fields[ 0 ], entry.fields[ 1 ] };
+         entry.meta = new Object[]{ "Terrain", entry.fields[ 0 ], "", entry.fields[ 1 ] };
          // corrections.add( "recatogrise" ); // Not exactly a fix; doesn't count
       }
    }

@@ -19,9 +19,9 @@ public class ItemConverter extends LeveledConverter {
    }
 
    @Override public void initialise () {
+      super.initialise();
       if ( isGeneric )
          category.meta = new String[]{ "Category", "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
-      super.initialise();
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
@@ -49,45 +49,47 @@ public class ItemConverter extends LeveledConverter {
              ( isGeneric && entry.meta[1].equals( "Artifact" ) ) ) {
          regxTier.reset( entry.data ).find();
          entry.meta[ isGeneric ? 2 : 1 ] = regxTier.group();
+         return; // Artifacts already have its type set
       }
       // Group Items
-      switch ( entry.meta[0].toString() ) {
-         case "Arms" :
-            if ( category.id.equals( "Armor" ) )
-               setArmorType( entry );
-            else
-               entry.meta[1] = "Bracers";
-            break;
-
-         case "Armor" :
-            setArmorType( entry );
-            break;
-
+      switch ( category.id ) {
          case "Implement" :
-            setImplementType( entry );
+            setImplementType( entry ); // Implements's original category may be "Equipment", "Weapon", or "Implement".
             break;
-
+         case "Armor" :
+            setArmorType( entry ); // Armor's original category  may be "Armor" or "Arms"
+            break;
          case "Weapon" :
-            if ( category.id.equals( "Implement" ) ) { // Superior implement
-               setImplementType( entry );
-            } else
-               setWeaponType( entry );
+            setWeaponType( entry ); // Weapon's original category  may be "Weapon" or "Equipment"
             break;
-
-         case "Wondrous" :
-            setWondrousType( entry );
+         default:
+            switch ( entry.meta[0].toString() ) {
+            case "Arms" :
+               entry.meta[1] = "Bracers";
+               break;
+            case "Armor" :
+               setArmorType( entry );
+               break;
+            case "Wondrous" :
+               setWondrousType( entry );
+         }
       }
    }
    private final Matcher regxArmorType = Pattern.compile( "<b>(Type|Armor|Arms Slot)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
 
    private void setArmorType ( Entry entry ) {
       if ( regxArmorType.reset( entry.data ).find() ) {
-         entry.meta[0] = regxArmorType.group(2).trim();
+         entry.meta[0] = regxArmorType.group( 2 ).trim();
          // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
          if ( entry.meta[0].toString().split( ", " ).length >= 5 ) {
             entry.data = regxArmorType.replaceFirst( "<b>$1</b>: Any" );
             entry.meta[0] = "Any";
             corrections.add( "consistency" );
+         }
+         int minEnhancement = entry.data.indexOf( "<b>Minimum Enhancement Value</b>: " );
+         if ( minEnhancement > 0 ) {
+            minEnhancement += "<b>Minimum Enhancement Value</b>: ".length();
+            entry.meta[1] = "Min " + entry.data.substring( minEnhancement, minEnhancement + 2 );
          }
 
       } else
@@ -103,15 +105,20 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxImplementType = Pattern.compile( "<b>Implement: </b>([A-Za-z, ]+)" ).matcher( "" );
 
    private void setImplementType ( Entry entry ) {
+      // Magical implements
+      if ( regxImplementType.reset( entry.data ).find() ) {
+         entry.meta[0] = regxImplementType.group(1).trim();
+
       // Superior implements
-      if ( entry.meta[0].equals( "Weapon" ) ) {
+      } else if ( entry.meta[0].equals( "Weapon" ) ) {
          entry.meta[0] = Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) );
          if ( entry.meta[0].equals( "Symbol" ) ) entry.meta[0] = "Holy Symbol";
+         entry.meta[1] = "Superior";
          corrections.add( "recategorise" );
 
-      // Magical implements
-      } else if ( regxImplementType.reset( entry.data ).find() ) {
-         entry.meta[0] = regxImplementType.group(1).trim();
+      } else if ( entry.meta[0].equals( "Equipment" ) ) {
+         entry.meta[0] = entry.name.replaceFirst( " Implement$", "" );
+         entry.meta[1] = "Mundane";
 
       } else
          log.log( Level.WARNING, "Implement group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
@@ -131,6 +138,8 @@ public class ItemConverter extends LeveledConverter {
             log.log( Level.WARNING, "Weapon group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
          else
             entry.meta[ 0 ] = String.join( ", ", grp );
+         if ( ! entry.meta[2].equals( "" ) || entry.name.endsWith( "secondary end" ) || entry.name.equals( "Shuriken" ) )
+            entry.meta[ 1 ] = "Mundane";
          return;
       }
       // Magical weapons
@@ -141,11 +150,17 @@ public class ItemConverter extends LeveledConverter {
       }
       // Manual assign
       switch ( entry.shortid ) {
-         case "weapon3677" : // Double scimitar - secondary end
+         case "weapon3677": // Double scimitar - secondary end
             entry.meta[ 0 ] = "Heavy blade";
+            entry.meta[ 1 ] = "Mundane";
             break;
-         case "weapon3624" : case "weapon3626" : case "weapon3634" : // Improvised weapons
+         case "weapon3624": case "weapon3626": case "weapon3634": // Improvised weapons
             entry.meta[ 0 ] = "Improvised";
+            entry.meta[ 1 ] = "Mundane";
+            break;
+         case "weapon176": case "weapon180": case "weapon181": case "weapon219": case "weapon220": case "weapon221": case "weapon222": case "weapon259": // Arrows, magazine, etc.
+            entry.meta[ 0 ] = "Ammunition";
+            entry.meta[ 1 ] = "Mundane";
             break;
          default:
             log.log( Level.WARNING, "Unknown weapon type: {0} {1}", new Object[]{ entry.shortid, entry.name} );
