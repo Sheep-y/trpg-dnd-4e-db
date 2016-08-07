@@ -150,6 +150,14 @@ class LeveledConverter extends Converter {
                corrections.add( "fix basic attack" );
             }
          }
+      case "Ritual":
+         switch ( entry.shortid ) {
+
+         case "ritual288": // Primal Grove
+            entry.data = entry.data.replace( " grp to ", " gp to " );
+            corrections.add( "typo" );
+            break;
+         }
       }
    }
 }

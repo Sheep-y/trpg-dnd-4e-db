@@ -98,6 +98,13 @@ public abstract class Convert {
                i.remove();
                armour.entries.add( entry );
                break;
+            case "Consumable":
+               if ( entry.content.contains( "<b>Consumable: </b>Assassin poison" ) ) {
+                  i.remove();
+                  map.get( "Poison" ).entries.add( entry );
+                  // Correction handled by correctEntry
+               }
+               break;
             case "Equipment":
                switch ( entry.name ) {
                   case "Arrow": case "Arrows":
@@ -130,13 +137,6 @@ public abstract class Convert {
                   implement.entries.add( entry );
                else
                   weapon.entries.add( entry );
-               break;
-            case "Wondrous":
-               if ( entry.content.contains( "<b>Consumable: </b>Assassin poison" ) ) {
-                  i.remove();
-                  map.get( "Poison" ).entries.add( entry );
-                  // Correction handled by correctEntry
-               }
                break;
             case "Artifact":
                switch ( entry.id ) {

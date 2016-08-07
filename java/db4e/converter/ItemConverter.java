@@ -192,14 +192,24 @@ public class ItemConverter extends LeveledConverter {
 
       String data = entry.data;
       switch ( entry.shortid ) {
+         case "item105": // Shield of Prator
+            entry.data = data.replace( " class=magicitem>", " class=mihead>" );
+            corrections.add( "formatting" );
+            break;
+
+         case "item439": // Xenda-Dran's Array
+            entry.data = data.replace( "> Tier</", "> Heroic Tier</" );
+            corrections.add( "consistency" );
+            break;
+
          case "item467": // Alchemical Failsafe
-            entry.data = data.replaceFirst( "Power ✦ </h2>", "Power ✦ At-Will</h2>" );
+            entry.data = data.replace( "Power ✦ </h2>", "Power ✦ At-Will</h2>" );
             corrections.add( "missing power frequency" );
             break;
 
          case "item1007": // Dantrag's Bracers, first (arm) power is daily, second (feet) power is encounter
-            entry.data = data.replaceFirst( "Power ✦ </h2>", "Power ✦ Daily</h2>" );
-            entry.data = data.replaceFirst( "Power ✦ </h2>", "Power ✦ Encounter</h2>" );
+            entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ Daily</h2>" );
+            entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ Encounter</h2>" );
             corrections.add( "missing power frequency" );
             break;
 
@@ -210,10 +220,22 @@ public class ItemConverter extends LeveledConverter {
             corrections.add( "fix basic attack" );
             break;
 
+         case "item1701": // Kord's Relentlessness
+            entry.data = data.replace( " or 30:</i> Gain a +2 item bonus to death</p>",
+                  " or 20</i>: +4 item bonus to the damage roll<br>    <i>Level 25 or 30:</i> +6 item bonus to the damage roll</p>" );
+            corrections.add( "missing content" );
+            break;
+
          case "item1864": // Mirror of Deception
             entry.data = data.replace( " ✦ (Standard", " ✦ At-Will (Standard" );
             entry.data = data.replace( "alter</p><p class=\"mistat indent\">sound", "alter sound" );
             corrections.add( "formatting" );
+            break;
+
+         case "item2002": // Orium Implement
+            entry.data = entry.data.replace( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand");
+            entry.data = entry.data.replace( "<p class=\\\"mistat indent\\\"><b>Requirement:</b> Orb, Rod, Staff, Wand</p>", "" );
+            corrections.add( "missing content" );
             break;
 
          case "item3328": // Scepter of the Chosen Tyrant
