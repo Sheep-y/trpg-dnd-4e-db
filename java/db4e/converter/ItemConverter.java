@@ -270,15 +270,13 @@ public class ItemConverter extends LeveledConverter {
          meta[1] = "Tattoo";
       else if ( data.contains( "primordial shard" ) )
          meta[1] = "Primordial Shard";
-      else if ( data.contains( "Conjuration" ) && ( data.contains( "hit point" ) || data.contains( "defense" ) ) ) {
-         meta[0] = "Conjuration";
-         if ( data.contains( "figurine" ) )
-            meta[1] = "Figurine";
-         else if ( entry.name.startsWith( "Bag" ) )
-            meta[1] = "Bag of Tricks";
+      else if ( data.contains( "Conjuration" ) && data.contains( "figurine" ) )
+         meta[1] = "Figurine";
+      if ( data.contains( "Conjuration" ) && data.contains( "mount" ) && ! entry.name.startsWith( "Bag " ) )
+         if ( meta[1].toString().isEmpty() )
+            meta[1] = "Steed";
          else
-            meta[1] = entry.name.split( " ", 2 )[0];
-      }
+            meta[1] = meta[1] + ": Steed";
    }
 
    @Override protected void correctEntry ( Entry entry ) {

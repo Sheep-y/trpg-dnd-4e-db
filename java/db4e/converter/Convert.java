@@ -207,10 +207,11 @@ public abstract class Convert {
                   case "item.aspx?id=146": // Seed of Winter
                      moveArtifact( i, implement, entry, "Wand or totem" ); break;
 
-                  case "item.aspx?id=130": // Adamantine Horse of Xarn
-                     markArtifact( entry, "Steed" ); break;
                   case "item.aspx?id=110": // Figurine of Tantron
-                     markArtifact( entry, "Conjuration" ); break;
+                  case "item.aspx?id=130": // Adamantine Horse of Xarn
+                     markArtifact( entry, "Wondrous" );
+                     entry.meta[1] = "Artifact: Steed";
+                     break;
                   case "item.aspx?id=134": // Rash and Reckless
                      markArtifact( entry, "Feet" ); break;
                   case "item.aspx?id=116": // The Hand of Vecna
