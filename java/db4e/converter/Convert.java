@@ -210,7 +210,7 @@ public abstract class Convert {
                   case "item.aspx?id=130": // Adamantine Horse of Xarn
                      markArtifact( entry, "Steed" ); break;
                   case "item.aspx?id=110": // Figurine of Tantron
-                     markArtifact( entry, "Figurine" ); break;
+                     markArtifact( entry, "Conjuration" ); break;
                   case "item.aspx?id=134": // Rash and Reckless
                      markArtifact( entry, "Feet" ); break;
                   case "item.aspx?id=116": // The Hand of Vecna

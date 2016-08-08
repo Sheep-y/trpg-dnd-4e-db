@@ -156,6 +156,8 @@ public class ItemConverter extends LeveledConverter {
       if ( data.contains( "<b>Weapon: </b>" ) ) {
          regxWeaponType.reset( data ).find();
          entry.meta[0] = regxWeaponType.group( 1 );
+         if ( entry.meta[0].equals( "Dragonshard augment" ) )
+            entry.meta[0] = "Dragonshard"; // shorten type
          return;
       }
       // Manual assign
@@ -262,8 +264,21 @@ public class ItemConverter extends LeveledConverter {
    }
 
    private void setWondrousType ( Entry entry ) {
+      String data = entry.data;
+      Object[] meta = entry.meta;
       if ( entry.name.contains( "Tattoo" ) )
-         entry.meta[1] = "Tattoo";
+         meta[1] = "Tattoo";
+      else if ( data.contains( "primordial shard" ) )
+         meta[1] = "Primordial Shard";
+      else if ( data.contains( "Conjuration" ) && ( data.contains( "hit point" ) || data.contains( "defense" ) ) ) {
+         meta[0] = "Conjuration";
+         if ( data.contains( "figurine" ) )
+            meta[1] = "Figurine";
+         else if ( entry.name.startsWith( "Bag" ) )
+            meta[1] = "Bag of Tricks";
+         else
+            meta[1] = entry.name.split( " ", 2 )[0];
+      }
    }
 
    @Override protected void correctEntry ( Entry entry ) {
