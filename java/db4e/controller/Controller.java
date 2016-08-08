@@ -442,6 +442,9 @@ public class Controller {
          convertDataForExport();
          Convert.afterConvert();
 
+         checkStop( "Writing Index" );
+         exporter.writeIndex( root, Convert.mapIndex( exportCategories ) );
+
          checkStop( "Writing data" );
          exportData( root );
 

@@ -245,7 +245,7 @@ class DbAbstraction {
 
    void saveEntry ( Entry entry ) throws SqlJetException {
       if ( entryUpdateMap == null ) {
-         entryUpdateMap = new HashMap<>( 2, 1.0f );
+         entryUpdateMap = new HashMap<>( 2, 1f );
          entryUpdateMap.put( "hasData", 1 );
       }
       db.beginTransaction( SqlJetTransactionMode.WRITE );

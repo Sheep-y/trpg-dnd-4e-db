@@ -5,6 +5,7 @@ import db4e.controller.Controller.RunExcept;
 import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,8 +15,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -41,7 +45,7 @@ public abstract class Convert {
    public static void beforeConvert ( List<Category> categories, List<Category> exportCategories ) {
       if ( exportCategories.size() > 0 ) return;
       synchronized ( categories ) {
-         Map<String,Category> map = new HashMap<>( 18, 1.0f );
+         Map<String,Category> map = new HashMap<>( 18, 1f );
          exportCategories.clear();
          if ( map.isEmpty() ) {
             for ( Category c : categories )
@@ -273,6 +277,39 @@ public abstract class Convert {
                .sorted( (a,b) -> b.getValue().get() - a.getValue().get() )
                .map( e -> e.getKey() + " = " + e.getValue().get() ).collect( Collectors.joining( "\n" ) ) } );
       }
+   }
+
+   public static Map<String, List<String>> mapIndex ( List<Category> categories ) {
+      Map<String, List<String>> map = new HashMap<>( 25000, 1f );
+      Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]", Pattern.CASE_INSENSITIVE ).matcher( "" );
+      Function<Entry, String> nameGetter;
+      for ( Category category : categories ) {
+         switch ( category.id ) {
+            case "Background":
+            case "Class":
+            case "Feat":
+               nameGetter = ( entry ) -> entry.name;
+               break;
+            default:
+               nameGetter = ( entry ) -> regxNote.reset( entry.name ).replaceAll( "" ).trim();
+         }
+         for ( Entry entry : category.sorted ) {
+            String name = nameGetter.apply( entry );
+            if ( ! map.containsKey(name) ) {
+               List<String> idList = new ArrayList<>( 1 ); // Most entries do not duplicate
+               idList.add( entry.shortid );
+               map.put(name, idList );
+            } else {
+               /* Duplicate check *
+               for ( String s : map.get( name ) )
+                  if ( s.startsWith( entry.shortid.substring( 0, 4 ) ) )
+                     System.out.println( "Duplicate " + name + ": " + s + ", " + entry.shortid );
+               /**/
+               map.get( name ).add( entry.shortid );
+            }
+         }
+      }
+      return map;
    }
 
    public static Converter getConverter ( Category category, boolean debug ) {

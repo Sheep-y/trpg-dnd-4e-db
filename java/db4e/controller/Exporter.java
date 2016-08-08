@@ -13,7 +13,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +28,7 @@ class Exporter {
    public static AtomicBoolean stop = new AtomicBoolean();
 
    void writeCatalog ( String target, List<Category> categories ) throws IOException {
-      StringBuilder buffer = new StringBuilder( 300 );
+      StringBuilder buffer = new StringBuilder( 320 );
       try ( OutputStreamWriter writer = openStream( target + "/catalog.js" ) ) {
          buffer.append( "od.reader.jsonp_catalog(20130616,{" );
          for ( Category category : categories ) {
@@ -112,6 +114,34 @@ class Exporter {
          if ( exported != category.getExportCount() )
             throw new IllegalStateException( category.id + " entry exported " + category.sorted.length + " mismatch with total " + category.getExportCount() );
       } };
+   }
+
+   void writeIndex ( String target, Map<String, List<String>> index ) throws IOException {
+      String[] names = index.keySet().toArray( new String[ index.size() ] );
+      Arrays.sort( names, ( a, b ) -> {
+         int diff = b.length() - a.length();
+         if ( diff != 0 ) return diff;
+         return a.compareTo( b );
+      });
+
+      StringBuilder buffer = new StringBuilder( 810_000 );
+      buffer.append( "od.reader.jsonp_index(20160808,{" );
+      for ( String name : names ) {
+         str( buffer, name ).append( ':' );
+         List<String> ids = index.get( name );
+         if ( ids.size() == 1 )
+            str( buffer, ids.get(0) ).append( ',' );
+         else {
+            buffer.append( '[' );
+            for ( String id : ids ) str( buffer, id ).append( ',' );
+            buffer.setLength( buffer.length() - 1 );
+            buffer.append( "]," );
+         }
+      }
+
+      try ( OutputStreamWriter writer = openStream( target + "/index.js" ) ) {
+         write( "})", writer, buffer );
+      }
    }
 
    void testViewerExists () throws IOException {
