@@ -75,6 +75,10 @@ public class ItemConverter extends LeveledConverter {
             case "Armor" :
                setArmorType( entry );
                break;
+            case "Equipment" :
+               if ( regxType.reset( entry.data ).find() )
+                  entry.meta[1] = regxType.group( 1 );
+               break;
             case "Item Set" :
                setItemSetType( entry );
                break;
@@ -83,14 +87,14 @@ public class ItemConverter extends LeveledConverter {
          }
       }
    }
-   private final Matcher regxArmorType = Pattern.compile( "<b>(Type|Armor|Arms Slot)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
+   private final Matcher regxType = Pattern.compile( "<b>(?:Type|Armor|Arms Slot|Category)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
 
    private void setArmorType ( Entry entry ) {
-      if ( regxArmorType.reset( entry.data ).find() ) {
-         entry.meta[0] = regxArmorType.group( 2 ).trim();
+      if ( regxType.reset( entry.data ).find() ) {
+         entry.meta[0] = regxType.group( 1 ).trim();
          // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
          if ( entry.meta[0].toString().split( ", " ).length >= 5 ) {
-            entry.data = regxArmorType.replaceFirst( "<b>$1</b>: Any" );
+            entry.data = regxType.replaceFirst( "<b>$1</b>: Any" );
             entry.meta[0] = "Any";
             corrections.add( "consistency" );
          }
@@ -281,9 +285,9 @@ public class ItemConverter extends LeveledConverter {
          meta[0] = "Standard";
       if ( data.contains( "Conjuration" ) && data.contains( "mount" ) && ! entry.name.startsWith( "Bag " ) )
          if ( meta[1].toString().isEmpty() )
-            meta[1] = "Steed";
+            meta[1] = "Mount";
          else
-            meta[1] = meta[1] + ": Steed";
+            meta[1] = meta[1] + ": Mount";
    }
 
    @Override protected void correctEntry ( Entry entry ) {

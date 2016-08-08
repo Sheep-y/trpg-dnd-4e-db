@@ -210,7 +210,7 @@ public abstract class Convert {
                   case "item.aspx?id=110": // Figurine of Tantron
                   case "item.aspx?id=130": // Adamantine Horse of Xarn
                      markArtifact( entry, "Wondrous" );
-                     entry.meta[1] = "Artifact: Steed";
+                     entry.meta[1] = "Artifact: Mount";
                      break;
                   case "item.aspx?id=134": // Rash and Reckless
                      markArtifact( entry, "Feet" ); break;
