@@ -35,6 +35,7 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxPowerFrequency = Pattern.compile( "✦\\s*\\(" ).matcher( "" );
    private final Matcher regxWhichIsReproduced = Pattern.compile( " \\([^)]+\\), which is reproduced below(?=.)" ).matcher( "" );
    private final Matcher regxTier = Pattern.compile( "\\b(?:Heroic|Paragon|Epic)\\b" ).matcher( "" );
+   private final Matcher regxType = Pattern.compile( "<b>(?:Type|Armor|Arms Slot|Category)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
    private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]+)</b>" ).matcher( "" );
 
    @Override protected void convertEntry ( Entry entry ) {
@@ -69,9 +70,6 @@ public class ItemConverter extends LeveledConverter {
                regxFirstStatBold.reset( entry.data ).find();
                entry.meta[1] = regxFirstStatBold.group( 1 );
                break;
-            case "Arms" :
-               entry.meta[1] = "Bracers";
-               break;
             case "Armor" :
                setArmorType( entry );
                break;
@@ -87,7 +85,6 @@ public class ItemConverter extends LeveledConverter {
          }
       }
    }
-   private final Matcher regxType = Pattern.compile( "<b>(?:Type|Armor|Arms Slot|Category)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
 
    private void setArmorType ( Entry entry ) {
       if ( regxType.reset( entry.data ).find() ) {

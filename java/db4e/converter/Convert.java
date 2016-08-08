@@ -1,6 +1,7 @@
 package db4e.converter;
 
 import db4e.Main;
+import db4e.controller.Controller.RunExcept;
 import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -11,8 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -140,6 +139,7 @@ public abstract class Convert {
                break;
             case "Artifact":
                switch ( entry.id ) {
+                  // Armours
                   case "item.aspx?id=105": // Shield of Prator
                      moveArtifact( i, armour, entry, "Heavy shield" ); break;
                   case "item.aspx?id=117": // The Invulnerable Coat of Arnd
@@ -147,6 +147,7 @@ public abstract class Convert {
                   case "item.aspx?id=139": // Plastron of Tziphal
                      moveArtifact( i, armour, entry, "Plate" ); break;
 
+                  // Weapons
                   case "item.aspx?id=114": // Axe of the Dwarvish Lords
                      moveArtifact( i, weapon, entry, "Greataxe" ); break;
                   case "item.aspx?id=108": // Broken Blade of Banatruul
@@ -172,6 +173,7 @@ public abstract class Convert {
                   case "item.aspx?id=129": // Whelm
                      moveArtifact( i, weapon, entry, "Warhammer" ); break;
 
+                  // Implements
                   case "item.aspx?id=145": // The Deluvian Hourglass
                      moveArtifact( i, implement, entry, null ); break;
                   case "item.aspx?id=140": // Crystal of Ebon Flame
@@ -197,7 +199,7 @@ public abstract class Convert {
                   case "item.aspx?id=104": // The Shadowstaff
                   case "item.aspx?id=156": // Audaviator
                      moveArtifact( i, implement, entry, "Staff" ); break;
-                  case "item.aspx?id=147": // Arrow of Fate
+                  case "item.aspx?id=147": // Arrow of Fate - make a copy for implement and then move to weapon
                      Entry copy = entry.clone();
                      moveArtifact( null, weapon, entry, "Spear or arrow" );
                      entry = copy;
@@ -207,6 +209,7 @@ public abstract class Convert {
                   case "item.aspx?id=146": // Seed of Winter
                      moveArtifact( i, implement, entry, "Wand or totem" ); break;
 
+                  // General Equipments
                   case "item.aspx?id=110": // Figurine of Tantron
                   case "item.aspx?id=130": // Adamantine Horse of Xarn
                      markArtifact( entry, "Wondrous" );
@@ -304,9 +307,8 @@ public abstract class Convert {
       this.category = category;
    }
 
-   public CompletableFuture<Void> convert ( ProgressState state, Executor pool ) {
-      final CompletableFuture<Void> result = new CompletableFuture();
-      pool.execute( () -> { try { synchronized ( category ) {
+   public RunExcept convert ( ProgressState state ) {
+      return () -> { synchronized ( category ) {
          if ( stop.get() ) throw new InterruptedException();
          log.log( Level.FINE, "Converting {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
          if ( category.meta == null )
@@ -333,11 +335,7 @@ public abstract class Convert {
             category.sorted = entries.toArray( new Entry[ entries.size() ] );
             Arrays.sort( category.sorted, this::sortEntity );
          }
-         result.complete( null );
-      } } catch ( Exception e ) {
-         result.completeExceptionally( e );
-      } } );
-      return result;
+      } };
    }
 
    /**

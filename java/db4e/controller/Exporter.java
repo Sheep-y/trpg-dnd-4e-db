@@ -1,5 +1,6 @@
 package db4e.controller;
 
+import db4e.controller.Controller.RunExcept;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.io.BufferedOutputStream;
@@ -13,8 +14,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,11 +36,8 @@ class Exporter {
       }
    }
 
-
-   CompletableFuture<Void> writeCategory ( String target, Category category, ProgressState state, Executor pool ) throws IOException {
-      final CompletableFuture<Void> result = new CompletableFuture();
-
-      pool.execute( () -> { try { synchronized( category ) {
+   RunExcept writeCategory ( String target, Category category, ProgressState state ) throws IOException {
+      return () -> { synchronized( category ) {
          if ( stop.get() ) throw new InterruptedException();
          String cat_id = category.id.toLowerCase();
 
@@ -115,12 +111,7 @@ class Exporter {
          }
          if ( exported != category.getExportCount() )
             throw new IllegalStateException( category.id + " entry exported " + category.sorted.length + " mismatch with total " + category.getExportCount() );
-         result.complete( null );
-
-      } } catch ( Exception e ) {
-         result.completeExceptionally( e );
-      } } );
-      return result;
+      } };
    }
 
    void testViewerExists () throws IOException {

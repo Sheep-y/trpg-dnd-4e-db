@@ -453,10 +453,10 @@ public class Controller {
    }
 
    private void convertDataForExport () throws Exception {
-      exportEachCategory(( category ) -> {
+      exportEachCategory( ( category ) -> {
             Converter converter = Convert.getConverter( category, gui.isDebugging() );
             if ( converter != null )
-               return converter.convert( state, threadPool );
+               return converter.convert( state );
             return null;
          }, Convert.stop );
    }
@@ -464,7 +464,7 @@ public class Controller {
    private void exportData ( String root ) throws Exception {
       exportEachCategory( ( category ) -> {
          log.log( Level.FINE, "Writing {0}", category.id );
-         return exporter.writeCategory( root, category, state, threadPool );
+         return exporter.writeCategory( root, category, state );
       }, Exporter.stop );
    }
 
@@ -565,7 +565,7 @@ public class Controller {
       } while ( true );
    }
 
-   private void exportEachCategory ( FunctionExcept<Category, CompletableFuture<Void>> task, AtomicBoolean stop ) throws Exception {
+   private void exportEachCategory ( FunctionExcept<Category, RunExcept> task, AtomicBoolean stop ) throws Exception {
       state.reset();
       state.update();
       log.log( Level.CONFIG, "Running category task in {0} threads.", threadPool.getParallelism() );
@@ -573,8 +573,16 @@ public class Controller {
          stop.set( false );
          List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
          exportCategories.stream().sorted( (a,b) -> b.getExportCount() - a.getExportCount() ).forEachOrdered( ( category ) -> { try {
-            CompletableFuture<Void> future = task.apply( category );
-            if ( future != null ) tasks.add( future );
+            RunExcept job = task.apply( category );
+            if ( job == null ) return;
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            tasks.add( future );
+            threadPool.execute( () -> { try {
+               job.run();
+               future.complete( null );
+            } catch ( Exception e ) {
+               future.completeExceptionally( e );
+            } } );
          } catch ( Exception e ) {
             throw new RuntimeException( e );
          } } );
@@ -588,7 +596,7 @@ public class Controller {
    /**
     * Same as Runnable, but throws Exception.
     */
-   private static interface RunExcept {
+   public static interface RunExcept {
       void run ( ) throws Exception;
    }
 
