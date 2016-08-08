@@ -35,6 +35,7 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxPowerFrequency = Pattern.compile( "✦\\s*\\(" ).matcher( "" );
    private final Matcher regxWhichIsReproduced = Pattern.compile( " \\([^)]+\\), which is reproduced below(?=.)" ).matcher( "" );
    private final Matcher regxTier = Pattern.compile( "\\b(?:Heroic|Paragon|Epic)\\b" ).matcher( "" );
+   private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]+)</b>" ).matcher( "" );
 
    @Override protected void convertEntry ( Entry entry ) {
       if ( isGeneric ) {
@@ -46,7 +47,7 @@ public class ItemConverter extends LeveledConverter {
       if ( ! isGeneric )
          entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
       if ( ( ! isGeneric && entry.meta[0].toString().startsWith( "Artifact" ) ) ||
-             ( isGeneric && entry.meta[1].equals( "Artifact" ) ) ) {
+             ( isGeneric && entry.meta[1].toString().startsWith( "Artifact" ) ) ) {
          regxTier.reset( entry.data ).find();
          entry.meta[ isGeneric ? 2 : 1 ] = regxTier.group();
          return; // Artifacts already have its type set
@@ -64,6 +65,10 @@ public class ItemConverter extends LeveledConverter {
             break;
          default:
             switch ( entry.meta[0].toString() ) {
+            case "Alternative Reward" :
+               regxFirstStatBold.reset( entry.data ).find();
+               entry.meta[1] = regxFirstStatBold.group( 1 );
+               break;
             case "Arms" :
                entry.meta[1] = "Bracers";
                break;
@@ -272,6 +277,8 @@ public class ItemConverter extends LeveledConverter {
          meta[1] = "Primordial Shard";
       else if ( data.contains( "Conjuration" ) && data.contains( "figurine" ) )
          meta[1] = "Figurine";
+      else if ( data.contains( "standard" ) && data.contains( "plant th" ) )
+         meta[0] = "Standard";
       if ( data.contains( "Conjuration" ) && data.contains( "mount" ) && ! entry.name.startsWith( "Bag " ) )
          if ( meta[1].toString().isEmpty() )
             meta[1] = "Steed";
