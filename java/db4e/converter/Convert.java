@@ -322,10 +322,12 @@ public abstract class Convert {
          case "Companion":
          case "Glossary":
             return new FieldSortConverter( category, 0, debug ); // Sort by first field
-         case "Trap":
-            return new TrapConverter( category, debug );
          case "Feat":
             return new FeatConverter( category, debug );
+         case "Trap":
+            return new TrapConverter( category, debug );
+         case "Deity":
+            return new DeityConverter( category, debug );
          case "Item":
          case "Armor":
          case "Implement":
