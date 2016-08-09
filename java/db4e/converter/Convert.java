@@ -38,7 +38,7 @@ public abstract class Convert {
 
    /**
     * Called before doing any export.
-    * Can be used to fix entry count before catalog is saved.
+    * All entries must be assigned to the export categories here.
     *
     * @param categories
     */
@@ -314,6 +314,8 @@ public abstract class Convert {
 
    public static Converter getConverter ( Category category, boolean debug ) {
       switch ( category.id ) {
+         case "Background":
+            return new BackgroundConverter( category, debug );
          case "Deity":
             return new DeityConverter( category, debug );
          case "Companion":
