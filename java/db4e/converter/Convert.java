@@ -314,27 +314,29 @@ public abstract class Convert {
 
    public static Converter getConverter ( Category category, boolean debug ) {
       switch ( category.id ) {
-         case "Ritual":
-         case "Monster":
-         case "Poison":
-         case "Disease":
-            return new LeveledConverter( category, debug );
+         case "Deity":
+            return new DeityConverter( category, debug );
          case "Companion":
          case "Glossary":
             return new FieldSortConverter( category, 0, debug ); // Sort by first field
          case "Feat":
             return new FeatConverter( category, debug );
-         case "Trap":
-            return new TrapConverter( category, debug );
-         case "Deity":
-            return new DeityConverter( category, debug );
          case "Item":
          case "Armor":
          case "Implement":
          case "Weapon":
             return new ItemConverter( category, debug );
+         case "Ritual":
+         case "Monster":
+         case "Poison":
+         case "Disease":
+            return new LeveledConverter( category, debug );
          case "Power":
             return new PowerConverter( category, debug );
+         case "Theme":
+            return new ThemeConverter( category, debug );
+         case "Trap":
+            return new TrapConverter( category, debug );
          case "Terrain":
             return null;
          default:
