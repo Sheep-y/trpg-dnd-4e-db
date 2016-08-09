@@ -23,7 +23,7 @@ public class RaceConverter extends Converter {
       super.convertEntry(entry);
       if ( entry.fields[1].isEmpty() ) {
          entry.meta[1] = "Medium";
-         corrections.add( "missing meta" );
+         corrections.add( "meta" );
       }
       if ( regxAbility.reset( entry.data ).find() ) {
          String ability = regxAbility.group(1).replace( "+2 ", "" );
@@ -43,9 +43,11 @@ public class RaceConverter extends Converter {
             entry.meta[0] = "Cha, Con or Str";
          else if ( entry.name.endsWith( "Dwarf" ) )
             entry.meta[0] = "Con, Str or Wis";
-         else // Elf
+         else if ( entry.name.endsWith( "Elf" ) )
             entry.meta[0] = "Dex, Int or Wis";
-         corrections.add( "missing meta" );
+         else // Eladrin
+            entry.meta[0] = "Int, Cha or Dex";
+         corrections.add( "meta" );
       }
    }
 }

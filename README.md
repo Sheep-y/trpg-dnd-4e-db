@@ -25,32 +25,19 @@ This is a fan-made project and does not come with copyrighted data.
 ### Fixing compendium errors ###
 
 Let's face it, the official compendium has errors.
+This downloader fixes over 450 mistakes during export:
 
-I cannot update the official compendium, but I can update this downloader's data export.
-In this version, over 450 entries has been corrected:
-
-* 151 items missing power frequency. (e.g. Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
- * The downloader reports 152 fixes. One of them - Arrow of Fate - is duplicated.
-* 79 empty glossaries, removed. (e.g. male, female, fang titan drake, etc.)
-* 68 entries without "published" record. (e.g. Granny's Grief, Dreamheart, Deck of Many Things etc.)
-* 60 entries moved to correct category:
- * 39 Superior implements moved from weapon to implement.
- * 19 Assassin's poisons moved from item to poison.
- * 2 Wondrous items moved to consumable.
-* 35 entries that incorrectly says "basic melee attack". (e.g. Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
-* 27 entries with formatting issues, such as
- * Content cut in the middle (e.g. Mirror of Deception),
- * "published" not properly formatted (e.g. Drow Poison),
- * Putting level and group role together (e.g. Trapped Chest), etc.
-* 15 entries with inconsistent content:
- * 8 items that says a power is reproduced but isn't (e.g. Iron Wand, Shielding Wand etc.)
- * 4 armors that list all 6 types instead of "Any" (e.g. Winged Armor, Wall Armor etc.)
- * 2 feats with different level format (Powerful Lure, Traveler's Celerity)
- * 1 Xenda-Dran's Array should be heroic tier.
-* 12 skills missing "Imporvising with (this skill)" subtitle. (Arcana, Bluff, Diplomacy, etc.)
-* 9 races missing meta data such as abilities or size.
+* 151 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
+ * The downloader logs 152 fixes. One of them - Arrow of Fate - is a duplicate.
+* 79 empty glossaries, removed. (male, female, fang titan drake, etc.)
+* 68 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
+* 60 entries moved to correct category. (Superior implements, Assassin's poisons, and Consumable wondrous)
+* 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
+* 20 entries with formatting issues. (Mirror of Deception, etc.)
+* 15 entries with missing content. (Kord's Relentlessness, Orium Implement, Rings of the Akarot etc.)
+* 15 entries with inconsistent content. (Winged Armor, Xenda-Dran's Array, etc.)
 * 3 typos. ("bit points" of Cambion Stalwart, power keyword of Fifth Sword of Tyr, Primal Grove component)
-* 3 entries with missing or wrong content (Kord's Relentlessness, Orium Implement, Rings of the Akarot)
+* 16 entries with missing/wrong listing data not caused by above issues. (Wild Elf, Gold Dwarf, Trapped Chest, etc.)
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 

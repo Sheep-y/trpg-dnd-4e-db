@@ -27,7 +27,7 @@ public class FieldSortConverter extends Converter {
          if ( entry.shortid.startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
             if ( entry.data.contains( "<p class=flavor><b></b></p><p class=flavor>" ) ) {
                entry.data = entry.data.replace( "<p class=flavor><b></b></p><p class=flavor>", "<h3>IMPROVISING WITH "+entry.name.toUpperCase()+"</h3><p class=flavor>" );
-               corrections.add( "missing subtitle" );
+               corrections.add( "missing content" );
             }
          }
       }

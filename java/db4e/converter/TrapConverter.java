@@ -17,7 +17,7 @@ public class TrapConverter extends LeveledConverter {
          if ( level.endsWith( "Minion" ) ) {
             entry.meta[ Arrays.asList( category.meta ).indexOf( "GroupRole" ) ] = "Minion";
             entry.meta[ LEVEL ] = level.substring( 0, level.length() - " Minion".length() );
-            corrections.add( "formatting" );
+            corrections.add( "meta" );
          }
       } else {
          // Terrain; change meta to fit into Trap
