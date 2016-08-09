@@ -335,6 +335,8 @@ public abstract class Convert {
             return new LeveledConverter( category, debug );
          case "Power":
             return new PowerConverter( category, debug );
+         case "Race":
+            return new RaceConverter( category, debug );
          case "Theme":
             return new ThemeConverter( category, debug );
          case "Trap":

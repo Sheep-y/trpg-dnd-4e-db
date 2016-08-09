@@ -27,7 +27,7 @@ This is a fan-made project and does not come with copyrighted data.
 Let's face it, the official compendium has errors.
 
 I cannot update the official compendium, but I can update this downloader's data export.
-In this version, over 440 entries has been corrected:
+In this version, over 450 entries has been corrected:
 
 * 151 items missing power frequency. (e.g. Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
  * The downloader reports 152 fixes. One of them - Arrow of Fate - is duplicated.
@@ -48,6 +48,7 @@ In this version, over 440 entries has been corrected:
  * 2 feats with different level format (Powerful Lure, Traveler's Celerity)
  * 1 Xenda-Dran's Array should be heroic tier.
 * 12 skills missing "Imporvising with (this skill)" subtitle. (Arcana, Bluff, Diplomacy, etc.)
+* 9 races missing meta data such as abilities or size.
 * 3 typos. ("bit points" of Cambion Stalwart, power keyword of Fifth Sword of Tyr, Primal Grove component)
 * 3 entries with missing or wrong content (Kord's Relentlessness, Orium Implement, Rings of the Akarot)
 
