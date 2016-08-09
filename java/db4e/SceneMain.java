@@ -533,8 +533,10 @@ public class SceneMain extends Scene {
             btnCheckUpdate.setDisable( false );
          } )
       ).exceptionally( ( ex ) -> {
-         btnCheckUpdate.setText( "Check update (error)" );
-         btnCheckUpdate.setDisable( false );
+         runFX( () -> {
+            btnCheckUpdate.setText( "Check update (error)" );
+            btnCheckUpdate.setDisable( false );
+         } );
          return null;
       } );
    }

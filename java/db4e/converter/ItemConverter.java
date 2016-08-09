@@ -305,6 +305,19 @@ public class ItemConverter extends LeveledConverter {
             corrections.add( "formatting" );
             break;
 
+         case "item434": // Rings of the Akarot
+            entry.data = data.replaceFirst( "<br><br>",
+                         "<br><br><h1 class=dailypower><span class=level>Item Set Power</span>Voice of the Akarot</h1>"
+                       + "<p class=flavor><i>Channeling the power of your allies' will, you command your enemy to stop attacking, though each ally is momentarily disoriented.</i></p>"
+                       + "<p class=powerstat><b>Daily</b> ✦     <b>Charm</b><br>"
+                       + "<b>Standard Action</b>      <b>Close</b> burst 5</p>"
+                       + "<p class=powerstat><b>Target</b>: Each enemyin burst</p>"
+                       + "<p class=powerstat><b>Attack</b>: +30 vs. Will</p>"
+                       + "<p class=flavor><b>Hit</b>: The target cannot attack (save ends).</p>"
+                       + "<p class=powerstat><b>Effect</b>: Each ally wearing a ring from this set is dazed until the end of your next turn.</p><br><br>" );
+            corrections.add( "missing content" );
+            break;
+
          case "item439": // Xenda-Dran's Array
             entry.data = data.replace( "> Tier</", "> Heroic Tier</" );
             corrections.add( "consistency" );

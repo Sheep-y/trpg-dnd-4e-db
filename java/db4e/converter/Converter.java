@@ -218,6 +218,8 @@ public class Converter extends Convert {
       data = regxSpaces.reset( data ).replaceAll( " " );
       // Convert ’ to ' so that people can actually search for it
       data = data.replace( "’", "'" );
+      data = data.replace( "“’", "\"" );
+      data = data.replace( "”’", "\"" );
       // Convert attribute="value" to attribute=value, for cleaner data
       data = regxAttr.reset( data ).replaceAll( "<$1 $2=$3>" );
       // Convert some rare line breaks
