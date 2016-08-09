@@ -30,13 +30,14 @@ I cannot update the official compendium, but I can update this downloader's data
 In this version, over 440 entries has been corrected:
 
 * 151 items missing power frequency. (e.g. Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
+ * The downloader reports 152 fixes. One of them - Arrow of Fate - is duplicated.
 * 79 empty glossaries, removed. (e.g. male, female, fang titan drake, etc.)
 * 68 entries without "published" record. (e.g. Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 60 entries moved to correct category:
  * 39 Superior implements moved from weapon to implement.
  * 19 Assassin's poisons moved from item to poison.
  * 2 Wondrous items moved to consumable.
-* 35 entries that says "basic melee attack" instead of "melee basic attack" (or ranged). (e.g. Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
+* 35 entries that incorrectly says "basic melee attack". (e.g. Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 27 entries with formatting issues, such as
  * Content cut in the middle (e.g. Mirror of Deception),
  * "published" not properly formatted (e.g. Drow Poison),
@@ -48,7 +49,7 @@ In this version, over 440 entries has been corrected:
  * 1 Xenda-Dran's Array should be heroic tier.
 * 12 skills missing "Imporvising with (this skill)" subtitle. (Arcana, Bluff, Diplomacy, etc.)
 * 3 typos. ("bit points" of Cambion Stalwart, power keyword of Fifth Sword of Tyr, Primal Grove component)
-* 2 entries with missing or wrong content (Kord's Relentlessness, Orium Implement)
+* 3 entries with missing or wrong content (Kord's Relentlessness, Orium Implement, Rings of the Akarot)
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 
