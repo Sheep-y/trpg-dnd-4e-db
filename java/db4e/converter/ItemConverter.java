@@ -353,15 +353,24 @@ public class ItemConverter extends LeveledConverter {
             break;
 
          case "item1864": // Mirror of Deception
-            entry.data = data.replace( " ✦ (Standard", " ✦ At-Will (Standard" );
-            entry.data = data.replace( "alter</p><p class=\"mistat indent\">sound", "alter sound" );
+            entry.data = entry.data.replace( " ✦ (Standard", " ✦ At-Will (Standard" );
+            entry.data = entry.data.replace( "alter</p><p class='mistat indent'>sound", "alter sound" );
+            corrections.add( "missing power frequency" );
             corrections.add( "formatting" );
             break;
 
          case "item2002": // Orium Implement
             entry.data = entry.data.replace( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand");
-            entry.data = entry.data.replace( "<p class=\\\"mistat indent\\\"><b>Requirement:</b> Orb, Rod, Staff, Wand</p>", "" );
+            entry.data = entry.data.replace( "<p class='mistat indent'><b>Requirement:</b> Orb, Rod, Staff, Wand</p>", "" );
             corrections.add( "missing content" );
+            break;
+
+         case "item2511": // Silver Hands of Power
+            entry.data = entry.data.replace( "<h2 class=mihead>Power", "<h2 class=mihead>Lvl 14<br>Power" );
+            entry.data = entry.data.replace( "<p class='mistat indent1'><i>Level 19:</i> ", "<h2 class=mihead>Lvl 19<br>Power ✦ Daily (Free Action)</h2>" );
+            entry.data = entry.data.replace( "Trigger: You", "<p class='mistat indent1'><i>Trigger:</i> You" );
+            entry.data = entry.data.replace( ". Effect: ", "</p><p class='mistat indent1'><i>Effect:</i> " );
+            corrections.add( "formatting" );
             break;
 
          case "item3328": // Scepter of the Chosen Tyrant

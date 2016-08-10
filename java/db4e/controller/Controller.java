@@ -20,7 +20,7 @@ import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -83,7 +83,7 @@ public class Controller {
    private final Exporter exporter;
    private final Timer scheduler = new Timer();
    private final int threads = Math.max( 2, Math.min( Runtime.getRuntime().availableProcessors(), 22 ) );
-   private final Executor threadPool = Executors.newFixedThreadPool( threads );
+   private final ExecutorService threadPool = Executors.newFixedThreadPool( threads );
 
    public Controller ( SceneMain main ) {
       gui = main;
@@ -242,6 +242,7 @@ public class Controller {
    public void close() {
       stop();
       scheduler.cancel();
+      threadPool.shutdown();
       closeDb();
    }
 

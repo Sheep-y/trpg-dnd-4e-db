@@ -188,7 +188,9 @@ public class Converter extends Convert {
    // Combined link pattern
    private final Matcher regxLinks = Pattern.compile( "<a(?: target=\"_new\")? href=\"(?:http://ww[w2].wizards.com/[^\"]*)?\"(?: target=\"_new\")?>([^<]*)</a>" ).matcher( "" );
 
-   private final Matcher regxAttr = Pattern.compile( "<([^<>\"]+) (\\w+)=\"(\\w+)\">" ).matcher( "" );
+   private final Matcher regxAttr1 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\">" ).matcher( "" );
+   private final Matcher regxAttr2 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\" (\\w+)=\"(\\w+)\">" ).matcher( "" );
+   private final Matcher regxAttr3 = Pattern.compile( "<(\\w+) (\\w+)=\"([^'\"/]+)\">" ).matcher( "" );
 
    @Override protected String normaliseData ( String data ) {
       // Replace images with character. Every image really appears in the compendium.
@@ -221,7 +223,10 @@ public class Converter extends Convert {
       data = data.replace( "“’", "\"" );
       data = data.replace( "”’", "\"" );
       // Convert attribute="value" to attribute=value, for cleaner data
-      data = regxAttr.reset( data ).replaceAll( "<$1 $2=$3>" );
+      data = regxAttr1.reset( data ).replaceAll( "<$1 $2=$3>" );
+      data = regxAttr2.reset( data ).replaceAll( "<$1 $2=$3 $4=$5>" );
+      // Convert attribute="value value" to attribute='value value', for cleaner data
+      data = regxAttr3.reset( data ).replaceAll( "<$1 $2='$3'>" );
       // Convert some rare line breaks
       if ( data.indexOf( '\n' ) >= 0 ) {
          data = data.replace( "\n,", "," );

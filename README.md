@@ -27,15 +27,15 @@ This is a fan-made project and does not come with copyrighted data.
 Let's face it, the official compendium has errors.
 This downloader fixes over 480 entries during export:
 
-* 151 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
- * The downloader logs 152 fixes. One of them - Arrow of Fate - is a duplicate.
+* 152 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
+ * The downloader logs 153 fixes. One of them - Arrow of Fate - is a duplicate.
 * 79 empty glossaries, removed. (male, female, fang titan drake, etc.)
 * 68 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 60 entries moved to correct category. (Superior implements, Assassin's poisons, and Consumable wondrous)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 21 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, etc.)
-* 20 entries with formatting issues. (Mirror of Deception, etc.)
-* 15 entries with missing content. (Kord's Relentlessness, Orium Implement, Rings of the Akarot etc.)
+* 21 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
+* 15 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot etc.)
 * 3 typos. ("bit points" of Cambion Stalwart, power keyword of Fifth Sword of Tyr, Primal Grove component)
 * 48 entries with missing/wrong listing data not caused by above issues. (Wild Elf, Enlarge Familiar, Trapped Chest etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
