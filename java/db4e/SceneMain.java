@@ -421,6 +421,7 @@ public class SceneMain extends Scene {
       if ( target == null || ! target.getName().toLowerCase().endsWith( ".html" ) ) return;
 
       setStatus( "Starting export" );
+      prefs.remove( "export.last_file" );
       loader.startExport( target ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );
       stateRunning();
       prefs.put( "export.dir", target.getParent() );
