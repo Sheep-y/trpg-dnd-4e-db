@@ -52,7 +52,7 @@ public abstract class Convert {
                map.put( c.id, c );
 
             String[] itemMeta =new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
-            Category armour    = new Category( "Armor"   , "Armor"    , itemMeta );
+            Category armour    = new Category( "Armor"    , "Armor"    , itemMeta );
             Category implement = new Category( "Implement", "implement", itemMeta );
             Category weapon    = new Category( "Weapon"   , "weapon"   , itemMeta );
             exportCategories.add( armour );
@@ -60,14 +60,16 @@ public abstract class Convert {
             exportCategories.add( weapon );
 
             // This pre-processing does not move progress, and is not MT, and thus should be done very fast.
-            for ( Category c : categories ) {
+            for ( Category c : categories ) synchronized( c ) {
                if ( c.id.equals( "Terrain" ) ) continue;
                Category exported = new Category( c.id, c.name, c.fields );
                exportCategories.add( exported );
                exported.entries.addAll( c.entries );
                switch ( c.id ) {
                   case "Item" :
-                     transferItem( exported, armour, implement, weapon, map );
+                     synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
+                        transferItem( exported, armour, implement, weapon, map );
+                     } } }
                      break;
 
                   case "Glossary" :
@@ -352,35 +354,32 @@ public abstract class Convert {
       this.category = category;
    }
 
-   public RunExcept convert ( ProgressState state ) {
-      return () -> { synchronized ( category ) {
-         if ( stop.get() ) throw new InterruptedException();
-         log.log( Level.FINE, "Converting {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
-         if ( category.meta == null )
-            initialise();
-         final List<Entry> entries = category.entries;
-         for ( Entry entry : entries ) {
-            if ( entry.fulltext == null ) try {
-               convertEntry( entry );
-               if ( ! corrections.isEmpty() ) {
-                  for ( String fix : corrections )
-                     corrected( entry, fix );
-                  if ( corrections.size() > 1 )
-                     corrected( entry, "multiple fix " + corrections.size() + " (bookkeep)" );
-                  corrections.clear();
-               }
-            } catch ( Exception e ) {
-               throw new UnsupportedOperationException( "Error converting " + entry.shortid, e );
+   public void convert () throws InterruptedException {
+      if ( stop.get() ) throw new InterruptedException();
+      log.log( Level.FINE, "Converting {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
+      if ( category.meta == null )
+         initialise();
+      final List<Entry> entries = category.entries;
+      for ( Entry entry : entries ) {
+         if ( entry.fulltext == null ) try {
+            convertEntry( entry );
+            if ( ! corrections.isEmpty() ) {
+               for ( String fix : corrections )
+                  corrected( entry, fix );
+               if ( corrections.size() > 1 )
+                  corrected( entry, "multiple fix " + corrections.size() + " (bookkeep)" );
+               corrections.clear();
             }
-            if ( stop.get() ) throw new InterruptedException();
-            state.addOne();
+         } catch ( Exception e ) {
+            throw new UnsupportedOperationException( "Error converting " + entry.shortid, e );
          }
-         if ( category.sorted == null ) {
-            beforeSort();
-            category.sorted = entries.toArray( new Entry[ entries.size() ] );
-            Arrays.sort( category.sorted, this::sortEntity );
-         }
-      } };
+         if ( stop.get() ) throw new InterruptedException();
+      }
+      if ( category.sorted == null ) {
+         beforeSort();
+         category.sorted = entries.toArray( new Entry[ entries.size() ] );
+         Arrays.sort( category.sorted, this::sortEntity );
+      }
    }
 
    /**

@@ -438,37 +438,28 @@ public class Controller {
          exporter.writeCatalog( root, exportCategories );
          state.total = exportCategories.stream().mapToInt( e -> e.getExportCount() ).sum();
 
-         checkStop( "Converting" );
-         convertDataForExport();
-         Convert.afterConvert();
-
-         checkStop( "Writing Index" );
-         exporter.writeIndex( root, Convert.mapIndex( exportCategories ) );
-
          checkStop( "Writing data" );
          exportData( root );
 
          checkStop( "Writing viewer" );
+         Convert.afterConvert();
+         exporter.writeIndex( root, Convert.mapIndex( exportCategories ) );
          exporter.writeViewer( base, target );
 
          gui.stateCanExport( "Export complete, may view data" );
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
    }
 
-   private void convertDataForExport () throws Exception {
-      exportEachCategory( ( category ) -> {
-            Converter converter = Convert.getConverter( category, gui.isDebugging() );
-            if ( converter != null )
-               return converter.convert( state );
-            return null;
-         }, Convert.stop );
-   }
-
    private void exportData ( String root ) throws Exception {
       exportEachCategory( ( category ) -> {
-         log.log( Level.FINE, "Writing {0}", category.id );
-         return exporter.writeCategory( root, category, state );
-      }, Exporter.stop );
+         Converter converter = Convert.getConverter( category, gui.isDebugging() );
+         if ( converter == null ) return null;
+         return () -> { synchronized( category ) {
+            converter.convert();
+            log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
+            exporter.writeCategory( root, category, state );
+         } };
+      } );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -568,12 +559,13 @@ public class Controller {
       } while ( true );
    }
 
-   private void exportEachCategory ( FunctionExcept<Category, RunExcept> task, AtomicBoolean stop ) throws Exception {
+   private void exportEachCategory ( FunctionExcept<Category, RunExcept> task ) throws Exception {
       state.reset();
       state.update();
       log.log( Level.CONFIG, "Running category task in {0} threads.", threadPool.getParallelism() );
       try {
-         stop.set( false );
+         Converter.stop.set( false );
+         Exporter.stop.set( false );
          List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
          exportCategories.stream().sorted( (a,b) -> b.getExportCount() - a.getExportCount() ).forEachOrdered( ( category ) -> { try {
             RunExcept job = task.apply( category );
@@ -591,7 +583,8 @@ public class Controller {
          } } );
          CompletableFuture.allOf( tasks.toArray( new CompletableFuture[ tasks.size() ] ) ).get();
       } catch ( Exception e ) {
-         stop.set( true );
+         Converter.stop.set( true );
+         Exporter.stop.set( true );
          throw e;
       }
    }
