@@ -20,7 +20,8 @@ import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -81,7 +82,8 @@ public class Controller {
    private final Crawler crawler;
    private final Exporter exporter;
    private final Timer scheduler = new Timer();
-   private final ForkJoinPool threadPool = ForkJoinPool.commonPool(); // Only need one thread
+   private final int threads = Math.max( 2, Math.min( Runtime.getRuntime().availableProcessors(), 22 ) );
+   private final Executor threadPool = Executors.newFixedThreadPool( threads );
 
    public Controller ( SceneMain main ) {
       gui = main;
@@ -561,12 +563,12 @@ public class Controller {
    private void exportEachCategory ( FunctionExcept<Category, RunExcept> task ) throws Exception {
       state.reset();
       state.update();
-      log.log( Level.CONFIG, "Running category task in {0} threads.", threadPool.getParallelism() );
+      log.log( Level.CONFIG, "Running category task in {0} threads.", threads-1 );
       try {
          Converter.stop.set( false );
          Exporter.stop.set( false );
          List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
-         exportCategories.stream().sorted( (a,b) -> b.getExportCount() - a.getExportCount() ).forEachOrdered( ( category ) -> { try {
+         for ( Category category : exportCategories ) {
             RunExcept job = task.apply( category );
             if ( job == null ) return;
             CompletableFuture<Void> future = new CompletableFuture<>();
@@ -577,9 +579,7 @@ public class Controller {
             } catch ( Exception e ) {
                future.completeExceptionally( e );
             } } );
-         } catch ( Exception e ) {
-            throw new RuntimeException( e );
-         } } );
+         }
          CompletableFuture.allOf( tasks.toArray( new CompletableFuture[ tasks.size() ] ) ).get();
       } catch ( Exception e ) {
          Converter.stop.set( true );

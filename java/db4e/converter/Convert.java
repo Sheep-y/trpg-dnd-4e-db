@@ -1,8 +1,6 @@
 package db4e.converter;
 
 import db4e.Main;
-import db4e.controller.Controller.RunExcept;
-import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
