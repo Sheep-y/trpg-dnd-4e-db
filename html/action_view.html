@@ -130,9 +130,11 @@ od.action.view = {
             if ( len <= 0 ) return part;
          }
          if ( ! node.previousSibling )
-            while ( ! node.previousSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 )
+            do {
                node = node.parentNode;
-         return node.previousSibling ? findPre( node.previousSibling, len ) + part : part;
+            } while ( ! node.previousSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 )
+         return node.previousSibling && allowed_tag.indexOf( node.tagName ) >= 0
+            ? findPre( node.previousSibling, len ) + part : part;
       }
 
       function findPost( node, len, offset ) {
@@ -144,16 +146,18 @@ od.action.view = {
             if ( len <= 0 ) return part;
          }
          if ( ! node.nextSibling )
-            while ( ! node.nextSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 )
+            do {
                node = node.parentNode;
-         return node.nextSibling ? findPre( node.nextSibling, len ) + part : part;
+            } while ( ! node.nextSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 )
+         return node.nextSibling && allowed_tag.indexOf( node.tagName ) >= 0
+            ? part + findPost( node.nextSibling, len ) : part;
       }
 
       // Longest name is 45 chars long. Add one more for safe word cut.
-      var pre  = findPre ( node, 46, range.startOffset ).replace( /^\S+/, "" );;
-      var post = findPost( node, 46, range.endOffset   ).replace( /\S+$/, "" );
+      var text = ( findPre ( node, 46, range.startOffset ).replace( /^\S+/, "" )
+               + findPost( node, 46, range.endOffset   ).replace( /\S+$/, "" ) ).replace( /\W+/g, ' ' ).trim();
 
-      console.log( pre + post );
+      console.log( text );
    }
 };
 

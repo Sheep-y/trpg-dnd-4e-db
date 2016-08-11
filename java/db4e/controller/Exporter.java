@@ -121,7 +121,7 @@ class Exporter {
          return a.compareTo( b );
       });
 
-      StringBuilder buffer = new StringBuilder( 790_000 );
+      StringBuilder buffer = new StringBuilder( 800_000 );
       buffer.append( "od.reader.jsonp_name_index(20160808,{" );
       for ( String name : names ) {
          str( buffer, name ).append( ':' );

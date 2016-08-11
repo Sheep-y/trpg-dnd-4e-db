@@ -281,24 +281,23 @@ public abstract class Convert {
 
    public static Map<String, List<String>> mapIndex ( List<Category> categories ) {
       Map<String, List<String>> map = new HashMap<>( 25000, 1f );
-      Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]|[-,].*", Pattern.CASE_INSENSITIVE ).matcher( "" );
+      Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]|,.*| -.*", Pattern.CASE_INSENSITIVE ).matcher( "" );
       Function<Entry, String> nameGetter;
       for ( Category category : categories ) {
          switch ( category.id ) {
             case "Background":
             case "Class":
-            case "Feat":
                nameGetter = ( entry ) -> entry.name;
                break;
             default:
                nameGetter = ( entry ) -> regxNote.reset( entry.name ).replaceAll( "" ).trim();
          }
          for ( Entry entry : category.sorted ) {
-            String name = nameGetter.apply( entry );
+            String name = nameGetter.apply( entry ).replaceAll( "\\W+", " " ).trim();
             if ( ! map.containsKey(name) ) {
                List<String> idList = new ArrayList<>( 1 ); // Most entries do not duplicate
                idList.add( entry.shortid );
-               map.put(name, idList );
+               map.put( name, idList );
             } else {
                /* Duplicate check *
                for ( String s : map.get( name ) )
