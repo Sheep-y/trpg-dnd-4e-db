@@ -188,8 +188,7 @@ od.gui = {
       var gui = od.gui, hl = gui.hl;
       if ( ! hl ) return html; // Nothing to highlight (e.g. all exclude search)
       // Apply highlight, then concat space separated highlights
-      html = html.replace( gui.hlp, '<span class="highlight">$1</span>' ).replace( /<\/span>(\s+)<span class="highlight">/g, '$1' );
-      if ( ! gui.hl_enabled ) html = html.replace( /class="highlight">/g, 'class="highlight disabled">' );
+      html = html.replace( gui.hlp, '<mark>$1</mark>' ).replace( /<\/mark>(\s+)<mark>/g, '$1' );
       return html;
    },
 
@@ -203,10 +202,7 @@ od.gui = {
       else
          gui.hl_enabled = state;
       _.info( "[Config] Toggle highlight " + ( gui.hl_enabled ? 'on' : 'off' ) );
-      _.ary( _( 'span.highlight' ) ).forEach( gui.hl_enabled
-         ? function gui_toggle_highlight_enable ( e ) { e.classList.remove( 'disabled' ); }
-         : function gui_toggle_highlight_disable( e ) { e.classList.add   ( 'disabled' ); } );
+      document.body.classList[ gui.hl_enabled ? 'remove' : 'add' ]( 'no_highlight' );
       _.prop( '#action_about_rdo_highlight_' + ( od.gui.hl_enabled ? 'on' : 'off' ), { 'checked': true } );
    },
-
 };

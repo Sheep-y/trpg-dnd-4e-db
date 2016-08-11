@@ -58,14 +58,15 @@ th { text-align: left; }
 figure { margin: 0; }
 
 /** Search term highlight */
-.highlight {
+mark {
    background-color: yellow;
    padding: 0 !important;
    margin: 0 !important;
 }
 
-.highlight.disabled {
+.no_highlight mark {
    background-color: transparent;
+   color: inherit;
 }
 
 /** Back / Forward button */
