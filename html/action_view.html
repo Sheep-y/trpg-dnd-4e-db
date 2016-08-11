@@ -130,12 +130,9 @@ od.action.view = {
             if ( len <= 0 ) return part;
          }
          if ( ! node.previousSibling )
-            do {
+            while ( ! node.previousSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 )
                node = node.parentNode;
-            } while ( ! node.previousSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 );
-         return node.previousSibling
-            ? findPre( node.previousSibling, len ) + part
-            : part;
+         return node.previousSibling ? findPre( node.previousSibling, len ) + part : part;
       }
 
       function findPost( node, len, offset ) {
@@ -147,16 +144,14 @@ od.action.view = {
             if ( len <= 0 ) return part;
          }
          if ( ! node.nextSibling )
-            do {
+            while ( ! node.nextSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 )
                node = node.parentNode;
-            } while ( ! node.nextSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 );
-         return node.nextSibling
-            ? findPre( node.nextSibling, len ) + part
-            : part;
+         return node.nextSibling ? findPre( node.nextSibling, len ) + part : part;
       }
 
-      var pre  = findPre ( node, 45, range.startOffset );
-      var post = findPost( node, 45, range.endOffset   );
+      // Longest name is 45 chars long. Add one more for safe word cut.
+      var pre  = findPre ( node, 46, range.startOffset ).replace( /^\S+/, "" );;
+      var post = findPost( node, 46, range.endOffset   ).replace( /\S+$/, "" );
 
       console.log( pre + post );
    }

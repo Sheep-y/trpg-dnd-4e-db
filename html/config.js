@@ -15,7 +15,9 @@ od.config = {
       "listing" :
          function config_url ( category ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/_listing.js'; },
       "index" :
-         function config_url ( category ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/_index.js'; },
+         function config_url ( category ) {
+            return od.config.data_read_path + '/' + ( category ? category.toLowerCase() + '/_index.js'
+                                                               : 'index.js' ); },
       "data" :
          function config_url ( category, id ) {
             var matches = id.match( /(\d{1,2})$/ ) || [];

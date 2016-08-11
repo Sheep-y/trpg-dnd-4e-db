@@ -40,6 +40,23 @@ od.reader = {
 
    /////////////////////////////////////////////////////////
 
+   // Name index is a map of name to id, for creation of internal links
+
+   read_name_index: function reader_read_index( onload, onerror ) {
+      var path = od.config.url.index();
+      this._read(
+        path,
+        function(){ return od.data.index; },
+        onload,
+        onerror ? onerror : 'Cannot read entry index from ' + path );
+   },
+
+   jsonp_name_index: function reader_jsonp_index( version, data ) {
+      od.data.index = data;
+   },
+
+   /////////////////////////////////////////////////////////
+
    // Listing is a processed listing of items in a category.
 
    read_data_listing: function reader_read_data_listing( category, onload, onerror ) {

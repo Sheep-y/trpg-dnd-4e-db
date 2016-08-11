@@ -10,6 +10,8 @@
 od.data = {
    /* Please do NOT access directly. */
    "category" : {},
+   /* Read only, don't modify. */
+   "index" : null,
 
    /**
     * With no parameter: return an array of category names.
@@ -55,22 +57,25 @@ od.data = {
 
    "list" : function data_list () { return Object.keys( this.category ); },
 
-   "load_catalog" : function data_load_catalog ( ondone, onerror ) { od.reader.read_catalog( ondone, onerror ); },
+   "load_catalog" : function data_load_catalog ( ondone, onerror ) {
+      var countdown = 2;
+      var callback = function cat_countdown(){ if ( --countdown === 0 ) ondone(); };
+      od.reader.read_catalog( callback , onerror );
+      od.reader.read_name_index( callback, onerror );
+   },
 
    "load_all_index" : function data_load_all_index ( ondone ) {
       var countdown = this.list().length;
+      var callback = function index_countdown(){ if ( --countdown === 0 ) ondone(); };
       var cats = this.category;
-      for ( var cat in cats ) cats[cat].load_index( function data_load_all_index_countdown () {
-         if ( --countdown === 0 ) ondone();
-      });
+      for ( var cat in cats ) cats[cat].load_index( callback );
    },
 
    "load_all_listing" : function data_load_all_listing ( ondone ) {
       var countdown = this.list().length;
+      var callback = function listing_countdown(){ if ( --countdown === 0 ) ondone(); };
       var cats = this.category;
-      for ( var cat in cats ) cats[cat].load_listing( function data_load_all_index_countdown () {
-         if ( --countdown === 0 ) ondone();
-      });
+      for ( var cat in cats ) cats[cat].load_listing( callback );
    }
 };
 
