@@ -58,10 +58,11 @@ od.data = {
    "list" : function data_list () { return Object.keys( this.category ); },
 
    "load_catalog" : function data_load_catalog ( ondone, onerror ) {
-      var countdown = 2;
-      var callback = function cat_countdown(){ if ( --countdown === 0 ) ondone(); };
-      od.reader.read_catalog( callback , onerror );
-      od.reader.read_name_index( callback, onerror );
+      od.reader.read_catalog( ondone, onerror );
+   },
+
+   "load_name_index" : function data_name_index ( ondone ) {
+      od.reader.read_name_index( ondone );
    },
 
    "load_all_index" : function data_load_all_index ( ondone ) {

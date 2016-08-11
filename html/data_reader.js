@@ -48,7 +48,7 @@ od.reader = {
         path,
         function(){ return od.data.index; },
         onload,
-        onerror ? onerror : 'Cannot read entry index from ' + path );
+        onerror ); // Ignore error since it is not critical
    },
 
    jsonp_name_index: function reader_jsonp_index( version, data ) {

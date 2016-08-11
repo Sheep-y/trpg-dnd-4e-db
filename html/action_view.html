@@ -7,7 +7,7 @@
       <button id="act_view_btn_prev" class="btn_prev" onclick="od.action.view.btn_prev_click()">&lt;</button>
       <button id="act_view_btn_next" class="btn_next" onclick="od.action.view.btn_next_click()">&gt;</button>
    </nav>
-   <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.find_selected()"></article>
+   <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.pnl_content_click()"></article>
    <header role="navigation">
       <button class='i18n' onclick='od.gui.go("list");' accesskey='1'> action.list.link_text </button>
       <h1 id="act_view_h_title"></h1>
@@ -117,9 +117,14 @@ od.action.view = {
       if ( pos < action.siblings.length-1 ) _.show( '#act_view_btn_next' );
    },
 
+   "pnl_content_click" : function act_view_pnl_content_click () {
+      od.data.load_name_index( od.action.view.find_selected );
+   },
+
    "find_selected" : function act_view_find_selected () {
       var sel = window.getSelection(),  range = sel.getRangeAt(0),  node = sel.anchorNode;
-      var allowed_tag = [ undefined /* text */, 'span', 'mark' ];
+      var stopAtTag = [ 'DIV', 'P' ];
+      _.time();
 
       function findPre( node, len, offset ) {
          var text = node.textContent, part = '';
@@ -132,9 +137,9 @@ od.action.view = {
          if ( ! node.previousSibling )
             do {
                node = node.parentNode;
-            } while ( ! node.previousSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 )
-         return node.previousSibling && allowed_tag.indexOf( node.tagName ) >= 0
-            ? findPre( node.previousSibling, len ) + part : part;
+               if ( stopAtTag.indexOf( node.tagName ) >= 0 ) break;
+            } while ( ! node.previousSibling && node.parentNode )
+         return node.previousSibling ? findPre( node.previousSibling, len ) + part : part;
       }
 
       function findPost( node, len, offset ) {
@@ -148,25 +153,34 @@ od.action.view = {
          if ( ! node.nextSibling )
             do {
                node = node.parentNode;
-            } while ( ! node.nextSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 )
-         return node.nextSibling && allowed_tag.indexOf( node.tagName ) >= 0
-            ? part + findPost( node.nextSibling, len ) : part;
+               if ( stopAtTag.indexOf( node.tagName ) >= 0 ) break;
+            } while ( ! node.nextSibling && node.parentNode )
+         return node.nextSibling ? part + findPost( node.nextSibling, len ) : part;
+      }
+
+      function normalise ( str ) {
+         return str.replace( /\W+/g, ' ' ).toLowerCase();
       }
 
       // Longest name is 45 chars long. Add one more for safe word cut.
-      var text = ( findPre ( node, 46, range.startOffset ).replace( /^\S+/, "" )
-               + findPost( node, 46, range.endOffset   ).replace( /\S+$/, "" ) ).replace( /\W+/g, ' ' ).trim().toLowerCase();
-      var shorter = text.replace( /^\S+\s|\s\S+$/g, "" );
-      console.info( "Lookup: " + ext );
+      var pre  = normalise( findPre ( node, 46, range.startOffset ).replace( /^\s+/, "" ) );
+      var post = normalise( findPost( node, 46, range.startOffset ).replace( /\s+$/, "" ) );
+      _.time( "Lookup: " + pre + "^" + post );
+      var nextSpace = pre.indexOf( ' ' ),  text = pre + post,   index = od.data.index;
 
-      for ( var name in od.data.index ) {
-         if ( name.length * 2 < shorter.length ) {
-            text = shorter;
-            shorter = text.replace( /^\S+\s|\s\S+$/g, "" );
+      for ( var name in index ) {
+         if ( nextSpace >= 0 && name.length < pre.length - nextSpace ) {
+            pre = pre.substr( nextSpace + 1 );
+            text = pre + post;
+            nextSpace = pre.indexOf( ' ' );
+            console.log( "shorten: " + name + " -> " + pre + "^" + post );
          }
-         if ( text.indexOf( name ) >= 0 )
-            console.log( od.data.index[ name ] );
+         var pos = text.indexOf( name );
+         if ( pos >= 0 && pos <= pre.length && pos + name.length >= pre.length )
+            if ( pos === 0 || pre.charAt( pos-1 ) === ' ' )
+               console.log( ">>> " + index[ name ] + " " + name );
       }
+      _.time( "Done lookup" );
    }
 };
 

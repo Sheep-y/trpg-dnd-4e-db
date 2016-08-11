@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -282,29 +283,47 @@ public abstract class Convert {
    public static Map<String, List<String>> mapIndex ( List<Category> categories ) {
       Map<String, List<String>> map = new HashMap<>( 25000, 1f );
       Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]|,.*| -.*", Pattern.CASE_INSENSITIVE ).matcher( "" );
-      Function<Entry, String> nameGetter;
+      UnaryOperator<String> removeNote = ( str ) -> regxNote.reset( str ).replaceAll( "" ).trim();
+      Function<Entry, String[]> nameGetter;
       for ( Category category : categories ) {
          switch ( category.id ) {
             case "Background":
+               nameGetter = ( entry ) -> new String[]{ entry.name };
+               break;
             case "Class":
-               nameGetter = ( entry ) -> entry.name;
+               nameGetter = ( entry ) -> {
+                  String name = entry.name;
+                  if ( name.startsWith( "Hybrid " ) ) name = name.substring( 7 );
+                  if ( ! name.contains( "(" ) ) return new String[]{ name };
+                  return name.substring( 0, name.length() - 1 ).split( " \\(", 2 );
+               };
+               break;
+            case "Implement":
+               nameGetter = ( entry ) -> {
+                  String name = entry.name;
+                  if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 );
+                  return new String[]{ removeNote.apply( name ) };
+               };
                break;
             default:
-               nameGetter = ( entry ) -> regxNote.reset( entry.name ).replaceAll( "" ).trim();
+               nameGetter = ( entry ) -> new String[]{ removeNote.apply( entry.name ) };
          }
          for ( Entry entry : category.sorted ) {
-            String name = nameGetter.apply( entry ).replaceAll( "\\W+", " " ).trim().toLowerCase();
-            if ( ! map.containsKey(name) ) {
-               List<String> idList = new ArrayList<>( 1 ); // Most entries do not duplicate
-               idList.add( entry.shortid );
-               map.put( name, idList );
-            } else {
-               /* Duplicate check *
-               for ( String s : map.get( name ) )
-                  if ( s.startsWith( entry.shortid.substring( 0, 4 ) ) )
-                     System.out.println( "Duplicate " + name + ": " + s + ", " + entry.shortid );
-               /**/
-               map.get( name ).add( entry.shortid );
+            String[] names = nameGetter.apply( entry );
+            for ( String name : names ) {
+               name = name.replaceAll( "\\W+", " " ).trim().toLowerCase();
+               if ( ! map.containsKey( name ) ) {
+                  List<String> idList = new ArrayList<>( 1 ); // Most entries do not duplicate
+                  idList.add( entry.shortid );
+                  map.put( name, idList );
+               } else {
+                  /* Duplicate check *
+                  for ( String s : map.get( name ) )
+                     if ( s.startsWith( entry.shortid.substring( 0, 4 ) ) )
+                        System.out.println( "Duplicate " + name + ": " + s + ", " + entry.shortid );
+                  /**/
+                  map.get( name ).add( entry.shortid );
+               }
             }
          }
       }
