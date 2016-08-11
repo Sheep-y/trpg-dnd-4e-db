@@ -155,9 +155,18 @@ od.action.view = {
 
       // Longest name is 45 chars long. Add one more for safe word cut.
       var text = ( findPre ( node, 46, range.startOffset ).replace( /^\S+/, "" )
-               + findPost( node, 46, range.endOffset   ).replace( /\S+$/, "" ) ).replace( /\W+/g, ' ' ).trim();
+               + findPost( node, 46, range.endOffset   ).replace( /\S+$/, "" ) ).replace( /\W+/g, ' ' ).trim().toLowerCase();
+      var shorter = text.replace( /^\S+\s|\s\S+$/g, "" );
+      console.info( "Lookup: " + ext );
 
-      console.log( text );
+      for ( var name in od.data.index ) {
+         if ( name.length * 2 < shorter.length ) {
+            text = shorter;
+            shorter = text.replace( /^\S+\s|\s\S+$/g, "" );
+         }
+         if ( text.indexOf( name ) >= 0 )
+            console.log( od.data.index[ name ] );
+      }
    }
 };
 

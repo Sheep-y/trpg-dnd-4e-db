@@ -48,13 +48,12 @@ If you find similar mistakes that aren't fixed, please [file an issue](https://g
 * Downloader source code is in java folder, and use libraries in java_lib folder.
 * Both use resources at the root (license) and/or in the resource folder.
 * Use Ant (build.xml) to compile viewer and then downloader into an executable jar.
-* The jar can also be extracted to a new folder; use Ant to move the extracted files back to original structure.
+* The jar can also be extracted to a new project folder; use Ant to move the extracted files back to original structure.
 
 The viewer is built with [CocoDoc](https://github.com/Sheep-y/CocoDoc/) app builder, which is bundled and must run in GUI.
-Try to use 64 bits java runtime; 32 bits may stackoverfow on js minify, but won't affect functionality.
 
-The downloader use sqljet to access sqlite database, but the data cannot be read by other SQLite libraries.
-It might be a sqljet issue, which is discontinued.
+Sqljet is used to access sqlite database, but the data cannot be read by other SQLite libraries.
+It may be a sqljet issue.
 Since it is very light and has no other issues, I'm keeping it and hoping someone can find what's wrong someday.
 
 <small>

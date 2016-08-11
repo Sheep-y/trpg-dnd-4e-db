@@ -293,7 +293,7 @@ public abstract class Convert {
                nameGetter = ( entry ) -> regxNote.reset( entry.name ).replaceAll( "" ).trim();
          }
          for ( Entry entry : category.sorted ) {
-            String name = nameGetter.apply( entry ).replaceAll( "\\W+", " " ).trim();
+            String name = nameGetter.apply( entry ).replaceAll( "\\W+", " " ).trim().toLowerCase();
             if ( ! map.containsKey(name) ) {
                List<String> idList = new ArrayList<>( 1 ); // Most entries do not duplicate
                idList.add( entry.shortid );
