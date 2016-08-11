@@ -7,7 +7,7 @@
       <button id="act_view_btn_prev" class="btn_prev" onclick="od.action.view.btn_prev_click()">&lt;</button>
       <button id="act_view_btn_next" class="btn_next" onclick="od.action.view.btn_next_click()">&gt;</button>
    </nav>
-   <article id="act_view_pnl_content" contextmenu="menu_view"></article>
+   <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.find_selected()"></article>
    <header role="navigation">
       <button class='i18n' onclick='od.gui.go("list");' accesskey='1'> action.list.link_text </button>
       <h1 id="act_view_h_title"></h1>
@@ -54,7 +54,7 @@ od.action.view = {
          var cat = od.data.create( od.data.category_name_of( id ) );
          _.info( "Display " + cat.name + "." + id );
          // Create div
-         var div = _.create( 'div' );
+         var div = _.html( '<div>' + _.l( 'gui.loading', 'Loading' ) + '</div>' );
          _( '#act_view_pnl_content')[0].appendChild( div );
          // Load and fill div
          cat.load_data( id, function act_view_show_load () {
@@ -107,7 +107,7 @@ od.action.view = {
       od.gui.update_title();
    },
 
-   "update_nav_button" : function update_nav_button () {
+   "update_nav_button" : function act_view_update_nav_button () {
       var action = od.action.view;
       _.hide( '#act_view_btn_prev, #act_view_btn_next' );
       if ( ! action.siblings || action.siblings.length <= 1 || ! action.act_id || action.act_id instanceof Array ) return;
@@ -115,6 +115,50 @@ od.action.view = {
       if ( pos < 0 ) return;
       if ( pos > 0 ) _.show( '#act_view_btn_prev' );
       if ( pos < action.siblings.length-1 ) _.show( '#act_view_btn_next' );
+   },
+
+   "find_selected" : function act_view_find_selected () {
+      var sel = window.getSelection(),  range = sel.getRangeAt(0),  node = sel.anchorNode;
+      var allowed_tag = [ undefined /* text */, 'span', 'mark' ];
+
+      function findPre( node, len, offset ) {
+         var text = node.textContent, part = '';
+         if ( text.length ) {
+            if ( offset === undefined ) offset = text.length;
+            part = text.substring( offset-Math.min( offset, len ) , offset );
+            len -= part.length;
+            if ( len <= 0 ) return part;
+         }
+         if ( ! node.previousSibling )
+            do {
+               node = node.parentNode;
+            } while ( ! node.previousSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 );
+         return node.previousSibling
+            ? findPre( node.previousSibling, len ) + part
+            : part;
+      }
+
+      function findPost( node, len, offset ) {
+         var text = node.textContent, part = '';
+         if ( text.length ) {
+            if ( offset === undefined ) offset = 0;
+            part = text.substring( offset, Math.min( text.length, offset+len ) );
+            len -= part.length;
+            if ( len <= 0 ) return part;
+         }
+         if ( ! node.nextSibling )
+            do {
+               node = node.parentNode;
+            } while ( ! node.nextSibling && node.parentNode && allowed_tag.indexOf( node.tagName ) >= 0 );
+         return node.nextSibling
+            ? findPre( node.nextSibling, len ) + part
+            : part;
+      }
+
+      var pre  = findPre ( node, 45, range.startOffset );
+      var post = findPost( node, 45, range.endOffset   );
+
+      console.log( pre + post );
    }
 };
 

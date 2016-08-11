@@ -281,7 +281,7 @@ public abstract class Convert {
 
    public static Map<String, List<String>> mapIndex ( List<Category> categories ) {
       Map<String, List<String>> map = new HashMap<>( 25000, 1f );
-      Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]", Pattern.CASE_INSENSITIVE ).matcher( "" );
+      Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]|[-,].*", Pattern.CASE_INSENSITIVE ).matcher( "" );
       Function<Entry, String> nameGetter;
       for ( Category category : categories ) {
          switch ( category.id ) {
