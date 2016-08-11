@@ -151,6 +151,5 @@ od.data.Category.prototype = {
       }
    }
 };
-_.seal( od.data.Category.prototype );
 
 })();

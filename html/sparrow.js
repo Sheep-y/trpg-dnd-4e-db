@@ -49,19 +49,6 @@ if ( ns ) ns._ = _;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Return first non-null, non-undefined parameter.
- *
- * @returns {*} First non null data.  If none, returns the last argument or undefined.
- */
-_.coalesce = function _coalesce ( a ) {
-   for ( var i in arguments ) {
-      a = arguments[ i ];
-      if ( a !== undefined && a !== null ) return a;
-   }
-   return a;
-};
-
-/**
  * Safely get the (deep) property of a object.
  * If the property is unavailable, return undefined.
  * e.g. _.get( window, [ 'localStorage', 'sessionStorage' ], 'datakey' );
@@ -457,7 +444,6 @@ if ( this && this.setImmediate ) {
  *                        otherwise if still non-true after load then call onerror.
  *   onload  - Callback (url, option) when the request succeed.
  *   onerror - Callback (url, option) when the request failed.
- *   harmony - If true, will set harmony script type for Firefox. (Overrides type in this case)
  *
  * @param {(string|Object)} option Url to send get request, or an option object.
  * @param {function(string,Object)=} onload Overrides option.onload
@@ -471,7 +457,6 @@ _.js = function _js ( option, onload ) {
    if ( option.validate && option.validate.call( null, url, option ) ) return _js_done( option.onload );
 
    var url = option.url;
-   if ( option.harmony && ! option.type && _.is.firefox() ) option.type = "application/javascript;version=1.8";
 
    var attr = { 'src' : url, 'parent': document.body || document.head };
    if ( option.charset ) attr.charset = option.charset;
@@ -783,42 +768,6 @@ _.si = function _si ( val, decimal ) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Alias for Oblect.getPrototyeOf, except null safe.
- *
- * @param {Object|null|undefined} e Subject to get prototype of
- * @returns {Object|null|undefined} Prototype of e, or null|undefined if e is null|undefined.
- */
-_.proto = function _proto ( e ) {
-   if ( e === null || e === undefined || ! _.is.object( e ) ) return e;
-   return Object.getPrototypeOf( e );
-};
-
-/**
- * Create a subclass from a base class.
- * You still need to call super in constructor and methods, if necessary.
- *
- * @param {(Object|null)} base Base constructor. Result prototype will inherit base.prototype.
- * @param {(function(...*)|null)} constructor New object's constructor function. Optional.
- * @param {Object=} prototype Object from which to copy properties to result.prototype. Optional.
- * @returns {Function} Result subclass function object.
- */
-_.inherit = function _inherit ( base, constructor, prototype ) {
-   _.assert( ! base || base.prototype, _inherit.name + ': base must be a constructor' );
-   _.assert( ! constructor || typeof( constructor ) === 'function', _inherit.name + ': constructor must be function' );
-   if ( ! constructor ) {
-      if ( base ) constructor = function _inherit_constructor () { base.apply( this, arguments ); };
-      else constructor = function _dummy_constructor () {}; // Must always create new function, do not share it
-   }
-   if ( base ) {
-      var proto = constructor.prototype = Object.create( base.prototype );
-      if ( prototype ) _.extend( proto, prototype );
-   } else {
-      constructor.prototype = prototype;
-   }
-   return constructor;
-};
-
-/**
  * Add properties from one object to another.
  * Properties owned by target will not be overwritten, but inherited properties may be copied over.
  * Similiarly, properties owned by subsequence arguments will be copied, but not inherited properties.
@@ -890,27 +839,6 @@ _.prop = function _prop ( ary, obj, flag ) {
    _.forEach( ary, setter );
    return ary;
 };
-
-/**
- * Safe method to get an object's prototype.
- * Return null if input is null.  Return undefined if input is not an object.
- *
- * @param {*} base Base object to get prototype.
- * @returns {Object|undefined|null} Null or undefined if base cannot have prototype.  Otherwise Object.getPrototypeOf.
- */
-_.proto = function _proto ( base ) {
-   if ( base === undefined || base === null ) return base;
-   if ( ! _.is.object( base ) ) return;
-   if ( base.__proto__ ) return base.__proto__;
-   return Object.getPrototypeOf( base );
-};
-
-// Prevent changing properties
-_.freeze = Object.freeze ? function _freeze ( o ) { return Object.freeze(o); } : _.echo;
-// Prevent adding new properties and removing old properties
-_.seal = Object.seal ? function _seal ( o ) { return Object.seal(o); } : _.echo;
-// Prevent adding new properties
-_.noExt = Object.preventExtensions ? function _noExt ( o ) { return Object.preventExtensions(o); } : _.echo;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DOM operation
@@ -1139,52 +1067,6 @@ _.clear = function _clear ( e ) {
       }
    } );
    return e;
-};
-
-/**
- * Check whether given DOM element(s) contain a class.
- *
- * @param {(string|Node|NodeList)} e Selector or element(s).
- * @param {string} className  Class to check.
- * @returns {boolean} True if any elements belongs to given class.
- */
-_.hasClass = function _hasClass ( e, className ) {
-   return _.domList( e ).some( function(c){ return c.classList.contains( className ); } );
-};
-
-/**
- * Adds class(es) to DOM element(s).
- *
- * @param {(string|Node|NodeList)} e Selector or element(s).
- * @param {(string|Array)} className  Class(es) to add.  Can be String or Array of String.
- * @returns {Array|NodeList} Array-ifed e
- */
-_.addClass = function _addClass ( e, className ) { return _.toggleClass( e, className, 'add' ); };
-
-/**
- * Removes class(es) from DOM element(s).
- *
- * @param {(string|Node|NodeList)} e Selector or element(s). If ends with a class selector, it will become default for className.
- * @param {(string|Array)} className  Class(es) to remove.  Can be String or Array of String.
- * @returns {Array|NodeList} Array-ifed e
- */
-_.removeClass = function _removeClass ( e, className ) { return _.toggleClass( e, className, 'remove' ); };
-
-/**
- * Adds or removes class(es) from DOM element(s).
- *
- * @param {(string|Node|NodeList)} e Selector or element(s).
- * @param {(string|Array)} className  Class(es) to toggle.  Can be String or Array of String.
- * @param {string=} method classList method to run.  Default to 'toggle'.
- * @returns {Array|NodeList} Array-ifed e
- */
-_.toggleClass = function _toggleClass ( e, className, method ) {
-   if ( method === undefined ) method = 'toggle';
-   var cls = _.array( className ), ary = _.domList( e );
-   _.forEach( ary, function _toggleClass_each ( dom ) {
-      for ( var c in cls ) dom.classList[ method ]( cls[ c ] );
-   } );
-   return ary;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
