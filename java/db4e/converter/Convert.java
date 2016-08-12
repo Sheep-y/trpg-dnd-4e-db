@@ -334,6 +334,8 @@ public abstract class Convert {
       switch ( category.id ) {
          case "Background":
             return new BackgroundConverter( category, debug );
+         case "Class":
+            return new ClassConverter( category, debug );
          case "Deity":
             return new DeityConverter( category, debug );
          case "Companion":
