@@ -306,11 +306,8 @@ od.action.list = {
       var tr = _.parent( evt.target, '#act_list_pnl_list tr' );
       if ( ! tr ) return;
 
-      var cat = od.action.list.category;
-      var id = tr.getAttribute('data-id');
-      if ( ! id ) return;
-      if ( ! cat ) cat = od.data.get( od.data.category_name_of( id ) );
-      od.gui.go( "view=" + encodeURIComponent( id ) );
+      var id = tr.getAttribute( 'data-id' );
+      if ( id ) od.gui.go( "view=" + encodeURIComponent( id ) );
    },
 
    'set_search_category' : function act_list_set_search_category ( cat ) {

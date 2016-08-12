@@ -24,7 +24,7 @@
       <button id="act_view_btn_next" class="btn_next" onclick="od.action.view.btn_next_click()">&gt;</button>
    </nav>
    <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.pnl_content_click(event)"></article>
-   <nav id="act_view_pnl_link">
+   <nav id="act_view_pnl_link" onclick="od.action.view.pnl_link_click(event)">
       <table><tbody></tbody></table>
    </nav>
    <header role="banner">
@@ -39,7 +39,7 @@ od.action.view = {
 
    "initialize" : function act_view_init () {
       function hide_popup () {
-         _.hide( 'act_view_pnl_link' );
+         _.hide( '#act_view_pnl_link' );
       }
       document.body.addEventListener( 'click', hide_popup );
       window.addEventListener( 'unload', hide_popup );
@@ -119,6 +119,12 @@ od.action.view = {
       if ( evt.button ) return; // Only handle left click
       var action = od.action.view;
       od.data.load_name_index( function(){ action.popup_links( evt ); });
+   },
+
+   "pnl_link_click" : function act_view_pnl_link_click ( evt ) {
+      _.noDef( evt );
+      var tr = _.parent( evt.target, '#act_view_pnl_link tr' );
+      if ( tr ) od.gui.go( _( tr, 'a' )[0].getAttribute( 'href' ).substr( 1 ) );
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
