@@ -3,19 +3,28 @@
   - View content of an entry / multiple entries
   -->
 <section id='action_view'>
+   <style scoped><?coco-start css(minify) ?>
+      #pnl_internal_link {
+         flex-flow: column nowrap;
+         position: absolute;
+         }
+   <?coco-end?></style>
    <nav>
       <button id="act_view_btn_prev" class="btn_prev" onclick="od.action.view.btn_prev_click()">&lt;</button>
       <button id="act_view_btn_next" class="btn_next" onclick="od.action.view.btn_next_click()">&gt;</button>
    </nav>
    <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.pnl_content_click()"></article>
-   <header role="navigation">
+   <nav id="pnl_internal_link">
+      <table><tbody></tbody></table>
+   </nav>
+   <header role="banner">
       <button class='i18n' onclick='od.gui.go("list");' accesskey='1'> action.list.link_text </button>
       <h1 id="act_view_h_title"></h1>
       <button class='i18n' onclick='scrollTo(0,0)'> gui.top </button>
    </header>
 </section>
 
-<script><?coco-start js(minify) ?>   'use strict';(function action_view_init(){
+<script><?coco-start js() ?>   'use strict';(function action_view_init(){
 od.action.view = {
 
    "initialize" : null,
@@ -54,7 +63,7 @@ od.action.view = {
          var cat = od.data.create( od.data.category_name_of( id ) );
          _.info( "Display " + cat.name + "." + id );
          // Create div
-         var div = _.html( '<div>' + _.l( 'gui.loading', 'Loading' ) + '</div>' );
+         var div = _.html( '<div><h1>' + _.l( 'gui.loading', 'Loading' ) + '</h1></div>' );
          _( '#act_view_pnl_content')[0].appendChild( div );
          // Load and fill div
          cat.load_data( id, function act_view_show_load () {
@@ -90,6 +99,11 @@ od.action.view = {
       action.parse_action_id();
    },
 
+   "pnl_content_click" : function act_view_pnl_content_click ( evt ) {
+      var action = od.action.view;
+      od.data.load_name_index( action.popup_links.bind( action, evt ) );
+   },
+
    /////////////////////////////////////////////////////////////////////////////////////////////////
 
    "act_id" : null, // Current view id, an array of or a single "cat.id"
@@ -117,13 +131,33 @@ od.action.view = {
       if ( pos < action.siblings.length-1 ) _.show( '#act_view_btn_next' );
    },
 
-   "pnl_content_click" : function act_view_pnl_content_click () {
-      od.data.load_name_index( od.action.view.find_selected );
+   "popup_links" : function act_view_popup_links ( evt ) {
+      var action = od.action.view;
+      var ids = action.find_internal_links();
+      _.hide( '#pnl_internal_link' );
+      if ( ! ids.length ) return;
+
+      od.data.load_all_listing( function act_view_popup_links_pop () {
+         var data = od.data;
+         _( '#pnl_internal_link tbody' )[0].innerHTML = ids.map( function( id ) {
+            var cat = data.get( data.category_name_of( id ) );
+            var row = cat.map[ id ];
+            return '<tr><td>' + cat.getTitle()
+               + '<td><a href="?view=' + id + '">' + row.Name + '</a>'
+               + '<td>' + row._TypeName;
+         }).join( '' );
+         _.show( '#pnl_internal_link' );
+         _.time( "Shown popup." );
+      });
    },
 
-   "find_selected" : function act_view_find_selected () {
+   /**
+    * Find entries that match the text in last click position (start of selection).
+    * @returns {Array} List of ids that matched, in decending order of name length then in order of name.
+    */
+   "find_internal_links" : function act_view_find_internal_links () {
       var sel = window.getSelection(),  range = sel.getRangeAt(0),  node = sel.anchorNode;
-      var stopAtTag = [ 'DIV', 'P' ];
+      var stopAtTag = [ 'DIV', 'P' ], result = [];
       _.time();
 
       function findPre( node, len, offset ) {
@@ -171,14 +205,15 @@ od.action.view = {
             pre = pre.substr( nextSpace + 1 );
             text = pre + post;
             nextSpace = pre.indexOf( ' ' );
-            console.log( "shorten: " + name + " -> " + pre + "^" + post );
+            // _.log( "shorten: " + name + " -> " + pre + "^" + post );
          }
          var pos = text.indexOf( name );
          if ( pos >= 0 && pos <= pre.length && pos + name.length >= pre.length )
             if ( pos === 0 || pre.charAt( pos-1 ) === ' ' )
-               console.log( ">>> " + index[ name ] + " " + name );
+               result = result.concat( index[ name ] );
       }
-      _.time( "Done lookup" );
+      _.time( "Done lookup. Found " + result.length + " links." );
+      return result;
    }
 };
 
