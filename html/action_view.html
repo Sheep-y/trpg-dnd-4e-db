@@ -172,7 +172,9 @@ od.action.view = {
          }).join( '' );
          var x = evt.clientX + window.scrollX;
          var y = evt.clientY + window.scrollY;
-         _.style( pnl, { top: y+'px', left: x+'px', display: 'block' } );
+         setTimeout( function() { // Defer to after global un-popup handler
+            _.style( pnl, { top: y+'px', left: x+'px', display: 'block' } );
+         }, 0 );
          _.time( "Shown popup." );
       });
    },
@@ -238,6 +240,11 @@ od.action.view = {
             if ( pos === 0 || pre.charAt( pos-1 ) === ' ' )
                result = result.concat( index[ name ] );
       }
+
+      result = result.filter( function ( e, i ) { // Remove dups
+         return result.slice( i + 1 ).indexOf( e ) < 0;
+      });
+
       _.time( "Done lookup. Found " + result.length + " links." );
       return result;
    }

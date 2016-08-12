@@ -291,12 +291,7 @@ public abstract class Convert {
                nameGetter = ( entry ) -> new String[]{ entry.name };
                break;
             case "Class":
-               nameGetter = ( entry ) -> {
-                  String name = entry.name;
-                  if ( name.startsWith( "Hybrid " ) ) name = name.substring( 7 );
-                  if ( ! name.contains( "(" ) ) return new String[]{ name };
-                  return name.substring( 0, name.length() - 1 ).split( " \\(", 2 );
-               };
+               nameGetter = Convert::getClassNames;
                break;
             case "Implement":
                nameGetter = ( entry ) -> {
@@ -329,6 +324,22 @@ public abstract class Convert {
       }
       return map;
    }
+
+   private static String[] getClassNames ( Entry entry ) {
+      String name = entry.name, altName = null;
+      boolean isHybrid = name.startsWith( "Hybrid " );
+      if ( isHybrid ) name = name.substring( 7 );
+      if ( name.indexOf( '(' ) > 0 ) {
+         altName = name.substring( name.indexOf( '(' ) + 1, name.length() - 1 );
+         name = name.substring( 0, name.indexOf( '(' ) - 1 );
+      }
+      Set<String> result = new HashSet<>( ClassConverter.featureMap.get( entry.shortid ) );
+      result.add( name );
+      if ( altName != null ) result.add( altName );
+      if ( isHybrid ) result.add( "Hybrid " + name );
+      if ( isHybrid && altName != null ) result.add( "Hybrid " + altName );
+      return result.toArray( new String[ result.size() ] );
+   };
 
    public static Converter getConverter ( Category category, boolean debug ) {
       switch ( category.id ) {
