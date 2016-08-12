@@ -4,17 +4,27 @@
   -->
 <section id='action_view'>
    <style scoped><?coco-start css(minify) ?>
-      #pnl_internal_link {
-         flex-flow: column nowrap;
+      #act_view_pnl_link {
+         background-color: rgba( 255, 224, 128, 0.9 );
+         border: 1px solid black;
+         box-shadow: 2px 2px 5px rgba( 0, 0, 0, 0.5 );
+         display: none;
          position: absolute;
          }
+         #act_view_pnl_link td {
+            padding: 0 1ex;
+            color: #666;
+            }
+            #act_view_pnl_link td:first-child {
+               text-align: right;
+               }
    <?coco-end?></style>
    <nav>
       <button id="act_view_btn_prev" class="btn_prev" onclick="od.action.view.btn_prev_click()">&lt;</button>
       <button id="act_view_btn_next" class="btn_next" onclick="od.action.view.btn_next_click()">&gt;</button>
    </nav>
-   <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.pnl_content_click()"></article>
-   <nav id="pnl_internal_link">
+   <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.pnl_content_click(event)"></article>
+   <nav id="act_view_pnl_link">
       <table><tbody></tbody></table>
    </nav>
    <header role="banner">
@@ -24,10 +34,16 @@
    </header>
 </section>
 
-<script><?coco-start js() ?>   'use strict';(function action_view_init(){
+<script><?coco-start js(minify) ?>   'use strict';(function action_view_init(){
 od.action.view = {
 
-   "initialize" : null,
+   "initialize" : function act_view_init () {
+      function hide_popup () {
+         _.hide( 'act_view_pnl_link' );
+      }
+      document.body.addEventListener( 'click', hide_popup );
+      window.addEventListener( 'unload', hide_popup );
+   },
 
    "l10n" : function act_view_l10n() {
       var action = od.action.view, id = action.act_id;
@@ -100,8 +116,9 @@ od.action.view = {
    },
 
    "pnl_content_click" : function act_view_pnl_content_click ( evt ) {
+      if ( evt.button ) return; // Only handle left click
       var action = od.action.view;
-      od.data.load_name_index( action.popup_links.bind( action, evt ) );
+      od.data.load_name_index( function(){ action.popup_links( evt ); });
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,21 +149,24 @@ od.action.view = {
    },
 
    "popup_links" : function act_view_popup_links ( evt ) {
-      var action = od.action.view;
+      var action = od.action.view, pnl = _( '#act_view_pnl_link' )[0];
       var ids = action.find_internal_links();
-      _.hide( '#pnl_internal_link' );
+      _.hide( pnl );
       if ( ! ids.length ) return;
 
       od.data.load_all_listing( function act_view_popup_links_pop () {
          var data = od.data;
-         _( '#pnl_internal_link tbody' )[0].innerHTML = ids.map( function( id ) {
+         _.info( "Showing popup for " + ids );
+         _( '#act_view_pnl_link tbody' )[0].innerHTML = ids.map( function( id ) {
             var cat = data.get( data.category_name_of( id ) );
             var row = cat.map[ id ];
             return '<tr><td>' + cat.getTitle()
                + '<td><a href="?view=' + id + '">' + row.Name + '</a>'
                + '<td>' + row._TypeName;
          }).join( '' );
-         _.show( '#pnl_internal_link' );
+         var x = evt.clientX + window.scrollX;
+         var y = evt.clientY + window.scrollY;
+         _.style( pnl, { top: y+'px', left: x+'px', display: 'block' } );
          _.time( "Shown popup." );
       });
    },

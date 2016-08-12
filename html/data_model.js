@@ -62,7 +62,10 @@ od.data = {
    },
 
    "load_name_index" : function data_name_index ( ondone ) {
-      od.reader.read_name_index( ondone );
+      var countdown = 2;
+      var callback = function name_countdown(){ if ( --countdown === 0 ) ondone(); };
+      od.reader.read_catalog( callback );
+      od.reader.read_name_index( callback );
    },
 
    "load_all_index" : function data_load_all_index ( ondone ) {
