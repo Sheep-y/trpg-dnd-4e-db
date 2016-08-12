@@ -174,6 +174,7 @@ public class Controller {
       gui.setProgress( -1.0 );
       synchronized ( categories ) {
          categories.clear();
+         exportCategories.clear();
       }
       state.reset();
       state.total = 0;

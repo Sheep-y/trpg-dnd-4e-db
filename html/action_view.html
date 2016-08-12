@@ -130,16 +130,15 @@ od.action.view = {
          var text = node.textContent, part = '';
          if ( text.length ) {
             if ( offset === undefined ) offset = text.length;
-            part = text.substring( offset-Math.min( offset, len ) , offset );
+            part = text.substring( offset-Math.min( offset, len ), offset );
             len -= part.length;
             if ( len <= 0 ) return part;
          }
          if ( ! node.previousSibling )
-            do {
+            while ( ! node.previousSibling && node.parentNode && stopAtTag.indexOf( node.tagName ) < 0 )
                node = node.parentNode;
-               if ( stopAtTag.indexOf( node.tagName ) >= 0 ) break;
-            } while ( ! node.previousSibling && node.parentNode )
-         return node.previousSibling ? findPre( node.previousSibling, len ) + part : part;
+         return node.previousSibling && stopAtTag.indexOf( node.tagName ) < 0
+               ? findPre( node.previousSibling, len ) + part : part;
       }
 
       function findPost( node, len, offset ) {
@@ -151,11 +150,10 @@ od.action.view = {
             if ( len <= 0 ) return part;
          }
          if ( ! node.nextSibling )
-            do {
+            while ( ! node.nextSibling && node.parentNode && stopAtTag.indexOf( node.tagName ) < 0 )
                node = node.parentNode;
-               if ( stopAtTag.indexOf( node.tagName ) >= 0 ) break;
-            } while ( ! node.nextSibling && node.parentNode )
-         return node.nextSibling ? part + findPost( node.nextSibling, len ) : part;
+         return node.nextSibling && stopAtTag.indexOf( node.tagName ) < 0
+               ? part + findPost( node.nextSibling, len ) : part;
       }
 
       function normalise ( str ) {

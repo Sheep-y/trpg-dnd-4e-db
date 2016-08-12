@@ -46,7 +46,7 @@ If you find similar mistakes that aren't fixed, please [file an issue](https://g
 
 * Viewer source code is in html folder.
 * Downloader source code is in java folder, and use libraries in java_lib folder.
-* Both use resources at the root (license) and/or in the resource folder.
+* Both use resources at the root (license) and in the resource folder.
 * Use Ant (build.xml) to compile viewer and then downloader into an executable jar.
 * The jar can also be extracted to a new project folder; use Ant to move the extracted files back to original structure.
 
