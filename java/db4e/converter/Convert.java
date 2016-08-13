@@ -293,6 +293,22 @@ public abstract class Convert {
             case "Class":
                nameGetter = Convert::getClassNames;
                break;
+            case "Glossary":
+               nameGetter = ( entry ) -> {
+                  List<String> result = new ArrayList<>( 3 );
+                  String name = entry.name;
+                  result.add( name );
+                  if ( name.endsWith( "s" ) ) {
+                     result.add( name.substring( 0, name.length() - 1 ) );
+                     if ( name.endsWith( "es" ) ) {
+                        result.add( name.substring( 0, name.length() - 2 ) );
+                        if ( name.endsWith( "ies" ) )
+                           result.add( name.substring( 0, name.length() - 3 ) + 'y' );
+                     }
+                  }
+                  return result.toArray( new String[ result.size() ] );
+               };
+               break;
             case "Implement":
                nameGetter = ( entry ) -> {
                   String name = entry.name;
