@@ -194,7 +194,7 @@ od.action.view = {
     */
    "find_internal_links" : function act_view_find_internal_links () {
       var sel = window.getSelection(),  range = sel.getRangeAt(0),  node = sel.anchorNode;
-      var stopAtTag = [ 'DIV', 'P' ], result = [];
+      var textTag = [ undefined, 'MARK', 'SPAN' ], result = [];
       _.time();
 
       function findPre( node, len, offset ) {
@@ -205,11 +205,9 @@ od.action.view = {
             len -= part.length;
             if ( len <= 0 ) return part;
          }
-         if ( ! node.previousSibling )
-            while ( ! node.previousSibling && node.parentNode && stopAtTag.indexOf( node.tagName ) < 0 )
-               node = node.parentNode;
-         return node.previousSibling && stopAtTag.indexOf( node.tagName ) < 0
-               ? findPre( node.previousSibling, len ) + part : part;
+         if ( node.previousSibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( node.previousSibling.tagName ) >= 0 )
+            return findPre( node.previousSibling, len ) + part;
+         return part;
       }
 
       function findPost( node, len, offset ) {
@@ -220,11 +218,9 @@ od.action.view = {
             len -= part.length;
             if ( len <= 0 ) return part;
          }
-         if ( ! node.nextSibling )
-            while ( ! node.nextSibling && node.parentNode && stopAtTag.indexOf( node.tagName ) < 0 )
-               node = node.parentNode;
-         return node.nextSibling && stopAtTag.indexOf( node.tagName ) < 0
-               ? part + findPost( node.nextSibling, len ) : part;
+         if ( node.nextSibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( node.nextSibling.tagName ) >= 0 )
+            return findPre( node.nextSibling, len ) + part;
+         return part;
       }
 
       function normalise ( str ) {
