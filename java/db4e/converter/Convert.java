@@ -295,8 +295,18 @@ public abstract class Convert {
                break;
             case "Glossary":
                nameGetter = ( entry ) -> {
-                  List<String> result = new ArrayList<>( 3 );
                   String name = entry.name;
+                  if ( entry.shortid.equals( "glossary159" ) ) // Teleportation
+                     return new String[]{ "Teleport", "Teleportation" };
+                  else if ( entry.shortid.equals( "glossary159" ) ) // Hit Points
+                     return new String[]{ "HP", "Hit Point", "Bloodied" };
+                  else if ( entry.shortid.equals( "glossary487" ) ) // Carrying, Lifting and Dragging
+                     return new String[]{ "Carry", "Carrying", "Lift", "Lifting", "Drag", "Dragging", "Normal Load", "Heavy Load", "Maximum Drag Load" };
+                  else if ( entry.shortid.equals( "glossary622" ) ) // Action Types
+                     return new String[]{ "Standard Action", "Move Action", "Minor Action", "Immediate Reaction", "Immediate Action", "Immediate Interrupt", "Opportunity Action", "Free Action" };
+                  else if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) )
+                     return new String[]{ name.substring( 0, name.length() - 6 ) };
+                  List<String> result = new ArrayList<>( 3 );
                   result.add( name );
                   if ( name.endsWith( "s" ) ) {
                      result.add( name.substring( 0, name.length() - 1 ) );
@@ -305,7 +315,8 @@ public abstract class Convert {
                         if ( name.endsWith( "ies" ) )
                            result.add( name.substring( 0, name.length() - 3 ) + 'y' );
                      }
-                  }
+                  } else if ( name.endsWith( "ing" ) )
+                     result.add( name.substring( 0, name.length() - 3 ) );
                   return result.toArray( new String[ result.size() ] );
                };
                break;
