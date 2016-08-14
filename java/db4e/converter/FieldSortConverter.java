@@ -42,6 +42,10 @@ public class FieldSortConverter extends Converter {
             return new String[]{ "Teleport", "Teleportation" };
          else if ( entry.shortid.equals( "glossary159" ) ) // Hit Points
             return new String[]{ "HP", "Hit Point", "Bloodied" };
+         else if ( entry.shortid.equals( "glossary179" ) ) // Defense Scores
+            return new String[]{ "Defense Scores", "Defenses", "Defense", "Fortitude", "Reflex", "Will" };
+         else if ( entry.shortid.equals( "glossary341" ) ) // Dying and Death
+            return new String[]{ "Dying", "Death", "Death Saving Throw", "Die", "Dies", "Kill", "Drop to 0 or" };
          else if ( entry.shortid.equals( "glossary487" ) ) // Carrying, Lifting and Dragging
             return new String[]{ "Carry", "Carrying", "Lift", "Lifting", "Drag", "Dragging", "Normal Load", "Heavy Load", "Maximum Drag Load" };
          else if ( entry.shortid.equals( "glossary622" ) ) // Action Types
@@ -50,6 +54,10 @@ public class FieldSortConverter extends Converter {
             return new String[]{ name.substring( 0, name.length() - 6 ) };
          List<String> result = new ArrayList<>( 3 );
          result.add( name );
+         if ( name.startsWith( "Object" ) )
+            result.add( "Object" );
+         else if ( name.toLowerCase().contains( " size" ) )
+            result.add( "size" );
          if ( name.endsWith( "s" ) ) {
             result.add( name.substring( 0, name.length() - 1 ) );
             if ( name.endsWith( "es" ) ) {

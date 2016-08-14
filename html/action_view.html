@@ -197,7 +197,7 @@ od.action.view = {
       var textTag = [ undefined, 'MARK', 'SPAN' ], result = [];
       _.time();
 
-      function findPre( node, len, offset ) {
+      function findPre ( node, len, offset ) {
          var text = node.textContent, part = '';
          if ( text.length ) {
             if ( offset === undefined ) offset = text.length;
@@ -210,7 +210,7 @@ od.action.view = {
          return part;
       }
 
-      function findPost( node, len, offset ) {
+      function findPost ( node, len, offset ) {
          var text = node.textContent, part = '';
          if ( text.length ) {
             if ( offset === undefined ) offset = 0;
@@ -219,7 +219,7 @@ od.action.view = {
             if ( len <= 0 ) return part;
          }
          if ( node.nextSibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( node.nextSibling.tagName ) >= 0 )
-            return findPre( node.nextSibling, len ) + part;
+            return part + findPost( node.nextSibling, len );
          return part;
       }
 
