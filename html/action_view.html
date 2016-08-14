@@ -155,27 +155,36 @@ od.action.view = {
    },
 
    "popup_links" : function act_view_popup_links ( evt ) {
-      var action = od.action.view, pnl = _( '#act_view_pnl_link' )[0];
+      var action = od.action.view,  data = od.data,  pnl = _( '#act_view_pnl_link' )[0];
       var ids = action.find_internal_links();
       _.hide( pnl );
       if ( ! ids.length ) return;
 
-      od.data.load_all_listing( function act_view_popup_links_pop () {
-         var data = od.data;
-         _.info( "Showing popup for " + ids );
-         _( '#act_view_pnl_link tbody' )[0].innerHTML = ids.map( function( id ) {
-            var cat = data.get( data.category_name_of( id ) );
-            var row = cat.map[ id ];
-            return '<tr><td>' + cat.getTitle()
-               + '<td><a href="?view=' + id + '">' + row.Name + '</a>'
-               + '<td>' + row._TypeName;
-         }).join( '' );
-         var x = evt.clientX + window.scrollX;
-         var y = evt.clientY + window.scrollY;
-         setTimeout( function() { // Defer to after global un-popup handler
-            _.style( pnl, { top: y+'px', left: x+'px', display: 'block' } );
-         }, 0 );
-         _.time( "Shown popup." );
+      data.load_name_index( function act_view_popup_links_loaded() {
+         var categories = {},  cat_count = 0;
+         for ( var i in ids ) {
+            var cat_id = data.category_name_of( ids[ i ] );
+            if ( categories[ cat_id ] ) return;
+            var cat = categories[ cat_id ] = data.get( cat_id );
+            ++cat_count;
+            cat.load_listing( function act_view_popup_links_pop () {
+               if ( --cat_count !== 0 ) return;
+               _.info( "Showing popup for " + ids );
+               _( '#act_view_pnl_link tbody' )[0].innerHTML = ids.map( function( id ) {
+                  var cat = data.get( data.category_name_of( id ) );
+                  var row = cat.map[ id ];
+                  return '<tr><td>' + cat.getTitle()
+                     + '<td><a href="?view=' + id + '">' + row.Name + '</a>'
+                     + '<td>' + row._TypeName;
+               }).join( '' );
+               var x = evt.clientX + window.scrollX;
+               var y = evt.clientY + window.scrollY;
+               setTimeout( function() { // Defer to after global un-popup handler
+                  _.style( pnl, { top: y+'px', left: x+'px', display: 'block' } );
+               }, 0 );
+               _.time( "Shown popup." );
+            } );
+         }
       });
    },
 

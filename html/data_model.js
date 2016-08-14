@@ -9,7 +9,7 @@
 
 od.data = {
    /* Please do NOT access directly. */
-   "category" : {},
+   "category" : _.map(),
    /* Read only, don't modify. */
    "index" : null,
 
@@ -87,11 +87,11 @@ od.data.Category = function Category ( name ) {
    this.name = name;
    this.count = 0;
    this.raw_list = [];
-   this.index = {};
+   this.index = _.map();
    this.columns = [];
    this.list = [];
-   this.map = {};
-   this.data = {};
+   this.map = _.map();
+   this.data = _.map();
 };
 od.data.Category.prototype = {
    "name": "",
@@ -131,7 +131,7 @@ od.data.Category.prototype = {
    "build_listing" : function data_Cat_bulid_listing () {
       var data = this.raw_list;
       var col = this.columns;
-      var map = this.map = {};
+      var map = this.map = _.map();
       var list = this.list = new Array( data.length );
 
       var catName = _.ucfirst( this.name ), typeCol = 2;
