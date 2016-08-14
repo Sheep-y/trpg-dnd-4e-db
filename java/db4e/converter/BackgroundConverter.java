@@ -37,4 +37,9 @@ public class BackgroundConverter extends Converter {
       else if ( entry.meta[1].equals( "Forgotten Realms" ) )
          entry.meta[1] = "Faerûn";
    }
+
+   @Override protected String[] getLookupName ( Entry entry ) {
+      return new String[]{ entry.name };
+   }
+
 }

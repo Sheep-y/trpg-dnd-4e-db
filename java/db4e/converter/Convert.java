@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -280,93 +278,27 @@ public abstract class Convert {
       }
    }
 
-   public static Map<String, List<String>> mapIndex ( List<Category> categories ) {
+   protected Map<String, List<String>> mapIndex () {
       Map<String, List<String>> map = new HashMap<>( 25000, 1f );
-      Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]|,.*| -.*", Pattern.CASE_INSENSITIVE ).matcher( "" );
-      UnaryOperator<String> removeNote = ( str ) -> regxNote.reset( str ).replaceAll( "" ).trim();
-      Function<Entry, String[]> nameGetter;
-      for ( Category category : categories ) {
-         switch ( category.id ) {
-            case "Background":
-               nameGetter = ( entry ) -> new String[]{ entry.name };
-               break;
-            case "Class":
-               nameGetter = Convert::getClassNames;
-               break;
-            case "Glossary":
-               nameGetter = ( entry ) -> {
-                  String name = entry.name;
-                  if ( entry.shortid.equals( "glossary159" ) ) // Teleportation
-                     return new String[]{ "Teleport", "Teleportation" };
-                  else if ( entry.shortid.equals( "glossary159" ) ) // Hit Points
-                     return new String[]{ "HP", "Hit Point", "Bloodied" };
-                  else if ( entry.shortid.equals( "glossary487" ) ) // Carrying, Lifting and Dragging
-                     return new String[]{ "Carry", "Carrying", "Lift", "Lifting", "Drag", "Dragging", "Normal Load", "Heavy Load", "Maximum Drag Load" };
-                  else if ( entry.shortid.equals( "glossary622" ) ) // Action Types
-                     return new String[]{ "Standard Action", "Move Action", "Minor Action", "Immediate Reaction", "Immediate Action", "Immediate Interrupt", "Opportunity Action", "Free Action" };
-                  else if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) )
-                     return new String[]{ name.substring( 0, name.length() - 6 ) };
-                  List<String> result = new ArrayList<>( 3 );
-                  result.add( name );
-                  if ( name.endsWith( "s" ) ) {
-                     result.add( name.substring( 0, name.length() - 1 ) );
-                     if ( name.endsWith( "es" ) ) {
-                        result.add( name.substring( 0, name.length() - 2 ) );
-                        if ( name.endsWith( "ies" ) )
-                           result.add( name.substring( 0, name.length() - 3 ) + 'y' );
-                     }
-                  } else if ( name.endsWith( "ing" ) )
-                     result.add( name.substring( 0, name.length() - 3 ) );
-                  return result.toArray( new String[ result.size() ] );
-               };
-               break;
-            case "Implement":
-               nameGetter = ( entry ) -> {
-                  String name = entry.name;
-                  if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 );
-                  return new String[]{ removeNote.apply( name ) };
-               };
-               break;
-            default:
-               nameGetter = ( entry ) -> new String[]{ removeNote.apply( entry.name ) };
-         }
-         for ( Entry entry : category.sorted ) {
-            String[] names = nameGetter.apply( entry );
-            for ( String name : names ) {
-               name = name.replaceAll( "\\W+", " " ).trim().toLowerCase();
-               if ( ! map.containsKey( name ) ) {
-                  List<String> idList = new ArrayList<>( 1 ); // Most entries do not duplicate
-                  idList.add( entry.shortid );
-                  map.put( name, idList );
-               } else {
-                  /* Duplicate check *
-                  for ( String s : map.get( name ) )
-                     if ( s.startsWith( entry.shortid.substring( 0, 4 ) ) )
-                        System.out.println( "Duplicate " + name + ": " + s + ", " + entry.shortid );
-                  /**/
-                  map.get( name ).add( entry.shortid );
-               }
-            }
+      for ( Entry entry : category.sorted ) {
+         for ( String name : getLookupName( entry ) ) {
+            name = name.replaceAll( "\\W+", " " ).trim().toLowerCase();
+            if ( ! map.containsKey( name ) ) {
+               List<String> idList = new ArrayList<>( 2 ); // Most entries do not duplicate
+               idList.add( entry.shortid );
+               map.put( name, idList );
+            } else
+               map.get( name ).add( entry.shortid );
          }
       }
       return map;
    }
 
-   private static String[] getClassNames ( Entry entry ) {
-      String name = entry.name, altName = null;
-      boolean isHybrid = name.startsWith( "Hybrid " );
-      if ( isHybrid ) name = name.substring( 7 );
-      if ( name.indexOf( '(' ) > 0 ) {
-         altName = name.substring( name.indexOf( '(' ) + 1, name.length() - 1 );
-         name = name.substring( 0, name.indexOf( '(' ) - 1 );
-      }
-      Set<String> result = new HashSet<>( ClassConverter.featureMap.get( entry.shortid ) );
-      result.add( name );
-      if ( altName != null ) result.add( altName );
-      if ( isHybrid ) result.add( "Hybrid " + name );
-      if ( isHybrid && altName != null ) result.add( "Hybrid " + altName );
-      return result.toArray( new String[ result.size() ] );
-   };
+   protected final Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]|,.*| -.*", Pattern.CASE_INSENSITIVE ).matcher( "" );
+
+   protected String[] getLookupName ( Entry entry ) {
+      return new String[]{ regxNote.reset( entry.name ).replaceAll( "" ).trim() };
+   }
 
    public static Converter getConverter ( Category category, boolean debug ) {
       switch ( category.id ) {
@@ -436,6 +368,8 @@ public abstract class Convert {
          category.sorted = entries.toArray( new Entry[ entries.size() ] );
          Arrays.sort( category.sorted, this::sortEntity );
       }
+      if ( category.index == null )
+         category.index = mapIndex();
    }
 
    /**

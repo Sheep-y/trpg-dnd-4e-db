@@ -35,4 +35,20 @@ public class ClassConverter extends Converter {
       if ( features.isEmpty() )
          log.log( Level.WARNING, "Class features not found: {0} {1}", new Object[]{ entry.shortid, entry.name });
    }
+
+   @Override protected String[] getLookupName ( Entry entry ) {
+      String name = entry.name, altName = null;
+      boolean isHybrid = name.startsWith( "Hybrid " );
+      if ( isHybrid ) name = name.substring( 7 );
+      if ( name.indexOf( '(' ) > 0 ) {
+         altName = name.substring( name.indexOf( '(' ) + 1, name.length() - 1 );
+         name = name.substring( 0, name.indexOf( '(' ) - 1 );
+      }
+      Set<String> result = new HashSet<>( ClassConverter.featureMap.get( entry.shortid ) );
+      result.add( name );
+      if ( altName != null ) result.add( altName );
+      if ( isHybrid ) result.add( "Hybrid " + name );
+      if ( isHybrid && altName != null ) result.add( "Hybrid " + altName );
+      return result.toArray( new String[ result.size() ] );
+   };
 }

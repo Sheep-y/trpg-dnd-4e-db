@@ -12,7 +12,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -113,7 +115,21 @@ class Exporter {
          throw new IllegalStateException( category.id + " entry exported " + category.sorted.length + " mismatch with total " + category.getExportCount() );
    }
 
-   void writeIndex ( String target, Map<String, List<String>> index ) throws IOException {
+   void writeIndex ( String target, List<Category> categories ) throws IOException {
+      Map<String, List<String>> index = new HashMap<>();
+      for ( Category category : categories ) synchronized ( index ) {
+         if ( index.isEmpty() )
+            index.putAll( category.index );
+         else
+            category.index.entrySet().forEach( ( entry ) -> {
+               List<String> list = index.get( entry.getKey() );
+               if ( list == null )
+                  index.put( entry.getKey(), new ArrayList<>( entry.getValue() ) );
+               else
+                  list.addAll( entry.getValue() );
+            });
+      }
+
       String[] names = index.keySet().toArray( new String[ index.size() ] );
       Arrays.sort( names, ( a, b ) -> {
          int diff = b.length() - a.length();
@@ -121,7 +137,7 @@ class Exporter {
          return a.compareTo( b );
       });
 
-      StringBuilder buffer = new StringBuilder( 800_000 );
+      StringBuilder buffer = new StringBuilder( 810_000 );
       buffer.append( "od.reader.jsonp_name_index(20160808,{" );
       for ( String name : names ) {
          str( buffer, name ).append( ':' );

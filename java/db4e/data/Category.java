@@ -2,6 +2,7 @@ package db4e.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
@@ -21,6 +22,7 @@ public class Category {
 
    public String[] meta; // Transform field list for export.
    public Entry[] sorted; // Sorted entry list for export.
+   public Map<String, List<String>> index; // Lookup name to entry id
 
    public Category( String id, String name, String[] fields ) {
       this.id = id;

@@ -240,7 +240,7 @@ public class Controller {
       } );
    }
 
-   public void close() {
+   public void close () {
       stop();
       scheduler.cancel();
       threadPool.shutdown();
@@ -446,7 +446,7 @@ public class Controller {
 
          checkStop( "Writing viewer" );
          Convert.afterConvert();
-         exporter.writeIndex( root, Convert.mapIndex( exportCategories ) );
+         exporter.writeIndex( root, exportCategories );
          exporter.writeViewer( base, target );
 
          gui.stateCanExport( "Export complete, may view data" );

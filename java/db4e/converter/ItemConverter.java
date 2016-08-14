@@ -392,4 +392,15 @@ public class ItemConverter extends LeveledConverter {
             }
       }
    }
+
+   @Override protected String[] getLookupName ( Entry entry ) {
+      if ( category.id.equals( "Implement" ) ) {
+         String name = entry.name;
+         if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 );
+         return new String[]{ regxNote.reset( name ).replaceAll( "" ).trim() };
+      }
+      return super.getLookupName( entry );
+   }
+
+
 }
