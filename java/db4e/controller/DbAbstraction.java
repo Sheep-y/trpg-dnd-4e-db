@@ -184,7 +184,8 @@ class DbAbstraction {
 
    void loadEntityContent ( List<Category> categories, ProgressState state ) throws SqlJetException {
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
-      try {
+      try { synchronized ( categories ) {
+         state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
          ISqlJetTable tblEntry = db.getTable( "entry" );
          for ( Category category : categories ) synchronized( category ) {
             log.log( Level.FINE, "Loading {0} content", category.id );
@@ -199,7 +200,7 @@ class DbAbstraction {
                state.addOne();
             }
          }
-      } finally {
+      } } finally {
          db.commit();
       }
    }

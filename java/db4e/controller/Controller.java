@@ -439,7 +439,6 @@ public class Controller {
          checkStop( "Writing main catlog" );
          Convert.beforeConvert( categories, exportCategories );
          exporter.writeCatalog( root, exportCategories );
-         state.total = exportCategories.stream().mapToInt( e -> e.getExportCount() ).sum();
 
          checkStop( "Writing data" );
          exportData( root );
@@ -454,11 +453,12 @@ public class Controller {
    }
 
    private void exportData ( String root ) throws Exception {
+      state.total = exportCategories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
       exportEachCategory( ( category ) -> {
          Converter converter = Convert.getConverter( category, gui.isDebugging() );
          if ( converter == null ) return null;
          return () -> { synchronized( category ) {
-            converter.convert();
+            converter.convert( state );
             log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
             exporter.writeCategory( root, category, state );
          } };

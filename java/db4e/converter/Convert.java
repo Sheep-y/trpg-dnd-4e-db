@@ -1,6 +1,7 @@
 package db4e.converter;
 
 import db4e.Main;
+import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
@@ -40,49 +41,46 @@ public abstract class Convert {
     * @param categories
     */
    public static void beforeConvert ( List<Category> categories, List<Category> exportCategories ) {
-      if ( exportCategories.size() > 0 ) return;
       synchronized ( categories ) {
+         if ( exportCategories.size() > 0 ) return;
          Map<String,Category> map = new HashMap<>( 18, 1f );
-         exportCategories.clear();
-         if ( map.isEmpty() ) {
-            for ( Category c : categories )
-               map.put( c.id, c );
+         for ( Category c : categories )
+            map.put( c.id, c );
 
-            String[] itemMeta =new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
-            Category armour    = new Category( "Armor"    , "Armor"    , itemMeta );
-            Category implement = new Category( "Implement", "implement", itemMeta );
-            Category weapon    = new Category( "Weapon"   , "weapon"   , itemMeta );
-            exportCategories.add( armour );
-            exportCategories.add( implement );
-            exportCategories.add( weapon );
+         String[] itemMeta =new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
+         Category armour    = new Category( "Armor"    , "Armor"    , itemMeta );
+         Category implement = new Category( "Implement", "implement", itemMeta );
+         Category weapon    = new Category( "Weapon"   , "weapon"   , itemMeta );
+         exportCategories.add( armour );
+         exportCategories.add( implement );
+         exportCategories.add( weapon );
 
-            // This pre-processing does not move progress, and is not MT, and thus should be done very fast.
-            for ( Category c : categories ) synchronized( c ) {
-               if ( c.id.equals( "Terrain" ) ) continue;
-               Category exported = new Category( c.id, c.name, c.fields );
-               exportCategories.add( exported );
-               exported.entries.addAll( c.entries );
-               switch ( c.id ) {
-                  case "Item" :
-                     synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
-                        transferItem( exported, armour, implement, weapon, map );
-                     } } }
-                     break;
+         // This pre-processing does not move progress, and is not MT, and thus should be done very fast.
+         for ( Category c : categories ) synchronized( c ) {
+            if ( c.id.equals( "Terrain" ) ) continue;
+            Category exported = new Category( c.id, c.name, c.fields );
+            exportCategories.add( exported );
+            exported.entries.addAll( c.entries );
+            switch ( c.id ) {
+               case "Item" :
+                  synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
+                     transferItem( exported, armour, implement, weapon, map );
+                  } } }
+                  break;
 
-                  case "Glossary" :
-                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
-                        Entry entry = i.next();
-                        // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
-                        if ( entry.id.equals( "glossary.aspx?id=679" ) || entry.content.contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
-                           i.remove();
-                           corrected( entry, "blacklist" );
-                        }
+               case "Glossary" :
+                  for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+                     Entry entry = i.next();
+                     // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
+                     if ( entry.id.equals( "glossary.aspx?id=679" ) || entry.content.contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
+                        i.remove();
+                        corrected( entry, "blacklist" );
                      }
-                     break;
+                  }
+                  break;
 
-                  case "Trap" :
-                     exported.entries.addAll( map.get( "Terrain" ).entries );
-               }
+               case "Trap" :
+                  exported.entries.addAll( map.get( "Terrain" ).entries );
             }
          }
       }
@@ -342,7 +340,7 @@ public abstract class Convert {
       this.category = category;
    }
 
-   public void convert () throws InterruptedException {
+   public void convert ( ProgressState state ) throws InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Converting {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
       if ( category.meta == null )
@@ -362,6 +360,7 @@ public abstract class Convert {
             throw new UnsupportedOperationException( "Error converting " + entry.shortid, e );
          }
          if ( stop.get() ) throw new InterruptedException();
+         state.addOne();
       }
       if ( category.sorted == null ) {
          beforeSort();
