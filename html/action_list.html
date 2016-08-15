@@ -642,7 +642,7 @@ od.action.list = {
       var action = od.action.list, gui = od.gui;
       var count = action.data.length;
       var title = _.l( 'action.list.lbl_page', '%1/%2', gui.page + 1, gui.total_page );
-      _('#act_view_h_title')[0].textContent = title;
+      _('#act_list_h_title')[0].textContent = title;
       od.gui.update_title();
 
       if ( count <= gui.row_per_page ) {
