@@ -8,7 +8,7 @@
 /* Conetent may be wrapped in p (powers and items),
    or may be plain text without p (race).
    So create a default padding for the text and let elements undo the paddings */
-#detail {
+.detail {
    font-size: 90%;
    background-color: #F8F8F8;
    border: 2px solid #666;
@@ -20,31 +20,31 @@
    margin: 50px auto 10px;
    }
 
-   #detail * { /* Reset all margins and paddings */
+   .detail * { /* Reset all margins and paddings */
       padding: 0;
       margin: 0;
       }
 
-   #detail h1, #detail h2, #detail h3 {
+   .detail h1, .detail h2, .detail h3 {
       font-size: 110%;
       padding-top: 1ex;
       padding-bottom: 0.5ex;
       }
-   #detail p, #detail div, #detail table {
+   .detail p, .detail div, .detail table {
       padding-top: 0.5ex;
       padding-bottom: 0.5ex;
       }
-      #detail p[class]:empty ,
-      #detail p:empty + br {
+      .detail p[class]:empty ,
+      .detail p:empty + br {
          display: none;
          }
 
-   #detail > h1:first-child ,
-   #detail > h1.atwillpower ,
-   #detail > h1.encounterpower ,
-   #detail > h1.dailypower ,
-   #detail > h1.mihead ,
-   #detail .power > h1:first-child {
+   .detail > h1:first-child ,
+   .detail > h1.atwillpower ,
+   .detail > h1.encounterpower ,
+   .detail > h1.dailypower ,
+   .detail > h1.mihead ,
+   .detail .power > h1:first-child {
       border-bottom: 1px solid #666;
       border-top-left-radius: 8px;
       border-top-right-radius: 8px;
@@ -52,67 +52,67 @@
       padding: 8px 10px 5px;
       position: relative;
       }
-      #detail h1 .level ,
-      #detail h1 .milevel ,
-      #detail h1 .thLevel {
+      .detail h1 .level ,
+      .detail h1 .milevel ,
+      .detail h1 .thLevel {
          position: absolute;
          top: 5px;
          right: 10px;
          text-align: right;
          }
 
-   #detail .publishedIn {
+   .detail .publishedIn {
       font-size: smaller;
       color: #888;
       text-align: right;
       }
-      /* #detail br + .publishedIn {
+      /* .detail br + .publishedIn {
          margin-top: -1.8em; /* Undo last br *
          }
 
 /********************** Headers *************************/
 
-#detail .player ,
-#detail .monster ,
-#detail .familiar {
+.detail .player ,
+.detail .monster ,
+.detail .familiar {
    background-color: #BBF;
    }
 
-#detail .miset ,
-#detail .mihead {
+.detail .miset ,
+.detail .mihead {
    background-color: Gold;
    }
 
-#detail .atwillpower {
+.detail .atwillpower {
    background-color: #4F4;
    }
 
-#detail .encounterpower {
+.detail .encounterpower {
    background-color: #F44;
    }
 
-#detail .dailypower {
+.detail .dailypower {
    background-color: #888;
    }
 
-#detail .trap ,
-#detail h1.thHead ,
-#detail .poison {
+.detail .trap ,
+.detail h1.thHead ,
+.detail .poison {
    background-color: #8B8;
    }
 
-#detail .dm {
+.detail .dm {
    background-color: #DBF;
    }
 
 /********************** Content *************************/
 
-#detail h2.mihead ,
-#detail h1:not(:first-child) ,
-#detail .miflavor ,
-#detail .flavor ,
-#detail .flavortext ,
-#detail > h1 + i:not(:empty) {
+.detail h2.mihead ,
+.detail h1:not(:first-child) ,
+.detail .miflavor ,
+.detail .flavor ,
+.detail .flavortext ,
+.detail > h1 + i:not(:empty) {
    margin-left: -10px;
    margin-right: -10px;
    padding-left: 10px;
@@ -120,54 +120,54 @@
    width: calc( 100% + 20px );
    }
 
-#detail .miflavor ,
-#detail .flavortext ,
-#detail .flavor:not(.indent) ,
-#detail > h1 + i:not(:empty) {
+.detail .miflavor ,
+.detail .flavortext ,
+.detail .flavor:not(.indent) ,
+.detail > h1 + i:not(:empty) {
    background-color: #CCC;
    display: block;
    padding-bottom: 5px;
    }
-   #detail > h1 + i + br {
+   .detail > h1 + i + br {
       display: none;
       }
-   #detail .player + .flavor ,
-   #detail .bodytable .flavor ,
-   #detail > h1 + i + .flavor ,
-   #detail > h1 + i + br + .flavor { /* racial traits */
+   .detail .player + .flavor ,
+   .detail .bodytable .flavor ,
+   .detail > h1 + i + .flavor ,
+   .detail > h1 + i + br + .flavor { /* racial traits */
       background-color: transparent;
       }
 
-#detail ul {
+.detail ul {
    margin-left: 1em;
    }
 
-#detail table {
+.detail table {
    border-spacing: 0;
    }
-   #detail table th ,
-   #detail table td {
+   .detail table th ,
+   .detail table td {
       padding: 3px 10px;
       }
-      #detail *:not(h1) + table th {
+      .detail *:not(h1) + table th {
          background-color: #CCC;
          }
-      #detail *:not(h1) + table tr:nth-child(odd) {
+      .detail *:not(h1) + table tr:nth-child(odd) {
          background-color: #E0E0E0;
          }
 
-#detail .magicitem ,
-#detail .bodytable {
+.detail .magicitem ,
+.detail .bodytable {
    margin-left: -10px;
    margin-right: -10px;
    padding-top: 0;
    width: calc( 100% + 20px );
    }
 
-#detail blockquote > b , /* Race */
-#detail .flavortext > b , /* Background */
-#detail .flavor > b , /* Feat */
-#detail > br + b { /* Class, PP, ED , etc. */
+.detail blockquote > b , /* Race */
+.detail .flavortext > b , /* Background */
+.detail .flavor > b , /* Feat */
+.detail > br + b { /* Class, PP, ED , etc. */
    display: inline-block;
    margin-right: 0.8ex;
    margin-top: 0.8ex;
@@ -175,57 +175,57 @@
 
 /********************** Powers *************************/
 
-#detail .power {
+.detail .power {
    display: block;
    border: 1px solid grey;
    border-radius: 10px;
    padding: 0 10px;
    margin-bottom: 2ex;
    }
-   #detail .power > p:last-of-type { /* Make last p fit nicely with bottom border */
+   .detail .power > p:last-of-type { /* Make last p fit nicely with bottom border */
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
       margin-bottom: 0;
       }
-      #detail .power > p:last-of-type + br:last-child { /* Hide dangling br */
+      .detail .power > p:last-of-type + br:last-child { /* Hide dangling br */
          display: none;
          }
 
 
 /********************** Other specifics **************************/
 
-#detail h2.mihead { /* magic item powers */
+.detail h2.mihead { /* magic item powers */
    background-color: #FE8;
    }
 
-#detail .miright {
+.detail .miright {
    display: block;
    float: right;
    width: 50%;
    }
 
-#detail .ignore + .mihead { /* Item set */
+.detail .ignore + .mihead { /* Item set */
    margin-top: 1em;
    }
 
-#detail .ritualstats {
+.detail .ritualstats {
    float: left;
    margin-right: 1em;
    }
-   #detail .ritualstats ~ p {
+   .detail .ritualstats ~ p {
       clear: left;
       }
 
-#detail .ah1 ,
-#detail .ah2 {
+.detail .ah1 ,
+.detail .ah2 {
    font-size: 110%;
    }
 
-#detail .trapblocktitle {
+.detail .trapblocktitle {
    display: block;
    margin-top: 1em;
    font-weight: bold;
    }
-#detail .trapblockbody  {
+.detail .trapblockbody  {
    display: block;
    }
