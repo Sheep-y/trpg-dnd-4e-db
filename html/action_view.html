@@ -179,6 +179,11 @@ od.action.view = {
                }).join( '' );
                var x = evt.clientX + window.scrollX;
                var y = evt.clientY + window.scrollY;
+               _.style( pnl, { top: '0px', left: '0px', display: 'block' } );
+               var rect = pnl.getBoundingClientRect(),  body = document.body;
+               if ( x + rect.width > body.clientWidth ) x = Math.max( window.scrollX, x - rect.width );
+               if ( y + rect.height > body.clientHeight ) y = Math.max( window.scrollY, y - rect.height );
+               _.hide( pnl );
                setTimeout( function() { // Defer to after global un-popup handler
                   _.style( pnl, { top: y+'px', left: x+'px', display: 'block' } );
                }, 0 );
