@@ -309,12 +309,16 @@ public class ItemConverter extends LeveledConverter {
             entry.data = data.replaceFirst( "<br><br>",
                          "<br><br><h1 class=dailypower><span class=level>Item Set Power</span>Voice of the Akarot</h1>"
                        + "<p class=flavor><i>Channeling the power of your allies' will, you command your enemy to stop attacking, though each ally is momentarily disoriented.</i></p>"
-                       + "<p class=powerstat><b>Daily</b> ✦     <b>Charm</b><br>"
+                       + "<p class=powerstat><b>Daily (Special)</b> ✦     <b>Charm</b><br>"
                        + "<b>Standard Action</b>      <b>Close</b> burst 5</p>"
                        + "<p class=powerstat><b>Target</b>: Each enemyin burst</p>"
                        + "<p class=powerstat><b>Attack</b>: +30 vs. Will</p>"
                        + "<p class=flavor><b>Hit</b>: The target cannot attack (save ends).</p>"
-                       + "<p class=powerstat><b>Effect</b>: Each ally wearing a ring from this set is dazed until the end of your next turn.</p><br><br>" );
+                       + "<p class=powerstat><b>Effect</b>: Each ally wearing a ring from this set is dazed until the end of your next turn.</p>"
+                       + "<p class=flavor><b>Special</b>: This power can be used only once per day by you and your allies. Once any of you use it, "
+                       + "the group does not regain the use of the power until the person who used it takes an extended rest.</p>"
+                       + "<br>Update (4/12/2010)<br> In the Keywords entry, add \"(Special)\" after \"Daily.\" In addition, add the Special entry to the power. "
+                       + "These changes limit the potential for this power to shut down multiple encounters.<br><br>" );
             corrections.add( "missing content" );
             break;
 
@@ -401,6 +405,4 @@ public class ItemConverter extends LeveledConverter {
       }
       return super.getLookupName( entry );
    }
-
-
 }
