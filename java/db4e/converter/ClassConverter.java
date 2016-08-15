@@ -32,6 +32,8 @@ public class ClassConverter extends Converter {
             features.add( name );
          }
       }
+      if ( entry.name.toLowerCase().contains( "monk" ) )
+         features.add( "Flurry of Blows" ); // Guess what? Flurry of Blows is not listed as a Monk feature, and there is no such power
       if ( features.isEmpty() )
          log.log( Level.WARNING, "Class features not found: {0} {1}", new Object[]{ entry.shortid, entry.name });
    }
