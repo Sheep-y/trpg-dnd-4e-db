@@ -149,7 +149,7 @@ od.search = {
       } else if ( search === '0' ) {
          return function act_list_filter_data_zero_filter( data ) {
             var str = data[ col_name ];
-            return ! str || str === '0';
+            return ! str || str === '0' || str === '0 gp' || str === '0+ gp'; // The last is Shivli Frost Spear
          };
       } else {
          // Number based search.
