@@ -216,6 +216,7 @@ od.action.list = {
    'url' : /^list\b/,
    'last_url' : null,
    'last_cat' : null,
+   'last_scrollY' : 0,
 
    'initialize' : function act_list_init () {
       // Set initial search state (e.g. button pressed status)
@@ -240,6 +241,11 @@ od.action.list = {
          this.build_category( od.action.list.parse_action_id );
       else
          od.data.load_catalog( od.action.list.parse_action_id );
+      setTimeout( function(){ window.scrollTo( 0, action.last_scrollY ); }, 0 );
+   },
+
+   'cleanup': function act_list_cleanup () {
+      od.action.list.last_scrollY = window.pageYOffset;
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

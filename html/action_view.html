@@ -179,7 +179,7 @@ od.action.view = {
                }).join( '' );
                _.style( pnl, { top: 0, left: 0, display: 'block' } ); // Reset position and show up to get dimension
                var rect = pnl.getBoundingClientRect(),  body = document.body;
-               var scrollX = window.scrollX, scrollY = window.scrollY, bodyW = body.clientWidth, bodyH = body.clientHeight;
+               var scrollX = window.pageXOffset, scrollY = window.pageYOffset, bodyW = body.clientWidth, bodyH = body.clientHeight;
                var offset = rect.width / ( evt.button ? 1 : 2 ); // Center popup if left click, otherwise right-slign
                var x = Math.max( scrollX, evt.clientX + scrollX - offset );
                var y = evt.clientY + scrollY;
