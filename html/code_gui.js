@@ -36,7 +36,21 @@ od.gui = {
       _.attr( window, {
          'onpopstate' : function window_popstate () {
             od.gui.go();
-         }
+         },
+         'onkeypress' : function window_keypress ( evt ) {
+            if ( evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey ) return;
+            if ( document.activeElement && document.activeElement.tagName === 'INPUT' ) return;
+            switch ( evt.key ) {
+               case "ArrowLeft":
+                  var left = _( 'section[id^=action_][style*=block] > nav > .btn_prev:not([style*=none])' )[0];
+                  if ( left ) left.click();
+                  break;
+               case "ArrowRight":
+                  var right = _( 'section[id^=action_][style*=block] > nav > .btn_next:not([style*=none])' )[0];
+                  if ( right ) right.click();
+                  break;
+            }
+         },
       } );
 
       // Monitor url change - disabled because Chrome no longer support history push/replace

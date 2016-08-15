@@ -911,7 +911,7 @@ _.create = function _create ( tag, attr ) {
  */
 _.domList = function _domList ( e ) {
    if ( typeof( e ) === 'string' ) return _( e );
-   else if ( e.tagName || e.length === undefined ) return [ e ];
+   else if ( e instanceof Element || e.length === undefined || e instanceof Window ) return [ e ];
    return e;
 };
 
@@ -981,12 +981,10 @@ _.attr = function _attr( ary, obj, value ) {
             default:
                if ( name.substr( 0, 2 ) === 'on' ) {
                   e.addEventListener( name.substr( 2 ), val );
+               } else if ( val !== undefined ) {
+                  e.setAttribute( name, val );
                } else {
-                  if ( val !== undefined ) {
-                     e.setAttribute( name, val );
-                  } else {
-                     e.removeAttribute( name );
-                  }
+                  e.removeAttribute( name );
                }
          }
       }
