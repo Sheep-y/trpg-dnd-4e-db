@@ -398,11 +398,25 @@ public class ItemConverter extends LeveledConverter {
    }
 
    @Override protected String[] getLookupName ( Entry entry ) {
-      if ( category.id.equals( "Implement" ) ) {
-         String name = entry.name;
-         if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 );
-         return new String[]{ regxNote.reset( name ).replaceAll( "" ).trim() };
+      switch ( category.id ) {
+         case "Implement" :
+            String name = entry.name;
+            if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 ); // Basic implements
+            return new String[]{ regxNote.reset( name ).replaceAll( "" ).trim() };
+         case "Armor" :
+            switch ( entry.shortid ) {
+               case "armor1": case "armor2": case "armor3": case "armor5": case "armor6": // Cloth to Plate
+                  return new String[]{ entry.name, entry.name.replace( " Armor", "" ) };
+               case "armor4": // Chainmail
+                  return new String[]{ entry.name, "Chain" };
+               case "armor7": case "armor8": // Light/Heavy shield
+                  return new String[]{ entry.name, "Shields", "Shield" };
+               case "armor49": case "armor51": // Barding (Normal)
+                  return new String[]{ entry.name, "Barding", "Bardings" };
+            }
+            // Fall through
+         default:
+            return super.getLookupName( entry );
       }
-      return super.getLookupName( entry );
    }
 }
