@@ -28,7 +28,7 @@
       <table><tbody></tbody></table>
    </nav>
    <header role="banner">
-      <button class='i18n' onclick='od.gui.go("list");' accesskey='1'> action.list.link_text </button>
+      <button class='i18n' onclick='od.action.view.btn_browse_click(event)' accesskey='1'> action.list.link_text </button>
       <h1 id="act_view_h_title"></h1>
       <button class='i18n' onclick='scrollTo(0,0)'> gui.top </button>
    </header>
@@ -95,6 +95,15 @@ od.action.view = {
       action.act_id = idList && idList.length > 0 ? ( idList.length === 1 ? idList[ 0 ] : idList ) : null;
       action.l10n();
       action.update_nav_button();
+   },
+
+   "btn_browse_click" : function act_view_btn_browse_click () {
+      if ( od.action.list.category === undefined ) {
+         var id = od.action.view.act_id;
+         if ( id instanceof Array ) id = id[0];
+         return od.gui.go( 'list.name.' + od.data.category_name_of( id ) );
+      }
+      od.gui.go("list");
    },
 
    "btn_prev_click" : function act_view_btn_prev_click () {
