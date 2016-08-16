@@ -192,6 +192,8 @@ public class Converter extends Convert {
    private final Matcher regxAttr2 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\" (\\w+)=\"(\\w+)\">" ).matcher( "" );
    private final Matcher regxAttr3 = Pattern.compile( "<(\\w+) (\\w+)=\"([^'\"/]+)\">" ).matcher( "" );
 
+   private final Matcher regxEmptyTag = Pattern.compile( "<(\\w+)[^>]*></\\1>" ).matcher( "" );
+
    @Override protected String normaliseData ( String data ) {
       // Replace images with character. Every image really appears in the compendium.
       data = data.replace( "<img src=\"images/bullet.gif\" alt=\"\">", "✦" ); // Four pointed star, 11x11, most common image at 100k hits
@@ -227,6 +229,9 @@ public class Converter extends Convert {
       data = regxAttr2.reset( data ).replaceAll( "<$1 $2=$3 $4=$5>" );
       // Convert attribute="value value" to attribute='value value', for cleaner data
       data = regxAttr3.reset( data ).replaceAll( "<$1 $2='$3'>" );
+      // Remove empty tags (but not some empty cells which has a space)
+      while ( regxEmptyTag.reset( data ).find() )
+         data = regxEmptyTag.replaceAll( "" );
       // Convert some rare line breaks
       if ( data.indexOf( '\n' ) >= 0 ) {
          data = data.replace( "\n,", "," );
