@@ -25,7 +25,7 @@ This is a fan-made project and does not come with copyrighted data.
 ### Fixing compendium errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 480 entries during export:
+This downloader fixes over 520 entries during export:
 
 * 152 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
  * The downloader logs 153 fixes. One of them - Arrow of Fate - is a duplicate.
@@ -36,8 +36,8 @@ This downloader fixes over 480 entries during export:
 * 21 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, etc.)
 * 21 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 15 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot etc.)
-* 3 typos. ("bit points" of Cambion Stalwart, power keyword of Fifth Sword of Tyr, Primal Grove component)
-* 48 entries with missing/wrong listing data not caused by above issues. (Wild Elf, Enlarge Familiar, Trapped Chest etc.)
+* 4 typos. (Cambion Stalwart "bit points", Fifth Sword of Tyr power keyword, Primal Grove "grp", Rubble Topple "Singe")
+* 84 entries with missing/wrong listing data not caused by above issues. (Wild Elf, Enlarge Familiar, some traps etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).

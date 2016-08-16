@@ -4,6 +4,7 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Sort by a field, then by name.
@@ -27,8 +28,8 @@ public class FieldSortConverter extends Converter {
       switch ( category.id ) {
       case "Glossary":
          if ( entry.shortid.startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
-            if ( entry.data.contains( "<p class=flavor><b></b></p><p class=flavor>" ) ) {
-               entry.data = entry.data.replace( "<p class=flavor><b></b></p><p class=flavor>", "<h3>IMPROVISING WITH "+entry.name.toUpperCase()+"</h3><p class=flavor>" );
+            if ( ! entry.data.contains( "IMPROVISING WITH" ) ) {
+               entry.data = Pattern.compile( "<p class=flavor>(?!.*<p class=flavor>)" ).matcher( entry.data ).replaceFirst( "<h3>IMPROVISING WITH "+entry.name.toUpperCase()+"</h3><p class=flavor>" );
                corrections.add( "missing content" );
             }
          }
@@ -38,19 +39,21 @@ public class FieldSortConverter extends Converter {
    @Override protected String[] getLookupName ( Entry entry ) {
       if ( category.id.equals( "Glossary" ) ) {
          String name = entry.name;
-         if ( entry.shortid.equals( "glossary159" ) ) // Teleportation
-            return new String[]{ "Teleport", "Teleportation" };
-         else if ( entry.shortid.equals( "glossary159" ) ) // Hit Points
-            return new String[]{ "HP", "Hit Point", "Bloodied" };
-         else if ( entry.shortid.equals( "glossary179" ) ) // Defense Scores
-            return new String[]{ "Defense Scores", "Defenses", "Defense", "Fortitude", "Reflex", "Will" };
-         else if ( entry.shortid.equals( "glossary341" ) ) // Dying and Death
-            return new String[]{ "Dying", "Death", "Death Saving Throw", "Die", "Dies", "Kill", "Drop to 0 or" };
-         else if ( entry.shortid.equals( "glossary487" ) ) // Carrying, Lifting and Dragging
-            return new String[]{ "Carry", "Carrying", "Lift", "Lifting", "Drag", "Dragging", "Normal Load", "Heavy Load", "Maximum Drag Load" };
-         else if ( entry.shortid.equals( "glossary622" ) ) // Action Types
-            return new String[]{ "Standard Action", "Move Action", "Minor Action", "Immediate Reaction", "Immediate Action", "Immediate Interrupt", "Opportunity Action", "Free Action" };
-         else if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) )
+         switch ( entry.shortid ) {
+            case "glossary86": // Teleportation
+               return new String[]{ "Teleport", "Teleportation" };
+            case "glossary159": // Hit Points
+               return new String[]{ "HP", "Hit Point", "Bloodied" };
+            case "glossary179": // Defense Scores
+               return new String[]{ "Defense Scores", "Defenses", "Defense", "Fortitude", "Reflex", "Will" };
+            case "glossary341": // Dying and Death
+               return new String[]{ "Dying", "Death", "Death Saving Throw", "Die", "Dies", "Kill", "Drop to 0 or" };
+            case "glossary487": // Carrying, Lifting and Dragging
+               return new String[]{ "Carry", "Carrying", "Lift", "Lifting", "Drag", "Dragging", "Normal Load", "Heavy Load", "Maximum Drag Load" };
+            case "glossary622": // Action Types
+               return new String[]{ "Standard Action", "Move Action", "Minor Action", "Immediate Reaction", "Immediate Action", "Immediate Interrupt", "Opportunity Action", "Free Action" };
+         }
+         if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) )
             return new String[]{ name.substring( 0, name.length() - 6 ) };
          List<String> result = new ArrayList<>( 3 );
          result.add( name );

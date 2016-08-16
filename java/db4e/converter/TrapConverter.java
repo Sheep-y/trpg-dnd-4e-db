@@ -2,7 +2,6 @@ package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
-import java.util.Arrays;
 
 public class TrapConverter extends LeveledConverter {
 
@@ -12,10 +11,24 @@ public class TrapConverter extends LeveledConverter {
 
    @Override protected void correctEntry (Entry entry) {
       if ( entry.meta.length == 4 ) { // Trap
-         // 7 traps in Dungeon 214-215 has level like "8 Minion" and no group role.
+         if ( entry.shortid.equals( "trap1019" ) ) { // Rubble Topple
+            entry.data = entry.data.replace( "Singe-Use", "Single-Use" );
+            entry.meta[ 0 ] = "Single-Use Terrain";
+            corrections.add( "typo" );
+         }
+
+         String type = entry.meta[ 0 ].toString();
          String level = entry.meta[ LEVEL ].toString();
-         if ( level.endsWith( "Minion" ) ) {
-            entry.meta[ Arrays.asList( category.meta ).indexOf( "GroupRole" ) ] = "Minion";
+         if ( type.startsWith( "Minion " ) || type.startsWith( "Elite " ) || type.startsWith( "Solo " ) || type.startsWith( "Single-Use ") ) {
+            // 33 traps / hazards has mixed type and role. 3 terrain can also be split this way.
+            String[] roles = type.split( " ", 2 );
+            entry.meta[ 1 ] = roles[ 0 ];
+            entry.meta[ 0 ] = roles[ 1 ];
+            corrections.add( "meta" );
+
+         } else if ( level.endsWith( "Minion" ) ) {
+            // 7 traps in Dungeon 214-215 has level like "8 Minion" and no group role.
+            entry.meta[ 1 ] = "Minion";
             entry.meta[ LEVEL ] = level.substring( 0, level.length() - " Minion".length() );
             corrections.add( "meta" );
          }
