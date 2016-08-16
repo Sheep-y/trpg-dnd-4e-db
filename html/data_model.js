@@ -135,7 +135,7 @@ od.data.Category.prototype = {
       var list = this.list = new Array( data.length );
 
       var catName = _.ucfirst( this.name ), typeCol = 2;
-      if ( [ 'Race', 'Paragonpath', 'Epicdestiny' ].indexOf( catName ) >= 0 ) {
+      if ( [ 'Disease', 'Poison', 'Race', 'Paragonpath', 'Epicdestiny' ].indexOf( catName ) >= 0 ) {
             catName = _.ucword( catName.replace( /(?=path$|destiny$)/, ' ' ) ); // Split PP/ED into two words
          typeCol = 0;
       }
@@ -154,7 +154,10 @@ od.data.Category.prototype = {
          }
          item._category = this;
          item._CatName = catName;
-         item._TypeName = typeCol ? item[ col[ typeCol ] ] : '';
+         if ( catName === 'Monster' )
+            item._TypeName = item.GroupRole + ' ' + item.CombatRole;
+         else
+            item._TypeName = typeCol ? item[ col[ typeCol ] ] : '';
          list[ i ] = item;
          map[ listing[ 0 ] ] = item;
       }

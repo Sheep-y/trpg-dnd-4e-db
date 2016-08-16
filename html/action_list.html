@@ -525,7 +525,7 @@ od.action.list = {
             action.sort_asc = action.sort_field === f ? ! action.sort_asc : true;
             _.attr( '#act_list_pnl_list th span', 'text', '⇅' );
             lbl.textContent = action.sort_asc ? '↓' : '↑';
-            od.gui.page = 1;
+            od.gui.page = 0;
             action.sort_field = f;
             action.show_list();
             action.update_action_id();
