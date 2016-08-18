@@ -11,6 +11,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -420,11 +421,22 @@ public class SceneMain extends Scene {
       File target = dlgCreateView.showSaveDialog( getWindow() );
       if ( target == null || ! target.getName().toLowerCase().endsWith( ".html" ) ) return;
 
-      setStatus( "Starting export" );
-      prefs.remove( "export.last_file" );
-      loader.startExport( target ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );
-      stateRunning();
-      prefs.put( "export.dir", target.getParent() );
+      CompletableFuture<Void> ready = CompletableFuture.completedFuture( null );
+      String data_dir = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
+      if ( new File( data_dir + "Glossary/glossary1.js" ).exists() ) {
+         Alert dlgRemoveOld = new Alert( Alert.AlertType.CONFIRMATION, "Delete old version export data?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
+         ButtonType remove = dlgRemoveOld.showAndWait().orElse( null );
+         if ( remove == null || ButtonType.CANCEL.equals( remove ) ) return;
+         if ( ButtonType.YES.equals( remove ) )
+            ready = loader.deleteOld( data_dir );
+      }
+
+      ready.thenRun( () -> {
+         prefs.remove( "export.last_file" );
+         loader.startExport( target, data_dir ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );
+         stateRunning();
+         prefs.put( "export.dir", target.getParent() );
+      } );
    }
 
    public void stateBusy ( String message ) { runFX( () -> {

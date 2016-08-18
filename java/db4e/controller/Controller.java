@@ -413,13 +413,33 @@ public class Controller {
    // Export
    /////////////////////////////////////////////////////////////////////////////
 
-   public CompletableFuture<Void> startExport ( File target ) {
-      gui.setTitle( "Export" );
+   public CompletableFuture<Void> deleteOld ( String data_dir ) {
+      gui.setTitle( "Exporting" );
+      gui.setStatus( "Deleting old export" );
+      state.total = 25960; // Exact file count by ver 3.5.1. But just to show progress, no need to be perfect.
+      state.reset();
+      return runTask( () -> {
+         for ( File folder : new File( data_dir ).listFiles() )
+            if ( folder.isDirectory() ) {
+               for ( File file : folder.listFiles() ) {
+                  file.delete();
+                  state.addOne();
+               }
+               folder.delete(); // Folder case has changed in 3.5.2.
+            }
+         state.done.set( state.total );
+         state.update();
+      } );
+   }
+
+   public CompletableFuture<Void> startExport ( File target, String root ) {
+      gui.setTitle( "Exporting" );
+      gui.setStatus( "Starting export" );
       gui.stateRunning();
       gui.setProgress( -1.0 );
       state.reset();
       log.log( Level.CONFIG, "Export target: {0}", target );
-      return runTask(() -> {
+      return runTask( () -> {
          // Export process is mainly IO limited. Not wasting time to make it multi-thread.
          try {
             exporter.testViewerExists();
@@ -428,8 +448,6 @@ public class Controller {
          }
 
          setPriority( Thread.MIN_PRIORITY );
-         String base = target.getPath().replaceFirst( "\\.html?$", "" );
-         String root = base + "_files/";
          log.log( Level.CONFIG, "Export root: {0}", target );
          new File( root ).mkdirs();
 
@@ -446,7 +464,7 @@ public class Controller {
          checkStop( "Writing viewer" );
          Convert.afterConvert();
          exporter.writeIndex( root, exportCategories );
-         exporter.writeViewer( base, target );
+         exporter.writeViewer( root, target );
 
          gui.stateCanExport( "Export complete, may view data" );
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );

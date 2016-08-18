@@ -162,8 +162,8 @@ class Exporter {
    }
 
    void writeViewer ( String root, File target ) throws IOException {
-      new File( root + "_files/res" ).mkdir();
-      copyRes( root + "_files/res/icon.png", "res/icon.png" );
+      new File( root + "res" ).mkdir();
+      copyRes( root + "res/icon.png", "res/icon.png" );
       copyRes( target.getPath(), "res/4e_database.html" );
    }
 
