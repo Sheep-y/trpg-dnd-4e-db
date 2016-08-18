@@ -34,6 +34,16 @@ public abstract class Convert {
    protected final Category category;
    protected final Set<String> corrections = new HashSet<>();
 
+   public static void reset () {
+      synchronized ( fixCount ) {
+         fixCount.clear();
+         fixedEntry.clear();
+      }
+      synchronized ( ClassConverter.featureMap ) {
+         ClassConverter.featureMap.clear();
+      }
+   }
+
    /**
     * Called before doing any export.
     * All entries must be assigned to the export categories here.

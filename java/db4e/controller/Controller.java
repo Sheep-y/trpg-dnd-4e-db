@@ -176,6 +176,7 @@ public class Controller {
          categories.clear();
          exportCategories.clear();
       }
+      Convert.reset();
       state.reset();
       state.total = 0;
       hasReset = true;

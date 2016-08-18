@@ -17,25 +17,27 @@ public class ClassConverter extends Converter {
    }
 
    private final Matcher regxClassFeatures = Pattern.compile( "<b>(?:Class Features?|Hybrid Talent Options?):? ?</b>:?([^<.]+)", Pattern.CASE_INSENSITIVE ).matcher( "" );
-   static Map<String, Set<String>> featureMap = new HashMap<>( 77, 1f );
+   static final Map<String, Set<String>> featureMap = new HashMap<>( 77, 1f );
 
    @Override protected void convertEntry( Entry entry ) {
       super.convertEntry( entry );
       regxClassFeatures.reset( entry.data );
-      Set<String> features = featureMap.get( entry.shortid );
-      if ( features == null ) featureMap.put( entry.shortid, features = new HashSet<>() );
-      while ( regxClassFeatures.find() ) {
-         String[] names = regxClassFeatures.group( 1 ).trim().split( ",| or " );
-         for ( String name : names ) {
-            name = name.replaceFirst( "\\(.*\\)", "" ).trim();
-            if ( name.endsWith( " Armor Proficiency" ) ) continue;
-            features.add( name );
+      synchronized ( featureMap ) {
+         Set<String> features = featureMap.get( entry.shortid );
+         if ( features == null ) featureMap.put( entry.shortid, features = new HashSet<>() );
+         while ( regxClassFeatures.find() ) {
+            String[] names = regxClassFeatures.group( 1 ).trim().split( ",| or " );
+            for ( String name : names ) {
+               name = name.replaceFirst( "\\(.*\\)", "" ).trim();
+               if ( name.endsWith( " Armor Proficiency" ) ) continue;
+               features.add( name );
+            }
          }
+         if ( entry.name.toLowerCase().contains( "monk" ) )
+            features.add( "Flurry of Blows" ); // Guess what? Flurry of Blows is not listed as a Monk feature, and there is no such power
+         if ( features.isEmpty() )
+            log.log( Level.WARNING, "Class features not found: {0} {1}", new Object[]{ entry.shortid, entry.name });
       }
-      if ( entry.name.toLowerCase().contains( "monk" ) )
-         features.add( "Flurry of Blows" ); // Guess what? Flurry of Blows is not listed as a Monk feature, and there is no such power
-      if ( features.isEmpty() )
-         log.log( Level.WARNING, "Class features not found: {0} {1}", new Object[]{ entry.shortid, entry.name });
    }
 
    @Override protected String[] getLookupName ( Entry entry ) {
@@ -46,11 +48,13 @@ public class ClassConverter extends Converter {
          altName = name.substring( name.indexOf( '(' ) + 1, name.length() - 1 );
          name = name.substring( 0, name.indexOf( '(' ) - 1 );
       }
-      Set<String> result = new HashSet<>( ClassConverter.featureMap.get( entry.shortid ) );
-      result.add( name );
-      if ( altName != null ) result.add( altName );
-      if ( isHybrid ) result.add( "Hybrid " + name );
-      if ( isHybrid && altName != null ) result.add( "Hybrid " + altName );
-      return result.toArray( new String[ result.size() ] );
-   };
+      synchronized ( featureMap ) {
+         Set<String> result = new HashSet<>( ClassConverter.featureMap.get( entry.shortid ) );
+         result.add( name );
+         if ( altName != null ) result.add( altName );
+         if ( isHybrid ) result.add( "Hybrid " + name );
+         if ( isHybrid && altName != null ) result.add( "Hybrid " + altName );
+         return result.toArray( new String[ result.size() ] );
+      }
+   }
 }
