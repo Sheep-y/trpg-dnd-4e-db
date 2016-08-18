@@ -164,14 +164,23 @@
    width: calc( 100% + 20px );
    }
 
-.detail blockquote > b , /* Race */
-.detail .flavortext > b , /* Background */
-.detail .flavor > b , /* Feat */
-.detail > br + b { /* Class, PP, ED , etc. */
+/* Some b title - mostly in creature stats - is inline and need left margin */
+.detail b {
    display: inline-block;
-   margin-right: 0.8ex;
-   margin-top: 0.8ex;
+   margin-left: 2ex;
    }
+   /* Undo left margin for other common b. */
+   .detail b:first-child ,
+   .detail br + b {
+      margin-left: 0;
+      }
+   .detail blockquote > b , /* Race */
+   .detail .flavortext > b , /* Background */
+   .detail .flavor > b , /* Feat */
+   .detail > br + b { /* Class, PP, ED , etc. */
+      margin-right: 0.8ex;
+      margin-top: 0.8ex;
+      }
 
 /********************** Powers *************************/
 
