@@ -102,7 +102,7 @@ public class SceneMain extends Scene {
            "Check for availability of new releases." );
    private final Pane pnlOptionTab = new VBox( 8,
            new HBox( 8, new Label( "Timeout in" ), txtTimeout, new Label( "seconds.") ),
-           new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (min) per request.") ),
+           new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (minimal) per request.") ),
            new HBox( 8, new Label( "Retry" ), txtRetry, new Label( "times on timeout.") ),
            chkDebug,
            btnClearData,
