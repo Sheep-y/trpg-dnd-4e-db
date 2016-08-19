@@ -168,18 +168,20 @@
 .detail b {
    display: inline-block;
    margin-left: 2ex;
+   margin-right: 0.8ex;
+   margin-top: 0.8ex;
    }
+   /* Undo power keywords margin */
+   .detail .powerstat b {
+      margin: 0;
+        }
    /* Undo left margin for other common b. */
    .detail b:first-child ,
+   .detail h1 + b ,
+   .detail h2 + b ,
+   .detail h3 + b ,
    .detail br + b {
       margin-left: 0;
-      }
-   .detail blockquote > b , /* Race */
-   .detail .flavortext > b , /* Background */
-   .detail .flavor > b , /* Feat */
-   .detail > br + b { /* Class, PP, ED , etc. */
-      margin-right: 0.8ex;
-      margin-top: 0.8ex;
       }
 
 /********************** Powers *************************/
@@ -203,7 +205,9 @@
 
 /********************** Other specifics **************************/
 
+.detail h1.magicitem , /* Subitem title e.g. alchemical recipe */
 .detail h2.mihead { /* magic item powers */
+   margin-top: 1ex;
    background-color: #FE8;
    }
 
