@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.JOptionPane;
 import sheepy.util.ResourceUtils;
 import sheepy.util.Utils;
 
@@ -41,7 +42,14 @@ public class Main {
    // Main method. No need to check java version because min version is compile target.
    public static void main( String[] args ) {
       log.setLevel( Level.CONFIG );
-      MainApp.run( args );
+      try {
+         Class.forName( "javafx.stage.Stage" ); // OpenJDK does not come with JavaFX by default
+         MainApp.run( args );
+      } catch  ( ClassNotFoundException ex ) {
+         final String ERR = "This app requires JavaFX (or OpenJFX with WebKit) to run.";
+         System.out.println( ERR );
+         JOptionPane.showMessageDialog( null, ERR, TITLE + " " + VERSION, JOptionPane.ERROR_MESSAGE );
+      }
    }
 
    public static CompletableFuture<Optional<Boolean>> checkUpdate ( boolean forceCheck ) {
