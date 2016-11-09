@@ -121,7 +121,7 @@ public class SceneMain extends Scene {
    // Layout regions
    private final TabPane pnlC = new TabPane( tabData, tabOption, tabHelp );
 
-   public SceneMain( Main main ) {
+   public SceneMain( MainApp main ) {
       super( new Group(), 800, 500 );
       main.addLoggerOutput( txtLog );
       initControls();

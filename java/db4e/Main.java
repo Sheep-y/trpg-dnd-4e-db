@@ -11,27 +11,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javafx.application.Application;
-import javafx.scene.control.TextInputControl;
-import javafx.scene.image.Image;
-import javafx.stage.Stage;
-import sheepy.util.JavaFX;
 import sheepy.util.ResourceUtils;
 import sheepy.util.Utils;
 
 /**
  * Setup logging, load preference, and show downloader main GUI.
  */
-public class Main extends Application {
+public class Main {
 
    static {
       // Set log format and disable global logger
@@ -50,48 +41,7 @@ public class Main extends Application {
    // Main method. No need to check java version because min version is compile target.
    public static void main( String[] args ) {
       log.setLevel( Level.CONFIG );
-      launch( args );
-   }
-
-   @Override public void start( Stage stage ) throws Exception {
-      final SceneMain sceneMain = new SceneMain( this );
-      log.log( Level.CONFIG, "Java {0} on {1} {2}", new Object[]{ System.getProperty( "java.runtime.version" ), System.getProperty("os.name"), System.getProperty("os.arch") });
-
-      stage.setTitle( TITLE );
-      stage.setScene( sceneMain );
-      try {
-         stage.getIcons().add( new Image( ResourceUtils.getStream( "res/icon.png" ) ) );
-      } catch ( Exception err ) {
-         log.warning( Utils.stacktrace( err ) );
-      }
-      stage.setOnCloseRequest( e -> { try {
-            sceneMain.shutdown();
-            prefs.flush();
-            for ( Handler handler : log.getHandlers() )
-               handler.close();
-         } catch ( BackingStoreException | SecurityException | NullPointerException ignored ) { } } );
-      stage.show();
-
-      log.info( "Main GUI initialised." );
-      sceneMain.startup();
-   }
-
-   public void addLoggerOutput( TextInputControl textInput ) throws SecurityException {
-      // Setup our logger which goes to log tab.
-      Handler handler = new Handler() {
-         private volatile boolean closed = false;
-         @Override public void publish( LogRecord record ) {
-            if ( closed ) return;
-            String msg = getFormatter().format( record );
-            JavaFX.appendText( textInput, msg );
-            if ( record.getLevel().intValue() >= Level.WARNING.intValue() )
-               System.err.print( msg );
-         }
-         @Override public void flush() {}
-         @Override public void close() throws SecurityException { closed = true; }
-      };
-      handler.setFormatter( new SimpleFormatter() );
-      log.addHandler( handler );
+      MainApp.run( args );
    }
 
    public static CompletableFuture<Optional<Boolean>> checkUpdate ( boolean forceCheck ) {
@@ -117,8 +67,8 @@ public class Main extends Application {
          prefs.put( "app.check_update", Instant.now().plus( 7, ChronoUnit.DAYS ).toString() );
          if ( lastCreated.equals( "0000" ) ) throw new DateTimeParseException( "Datetime not found on github release api.", txt, 0 );
 
-         log.log( Level.INFO, "Checked update. Lastest release is {0}. Current {1}", new Object[]{ lastCreated, UPDATE_TIME } );
-         result.complete( Optional.of( lastCreated.compareTo( UPDATE_TIME ) > 0 ) );
+         log.log( Level.INFO, "Checked update. Lastest release is {0}. Current {1}", new Object[]{ lastCreated, Main.UPDATE_TIME } );
+         result.complete( Optional.of( lastCreated.compareTo( Main.UPDATE_TIME ) > 0 ) );
       } catch ( Exception e ) {
          log.log( Level.INFO, "Cannot check update: {0}", Utils.stacktrace( e ) );
          result.completeExceptionally( e );
