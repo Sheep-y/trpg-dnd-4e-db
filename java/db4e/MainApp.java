@@ -6,7 +6,6 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
@@ -16,12 +15,11 @@ import sheepy.util.ResourceUtils;
 import sheepy.util.Utils;
 
 /**
- * Setup logging, load preference, and show downloader main GUI.
+ * Show downloader main GUI.
  */
 public class MainApp extends Application {
 
    public static final Logger log = Main.log;
-   static final Preferences prefs = Main.prefs;
 
    /**
     * Launch the app. Required to make MainApp the most recent class on stack,
@@ -45,7 +43,7 @@ public class MainApp extends Application {
       }
       stage.setOnCloseRequest( e -> { try {
             sceneMain.shutdown();
-            prefs.flush();
+            Main.prefs.flush();
             for ( Handler handler : log.getHandlers() )
                handler.close();
          } catch ( BackingStoreException | SecurityException | NullPointerException ignored ) { } } );

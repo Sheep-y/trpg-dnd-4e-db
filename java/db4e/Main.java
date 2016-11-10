@@ -21,7 +21,7 @@ import sheepy.util.ResourceUtils;
 import sheepy.util.Utils;
 
 /**
- * Setup logging, load preference, and show downloader main GUI.
+ * Setup logging, create preference, and launch the application.
  */
 public class Main {
 
