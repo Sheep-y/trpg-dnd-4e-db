@@ -413,7 +413,7 @@ od.action.list = {
          total += txt;
          if ( counts ) {
             var c = counts[ cat.name ];
-            txt = _.l( 'action.list.lbl_count', '%1/%2', c === undefined ? '--' : ~~c, cat.count );
+            txt = ~~c ? _.l( 'action.list.lbl_count', '%1', c === undefined ? '--' : ~~c, cat.count ) : '';
          }
          _.attr( _( dom[ cat.name ], 'var' ), 'text', txt );
       } );
@@ -421,7 +421,7 @@ od.action.list = {
       var txt = total;
       if ( counts ) {
          var c = counts[ '' ];
-         txt = _.l( 'action.list.lbl_count', '%1/%2', c === undefined ? '--' : ~~c, total );
+         txt = ~~c ? _.l( 'action.list.lbl_count', '%1', c === undefined ? '--' : ~~c, total ) : '';
       }
       _.attr( _( dom[ '' ], 'var' ), 'text', txt );
    },

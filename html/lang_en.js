@@ -54,7 +54,7 @@ _.l.set( 'action.list', {
    'btn_search_name' : "<u>N</u>ame Search",
    'btn_search_body' : "<u>F</u>ull Search",
    'a_all' : "Everything",
-   'lbl_count' : '%1 / %2',
+   'lbl_count' : '%1',
 
    'lbl_showing' : '%1 result(s)',
    'lbl_filter'   : 'Filter left %1 result(s) out of %2',

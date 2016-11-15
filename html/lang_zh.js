@@ -81,7 +81,7 @@ _.l.set( 'action.list', {
    'btn_search_name' : "名字搜索",
    'btn_search_body' : "全文搜索",
    'a_all' : "全類別",
-   'lbl_count' : '%1／%2',
+   'lbl_count' : '%1',
 
    'lbl_showing' : '%2 項結果',
    'lbl_filter' : '從 %2 項結果中過濾出 %1 項',
