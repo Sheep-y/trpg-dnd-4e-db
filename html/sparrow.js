@@ -49,19 +49,6 @@ if ( ns ) ns._ = _;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Return first non-null, non-undefined parameter.
- *
- * @returns {*} First non null data.  If none, returns the last argument or undefined.
- */
-_.coalesce = function _coalesce ( a ) {
-   for ( var i in arguments ) {
-      a = arguments[ i ];
-      if ( a !== undefined && a !== null ) return a;
-   }
-   return a;
-};
-
-/**
  * Safely get the (deep) property of a object.
  * If the property is unavailable, return undefined.
  * e.g. _.get( window, [ 'localStorage', 'sessionStorage' ], 'datakey' );
@@ -267,50 +254,6 @@ _.map = function _map ( data, field ) {
       return Array.prototype.map.apply( data, _.mapper.apply( null, _.ary( arguments, 1 ) ) );
 };
 
-/**
- * Flatten and returns a new array.
- *
- * Self-referencing array will be referencd in the new array,
- * but the reference will stay the same and no longer self-referencing.
- *
- * @param {*} stack Source array, will not be modified.
- * @returns {*} Flattened array, or elem if it is not an Array
- */
-_.flatten = function _flatten ( stack /*, ary */ ) {
-   var result = [], ary;
-   if ( arguments.length <= 1 ) {
-      ary = stack;
-      if ( ! Array.isArray( ary ) || ary.length <= 0 ) return ary;
-      stack = [];
-   } else {
-      ary = arguments[ 1 ]; // Recursion call, ary is new array to be added.
-   }
-   stack.push( ary );
-   for ( var i in ary ) {
-      var e = ary[ i ];
-      if ( Array.isArray( e ) ) {
-         if ( e.length <= 0 ) continue;
-         if ( stack.indexOf( e ) >= 0 ) result.push( e );
-         else result = result.concat( _flatten( stack, e ) );
-      } else result.push( e );
-   }
-   stack.pop();
-   return result;
-};
-
-/**
- * Remove duplicates from an array.
- *
- * @param {Array} ary Source array, will not be modified.
- * @returns {Array} A new array without duplicates.
- */
-_.unique = function _unique ( ary ) {
-   if ( ! Array.isArray( ary ) ) return ary;
-   return ary.filter( function _unique_each ( e, i ) {
-      return ary.indexOf( e ) === i;
-   } );
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Text Helpers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -333,7 +276,7 @@ _.ucfirst = function _ucfirst ( txt ) {
  * @returns {String} Converted string.
  */
 _.ucword = function _ucword ( txt ) {
-   return txt ? String(txt).split( /\b(?=[a-zA-Z])/g ).map( ns.ucfirst ).join( '' ) : txt;
+   return txt ? String(txt).split( /\b(?=[a-zA-Z])/g ).map( _.ucfirst ).join( '' ) : txt;
 };
 
 /**
@@ -491,74 +434,6 @@ if ( this && this.setImmediate ) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Ajax function.
- *
- * Options:
- *   url - Url to send get request, or an option object.
- *   method  - default to 'GET'.
- *   async   - true or false.
- *   onload  - Callback (responseText, xhr) when the request succeed.
- *   onerror - Callback (xhr, text status) when the request failed.
- *   ondone  - Callback (xhr) after success or failure.
- *   xhr     - XMLHttpRequest object to use. If none is provided the default will be used.
- *   cor     - if true and if using IE, will use ActiveX instead of native ajax. Default true if current page is on file://
- *
- * @param {(string|Object)} option Url to send get request, or an option object.
- * @param {function(string,XMLHttpRequest)=} onload Callback (responseText, xhr) when the request succeed.
- * @returns {Object} xhr object
- */
-_.ajax = function _ajax ( option, onload ) {
-   if ( typeof( option ) === 'string' ) option = { url: option };
-   if ( onload !== undefined ) option.onload = onload;
-   if ( option.cor === undefined ) option.cor = location.protocol === 'file:';
-
-   var url = option.url, xhr = option.xhr;
-   if ( xhr === undefined ) {
-      if ( option.cor ) try { xhr = new ActiveXObject( "Microsoft.XMLHttp" ); } catch ( err ) { }
-      if ( ! xhr ) xhr = new XMLHttpRequest();
-   }
-
-   var async  = 'async' in option ? option.async : true;
-   var method = 'method' in option ? option.method : 'GET';
-
-   _.info( "[AJAX] Ajax: "+url);
-   var finished = false;
-   xhr.open( method, url, async );
-   xhr.onload = function _ajax_onload () {
-      var callback;
-      _.info( '[AJAX] Complete, status ' + xhr.status + ': ' + url );
-      // 0 is a possible response code for local file access under IE 9 ActiveX
-      if ( [0,200,302].indexOf( xhr.status ) >= 0 ) {
-         callback = function _ajax_onload_call () {
-            if ( finished ) return;
-            finished = true;
-            _.call( option.onload, xhr, xhr.responseText, xhr );
-            _.call( option.ondone, xhr, xhr );
-         };
-      } else {
-         callback = function _ajax_onerror_call () {
-            if ( finished ) return;
-            finished = true;
-            _.call( option.onerror, xhr, xhr, "HTTP Response Code " + xhr.status );
-            _.call( option.ondone, xhr, xhr );
-         };
-      }
-      if ( async ) _.setImmediate( callback );
-      else callback();
-      xhr.onload = function() {}; // Avoid repeated call
-   };
-   try {
-      xhr.send();
-   } catch ( e ) {
-      finished = true;
-      _.error( 'Ajax exception on ' + url + ': ' + e );
-      _.call( option.onerror, xhr, xhr, e );
-      _.call( option.ondone, xhr, xhr );
-   }
-   return xhr;
-};
-
-/**
  * Load a JavaScript from an url.
  *
  * Options:
@@ -569,7 +444,6 @@ _.ajax = function _ajax ( option, onload ) {
  *                        otherwise if still non-true after load then call onerror.
  *   onload  - Callback (url, option) when the request succeed.
  *   onerror - Callback (url, option) when the request failed.
- *   harmony - If true, will set harmony script type for Firefox. (Overrides type in this case)
  *
  * @param {(string|Object)} option Url to send get request, or an option object.
  * @param {function(string,Object)=} onload Overrides option.onload
@@ -583,7 +457,6 @@ _.js = function _js ( option, onload ) {
    if ( option.validate && option.validate.call( null, url, option ) ) return _js_done( option.onload );
 
    var url = option.url;
-   if ( option.harmony && ! option.type && _.is.firefox() ) option.type = "application/javascript;version=1.8";
 
    var attr = { 'src' : url, 'parent': document.body || document.head };
    if ( option.charset ) attr.charset = option.charset;
@@ -640,19 +513,6 @@ _.is = {
    },
 
    /**
-    * Detect whether browser has ActiveX. Works with IE 11.
-    * @returns {boolean} True if ActiveX is enabled, false otherwise.
-    */
-   activeX : function _is_activeX () {
-      var result = false;
-      try {
-         result = !! new ActiveXObject( 'htmlfile' ); // IE 11 need actual new to not report undefined
-      } catch ( ignored ) {}
-      _.is.activeX = function () { return result; };
-      return result;
-   },
-
-   /**
     * Retuan true if given value is a literal value (instead of an object)
     * @param {*} val Value to check.
     * @returns {(undefined|null|boolean)} True if value is boolean, number, or string. Undefined or null if input is one of them.  False otherwise.
@@ -672,26 +532,6 @@ _.is = {
       if ( val === undefined || val === null ) return val;
       var type = typeof( val );
       return type === 'object' || type === 'function';
-   },
-
-   /**
-    * Return true if input is 'true', 'on', 'yes', '1'.
-    * Return false if 'false', 'off', 'no', '0'.
-    * Return null otherwise.
-    *
-    * @param {(string|boolean|number)} val Value to check.
-    * @returns {(boolean|null)} True, false, or null.
-    */
-   yes : function _is_yes ( val ) {
-      var type = typeof( val );
-      if ( type === 'string' ) {
-         val = val.trim().toLowerCase();
-         if ( [ 'true', 'on', 'yes', '1' ].indexOf( val ) >= 0 ) return true;
-         else if ( [ 'false', 'off', 'no', '0' ].indexOf( val ) >= 0 ) return false;
-      } else {
-         if ( type === 'boolean' || type === 'number' ) return val ? true : false;
-      }
-      return null;
    }
 };
 
@@ -923,78 +763,9 @@ _.si = function _si ( val, decimal ) {
    }
 };
 
-/**
- * Count the number of half width of a string.
- * CJK characters and symbols are often full width, double the width of latin characters and symbols which are half width.
- *
- * @param {string} src Text to calculate width of.
- * @returns {integer}  Character width.
- */
-_.halfwidth = function _halfwidth( src ) {
-   // A copy of PHP's mb_strwidth: http://www.php.net/manual/en/function.mb-strwidth.php
-   var result = 0;
-   for ( var i = 0, l = src.length ; i < l ; i++ ) {
-      var code = src.charCodeAt( i );
-      if ( code < 0x19 ) continue;
-      else if ( code < 0x1FF ) result += 1;
-      else if ( code < 0xFF60 ) result += 2;
-      else if ( code < 0xFF9F ) result += 1;
-      else result += 2;
-   }
-   return result;
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object helpers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Alias for Oblect.getPrototyeOf, except null safe.
- *
- * @param {Object|null|undefined} e Subject to get prototype of
- * @returns {Object|null|undefined} Prototype of e, or null|undefined if e is null|undefined.
- */
-_.proto = function _proto ( e ) {
-   if ( e === null || e === undefined || ! _.is.object( e ) ) return e;
-   return Object.getPrototypeOf( e );
-};
-
-/**
- * If subject is null or is exactly same as prototype, create a new object from the prototype.
- *
- * @param {Object|null|undefined} subject Subject to control creation.
- * @param {Object} prototype Prototype of result if new object need to be created.
- * @returns {Object|null|undefined} Prototype of e, or null|undefined if e is null|undefined.
- */
-_.newIfSame = function _newIfSame ( subject, prototype ) {
-   if ( subject === undefined || subject === null ) subject = prototype;
-   return subject !== prototype ? subject : Object.create( prototype );
-};
-
-/**
- * Create a subclass from a base class.
- * You still need to call super in constructor and methods, if necessary.
- *
- * @param {(Object|null)} base Base constructor. Result prototype will inherit base.prototype.
- * @param {(function(...*)|null)} constructor New object's constructor function. Optional.
- * @param {Object=} prototype Object from which to copy properties to result.prototype. Optional.
- * @returns {Function} Result subclass function object.
- */
-_.inherit = function _inherit ( base, constructor, prototype ) {
-   _.assert( ! base || base.prototype, _inherit.name + ': base must be a constructor' );
-   _.assert( ! constructor || typeof( constructor ) === 'function', _inherit.name + ': constructor must be function' );
-   if ( ! constructor ) {
-      if ( base ) constructor = function _inherit_constructor () { base.apply( this, arguments ); };
-      else constructor = function _dummy_constructor () {}; // Must always create new function, do not share it
-   }
-   if ( base ) {
-      var proto = constructor.prototype = Object.create( base.prototype );
-      if ( prototype ) _.extend( proto, prototype );
-   } else {
-      constructor.prototype = prototype;
-   }
-   return constructor;
-};
 
 /**
  * Add properties from one object to another.
@@ -1069,44 +840,6 @@ _.prop = function _prop ( ary, obj, flag ) {
    return ary;
 };
 
-/**
- * Remove properities from an object. Will not touch its prototype.
- *
- * @param {Object} target Target object, will have its properties removed.
- * @param {*} prop Array like property list, or an object with properties.
- * @returns {Object} Curtailed target object
- */
-_.curtail = function _curtail( target, prop ) {
-   if ( prop.length !== undefined ) prop = _.ary( prop );
-   else prop = Object.keys( prop );
-   for ( var i in prop ) {
-      var e = prop[ i ];
-      if ( target.hasOwnProperty( e ) ) delete target[ e ];
-   }
-   return target;
-};
-
-/**
- * Safe method to get an object's prototype.
- * Return null if input is null.  Return undefined if input is not an object.
- *
- * @param {*} base Base object to get prototype.
- * @returns {Object|undefined|null} Null or undefined if base cannot have prototype.  Otherwise Object.getPrototypeOf.
- */
-_.proto = function _proto ( base ) {
-   if ( base === undefined || base === null ) return base;
-   if ( ! _.is.object( base ) ) return;
-   if ( base.__proto__ ) return base.__proto__;
-   return Object.getPrototypeOf( base );
-};
-
-// Prevent changing properties
-_.freeze = Object.freeze ? function _freeze ( o ) { return Object.freeze(o); } : _.echo;
-// Prevent adding new properties and removing old properties
-_.seal = Object.seal ? function _seal ( o ) { return Object.seal(o); } : _.echo;
-// Prevent adding new properties
-_.noExt = Object.preventExtensions ? function _noExt ( o ) { return Object.preventExtensions(o); } : _.echo;
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DOM operation
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1127,7 +860,7 @@ _.noDef = function _noDef ( e ) { if ( e && e.preventDefault ) e.preventDefault(
 _.parent = function _parent ( node, condition ) {
    if ( ! node ) return node;
    if ( typeof( condition ) === 'string' ) {
-      var list = _( condition );
+      var list = _.array( _( condition ) );
       condition = function ( e ) { return list.indexOf( e ) >= 0; };
    } else if ( condition === undefined )
       condition = function (){ return true; };
@@ -1178,7 +911,7 @@ _.create = function _create ( tag, attr ) {
  */
 _.domList = function _domList ( e ) {
    if ( typeof( e ) === 'string' ) return _( e );
-   else if ( e.tagName || e.length === undefined ) return [ e ];
+   else if ( e instanceof Element || e.length === undefined || e instanceof Window ) return [ e ];
    return e;
 };
 
@@ -1248,12 +981,10 @@ _.attr = function _attr( ary, obj, value ) {
             default:
                if ( name.substr( 0, 2 ) === 'on' ) {
                   e.addEventListener( name.substr( 2 ), val );
+               } else if ( val !== undefined ) {
+                  e.setAttribute( name, val );
                } else {
-                  if ( val !== undefined ) {
-                     e.setAttribute( name, val );
-                  } else {
-                     e.removeAttribute( name );
-                  }
+                  e.removeAttribute( name );
                }
          }
       }
@@ -1336,264 +1067,6 @@ _.clear = function _clear ( e ) {
    return e;
 };
 
-/**
- * Check whether given DOM element(s) contain a class.
- *
- * @param {(string|Node|NodeList)} e Selector or element(s).
- * @param {string} className  Class to check.
- * @returns {boolean} True if any elements belongs to given class.
- */
-_.hasClass = function _hasClass ( e, className ) {
-   return _.domList( e ).some( function(c){ return c.classList.contains( className ); } );
-};
-
-/**
- * Adds class(es) to DOM element(s).
- *
- * @param {(string|Node|NodeList)} e Selector or element(s).
- * @param {(string|Array)} className  Class(es) to add.  Can be String or Array of String.
- * @returns {Array|NodeList} Array-ifed e
- */
-_.addClass = function _addClass ( e, className ) { return _.toggleClass( e, className, 'add' ); };
-
-/**
- * Removes class(es) from DOM element(s).
- *
- * @param {(string|Node|NodeList)} e Selector or element(s). If ends with a class selector, it will become default for className.
- * @param {(string|Array)} className  Class(es) to remove.  Can be String or Array of String.
- * @returns {Array|NodeList} Array-ifed e
- */
-_.removeClass = function _removeClass ( e, className ) { return _.toggleClass( e, className, 'remove' ); };
-
-/**
- * Adds or removes class(es) from DOM element(s).
- *
- * @param {(string|Node|NodeList)} e Selector or element(s).
- * @param {(string|Array)} className  Class(es) to toggle.  Can be String or Array of String.
- * @param {string=} method classList method to run.  Default to 'toggle'.
- * @returns {Array|NodeList} Array-ifed e
- */
-_.toggleClass = function _toggleClass ( e, className, method ) {
-   if ( method === undefined ) method = 'toggle';
-   var cls = _.array( className ), ary = _.domList( e );
-   _.forEach( ary, function _toggleClass_each ( dom ) {
-      for ( var c in cls ) dom.classList[ method ]( cls[ c ] );
-   } );
-   return ary;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Asynchronous programming
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// TODO: Rewrite with Promise.  As it stands, even with Promise they are still useful.
-
-/**
- * Countdown Latch object
- *
- * @constructor
- * @param {integer} countdown Initial countdown value; optional. Default 0.
- * @param {function()} ondone Callback when count_down reduce count to 0.
- * @returns {_.Latch} Created Latch object
- */
-_.Latch = function _Latch ( countdown, ondone ) {
-   if ( typeof( countdown ) === 'function' ) {
-      ondone = countdown;
-      countdown = 0;
-   }
-   this.count = countdown;
-   this.ondone = ondone;
-};
-_.Latch.prototype = {
-   "count" : 0,
-   "ondone" : null,
-
-   /**
-    * Count up.
-    * @param {integer} value Value to count up.  Default 1.
-    */
-   "count_up" : function _latch_countup ( value ) {
-      if ( value === undefined ) value = 1;
-      this.count += value;
-   },
-
-   /**
-    * Count down.  If count reach 0 then run ondone.
-    * @param {integer} value Value to count down.  Default 1.
-    * @throws {string} If count down will reduce count to below 0.
-    */
-   "count_down" : function _latch_countdown ( value ) {
-      if ( value === undefined ) value = 1;
-      this.count -= value;
-      if ( this.count < 0 )
-         throw new Error( "IllegalStateException: Latch count below zero" );
-      if ( this.count === 0 ) _.call( this.ondone, this );
-   },
-
-   /**
-    * Return a function that can be used to countdown this latch.
-    * This function will work on this latch regardless of context.
-    * @param {integer} value Value to count down.  Default 1.
-    */
-   "count_down_function" : function _latch_countdown_function ( value ) {
-      var latch = this;
-      return function _latch_countdown_callback() { latch.count_down( value ); };
-   }
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other helper objects
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * A event manager with either fixed event list or flexible list.
- *
- * @constructor
- * @param {Array=} events Array of event names. Optional. e.g. ['click','focus','hierarchy']
- * @param {Object=} owner Owner of this manager, handlers would be called with this object as the context. Optional.
- * @returns {_.EventManager}
- */
-_.EventManager = {
-   "create" : function ( events, owner ) {
-      var me = _.newIfSame( this, _.EventManager );
-      if ( events !== undefined && events !== null ) me.events = events;
-      me.owner = owner;
-      me.lst = _.map();
-      me.event_buffer = null;
-      me.deferred_timer = 0;
-      return me;
-   },
-   "lst" : _.map(),       // Observer list by event name.
-   "owner" : null,        // Owner, as context of handler calls.
-   "events" : null,       // List of events.  If empty, allow arbitrary events.
-   "deferred" : false,    // Whether this manager's event firing is deferred and consolidated.
-   "event_buffer" : null, // Buffered events (Map).
-   "deferred_timer" : 0,  // Timer for deferred event firing.
-   "onerror" : null,      // Error handler (error, event, parameter). If null, simply rethrow error.
-   "log" : false,         // If true, will log event firing.
-   /**
-    * Register an event handler.  If register twice then it will be called twice.
-    *
-    * @param {(string|Array)} event Event to register to.
-    * @param {(Function|Array)} listener Event handler.
-    */
-   "add" : function ( event, listener ) {
-      var thisp = this;
-      // TODO: Made compatible with iterable
-      if ( event.forEach ) return event.forEach( function ( e ){ thisp.add( e, listener ); } );
-      if ( listener.forEach ) return listener.forEach( function ( l ){ thisp.add( event, l ); } );
-      var lst = this.lst[ event ];
-      if ( ! lst ) {
-         if ( this.events && this.events.indexOf( event ) < 0 )
-            throw new Error( "[sparrow.EventManager.add] Cannot add to unknown event '" + event + "'" );
-         lst = this.lst[ event ] = [];
-      }
-      if ( this.log ) _.log( "Add " + event + " listener: " + listener );
-      lst.push( listener );
-   },
-   /**
-    * Un-register an event handler.
-    *
-    * @param {(string|Array)} event Event to un-register from.
-    * @param {(Function|Array)} listener Event handler.
-    */
-   "remove" : function ( event, listener ) {
-      var thisp = this;
-      // TODO: Made compatible with iterable
-      if ( event.forEach ) return event.forEach( function( e ){ thisp.remove( e, listener ); } );
-      if ( listener.forEach ) return listener.forEach( function( l ){ thisp.remove( event, l ); } );
-      var lst = this.lst[ event ];
-      if ( ! lst ) {
-         if ( this.events && this.events.indexOf( event ) < 0 )
-            throw new Error( "[sparrow.EventManager.remove] Cannot remove from unknown event '" + event + "'" );
-         return;
-      }
-      var i = lst.indexOf( listener );
-      if ( i >= 0 ) {
-         if ( this.log ) _.log( "Remove " + event + " listener: " + listener );
-         lst.splice( i, 1 );
-         if ( lst.length < 0 ) delete this.lst[ event ];
-      }
-   },
-   /**
-    * Check whether given event has or has no listeners.
-    *
-    * @param {string*} event Event to check. Obmit to check all events.
-    * @returns {Boolean} true if event has no listeners. false otherwise.
-    */
-   "isEmpty" : function ( event ) {
-      if ( event ) return this.lst[ event ] ? false : true;
-      else for ( var i in this.lst ) return false;
-      return true;
-   },
-   /**
-    * Fire an event that triggers all registered handler of that type.
-    * Second and subsequence parameters will be passed to handlers.
-    *
-    * @param {string} event Event to call.
-    * @param {...*} param Parameters to pass to event handlers.
-    */
-   "fire" : function ( event, param ) {
-      var me = this, lst = this.lst[ event ], args = _.ary( arguments, 1 );
-      if ( event.forEach ) {
-         return event.forEach( function( e ){ me.fire.apply( me, [ e ].concat( args ) ); } );
-      }
-      if ( ! lst ) {
-         if ( this.events && this.events.indexOf( event ) < 0 )
-            throw new Error( "[sparrow.EventManager.fire] Cannot fire unknown event '" + event + "'" );
-         return;
-      }
-      if ( ! this.deferred ) {
-         if ( this.log ) _.log( "Fire " + event + " on " + lst.length + " listeners" );
-         for ( var i in lst ) try {
-            lst[ i ].apply( this.owner, args );
-         } catch ( err ) {
-            if ( this.onerror ) this.onerror( err, event, args );
-            else throw err;
-         }
-      } else {
-         // Deferred mode will consolidate all events and call listeners passing the event buffer.
-         if ( arguments.length > 2 ) throw new Error( "[sparrow.EventManager.fire] Deferred event firing must have at most one parameter." );
-         var evt_buf = this.event_buffer || ( this.event_buffer = _.map() );
-         var buf = this.event_buffer[ event ] || ( this.event_buffer[ event ] = [] );
-         buf.push( param );
-         if ( this.deferred_timer ) return;
-         this.deferred_timer = _.setImmediate( function _EventManager_deferred_fire ( ) {
-            ( me.events || Object.keys( evt_buf ) ).forEach( function _EventManager_deferred_fire_each ( event ) {
-               me.deferred_timer = 0;
-               var lst = me.lst[ event ], buf = evt_buf[ event ];
-               if ( ! lst || ! buf ) return;
-               delete evt_buf[ event ];
-               if ( me.log ) _.log( "Fire deferred " + event + " event on " + lst.length + " listeners" );
-               for ( var i = 0, l = lst.length ; i < l ; i++ ) try {
-                  lst[ i ].call( me.owner, buf );
-               } catch ( err ) {
-                  if ( me.onerror ) me.onerror( err, event, buf );
-                  else throw err;
-               }
-            } );
-         } );
-         lst = buf = args = event = param = undefined;
-      }
-   },
-   /** Create methods to fire event for given event list or method:event mapping */
-   "createFireMethods" : function ( event ) {
-      var self = this;
-      function _EventManager_makeFireMethods( prop, evt ) {
-         if ( ! self.hasOwnProperty( evt ) ) {
-            self[ prop ] = self.fire.bind( self, evt );
-         } else {
-            _.warn( '[sparrow.EventManager.createFireMethods] Fire method "' + prop + "' cannot be created." );
-         }
-      }
-      if ( ! event || event.forEach ) {
-         _.forEach( event || this.events, function ( e ) { _EventManager_makeFireMethods( e, e ); } );
-      } else {
-         for ( var prop in event ) _EventManager_makeFireMethods( prop, event[ prop ] );
-      }
-   }
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Internationalisation and localisation
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1650,7 +1123,6 @@ _.l.setLocale = function _l_setLocale ( lang ) {
     if ( ! lang ) return;
     if ( lang === _.l.currentLocale ) return;
     _.l.currentLocale = lang;
-    _.l.event.fire( 'locale', lang );
 };
 
 /**
@@ -1745,7 +1217,6 @@ _.l.set = function _l_set ( locale, path, data ) {
       locale = _.l.currentLocale;
    }
     _.l.getset( locale, path, data );
-    _.l.event.fire( 'set', path, data );
 };
 
 /**
@@ -1792,60 +1263,6 @@ _.l.localise = function _l_localise ( root ) {
          default:         e.innerHTML = val;
       }
    } );
-};
-
-_.l.event = _.EventManager.create( ['set','locale'], _.l );
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Testing
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Run a test suite and write result to document, or check a specific test.
- *
- * @param {*} condition Either an assertion or a test suite object.
- * @param {string=} name Name of assertion. If absent, condition must be a test suite.
- */
-_.test = function _test ( condition, name ) {
-   var create = _.create, td;
-   if ( name !== undefined ) {
-      // Single test case, append to latest test table
-      _.assert( _test.body, '[Addiah] Named test should be called as part of test suit.' );
-      _test.body.appendChild( create( 'tr', { child: [ create( 'td', name ), td = create( td ) ] } ) );
-      if ( condition ) td.textContent = 'OK';
-      else td.appendChild( 'b', { className: 'err', text: 'FAIL' } );
-   } else {
-      // Test suite object
-      var title = create( 'h1', { parent: document.body, text : 'Testing' } );
-      var result, success = true;
-      for ( var test in condition ) {
-         if ( ! test.match( /^test/ ) ) continue;
-         if ( typeof( condition[test] ) === 'function' ) {
-
-            var cap = create( 'caption', _.escHtml( test ).replace( /^test_+/, '' ) );
-            var table = create( 'table', { className: 'sparrow_test', border: 1, parent: document.body, child: cap } );
-            table.appendChild( _test.body = create( 'tbody' ) );
-
-            // Run test
-            try {
-               condition[test]();
-            } catch ( e ) {
-               create( 'tr', { parent: _test.body, child:
-                  create( 'td', { colspan:2, className:'err', text: 'Exception during testing: ' + e } ) } );
-            }
-
-            // Update table caption
-            if ( _( table, '.err' ).length ) {
-               result = create( 'b', 'FAILED: ' );
-               success = false;
-            } else {
-               result = create( 'span', 'OK: ' );
-            }
-            cap.insertBefore( result, cap.firstChild );
-         }
-      }
-      title.textContent = success ? 'Test Success' : 'Test FAILED';
-   }
 };
 
 _.info('[Sparrow] Sparrow loaded.');

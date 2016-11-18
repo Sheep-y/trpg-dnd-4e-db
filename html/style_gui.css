@@ -58,14 +58,15 @@ th { text-align: left; }
 figure { margin: 0; }
 
 /** Search term highlight */
-.highlight {
+mark {
    background-color: yellow;
    padding: 0 !important;
    margin: 0 !important;
 }
 
-.highlight.disabled {
+.no_highlight mark {
    background-color: transparent;
+   color: inherit;
 }
 
 /** Back / Forward button */
@@ -117,12 +118,15 @@ header {
 }
 
 header h1 {
-   display: inline-block;
-   padding: 0;
-   margin: 0;
    color: white;
+   display: inline-block;
    font-size: 150%;
    font-weight: bold;
+   margin: 0;
+   max-width: calc( 100vw - 140px );
+   overflow: hidden;
+   padding: 0;
+   white-space: nowrap;
 }
 
 header button, header .button { /* Left header button */

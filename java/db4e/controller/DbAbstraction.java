@@ -19,20 +19,19 @@ import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import sheepy.util.JavaFX;
 
+/**
+ * Database abstraction.
+ * Note that SqlJet does not support multi-thread.
+ */
 class DbAbstraction {
 
    private static final Logger log = Main.log;
 
-   private SqlJetDb db;
-      private ISqlJetTable tblConfig;
-      private ISqlJetTable tblCategory;
-      private ISqlJetTable tblEntry;
+   private volatile SqlJetDb db;
 
-   synchronized void setDb ( SqlJetDb db, ObservableList<Category> categories, ProgressState state ) throws SqlJetException {
+   void setDb ( SqlJetDb db, ObservableList<Category> categories, ProgressState state ) throws SqlJetException {
       this.db = db;
-      tblConfig = db.getTable( "config" );
-      tblCategory = db.getTable( "category" );
-      tblEntry = db.getTable( "entry" );
+      ISqlJetTable tblConfig = db.getTable( "config" );
 
       // Check version
       log.fine( "Tables loaded. Checking data version." );
@@ -54,7 +53,7 @@ class DbAbstraction {
       loadEntryIndex( categories, state );
    }
 
-   synchronized void createTables () throws SqlJetException {
+   void createTables () throws SqlJetException {
       db.beginTransaction( SqlJetTransactionMode.WRITE );
       try {
          db.createTable( "CREATE TABLE 'config' ('key' TEXT PRIMARY KEY NOT NULL, 'value' TEXT NOT NULL);" );
@@ -77,9 +76,8 @@ class DbAbstraction {
                  + " 'data' TEXT);" );
          db.createIndex( "CREATE INDEX entry_category_index ON entry(category, hasData)" );
 
-         tblConfig = db.getTable( "config" );
-         tblCategory = db.getTable( "category" );
-         tblEntry = db.getTable( "entry" );
+         ISqlJetTable tblConfig = db.getTable( "config" );
+         ISqlJetTable tblCategory = db.getTable( "category" );
 
          tblConfig.insert( "version", "20160718" );
 
@@ -115,13 +113,13 @@ class DbAbstraction {
 
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
+         ISqlJetTable tblCategory = db.getTable( "category" );
          ISqlJetCursor cursor = tblCategory.order( "category_order_index" );
          if ( ! cursor.eof() ) { synchronized ( list ) {
             do {
                Category category = new Category(
                   cursor.getString( "id" ),
                   cursor.getString( "name" ),
-                  cursor.getString( "type" ),
                   parseCsvLine( cursor.getString( "fields" ) ) );
                category.total_entry.set( (int) cursor.getInteger( "count" ) );
                list.add( category );
@@ -139,21 +137,21 @@ class DbAbstraction {
       } finally {
          db.commit();
       }
-
-      // TODO: Backup good db.
    }
 
    private void loadEntryIndex ( List<Category> categories, ProgressState state ) throws SqlJetException {
-      int downCount = state.done = 0;
+      int downCount = 0;
+      state.reset();
 
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
       try {
+         ISqlJetTable tblEntry = db.getTable( "entry" );
          ISqlJetCursor cursor = tblEntry.open();
          final int total = (int) cursor.getRowCount();
          state.total = total;
          cursor.close();
 
-         for ( Category category : categories ) {
+         for ( Category category : categories ) synchronized( category ) {
             int countWithData = 0, size = category.total_entry.get();
             List<Entry> list = category.entries;
             list.clear();
@@ -181,13 +179,15 @@ class DbAbstraction {
       } finally {
          db.commit();
       }
-      state.done = downCount;
+      state.done.set( downCount );
    }
 
-   synchronized void loadEntityContent ( List<Category> categories, ProgressState state ) throws SqlJetException {
+   void loadEntityContent ( List<Category> categories, ProgressState state ) throws SqlJetException {
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
-      try {
-         for ( Category category : categories ) {
+      try { synchronized ( categories ) {
+         state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
+         ISqlJetTable tblEntry = db.getTable( "entry" );
+         for ( Category category : categories ) synchronized( category ) {
             log.log( Level.FINE, "Loading {0} content", category.id );
             for ( Entry entry : category.entries ) {
                if ( entry.fields == null || entry.content == null ) {
@@ -200,15 +200,17 @@ class DbAbstraction {
                state.addOne();
             }
          }
-      } finally {
+      } } finally {
          db.commit();
       }
    }
 
-   synchronized void saveEntryList ( Category category, List<Entry> entries ) throws SqlJetException {
+   void saveEntryList ( Category category, List<Entry> entries ) throws SqlJetException {
       int count = entries.size();
       db.beginTransaction( SqlJetTransactionMode.WRITE );
       try {
+         ISqlJetTable tblCategory = db.getTable( "category" );
+         ISqlJetTable tblEntry = db.getTable( "entry" );
          int i = 0;
          for ( Entry entry : entries ) {
             log.log( Level.FINER, "Saving {0} - {1}", new Object[]{ entry.id, entry.name } );
@@ -242,13 +244,14 @@ class DbAbstraction {
 
    private Map<String, Object> entryUpdateMap;
 
-   synchronized void saveEntry ( Entry entry ) throws SqlJetException {
+   void saveEntry ( Entry entry ) throws SqlJetException {
       if ( entryUpdateMap == null ) {
-         entryUpdateMap = new HashMap<>( 2, 1.0f );
+         entryUpdateMap = new HashMap<>( 2, 1f );
          entryUpdateMap.put( "hasData", 1 );
       }
       db.beginTransaction( SqlJetTransactionMode.WRITE );
       try {
+         ISqlJetTable tblEntry = db.getTable( "entry" );
          ISqlJetCursor cursor = tblEntry.lookup( null, entry.id );
          if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.name + "' not in database" );
          entryUpdateMap.put( "data", entry.content );

@@ -3,13 +3,32 @@
   - View content of an entry / multiple entries
   -->
 <section id='action_view'>
+   <style scoped><?coco-start css(minify) ?>
+      #act_view_pnl_link {
+         background-color: rgba( 255, 224, 128, 0.9 );
+         border: 1px solid black;
+         box-shadow: 2px 2px 5px rgba( 0, 0, 0, 0.5 );
+         display: none;
+         position: absolute;
+         }
+         #act_view_pnl_link td {
+            padding: 0 1ex;
+            color: #666;
+            }
+            #act_view_pnl_link td:first-child {
+               text-align: right;
+               }
+   <?coco-end?></style>
    <nav>
       <button id="act_view_btn_prev" class="btn_prev" onclick="od.action.view.btn_prev_click()">&lt;</button>
       <button id="act_view_btn_next" class="btn_next" onclick="od.action.view.btn_next_click()">&gt;</button>
    </nav>
-   <article id="act_view_pnl_content" contextmenu="menu_view"></article>
-   <header role="navigation">
-      <button class='i18n' onclick='od.gui.go("list");' accesskey='1'> action.list.link_text </button>
+   <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.pnl_content_click(event)"></article>
+   <nav id="act_view_pnl_link" onclick="od.action.view.pnl_link_click(event)">
+      <table><tbody></tbody></table>
+   </nav>
+   <header role="banner">
+      <button class='i18n' onclick='od.action.view.btn_browse_click(event)' accesskey='1'> action.list.link_text </button>
       <h1 id="act_view_h_title"></h1>
       <button class='i18n' onclick='scrollTo(0,0)'> gui.top </button>
    </header>
@@ -18,13 +37,15 @@
 <script><?coco-start js(minify) ?>   'use strict';(function action_view_init(){
 od.action.view = {
 
-   "initialize" : null,
+   "initialize" : function act_view_init () {
+      function hide_popup () {
+         _.hide( '#act_view_pnl_link' );
+      }
+      document.body.addEventListener( 'click', hide_popup );
+      window.addEventListener( 'unload', hide_popup );
+   },
 
    "l10n" : function act_view_l10n() {
-      var action = od.action.view, id = action.act_id;
-      if ( id && id.length ) {
-         action.set_title( _.l( 'action.view.title', '%1 entries', action.id.length ) );
-      }
    },
 
    "setup" : function act_view_setup () {
@@ -48,19 +69,17 @@ od.action.view = {
       var id = od.gui.act_id, action = od.action.view;
       var idList = id.substr( 'view='.length ).split( ',' );
       action.clear();
-      idList.forEach( function act_view_show_each ( id, i ) {
+      idList.forEach( function act_view_show_each ( id ) {
          // Parse id
-         id = id.match( /^([^.]+?)\.(.+)$/ ) || ['','',''];
-         var cat = od.data.create( id[ 1 ] );
-         id = id[ 2 ];
-         if ( ! cat || ! id ) return;
+         _.info( "Parsing " + id );
+         var cat = od.data.create( od.data.category_name_of( id ) );
          _.info( "Display " + cat.name + "." + id );
          // Create div
-         var div = _.create( 'div' );
+         var div = _.html( '<div><h1>' + _.l( 'gui.loading', 'Loading' ) + '</h1></div>' );
          _( '#act_view_pnl_content')[0].appendChild( div );
          // Load and fill div
          cat.load_data( id, function act_view_show_load () {
-            var content = '<div id="detail">' + cat.data[ id ] + '</div>';
+            var content = '<div class="detail">' + cat.data[ id ] + '</div>';
             div.innerHTML = od.gui.highlight( content );
             if ( idList.length === 1 ) {
                var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
@@ -72,6 +91,15 @@ od.action.view = {
       action.act_id = idList && idList.length > 0 ? ( idList.length === 1 ? idList[ 0 ] : idList ) : null;
       action.l10n();
       action.update_nav_button();
+   },
+
+   "btn_browse_click" : function act_view_btn_browse_click () {
+      if ( od.action.list.category === undefined ) {
+         var id = od.action.view.act_id;
+         if ( id instanceof Array ) id = id[0];
+         return od.gui.go( 'list.name.' + od.data.category_name_of( id ) );
+      }
+      od.gui.go("list");
    },
 
    "btn_prev_click" : function act_view_btn_prev_click () {
@@ -92,6 +120,18 @@ od.action.view = {
       action.parse_action_id();
    },
 
+   "pnl_content_click" : function act_view_pnl_content_click ( evt ) {
+      if ( evt.button && evt.button !== 2 ) return; // Only handle left click and right click
+      var action = od.action.view;
+      od.data.load_name_index( function(){ action.popup_links( evt ); });
+   },
+
+   "pnl_link_click" : function act_view_pnl_link_click ( evt ) {
+      _.noDef( evt );
+      var tr = _.parent( evt.target, '#act_view_pnl_link tr' );
+      if ( tr ) od.gui.go( _( tr, 'a' )[0].getAttribute( 'href' ).substr( 1 ) );
+   },
+
    /////////////////////////////////////////////////////////////////////////////////////////////////
 
    "act_id" : null, // Current view id, an array of or a single "cat.id"
@@ -109,7 +149,7 @@ od.action.view = {
       od.gui.update_title();
    },
 
-   "update_nav_button" : function update_nav_button () {
+   "update_nav_button" : function act_view_update_nav_button () {
       var action = od.action.view;
       _.hide( '#act_view_btn_prev, #act_view_btn_next' );
       if ( ! action.siblings || action.siblings.length <= 1 || ! action.act_id || action.act_id instanceof Array ) return;
@@ -117,6 +157,113 @@ od.action.view = {
       if ( pos < 0 ) return;
       if ( pos > 0 ) _.show( '#act_view_btn_prev' );
       if ( pos < action.siblings.length-1 ) _.show( '#act_view_btn_next' );
+   },
+
+   "popup_links" : function act_view_popup_links ( evt ) {
+      var action = od.action.view,  data = od.data,  pnl = _( '#act_view_pnl_link' )[0];
+      var ids = action.find_internal_links();
+      _.hide( pnl );
+      if ( ! ids.length ) return;
+
+      data.load_name_index( function act_view_popup_links_loaded() {
+         var categories = {},  cat_count = 0;
+         for ( var i in ids ) {
+            var cat_id = data.category_name_of( ids[ i ] );
+            if ( categories[ cat_id ] ) return;
+            var cat = categories[ cat_id ] = data.get( cat_id );
+            ++cat_count;
+            cat.load_listing( function act_view_popup_links_pop () {
+               if ( --cat_count !== 0 ) return;
+               _.info( "Showing popup for " + ids );
+               _( '#act_view_pnl_link tbody' )[0].innerHTML = ids.map( function( id ) {
+                  var cat = data.get( data.category_name_of( id ) );
+                  var row = cat.map[ id ];
+                  return '<tr><td>' + cat.getTitle()
+                     + '<td><a href="?view=' + id + '">' + row.Name + '</a>'
+                     + '<td>' + row._TypeName;
+               }).join( '' );
+               _.style( pnl, { top: 0, left: 0, display: 'block' } ); // Reset position and show up to get dimension
+               var rect = pnl.getBoundingClientRect(),  body = document.body;
+               var scrollX = window.pageXOffset, scrollY = window.pageYOffset, bodyW = body.clientWidth, bodyH = body.clientHeight;
+               var offset = rect.width / ( evt.button ? 1 : 2 ); // Center popup if left click, otherwise right-slign
+               var x = Math.max( scrollX, evt.clientX + scrollX - offset );
+               var y = evt.clientY + scrollY;
+               if ( x + rect.width  + 20 > bodyW ) x = Math.max( scrollX, bodyW - rect.width  - 20 ); // 20 is margins
+               if ( y + rect.height + 20 > bodyH ) y = Math.max( scrollY, bodyH - rect.height - 20 );
+               _.hide( pnl );
+               setTimeout( function() { // Defer to after global un-popup handler
+                  _.style( pnl, { top: y+'px', left: x+'px', display: 'block' } );
+               }, 0 );
+               _.time( "Shown popup." );
+            } );
+         }
+      });
+   },
+
+   /**
+    * Find entries that match the text in last click position (start of selection).
+    * @returns {Array} List of ids that matched, in decending order of name length then in order of name.
+    */
+   "find_internal_links" : function act_view_find_internal_links () {
+      var sel = window.getSelection(),  range = sel.getRangeAt(0),  node = sel.anchorNode;
+      var textTag = [ undefined, 'MARK', 'SPAN' ], result = [];
+      _.time();
+
+      function findPre ( node, len, offset ) {
+         var text = node.textContent, part = '';
+         if ( text.length ) {
+            if ( offset === undefined ) offset = text.length;
+            part = text.substring( offset-Math.min( offset, len ), offset );
+            len -= part.length;
+            if ( len <= 0 ) return part;
+         }
+         if ( node.previousSibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( node.previousSibling.tagName ) >= 0 )
+            return findPre( node.previousSibling, len ) + part;
+         return part;
+      }
+
+      function findPost ( node, len, offset ) {
+         var text = node.textContent, part = '';
+         if ( text.length ) {
+            if ( offset === undefined ) offset = 0;
+            part = text.substring( offset, Math.min( text.length, offset+len ) );
+            len -= part.length;
+            if ( len <= 0 ) return part;
+         }
+         if ( node.nextSibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( node.nextSibling.tagName ) >= 0 )
+            return part + findPost( node.nextSibling, len );
+         return part;
+      }
+
+      function normalise ( str ) {
+         return str.replace( /\W+/g, ' ' ).toLowerCase();
+      }
+
+      // Longest name is 45 chars long. Add one more for safe word cut.
+      var pre  = normalise( findPre ( node, 46, range.startOffset ).replace( /^\s+/, "" ) );
+      var post = normalise( findPost( node, 46, range.startOffset ).replace( /\s+$/, "" ) );
+      _.time( "Lookup: " + pre + "^" + post );
+      var nextSpace = pre.indexOf( ' ' ),  text = pre + post,   index = od.data.index;
+
+      for ( var name in index ) {
+         if ( nextSpace >= 0 && name.length < pre.length - nextSpace ) {
+            pre = pre.substr( nextSpace + 1 );
+            text = pre + post;
+            nextSpace = pre.indexOf( ' ' );
+            // _.log( "shorten: " + name + " -> " + pre + "^" + post );
+         }
+         var pos = text.indexOf( name );
+         if ( pos >= 0 && pos <= pre.length && pos + name.length >= pre.length )
+            if ( pos === 0 || pre.charAt( pos-1 ) === ' ' )
+               result = result.concat( index[ name ] );
+      }
+
+      result = result.filter( function ( e, i ) { // Remove dups
+         return result.slice( i + 1 ).indexOf( e ) < 0;
+      });
+
+      _.time( "Done lookup. Found " + result.length + " links." );
+      return result;
    }
 };
 

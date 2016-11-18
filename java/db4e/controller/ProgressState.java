@@ -1,9 +1,10 @@
 package db4e.controller;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class ProgressState {
-   public volatile int done;
+   public final AtomicInteger done = new AtomicInteger( 0 );
    public volatile int total;
 
    private final Consumer<Double> updater;
@@ -12,8 +13,12 @@ public class ProgressState {
       this.updater = updater;
    }
 
+   public void reset () {
+      done.set( 0 );
+   }
+
    public void addOne () {
-      if ( ++done % 256 == 0 )
+      if ( done.incrementAndGet() % 256 == 0 )
          update();
    }
 
@@ -23,7 +28,7 @@ public class ProgressState {
 
    private double getProgress() {
       if ( total <= 0 ) return 0;
-      if ( done >= total ) return 1;
-      return done / (double) total;
+      if ( done.get() >= total ) return 1;
+      return done.get() / (double) total;
    }
 }

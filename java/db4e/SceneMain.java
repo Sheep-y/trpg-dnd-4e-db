@@ -11,6 +11,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -101,7 +102,7 @@ public class SceneMain extends Scene {
            "Check for availability of new releases." );
    private final Pane pnlOptionTab = new VBox( 8,
            new HBox( 8, new Label( "Timeout in" ), txtTimeout, new Label( "seconds.") ),
-           new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (min) per request.") ),
+           new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (minimal) per request.") ),
            new HBox( 8, new Label( "Retry" ), txtRetry, new Label( "times on timeout.") ),
            chkDebug,
            btnClearData,
@@ -120,7 +121,7 @@ public class SceneMain extends Scene {
    // Layout regions
    private final TabPane pnlC = new TabPane( tabData, tabOption, tabHelp );
 
-   public SceneMain( Main main ) {
+   public SceneMain( MainApp main ) {
       super( new Group(), 800, 500 );
       main.addLoggerOutput( txtLog );
       initControls();
@@ -225,7 +226,7 @@ public class SceneMain extends Scene {
       loader.open( tblCategory ).thenRun( () -> Platform.runLater( () -> {
          setTitle( "ver. " + Main.VERSION );
          btnLeft.requestFocus();
-         Main.checkUpdate( false ).thenAccept( this::popupUpdate );
+         checkUpdate( false );
       } ) );
    }
 
@@ -410,7 +411,7 @@ public class SceneMain extends Scene {
          dlgCreateView = new FileChooser();
          dlgCreateView.getExtensionFilters().addAll(
             new FileChooser.ExtensionFilter( "4e Offline Compendium", "4e_database.html" ),
-            new FileChooser.ExtensionFilter( "Any file", "*.*" ) );
+            new FileChooser.ExtensionFilter( "Any html file", "*.html" ) );
          File initialDir = new File( prefs.get( "export.dir", System.getProperty( "user.home" ) ) );
          if ( ! initialDir.exists() || ! initialDir.isDirectory() )
             initialDir = new File( System.getProperty( "user.home" ) );
@@ -418,12 +419,24 @@ public class SceneMain extends Scene {
          dlgCreateView.setInitialFileName( "4e_database.html" );
       }
       File target = dlgCreateView.showSaveDialog( getWindow() );
-      if ( target == null ) return;
+      if ( target == null || ! target.getName().toLowerCase().endsWith( ".html" ) ) return;
 
-      setStatus( "Starting export" );
-      loader.startExport( target ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );
-      stateRunning();
-      prefs.put( "export.dir", target.getParent() );
+      CompletableFuture<Void> ready = CompletableFuture.completedFuture( null );
+      String data_dir = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
+      if ( new File( data_dir + "Glossary/glossary1.js" ).exists() ) {
+         Alert dlgRemoveOld = new Alert( Alert.AlertType.CONFIRMATION, "Delete old version export data?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
+         ButtonType remove = dlgRemoveOld.showAndWait().orElse( null );
+         if ( remove == null || ButtonType.CANCEL.equals( remove ) ) return;
+         if ( ButtonType.YES.equals( remove ) )
+            ready = loader.deleteOld( data_dir );
+      }
+
+      ready.thenRun( () -> {
+         prefs.remove( "export.last_file" );
+         loader.startExport( target, data_dir ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );
+         stateRunning();
+         prefs.put( "export.dir", target.getParent() );
+      } );
    }
 
    public void stateBusy ( String message ) { runFX( () -> {
@@ -512,16 +525,33 @@ public class SceneMain extends Scene {
    }
 
    private void btnCheckUpdate_click ( ActionEvent evt ) {
-      btnCheckUpdate.setDisable( true );
-      Main.checkUpdate( true ).thenAccept( this::popupUpdate );
+      checkUpdate( true );
    }
 
-   private void popupUpdate ( Boolean hasUpdate ) {
-      if ( hasUpdate ) runFX( () -> {
-         if ( new Alert( Alert.AlertType.INFORMATION, "Update available. Open download page?", ButtonType.YES, ButtonType.CLOSE ).showAndWait().get().equals( ButtonType.YES ) )
-            Main.doUpdate();
-         btnCheckUpdate.setDisable( false );
-      });
+   private void checkUpdate ( boolean forced ) {
+      btnCheckUpdate.setText( "Checking update" );
+      btnCheckUpdate.setDisable( true );
+      Main.checkUpdate( forced ).thenAccept( ( hasUpdate ) ->
+         runFX( () -> {
+            if ( ! hasUpdate.isPresent() ) {
+               btnCheckUpdate.setText( "Check update" );
+            } else if ( hasUpdate.get() ) {
+               if ( new Alert( Alert.AlertType.INFORMATION, "Update available. Open download page?", ButtonType.YES, ButtonType.CLOSE ).showAndWait().get().equals( ButtonType.YES ) )
+                  Main.doUpdate();
+               btnCheckUpdate.setText( "Open update page" );
+               btnCheckUpdate.addEventHandler( ActionEvent.ACTION, ( evt ) -> Main.doUpdate() );
+            } else {
+               btnCheckUpdate.setText( "Check update (no update)" );
+            }
+            btnCheckUpdate.setDisable( false );
+         } )
+      ).exceptionally( ( ex ) -> {
+         runFX( () -> {
+            btnCheckUpdate.setText( "Check update (error)" );
+            btnCheckUpdate.setDisable( false );
+         } );
+         return null;
+      } );
    }
 
    public boolean isDebugging () { return chkDebug.isSelected(); };

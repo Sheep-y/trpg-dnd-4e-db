@@ -12,7 +12,7 @@ public class Entry {
 
    // Transformed data for export
    public String display_name; // Converted name for export
-   public String shortid;     // Simplified id for export. Set to "null" (String) to skip export.
+   public String shortid;     // Simplified id for export
    public String fulltext;   // Full text index text - without name and flavour
    public Object[] meta;    // Transform field data
    public String data;     // Processed data text
@@ -25,6 +25,18 @@ public class Entry {
    public Entry ( String id, String name, String[] fields ) {
       this( id, name );
       this.fields = fields;
+   }
+
+   /**
+    * Return an unconverted copy of this object
+    */
+   public Entry clone() {
+      assert( contentDownloaded );
+      Entry copy = new Entry( id, name );
+      copy.fields = this.fields;
+      copy.contentDownloaded = true;
+      copy.content = this.content;
+      return copy;
    }
 
 }

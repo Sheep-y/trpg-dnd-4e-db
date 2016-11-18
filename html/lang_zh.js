@@ -8,62 +8,57 @@ _.l.setLocale( 'zh' );
 
 _.l.set( 'data', {
    'category' : {
-      'Sample' : '範例',
-      'Example' : '例子',
-      'Background' : '背景',
-      'Class' : '職業',
-      'Companion' : '伙伴',
-      'Deity' : '神祇',
-      'Disease' : '疾病',
-      'EpicDestiny' : '史詩天命',
-      'Feat' : '專長',
-      'Glossary' : '詞目',
-      'Item' : '裝備',
-      'Monster' : '怪物',
-      'ParagonPath' : '典範',
-      'Poison' : '蠱毒',
-      'Power' : '威能',
-      'Race' : '種族',
-      'Ritual' : '法式',
-      'Terrain' : '地型',
-      'Theme' : '主題',
-      'Trap' : '陷阱 / 地型'
+      'armor' : '護甲',
+      'background' : '背景',
+      'class' : '職業',
+      'companion' : '伙伴',
+      'deity' : '神祇',
+      'disease' : '疾病',
+      'epicdestiny' : '史詩天命',
+      'feat' : '專長',
+      'glossary' : '詞目',
+      'item' : '裝備',
+      'implement' : '法器',
+      'monster' : '怪物',
+      'paragonpath' : '典範',
+      'poison' : '蠱毒',
+      'power' : '威能',
+      'race' : '種族',
+      'ritual' : '法式',
+      'theme' : '主題',
+      'trap' : '陷阱 / 地型',
+      'weapon' : '武器'
    },
    'field' : {
-      "_CatName" : "類別",
-      "_TypeName" : "類型",
-      'Name' : '名稱',
-      'Level' : '等級',
-      'Category' : '類別',
-      'Type' : '類型',
-      "PowerSourceText" : '力量源',
-      "RoleName" : '岡位',
-      "KeyAbilities" : '主能力值',
-      "GroupRole" : '地位',
-      "Size" : '體型',
-      "DescriptionAttribute" : '能力值',
-      "ComponentCost" : '材料費',
-      "Price" : '價格',
-      "KeySkillDescription" : '主技能',
-      "Prerequisite" : '前提要求',
-      "Campaign" : '戰役',
-      "Skills" : '技能',
-      "Alignment" : '陣營',
-      "Cost" : '花費',
-      "Tier" : '層級',
-      "TierName" : '層級',
+      '_CatName' : '類別',
+      '_TypeName' : '類型',
       'ActionType': '動作',
+      'Alignment' : '陣營',
+      'Benefit' : '益處',
+      'Campaign' : '戰役',
+      'Category' : '類別',
       'ClassName': '職業',
-      'SourceBook': '書目'
+      'ComponentCost' : '材料費',
+      'Cost' : '花費',
+      'DescriptionAttribute' : '能力值',
+      'GroupRole' : '地位',
+      'KeyAbilities' : '主能力值',
+      'KeySkillDescription' : '主技能',
+      'Level' : '等級',
+      'Name' : '名稱',
+      'PowerSourceText' : '力量源',
+      'Prerequisite' : '前提要求',
+      'Price' : '價格',
+      'RoleName' : '岡位',
+      'Skills' : '技能',
+      'SourceBook': '書目',
+      'Tier' : '層級',
+      'TierName' : '層級',
+      'Type' : '類型'
    }
 });
 
 _.l.set( 'error', {
-   'updating_data' : '更新 %2 的 %1 時發生錯誤 (%3)',
-
-   // 'no_cross_origin' : 'Cross Origin' // TODO: implement proper cross origin alert
-   'ajax_error' : '無法載入 %2 的 %1 的內容。',
-
    'inconsistent_category' : "分類'%1'數據有錯誤(%2)。請重新匯出此數據庫。"
 });
 
@@ -86,16 +81,12 @@ _.l.set( 'action.list', {
    'btn_search_name' : "名字搜索",
    'btn_search_body' : "全文搜索",
    'a_all' : "全類別",
-   'lbl_count' : '%1／%2',
+   'lbl_count' : '%1',
 
    'lbl_showing' : '%2 項結果',
    'lbl_filter' : '從 %2 項結果中過濾出 %1 項',
    'lbl_page' : '頁數 %1/%2',
    'lbl_no_result' : "無結果"
-});
-
-_.l.set( 'action.view', {
-   'title' : "詳情頁"
 });
 
 _.l.set( 'action.about', {
@@ -111,7 +102,6 @@ _.l.set( 'action.about', {
 
    'h_license' : "授權及私隱聲明",
    'p_license' : "此程式稿免費開源，以 GNU AGPL v3 授權發佈。<br/>本程式稿不收集任何可以辨認個人的資訊。",
-   'a_source' : "檢視源碼",
    'a_github'  : "Github 源碼",
    'a_email'  : "電郵",
    'lbl_source_manual' : "請在關閉此提示後右按並點選'顯示源碼'，因為 IE 不支援，因為您的瀏覽器不能用程序呼叫這功能。",

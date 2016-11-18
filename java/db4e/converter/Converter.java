@@ -1,4 +1,4 @@
-package db4e.convertor;
+package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -11,17 +11,16 @@ import java.util.regex.Pattern;
 /**
  * Default entry handling goes here.
  */
-public class DefaultConvertor extends Convertor {
+public class Converter extends Convert {
 
    protected final boolean debug;
 
-   public DefaultConvertor ( Category category, boolean debug ) {
+   public Converter ( Category category, boolean debug ) {
       super( category );
       this.debug = debug;
    }
 
-   @Override protected String correctEntry ( Entry entry ) {
-      return null;
+   @Override protected void correctEntry ( Entry entry ) {
    }
 
    private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
@@ -38,7 +37,6 @@ public class DefaultConvertor extends Convertor {
    @Override protected void convertEntry ( Entry entry ) {
       super.convertEntry( entry );
       if ( debug ) {
-         if ( "null".equals( entry.shortid ) ) return;
          // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
          if ( shortId.containsKey( entry.shortid ) )
             log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.id, entry.name, entry.shortid, shortId.get( entry.shortid ).name } );
@@ -154,10 +152,13 @@ public class DefaultConvertor extends Convertor {
                if ( book.equals( "Class Compendium" ) ) continue; // Never published
                if ( book.contains( " Magazine " ) )
                   abbr = book.replace( "gon Magazine ", "" ).replace( "geon Magazine ", "" );
-               else {
-                  books.put( book, book );
-                  log.log( Level.FINE, "Source without abbrivation: {0} ({1})", new Object[]{ book, entry.shortid } );
-                  abbr = book;
+               else synchronized ( book ) {
+                  abbr = books.get( book );
+                  if ( abbr == null ) {
+                     books.put( book, book );
+                     log.log( Level.FINE, "Source without abbrivation: {0} ({1})", new Object[]{ book, entry.shortid } );
+                     abbr = book;
+                  }
                }
             }
             if ( sourceBook.length() > 0 ) sourceBook.append( ", " );
@@ -187,7 +188,11 @@ public class DefaultConvertor extends Convertor {
    // Combined link pattern
    private final Matcher regxLinks = Pattern.compile( "<a(?: target=\"_new\")? href=\"(?:http://ww[w2].wizards.com/[^\"]*)?\"(?: target=\"_new\")?>([^<]*)</a>" ).matcher( "" );
 
-   private final Matcher regxAttr = Pattern.compile( "<([^<>\"]+) (\\w+)=\"(\\w+)\">" ).matcher( "" );
+   private final Matcher regxAttr1 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\">" ).matcher( "" );
+   private final Matcher regxAttr2 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\" (\\w+)=\"(\\w+)\">" ).matcher( "" );
+   private final Matcher regxAttr3 = Pattern.compile( "<(\\w+) (\\w+)=\"([^'\"/]+)\">" ).matcher( "" );
+
+   private final Matcher regxEmptyTag = Pattern.compile( "<(\\w+)[^>]*></\\1>" ).matcher( "" );
 
    @Override protected String normaliseData ( String data ) {
       // Replace images with character. Every image really appears in the compendium.
@@ -217,8 +222,16 @@ public class DefaultConvertor extends Convertor {
       data = regxSpaces.reset( data ).replaceAll( " " );
       // Convert ’ to ' so that people can actually search for it
       data = data.replace( "’", "'" );
+      data = data.replace( "“’", "\"" );
+      data = data.replace( "”’", "\"" );
       // Convert attribute="value" to attribute=value, for cleaner data
-      data = regxAttr.reset( data ).replaceAll( "<$1 $2=$3>" );
+      data = regxAttr1.reset( data ).replaceAll( "<$1 $2=$3>" );
+      data = regxAttr2.reset( data ).replaceAll( "<$1 $2=$3 $4=$5>" );
+      // Convert attribute="value value" to attribute='value value', for cleaner data
+      data = regxAttr3.reset( data ).replaceAll( "<$1 $2='$3'>" );
+      // Remove empty tags (but not some empty cells which has a space)
+      while ( regxEmptyTag.reset( data ).find() )
+         data = regxEmptyTag.replaceAll( "" );
       // Convert some rare line breaks
       if ( data.indexOf( '\n' ) >= 0 ) {
          data = data.replace( "\n,", "," );

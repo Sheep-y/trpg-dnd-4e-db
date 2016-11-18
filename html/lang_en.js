@@ -9,9 +9,9 @@ _.l.setLocale( 'en' );
 
 _.l.set( 'data', {
    'category' : {
-      'EpicDestiny' : 'Epic Destiny',
-      'ParagonPath' : 'Paragon Path',
-      'Trap'        : 'Trap / Terrain'
+      'epicdestiny' : 'Epic Destiny',
+      'paragonpath' : 'Paragon Path',
+      'trap'        : 'Trap / Terrain'
    },
    'field' : {
       "_CatName" : "Category",
@@ -31,11 +31,7 @@ _.l.set( 'data', {
 });
 
 _.l.set( 'error', {
-   'updating_data' : 'Error when updating %1 of %2 (%3)',
-
-   // 'no_cross_origin' : 'Cross Origin' // TODO: implement proper cross origin alert
-   'ajax_error' : 'Cannot load content (%1) from %2',
-
+   'old_format' : "Data format is outdated. Please re-export this viewer or revert to 3.5.1",
    'inconsistent_category' : "Category '%1' has inconsistent data (%2).  Please re-export this viewer."
 });
 
@@ -57,17 +53,13 @@ _.l.set( 'action.list', {
    'txt_search_full_placeholder' : "Type search keywords. e.g. ranger OR martial bonus -\"feat bonus\" and then select category.",
    'btn_search_name' : "<u>N</u>ame Search",
    'btn_search_body' : "<u>F</u>ull Search",
-   'a_all' : "All Category",
-   'lbl_count' : '%1 / %2',
+   'a_all' : "Everything",
+   'lbl_count' : '%1',
 
    'lbl_showing' : '%1 result(s)',
    'lbl_filter'   : 'Filter left %1 result(s) out of %2',
-   'lbl_page' : '頁數 %1/%2',
+   'lbl_page' : 'Page %1/%2',
    'lbl_no_result' : "No result"
-});
-
-_.l.set( 'action.view', {
-   'title' : "View %1 Data"
 });
 
 _.l.set( 'action.about', {
@@ -83,7 +75,6 @@ _.l.set( 'action.about', {
 
    'h_license' : "License",
    'p_license' : "This script is free software and is licensed under GNU AGPL v3.<br/>This script does not collect any personally identifiable information.",
-   'a_source'  : "View Source",
    'a_github'  : "Githib Source",
    'a_email'  : "Email",
    'lbl_source_manual' : "Please right click and select 'View Source' after closing this message, since your browser does not let us do it programmatically.",

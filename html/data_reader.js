@@ -40,6 +40,23 @@ od.reader = {
 
    /////////////////////////////////////////////////////////
 
+   // Name index is a map of name to id, for creation of internal links
+
+   read_name_index: function reader_read_index( onload, onerror ) {
+      var path = od.config.url.index();
+      this._read(
+        path,
+        function(){ return od.data.index; },
+        onload,
+        onerror ); // Ignore error since it is not critical
+   },
+
+   jsonp_name_index: function reader_jsonp_index( version, data ) {
+      od.data.index = data;
+   },
+
+   /////////////////////////////////////////////////////////
+
    // Listing is a processed listing of items in a category.
 
    read_data_listing: function reader_read_data_listing( category, onload, onerror ) {
@@ -60,21 +77,14 @@ od.reader = {
          _.alert( _.l( 'error.inconsistent_category', 'Please re-export %1.', cat.getTitle(), 'listing' ) );
       }
 
-      if ( version < 20130616 )
-         // Milestone 1 data, file name changed, not worth supporting.
-         return _.alert( _.l( 'error.need_reget' ) );
-      if ( version < 20130703 ) {
-         // 20130616 format use url as id instead of simplified id
-         data.forEach( function reader_jsonp_data_listing_20130616 ( item ) {
-            item[ 0 ] = od.config.id( item[ 0 ] );
-         } );
-      }
+      if ( version < 20130703 )
+         return _.alert( _.l( 'error.old_format' ) );
       cat.columns = columns;
       cat.raw_list = data;
    },
 
    jsonp_data_extended: function reader_jsonp_data_extended( version, category, columns, data ) {
-      return _.alert( _.l( 'error.need_reget' ) ); // Milestone 1 data (ver 20130330), not worth supporting.
+      return _.alert( _.l( 'error.old_format' ) ); // Called by 3.0 Milestone 1 data (ver 20130330)
    },
 
    /////////////////////////////////////////////////////////
@@ -92,19 +102,8 @@ od.reader = {
 
    jsonp_data_index: function reader_jsonp_data_index( version, category, data ) {
       var cat = od.data.get(category);
-      if ( ! cat || Object.keys( data ).length !== cat.count || version === 20140414 ) {
-         // Version 20140414 was saving compressed binary as unicode, corrupting them.
-         category.count = data.length;
-         _.alert( _.l( 'error.inconsistent_category', 'Please re-index %1.', cat.getTitle(), 'index' ) );
-      }
-
-      if ( version < 20130703 ) {
-         // 20130616 format use url as id instead of simplified id
-         for ( var id in data ) {
-            data[ od.config.id( id ) ] = data[ id ];
-            delete data[ id ];
-         }
-      }
+      if ( version < 20130616 )
+         return _.alert( _.l( 'error.old_format' ) );
       cat.index = data;
    },
 
@@ -122,11 +121,14 @@ od.reader = {
    },
 
    jsonp_data: function reader_jsonp_data( version, category, id, data ) {
-      if ( version < 20130703 ) {
-         // 20130616 format use url as id instead of simplified id
-         id = od.config.id( id );
-      }
+      return _.alert( _.l( 'error.old_format' ) ); // Old unbatched data
+   },
+
+   jsonp_batch_data: function reader_jsonp_batch_data( version, category, data ) {
+      if ( version < 20160803 )
+         return _.alert( _.l( 'error.old_format' ) );
       var cat = od.data.get(category);
-      cat.data[id] = data;
+      for ( var id in data )
+         cat.data[id] = data[id];
    }
 };

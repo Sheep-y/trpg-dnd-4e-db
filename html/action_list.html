@@ -52,6 +52,7 @@
                #act_list_pnl_category button var {
                   float: right;
                   font-weight: normal;
+                  font-size: 10pt;
                   }
       /* Result list */
       #act_list_lbl_showing {
@@ -88,39 +89,15 @@
          cursor: pointer;
          color: red;
       }
-      /* Big screen: Move search buttons to the right of search box */
-      @media (min-width: 768px) {
-         #act_list_pnl_term {
-            float: left;
-            margin-right: -320px;
-            margin-top: 10px;
-            padding-right: 320px;
-            width: calc( 100% - 10px );
-            }
-            #act_list_txt_search {
-               font-size: 120%;
-               width: 100%;
-               }
-         #act_list_tbl_search {
-            float: right;
-            margin-left: 0;
-            width: 300px;
-            }
-            #act_list_tbl_search td button {
-               width: 50%;
-               }
+      /* 1024 cut point: try to fit four button and switch to vertical list */
+      @media (min-width: 1024px) {
+         #act_list_pnl_category button { max-width: 220px; }
       }
-      @media (min-width: 910px) {
-         #act_list_pnl_category button { max-width: 300px; }
-      }
-      /* Small screen: Show only selected cat */
-      @media (max-width: 909px) {
+      @media (max-width: 1023px) {
          #act_list_pnl_category button {
             font-size: 100%;
-            width: 33.3%;
+            width: 25%;
             }
-            .rpg { display: none; }
-
          #act_list_table {
             display : block;
             width   : 100% !important;
@@ -166,6 +143,41 @@
                         text-align: right;
                         }
       }
+      /* 1270 cut point: hide icon */
+      @media (min-width: 1270px) {
+         #act_list_pnl_category button { max-width: 250px; }
+      }
+      @media (max-width: 1269px) {
+         .rpg { display: none; }
+      }
+      /* 768 cut point: Move search buttons to bottom of search box */
+      @media (min-width: 767px) {
+         #act_list_pnl_term {
+            float: left;
+            margin-right: -320px;
+            margin-top: 10px;
+            padding-right: 320px;
+            width: calc( 100% - 10px );
+            }
+            #act_list_txt_search {
+               font-size: 120%;
+               width: 100%;
+               }
+         #act_list_tbl_search {
+            float: right;
+            margin-left: 0;
+            width: 300px;
+            }
+            #act_list_tbl_search td button {
+               width: 50%;
+               }
+      }
+      @media (max-width: 768px) {
+         #act_list_pnl_category button {
+            font-size: 100%;
+            width: 33.3%;
+            }
+      }
    <?coco-end?></style>
    <style id="style_dynamic"></style>
 
@@ -191,7 +203,7 @@
       <div id='act_list_pnl_list' contextmenu="menu_view"></div>
    </div>
 
-   <header role="navigation">
+   <header role="banner">
       <button class='i18n' onclick='od.gui.go("about")'> action.about.link_text </button>
       <h1 id='act_list_h_title' class='i18n'>action.list.title</h1>
       <button class='i18n' onclick='scrollTo(0,0)'> gui.top </button>
@@ -204,6 +216,7 @@ od.action.list = {
    'url' : /^list\b/,
    'last_url' : null,
    'last_cat' : null,
+   'last_scrollY' : 0,
 
    'initialize' : function act_list_init () {
       // Set initial search state (e.g. button pressed status)
@@ -228,6 +241,11 @@ od.action.list = {
          this.build_category( od.action.list.parse_action_id );
       else
          od.data.load_catalog( od.action.list.parse_action_id );
+      setTimeout( function(){ window.scrollTo( 0, action.last_scrollY ); }, 0 );
+   },
+
+   'cleanup': function act_list_cleanup () {
+      od.action.list.last_scrollY = window.pageYOffset;
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,6 +281,7 @@ od.action.list = {
     */
    'a_category' : function act_list_a_category ( cat ) {
       var action = od.action.list;
+      od.gui.page = 0;
       action.set_search_category( cat ? od.data.get( cat ) : "" );
       action.search();
       _( '#act_list_txt_search' )[0].focus();
@@ -289,19 +308,12 @@ od.action.list = {
     * @param {Event} evt Event object.
     */
    'table_click' : function act_list_table_click ( evt ) {
-      // If user clicked on check box, ignore.
-      if ( ! evt || evt.target.tagName === 'INPUT' ) return;
+      _.noDef( evt );
+      var tr = _.parent( evt.target, '#act_list_pnl_list tr' );
+      if ( ! tr ) return;
 
-      // Find the row that user clicked.
-      var e = evt.target;
-      while ( e && e.tagName !== 'TR' ) e = e.parentNode;
-      if ( ! e ) return;
-
-      // Find category and id and trigger navigation
-      var cat = od.action.list.category;
-      if ( ! cat ) cat = od.data.get( e.getAttribute( 'data-category' ) );
-      var id = od.config.id( e.getAttribute('data-id') );
-      od.gui.go( "view=" + encodeURIComponent( cat.name + '.' +  id ) );
+      var id = tr.getAttribute( 'data-id' );
+      if ( id ) od.gui.go( "view=" + encodeURIComponent( id ) );
    },
 
    'set_search_category' : function act_list_set_search_category ( cat ) {
@@ -401,7 +413,7 @@ od.action.list = {
          total += txt;
          if ( counts ) {
             var c = counts[ cat.name ];
-            txt = _.l( 'action.list.lbl_count', '%1/%2', c === undefined ? '--' : ~~c, cat.count );
+            txt = ~~c ? _.l( 'action.list.lbl_count', '%1', c === undefined ? '--' : ~~c, cat.count ) : '';
          }
          _.attr( _( dom[ cat.name ], 'var' ), 'text', txt );
       } );
@@ -409,7 +421,7 @@ od.action.list = {
       var txt = total;
       if ( counts ) {
          var c = counts[ '' ];
-         txt = _.l( 'action.list.lbl_count', '%1/%2', c === undefined ? '--' : ~~c, total );
+         txt = ~~c ? _.l( 'action.list.lbl_count', '%1', c === undefined ? '--' : ~~c, total ) : '';
       }
       _.attr( _( dom[ '' ], 'var' ), 'text', txt );
    },
@@ -498,7 +510,7 @@ od.action.list = {
          table[0].parentNode.removeChild( table[0] );
       }
       table = _.create( 'table', { 'id': 'act_list_table', 'aria-label' : _.l( 'action.list.search_result', 'Result' ) } );
-      var head_row = _.create( 'tr' ), head = _.create( 'thead' ),  css = '@media (max-width: 909px) {';
+      var head_row = _.create( 'tr' ), head = _.create( 'thead' ),  css = '@media (max-width: 1023px) {';
       table.appendChild( head );
       head.appendChild( head_row );
 
@@ -513,6 +525,7 @@ od.action.list = {
             action.sort_asc = action.sort_field === f ? ! action.sort_asc : true;
             _.attr( '#act_list_pnl_list th span', 'text', '⇅' );
             lbl.textContent = action.sort_asc ? '↓' : '↑';
+            od.gui.page = 0;
             action.sort_field = f;
             action.show_list();
             action.update_action_id();
@@ -603,17 +616,15 @@ od.action.list = {
             if ( ! line ) continue;
 
             var cat_name = line._category.name, id = line[ idField ];
-            html += '<tr data-id="' + _.escHtml( id ) + '"';
-            if ( ! action.category ) html += ' data-category="' + _.escHtml( cat_name ) + '"';
-            html += '>';
-            var cells = '';
-            for ( var j = 1 ; j < cl ; j++ ) { // Note: Very intensive loop.
+            html += '<tr data-id="' + _.escHtml( id ) + '">';
+            var cells = '<td><a href="?view=' + id + '">' + line.Name + '</a>';
+            for ( var j = 2 ; j < cl ; j++ ) { // Note: Very intensive loop.
                var d = line[ col[ j ] ] || '';
                cells += '<td>' + ( d.text ? d.text : d );
             }
             html += gui.highlight( cells );
          }
-         od.action.view.siblings = data.map( function( e ) { return e._category.name + '.' + e.ID });
+         od.action.view.siblings = data.map( function( e ) { return e.ID });
       }
 
       action.update_paging();
@@ -631,7 +642,7 @@ od.action.list = {
       var action = od.action.list, gui = od.gui;
       var count = action.data.length;
       var title = _.l( 'action.list.lbl_page', '%1/%2', gui.page + 1, gui.total_page );
-      _('#act_view_h_title')[0].textContent = title;
+      _('#act_list_h_title')[0].textContent = title;
       od.gui.update_title();
 
       if ( count <= gui.row_per_page ) {

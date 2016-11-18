@@ -38,7 +38,6 @@
          <p class='i18n'> action.about.p_license </p>
          <p>
             <button class='i18n' onclick='od.gui.go("license")'> action.license.link_text </button>
-            <button class='i18n' onclick='od.action.about.show_source()'> action.about.a_source </button>
             <a class='button i18n' href='https://github.com/Sheep-y/trpg-dnd-4e-db'> action.about.a_github </a>
             <button class='i18n' href='mailto:your.sheepy@gmail.com' accesskey="9" > action.about.a_email </button>
          </p>
@@ -162,7 +161,10 @@
          <h1 class='i18n'> action.about.h_version_history </h1>
          <p class="i18n"> action.about.lbl_english_only </p>
          <dl>
-            <dt> 3.5.1 <time>2016-07-30</time> </dt>
+            <dt> 3.5.2 <time>2016-11-19</time> </dt>
+            <dd> Multi-thread export, reduce file count from 25k to 1.8k, linkify entry names, split items into four categories, show type of items (artifact, tattoo, standard), show theme prerequisite, show background benefits, split race ability, share favicon between viewer and downloader, internal lookup, keyboard next/prev. </dd>
+
+            <dt> 3.5.1 <time>2016-07-31</time> </dt>
             <dd> Implement paging, fix all category list and some search bugs, update entry style and mobile layout, and 370+ entry corrections. </dd>
 
             <dt> 3.5.0 <time>2016-07-20</time> </dt>
@@ -189,7 +191,7 @@
       </article>
    </div>
 
-   <header role="navigation">
+   <header role="banner">
       <button class='i18n' onclick='od.gui.go("list")' accesskey='1'> action.list.link_text </button>
       <h1 class="i18n"> action.about.title </h1>
       <button class='i18n' onclick='scrollTo(0,0)'> gui.top </button>
@@ -230,12 +232,6 @@ od.action.about = {
       _.l.saveLocale( lang );
       od.gui.l10n();
    },
-
-   "show_source" : function act_about_show_source () {
-      // Chrome and Mozilla series (Firefox, SeaMonkey, Web) support view-source.
-      if ( ! /\b(Gecko\/|Chrome\/)/.test( navigator.userAgent ) ) return alert( _.l( 'action.about.lbl_source_manual' ) );
-      location.href = "view-source:" + location.href;
-   }
 };
 
 od.action.license = {

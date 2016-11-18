@@ -1,8 +1,8 @@
 # 4e Compendium Downloader #
 
-![Screenshot of program](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History%20-%20v3.5%20viewer.png)
+## Version 3.5.2 ##
 
-Version 3.5.1
+![Screenshot of program](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History%20-%20v3.5%20viewer.png)
 
 This app can be used to reterives and locally stores entries from online 4e [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx).
  <br/>
@@ -25,17 +25,20 @@ This is a fan-made project and does not come with copyrighted data.
 ### Fixing compendium errors ###
 
 Let's face it, the official compendium has errors.
+This downloader fixes over 520 entries during export:
 
-I cannot update the official compendium, but I can update this downloader's data export.
-In this version, over 370 entries has been corrected:
-
-* 151 items missing power frequency. (e.g. Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
-* 79 empty glossaries, delisted. (e.g. male, female, fang titan drake, etc.)
-* 67 entries without "published" record. (e.g. Granny's Grief, Dreamheart, Deck of Many Things etc.)
-* 35 entries that says "basic melee attack" instead of "melee basic attack" (or ranged). (e.g. Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
-* 28 entries with formatting issues, such as content cut in the middle (Mirror of Deception), "published" not properly formatted (Drow Poison), putting level and group role together (Trapped Chest) etc.
-* 12 skills missing "Imporvising with (this skill)" subtitle. (Arcana, Bluff, Diplomacy, etc.)
-* 2 typos ("bit points", wrong power keyword) - I remember seeing others. Let me know!
+* 152 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
+ * The downloader logs 153 fixes. One of them - Arrow of Fate - is a duplicate.
+* 79 empty glossaries, removed. (male, female, fang titan drake, etc.)
+* 68 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
+* 60 entries moved to correct category. (Superior implements, Assassin's poisons, and Consumable wondrous)
+* 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
+* 21 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, etc.)
+* 21 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
+* 15 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot etc.)
+* 4 typos. (Cambion Stalwart "bit points", Fifth Sword of Tyr power keyword, Primal Grove "grp", Rubble Topple "Singe")
+* 84 entries with missing/wrong listing data not caused by above issues. (Wild Elf, Enlarge Familiar, some traps etc.)
+* In addition, over a hundred artifacts and item sets are manually classified.
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 
@@ -43,19 +46,15 @@ If you find similar mistakes that aren't fixed, please [file an issue](https://g
 
 * Viewer source code is in html folder.
 * Downloader source code is in java folder, and use libraries in java_lib folder.
-* Both use resources at the root (license) and/or in the resource folder.
-* Use Ant (build.xml) to compile both downloader and viewer into an executable jar.
-* The jar can also be extracted to a new folder; use Ant to move the extracted files back to original structure.
+* Both use resources at the root (license) and in the resource folder.
+* Use Ant (build.xml) to compile viewer and then downloader into an executable jar.
+* The jar can also be extracted to a new project folder; use Ant to move the extracted files back to original structure.
 
-Part of the build process uses the [CocoDoc](https://github.com/Sheep-y/CocoDoc/) app builder, which is bundled and must run in GUI.
-Try to use 64 bits java runtime; 32 bits may stackoverfow on js minify, but won't affect functionality.
+The viewer is built with [CocoDoc](https://github.com/Sheep-y/CocoDoc/) app builder, which is bundled and must run in GUI.
 
-If you use an IDE, be careful not to export data to project folder.
-Otherwise, it can take a long time for the IDE to scan all the data files.
-
-Note that this program use sqljet to access sqlite database, but the data cannot be read by other SQLite libraries.
-I understand that the file format didn't change, so it should be a sqljet issue, which is discontinued.
-Since I cannot find an equally light alternative and I haven't had other issues, I'm keeping it and hoping someone can find what's wrong someday.
+Sqljet is used to access sqlite database, but the data cannot be read by other SQLite libraries.
+It may be a sqljet issue.
+Since it is very light and has no other issues, I'm keeping it and hoping someone can find what's wrong someday.
 
 <small>
 Code, documentations, and related resources are open source and licensed under <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">GNU AGPL v3</a>. <br/>

@@ -1,4 +1,4 @@
-package db4e.convertor;
+package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -9,15 +9,19 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PowerConvertor extends LeveledConvertor {
+public class PowerConverter extends LeveledConverter {
 
    private final int CLASS = 0;
    private final int FREQUENCY = 2;
    private final int KEYWORDS = 4;
 
-   public PowerConvertor ( Category category, boolean debug ) {
+   public PowerConverter ( Category category, boolean debug ) {
       super( category, debug );
+   }
+
+   @Override protected void initialise () {
       category.meta = new String[]{ "ClassName", "Level", "Frequency", "Action", "Keywords", "SourceBook" };
+      super.initialise();
    }
 
    private Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]+</b>(?:, <b>[\\w ]+</b>)*)" ).matcher( "" );
@@ -57,12 +61,11 @@ public class PowerConvertor extends LeveledConvertor {
       return super.sortEntity( a, b );
    }
 
-   @Override protected String correctEntry(Entry entry) {
+   @Override protected void correctEntry(Entry entry) {
       switch ( entry.shortid ) {
          case "power6595": // Bane's Tactics
             entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
-            return "basic attack correction";
+            corrections.add( "fix basic attack" );
       }
-      return null;
    }
 }

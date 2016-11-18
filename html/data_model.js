@@ -9,7 +9,9 @@
 
 od.data = {
    /* Please do NOT access directly. */
-   "category" : {},
+   "category" : _.map(),
+   /* Read only, don't modify. */
+   "index" : null,
 
    /**
     * With no parameter: return an array of category names.
@@ -43,40 +45,58 @@ od.data = {
       return result;
    },
 
+   "category_name_of" : function data_category_name_of ( id ) {
+      var cat = id.split( /\d/, 2 )[0];
+      switch ( cat ) {
+         case 'associate': return 'companion';
+         case 'skill'    : return 'glossary';
+         case 'terrain'  : return 'trap';
+      }
+      return cat.toLowerCase();
+   },
+
    "list" : function data_list () { return Object.keys( this.category ); },
 
-   "load_catalog" : function data_load_catalog ( ondone, onerror ) { od.reader.read_catalog( ondone, onerror ); },
+   "load_catalog" : function data_load_catalog ( ondone, onerror ) {
+      od.reader.read_catalog( ondone, onerror );
+   },
+
+   "load_name_index" : function data_name_index ( ondone ) {
+      var countdown = 2;
+      var callback = function name_countdown(){ if ( --countdown === 0 ) ondone(); };
+      od.reader.read_catalog( callback );
+      od.reader.read_name_index( callback );
+   },
 
    "load_all_index" : function data_load_all_index ( ondone ) {
-      var lat = new _.Latch( this.list().length+1, ondone );
+      var countdown = this.list().length;
+      var callback = function index_countdown(){ if ( --countdown === 0 ) ondone(); };
       var cats = this.category;
-      for ( var cat in cats ) cats[cat].load_index( lat.count_down_function() );
-      lat.count_down();
+      for ( var cat in cats ) cats[cat].load_index( callback );
    },
 
    "load_all_listing" : function data_load_all_listing ( ondone ) {
-      var lat = new _.Latch( this.list().length+1, ondone );
+      var countdown = this.list().length;
+      var callback = function listing_countdown(){ if ( --countdown === 0 ) ondone(); };
       var cats = this.category;
-      for ( var cat in cats ) cats[cat].load_listing( lat.count_down_function() );
-      lat.count_down();
-   },
+      for ( var cat in cats ) cats[cat].load_listing( callback );
+   }
 };
 
 od.data.Category = function Category ( name ) {
    this.name = name;
    this.count = 0;
    this.raw_list = [];
-   this.index = {};
+   this.index = _.map();
    this.columns = [];
    this.list = [];
-   this.map = {};
-   this.data = {};
+   this.map = _.map();
+   this.data = _.map();
 };
 od.data.Category.prototype = {
    "name": "",
    "count": 0,
    "raw_list": [],     // e.g. [ ["sampleId001","Sample",["1+",1,3],["Multiple","Git","Csv"]], ... ]
-
    "columns": [], // e.g. [ "Name","SourceBook","Level", ... ]
    "list" : [],   // e.g. [ {ID:"sampleId001", SourceBook": { "text":"Multiple", "set": ["Git","Csv"] }, ... ]
    "index": {},   // e.g. { "sampleId001":"Sample Data 1 Published in ...", ... }
@@ -88,7 +108,7 @@ od.data.Category.prototype = {
     * @returns {_L8.data_Cat_unload}
     */
    "getTitle" : function data_Cat_getTitle() {
-      return _.l( 'data.category.' + this.name, this.name );
+      return _.l( 'data.category.' + this.name, _.ucfirst( this.name ) );
    },
 
    "load_listing" : function data_Cat_load_listing ( ondone, onerror ) {
@@ -111,12 +131,12 @@ od.data.Category.prototype = {
    "build_listing" : function data_Cat_bulid_listing () {
       var data = this.raw_list;
       var col = this.columns;
-      var map = this.map = {};
+      var map = this.map = _.map();
       var list = this.list = new Array( data.length );
 
-      var catName = this.name, typeCol = 2;
-      if ( [ 'Race', 'ParagonPath', 'EpicDestiny' ].indexOf( catName ) >= 0 ) {
-            catName = catName.replace( /(?=[PD])/g, ' ' ).trim(); // Split PP/ED into two words
+      var catName = _.ucfirst( this.name ), typeCol = 2;
+      if ( [ 'Disease', 'Poison', 'Race', 'Paragonpath', 'Epicdestiny' ].indexOf( catName ) >= 0 ) {
+            catName = _.ucword( catName.replace( /(?=path$|destiny$)/, ' ' ) ); // Split PP/ED into two words
          typeCol = 0;
       }
 
@@ -134,12 +154,14 @@ od.data.Category.prototype = {
          }
          item._category = this;
          item._CatName = catName;
-         item._TypeName = typeCol ? item[ col[ typeCol ] ] : '';
+         if ( catName === 'Monster' )
+            item._TypeName = item.GroupRole + ' ' + item.CombatRole;
+         else
+            item._TypeName = typeCol ? item[ col[ typeCol ] ] : '';
          list[ i ] = item;
          map[ listing[ 0 ] ] = item;
       }
    }
 };
-_.seal( od.data.Category.prototype );
 
 })();

@@ -1,23 +1,28 @@
-package db4e.convertor;
+package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import sheepy.util.Utils;
 
-public class FeatConvertor extends DefaultConvertor {
+public class FeatConverter extends Converter {
 
    private final int TIER = 0;
    private final int PREREQUISITE = 1;
 
-   public FeatConvertor ( Category category, boolean debug ) {
+   public FeatConverter ( Category category, boolean debug ) {
       super( category, debug );
+   }
+
+   @Override protected void initialise () {
       category.meta = new String[]{ "Tier", "Prerequisite", "SourceBook" };
+      super.initialise();
    }
 
    private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite</b>:\\s*([^<>]+)<" ).matcher( "" );
-   private final Matcher regxLevel = Pattern.compile( "(?:, )?([12]?\\d)(?:st|nd|th)[- ]level(?:, )?" ).matcher( "" );
+   private final Matcher regxLevel = Pattern.compile( "(?:, )?([12]?\\d)(?:st|nd|th) level(?:, )?" ).matcher( "" );
 
    @Override protected void convertEntry ( Entry entry ) {
       entry.meta = new Object[]{ "Heroic","", entry.fields[1] };
@@ -25,8 +30,11 @@ public class FeatConvertor extends DefaultConvertor {
       final String data = entry.data;
 
       if ( regxPrerequisite.reset( data ).find() ) {
-
          String text = regxPrerequisite.group( 1 ).trim();
+         if ( text.contains( "-level" ) ) {
+            text = text.replace( "-level", " level" );
+            corrections.add( "consistency" );
+         }
          if ( regxLevel.reset( text ).find() ) {
             int level = Integer.parseInt( regxLevel.group( 1 ) );
             if ( level > 20 )
@@ -37,6 +45,9 @@ public class FeatConvertor extends DefaultConvertor {
                log.log( Level.WARNING, "Feat with multiple level: {0} {1}", new Object[]{ entry.shortid, entry.name } );
             if ( level == 11 || level == 21 )
                text = regxLevel.reset( text ).replaceFirst( "" );
+            if ( ( ! entry.fields[0].isEmpty() && ! entry.fields[0].equals( entry.meta[ TIER ] ) ) ||
+                 (   entry.fields[0].isEmpty() && ! entry.meta[ TIER ].equals( "Heroic" ) ) )
+               corrections.add( "meta" );
          } else if ( text.contains( "level" ) && ! text.contains( "has a level" ) )
             log.log( Level.WARNING, "Feat with unparsed level: {0} {1}", new Object[]{ entry.shortid, entry.name } );
 
@@ -45,7 +56,7 @@ public class FeatConvertor extends DefaultConvertor {
             text = text.replace( " class feature", "" );
             text = text.replace( "you have a spellscar", "spellscar" );
             text = text.replace( " have the ", " have " ).replace( " has the ", " has ");
-            text = Character.toUpperCase( text.charAt( 0 ) ) + text.substring( 1 );
+            text = Utils.ucfirst( text );
             entry.meta[ PREREQUISITE ] = text;
          }
 
@@ -65,20 +76,22 @@ public class FeatConvertor extends DefaultConvertor {
       return super.sortEntity( a, b );
    }
 
-   @Override protected String correctEntry ( Entry entry ) {
+   @Override protected void correctEntry ( Entry entry ) {
       switch ( entry.shortid ) {
          case "feat1111": // Bane's Tactics
             entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
-            return "basic attack correction";
+            corrections.add( "fix basic attack" );
+            break;
 
          case "feat2254": // Traveler's Celerity
             entry.data = entry.data.replace( "11th-level, ", "11th level, " );
-            return "formatting";
+            corrections.add( "consistency" );
+            break;
 
          case "feat3667": // Powerful Lure
             entry.data = entry.data.replace( "Level 11, ", "11th level, " );
-            return "formatting";
+            corrections.add( "consistency" );
+            break;
       }
-      return null;
    }
 }

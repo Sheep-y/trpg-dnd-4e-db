@@ -1,4 +1,4 @@
-/*  
+/*
  * config.js
  *
  * System Configurations. Most are not configurable during runtime.
@@ -13,14 +13,17 @@ od.config = {
       "catalog" :
          function config_url () { return od.config.data_read_path + '/catalog.js'; },
       "listing" :
-         function config_url ( category ) { return od.config.data_read_path + '/' + category + '/_listing.js'; },
+         function config_url ( category ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/_listing.js'; },
       "index" :
-         function config_url ( category ) { return od.config.data_read_path + '/' + category + '/_index.js'; },
+         function config_url ( category ) {
+            return od.config.data_read_path + '/' + ( category ? category.toLowerCase() + '/_index.js'
+                                                               : 'index.js' ); },
       "data" :
-         function config_url ( category, id ) { return od.config.data_read_path + '/' + category + '/' + od.config.id( id ) + '.js'; }
-   },
-   "id" : function config_id ( id ) {
-      return id.replace( /\.aspx\?id=|\W+/g, '' );
+         function config_url ( category, id ) {
+            var matches = id.match( /(\d{1,2})$/ ) || [];
+            matches[1] = ~~matches[1]; // Removes leading 0
+            return od.config.data_read_path + '/' + category.toLowerCase() + '/data' + matches[1] + '.js';
+         }
    },
    "display_columns" : function  config_display_columns ( cols ) {
       if ( typeof( cols ) === 'string' ) return cols.substr( cols.length - 4 ) !== 'Sort';
@@ -30,8 +33,8 @@ od.config = {
       if ( ! data ) return 0;
       switch ( data.toLowerCase() ) {
          case 'heroic' : return 1;
-         case 'paragon': return 11;
-         case 'epic'   : return 21;
+         case 'paragon': return 10.5;
+         case 'epic'   : return 20.5;
       }
       return +data.replace( /\D+/g, '' );
    },
@@ -39,29 +42,33 @@ od.config = {
    "category_order" : [
         "#LightGray",
       "{All}",
-      "Glossary",
+      "glossary",
         "#LightBlue",
-      "Race",
-      "Background",
-      "Theme",
+      "race",
+      "background",
+      "theme",
         "#Gold",
-      "Class",
-      "ParagonPath",
-      "EpicDestiny",
+      "class",
+      "paragonpath",
+      "epicdestiny",
         "#Coral",
-      "Power",
-      "Feat",
-      "Item",
-      "Ritual",
-        "#LightPink",
-      "Companion",
-      "Deity",
-      "Poison",
+      "power",
+      "feat",
+      "ritual",
         "#LightGreen",
-      "Disease",
-      "Monster",
-      "Terrain",
-      "Trap",
+      "item",
+      "weapon",
+      "implement",
+      "armor",
+        "#LightPink",
+      "companion",
+      "deity",
+      "poison",
+        "#Tan",
+      "disease",
+      "monster",
+      "terrain",
+      "trap",
         "#LightGrey" // Default for remaining categories undefined here
-   ],
+   ]
 };
