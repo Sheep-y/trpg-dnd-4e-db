@@ -1,6 +1,6 @@
 # 4e Compendium Downloader #
 
-## Version 3.5.2 development branch ##
+## Version 3.5.3 development branch ##
 
 ![Screenshot of program](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History%20-%20v3.5%20viewer.png)
 
