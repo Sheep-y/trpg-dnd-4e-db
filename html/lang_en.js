@@ -62,10 +62,6 @@ _.l.set( 'action.list', {
    'lbl_no_result' : "No result"
 });
 
-_.l.set( 'action.view', {
-   'title' : "View %1 Data"
-});
-
 _.l.set( 'action.about', {
    'title' : "Help",
    'link_text' : "Help",

@@ -89,10 +89,6 @@ _.l.set( 'action.list', {
    'lbl_no_result' : "無結果"
 });
 
-_.l.set( 'action.view', {
-   'title' : "詳情頁"
-});
-
 _.l.set( 'action.about', {
    'title' : "關於",
    'link_text' : "關於",

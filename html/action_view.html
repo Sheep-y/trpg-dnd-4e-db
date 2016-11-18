@@ -46,10 +46,6 @@ od.action.view = {
    },
 
    "l10n" : function act_view_l10n() {
-      var action = od.action.view, id = action.act_id;
-      if ( id && id.length ) {
-         action.set_title( _.l( 'action.view.title', '%1 entries', action.id.length ) );
-      }
    },
 
    "setup" : function act_view_setup () {
