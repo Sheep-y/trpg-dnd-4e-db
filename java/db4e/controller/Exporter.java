@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.ResourceUtils;
+import sheepy.util.Utils;
 
 class Exporter {
 
@@ -28,9 +29,9 @@ class Exporter {
 
    public static AtomicBoolean stop = new AtomicBoolean();
 
-   void writeCatalog ( String target, List<Category> categories ) throws IOException {
+   void writeCatalog ( String root, List<Category> categories ) throws IOException {
       StringBuilder buffer = new StringBuilder( 320 );
-      try ( OutputStreamWriter writer = openStream( target + "/catalog.js" ) ) {
+      try ( OutputStreamWriter writer = openStream( root + "/catalog.js" ) ) {
          buffer.append( "od.reader.jsonp_catalog(20130616,{" );
          for ( Category category : categories ) {
             str( buffer, category.id.toLowerCase() ).append( ':' ).append( category.getExportCount() ).append( ',' );
@@ -39,12 +40,12 @@ class Exporter {
       }
    }
 
-   void writeCategory ( String target, Category category, ProgressState state ) throws IOException, InterruptedException {
+   void writeCategory ( String root, Category category, ProgressState state ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       String cat_id = category.id.toLowerCase();
 
       StringBuilder buffer = new StringBuilder( 1024 );
-      File catPath = new File( target + "/" + cat_id + "/" );
+      File catPath = new File( root + "/" + cat_id + "/" );
       catPath.mkdir();
       int exported = 0;
       OutputStreamWriter[] writers = new OutputStreamWriter[ 100 ];
@@ -168,11 +169,89 @@ class Exporter {
    }
 
    /////////////////////////////////////////////////////////////////////////////
+   // Raw data export
+   /////////////////////////////////////////////////////////////////////////////
+
+   void writeRawCatalog ( String root, List<Category> categories, File target ) throws IOException {
+      final String template = ResourceUtils.getText( "res/export_list.html" );
+
+      final StringBuilder index_body = new StringBuilder();
+      final String folder = new File( root ).getName() + "/";
+
+      for ( Category category : categories ) {
+         if ( category.entries.isEmpty() ) continue;
+
+         index_body.append( "<tr><td><a href='" ).append( folder ).append( category.id ).append( ".html'>" ).append( Utils.escapeHTML( category.getName() ) ).append( "</a></td>" );
+         index_body.append( "<td>" ).append( category.entries.stream().filter( e -> e.contentDownloaded ).count() ).append( "</td></tr>" );
+
+         final StringBuilder head = new StringBuilder( "<th>Name</th>");
+         for ( String field : category.fields )
+            head.append( "<th>" ).append( Utils.escapeHTML( field ) ).append( "</th>" );
+
+         final StringBuilder body = new StringBuilder();
+         final String cat_id = category.id.toLowerCase() + "/";
+         for ( Entry entry : category.entries ) {
+            body.append( "<tr><td><a href='" ).append( cat_id ).append( entry.id.replace( ".aspx?id=", "-" ) ).append( ".html'>" );
+            body.append( Utils.escapeHTML( entry.name ) ).append( "</a></td>" );
+            for ( String field : entry.fields )
+               body.append( "<td>" ).append( Utils.escapeHTML( field ) ).append( "</td>" );
+            body.append( "</tr>" );
+         }
+
+         String output = template;
+         output = output.replace( "[title]", Utils.escapeHTML( category.getName() ) );
+         output = output.replace( "[head]", head );
+         output = output.replace( "[body]", body );
+         try ( OutputStreamWriter writer = openStream( root + category.id + ".html" ) ) {
+            write( writer, output );
+         }
+      }
+
+      // Output index
+      String output = template;
+      output = output.replace( "[title]", "4e Compendium Data" );
+      output = output.replace( "[head]", "<th>Category</th><th>Count</th>" );
+      output = output.replace( "[body]", index_body );
+      try ( OutputStreamWriter writer = openStream( target.toString() ) ) {
+         write( writer, output );
+      }
+   }
+
+   void writeRawCategory ( String root, Category category, ProgressState state ) throws IOException, InterruptedException {
+      if ( stop.get() ) throw new InterruptedException();
+      String template = ResourceUtils.getText( "res/export_entry.html" );
+      String cat_id = category.id.toLowerCase();
+      new File( root + cat_id ).mkdirs();
+
+      for ( Entry entry : category.entries ) {
+         if ( ! entry.contentDownloaded ) continue;
+
+         if ( stop.get() ) throw new InterruptedException();
+         String output = template;
+         output = output.replace( "[title]", Utils.escapeHTML( entry.name ) );
+         output = output.replace( "[body]", entry.content );
+         try ( OutputStreamWriter writer = openStream( root + cat_id + "/" + entry.id.replace( ".aspx?id=", "-" ) + ".html" ) ) {
+            write( writer, output );
+         }
+         state.addOne();
+      }
+   }
+
+   void testRawViewerExists () throws IOException {
+      ResourceUtils.getText( "res/export_list.html" );
+      ResourceUtils.getText( "res/export_entry.html" );
+   }
+
+   /////////////////////////////////////////////////////////////////////////////
    // Utils
    /////////////////////////////////////////////////////////////////////////////
 
    private OutputStreamWriter openStream ( String path ) throws FileNotFoundException {
       return new OutputStreamWriter( new BufferedOutputStream( new FileOutputStream( path, false ) ), StandardCharsets.UTF_8 );
+   }
+
+   private void write ( Writer writer, String buf ) throws IOException {
+      writer.write( buf );
    }
 
    private void write ( CharSequence postfix, Writer writer, StringBuilder buf ) throws IOException {

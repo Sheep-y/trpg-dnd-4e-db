@@ -98,6 +98,8 @@ public class SceneMain extends Scene {
            "Show app log and console.  Will slow down download & export and use more memory." );
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
+   final Button btnExportData = JavaFX.tooltip( new Button( "Export Downloaded Data" ), // Export RAW data
+           "Export raw data as simple HTML." );
    final Button btnCheckUpdate = JavaFX.tooltip( new Button( "Check update" ),
            "Check for availability of new releases." );
    private final Pane pnlOptionTab = new VBox( 8,
@@ -105,7 +107,7 @@ public class SceneMain extends Scene {
            new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (minimal) per request.") ),
            new HBox( 8, new Label( "Retry" ), txtRetry, new Label( "times on timeout.") ),
            chkDebug,
-           btnClearData,
+           new HBox( 8, btnClearData, btnExportData ),
            btnCheckUpdate );
    private final Tab tabOption = new Tab( "Options", pnlOptionTab );
 
@@ -182,6 +184,7 @@ public class SceneMain extends Scene {
          chkDebug.selectedProperty().set( true );
 
       btnClearData.addEventHandler( ActionEvent.ACTION, this::btnClearData_click );
+      btnExportData.addEventHandler( ActionEvent.ACTION, this::action_export_raw );
       btnCheckUpdate.addEventHandler( ActionEvent.ACTION, this::btnCheckUpdate_click );
 
       // Log tab
@@ -267,6 +270,7 @@ public class SceneMain extends Scene {
       txtPass.setDisable( false );
       btnLeft.setDisable( false );
       btnClearData.setDisable( false );
+      btnExportData.setDisable( false );
    }
 
    private void disallowAction () {
@@ -274,6 +278,7 @@ public class SceneMain extends Scene {
       txtPass.setDisable( true );
       btnLeft.setDisable( true );
       btnClearData.setDisable( true );
+      btnExportData.setDisable( true );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -407,17 +412,8 @@ public class SceneMain extends Scene {
 
    private void action_export ( ActionEvent evt ) {
       // Create file dialog
-      if ( dlgCreateView == null ) {
-         dlgCreateView = new FileChooser();
-         dlgCreateView.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter( "4e Offline Compendium", "4e_database.html" ),
-            new FileChooser.ExtensionFilter( "Any html file", "*.html" ) );
-         File initialDir = new File( prefs.get( "export.dir", System.getProperty( "user.home" ) ) );
-         if ( ! initialDir.exists() || ! initialDir.isDirectory() )
-            initialDir = new File( System.getProperty( "user.home" ) );
-         dlgCreateView.setInitialDirectory( initialDir );
-         dlgCreateView.setInitialFileName( "4e_database.html" );
-      }
+      if ( dlgCreateView == null )
+         dlgCreateView = createExportDialog( "4e Offline Compendium", "4e_database.html" );
       File target = dlgCreateView.showSaveDialog( getWindow() );
       if ( target == null || ! target.getName().toLowerCase().endsWith( ".html" ) ) return;
 
@@ -434,9 +430,34 @@ public class SceneMain extends Scene {
       ready.thenRun( () -> {
          prefs.remove( "export.last_file" );
          loader.startExport( target, data_dir ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );
-         stateRunning();
          prefs.put( "export.dir", target.getParent() );
       } );
+   }
+
+   private FileChooser dlgExportRaw;
+
+   private void action_export_raw ( ActionEvent evt ) {
+      if ( dlgExportRaw == null )
+         dlgExportRaw = createExportDialog( "Raw Compendium Dump", "index.html" );
+      File target = dlgExportRaw.showSaveDialog( getWindow() );
+      if ( target == null || ! target.getName().toLowerCase().endsWith( ".html" ) ) return;
+
+      String data_dir = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
+      pnlC.getSelectionModel().select( tabData );
+      loader.startExportRaw( target, data_dir );
+   }
+
+   private FileChooser createExportDialog ( String display, String filename ) {
+      FileChooser dialog = new FileChooser();
+      dialog.getExtensionFilters().addAll(
+         new FileChooser.ExtensionFilter( display, filename ),
+         new FileChooser.ExtensionFilter( "Any html file", "*.html" ) );
+      File initialDir = new File( prefs.get( "export.dir", System.getProperty( "user.home" ) ) );
+      if ( ! initialDir.exists() || ! initialDir.isDirectory() )
+         initialDir = new File( System.getProperty( "user.home" ) );
+      dialog.setInitialDirectory( initialDir );
+      dialog.setInitialFileName( filename );
+      return dialog;
    }
 
    public void stateBusy ( String message ) { runFX( () -> {
@@ -478,6 +499,7 @@ public class SceneMain extends Scene {
       txtUser.setDisable( true );
       txtPass.setDisable( true );
       btnClearData.setDisable( true );
+      btnExportData.setDisable( true );
       setLeft( "Stop", this::action_stop );
    } ); }
 
