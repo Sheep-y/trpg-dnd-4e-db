@@ -13,14 +13,15 @@ This is a fan-made project and does not come with copyrighted data.
 ## How To Download Data ##
 
 1. You need an active [Dungeons & Dragons Insider subscription](http://ddi.wizards.com/) to retrieve data.
+   1. This may be impossible since registration is closed. See [in-app help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/development/res/downloader_about.html#Troubleshoot) for links.
 2. [Download](http://www.java.com/) and install Java (version 8 or above).
 3. [Download](https://github.com/Sheep-y/trpg-dnd-4e-db/releases/) the downloader exe (Windows) or downloader jar (Linux/Mac).
 4. Open a folder for the downloader, put it in, and run it.
-   5. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar". Note that the downloader is a GUI program.
-6. In the downloader, fill in DDI username and password, then click "Download".
-   7. Download can be stopped and resumed any time.
-   8. See in-downloader help for details and troubleshoots.
-9. Once all data is downloaded, you can export the data to an HTML file, which can be opened in browsers.
+   1. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar". Note that it is a GUI program.
+5. In the downloader, fill in DDI username and password, then click "Download".
+   1. Download can be stopped and resumed any time.
+   2. See [in-app help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/development/res/downloader_about.html) for steps and troubleshoots.
+6. Once all data is downloaded, you can export the data to an HTML file, which can be opened in browsers .
 
 ### Fixing compendium errors ###
 
@@ -52,7 +53,7 @@ If you find similar mistakes that aren't fixed, please [file an issue](https://g
 
 The viewer is built with [CocoDoc](https://github.com/Sheep-y/CocoDoc/) app builder, which is bundled and must run in GUI.
 
-Sqljet is used to access sqlite database, but the data cannot be read by other SQLite libraries.
+[SQLJet](https://sqljet.com/) is used to access sqlite database, but the data cannot be read by other SQLite libraries.
 It may be a sqljet issue.
 Since it is very light and has no other issues, I'm keeping it and hoping someone can find what's wrong someday.
 
