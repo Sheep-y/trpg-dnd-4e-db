@@ -23,7 +23,7 @@ public class ConsoleWebView extends SplitPane {
 
    final WebView view = new WebView();
 
-   BorderPane pnlC = new BorderPane();
+   final BorderPane pnlC = new BorderPane();
    final TextField txtInput = new TextField();
    final TextArea txtOutput = new TextArea();
    String last_cmd = "";
@@ -40,13 +40,13 @@ public class ConsoleWebView extends SplitPane {
       txtOutput.setEditable( false );
       txtInput.setPromptText( "Browser console input" );
       txtInput.requestFocus();
-      txtInput.setOnKeyPressed(e -> {
+      txtInput.setOnKeyPressed( e -> {
          if ( e.getCode() == KeyCode.UP )
             txtInput.setText( last_cmd );
       } );
 
       // Console in/out
-      txtInput.setOnAction(e -> {
+      txtInput.setOnAction( e -> {
          String cmd = last_cmd = txtInput.getText();
          StringBuilder str = new StringBuilder();
 
