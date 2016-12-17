@@ -346,7 +346,7 @@ public class Controller {
 
          runAndGet( "Getting " + name + " template", () ->
             crawler.getCategoryXsl( category ) );
-         Document xsl = engine.getDocument();
+         Document xsl = crawler.getCategoryXsl();
 
          runAndGet( "Getting " + name + " data", () ->
             crawler.getCategoryData( category ) );

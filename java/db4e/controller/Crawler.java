@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 import netscape.javascript.JSObject;
+import org.w3c.dom.Document;
 import sheepy.util.JavaFX;
 
 /**
@@ -89,9 +90,13 @@ public class Crawler {
       browse( "http://www.wizards.com/dndinsider/compendium/xsl/" + cat.id + ".xsl" );
    }
 
-   void getCategoryData ( Category cat ) throws InterruptedException, TimeoutException {
+   Document getCategoryXsl () throws InterruptedException, TimeoutException {
       // Update XSL's limit
       eval( " document.querySelector( '[name=endPos]' ).setAttribute( 'select', \"'99999'\" ) " );
+      return browser.getDocument();
+   }
+
+   void getCategoryData ( Category cat ) {
       browse( "http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/ViewAll?tab=" + cat.id );
    }
 
