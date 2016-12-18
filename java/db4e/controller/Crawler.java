@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 import netscape.javascript.JSObject;
+import org.w3c.dom.Document;
+import sheepy.util.JavaFX;
 
 /**
  * Responsible for actually asking browser to navigate and run javascript to get data.
@@ -28,14 +30,19 @@ public class Crawler {
    }
 
    private void browse ( String url ) {
-      Platform.runLater( () -> browser.load( url ) );
+      if ( Platform.isFxApplicationThread() )
+         browser.load( url );
+      else
+         Platform.runLater( () -> browser.load( url ) );
    }
 
    void randomGlossary () {
-      // Get a random glossary article to determine login state
+      // Get a random glossary article to determine login status
       int[] randomId = new int[]{
-         8  ,  // swarm
+         8  , // Swarm
+         62 , // Conjuration
          86 , // Teleport
+         90 , // Zone
          118, // Free Actions
          133, // Dazed
          135, // Dominated
@@ -83,9 +90,13 @@ public class Crawler {
       browse( "http://www.wizards.com/dndinsider/compendium/xsl/" + cat.id + ".xsl" );
    }
 
-   void getCategoryData ( Category cat ) throws InterruptedException, TimeoutException {
+   Document getCategoryXsl () throws InterruptedException, TimeoutException {
       // Update XSL's limit
       eval( " document.querySelector( '[name=endPos]' ).setAttribute( 'select', \"'99999'\" ) " );
+      return browser.getDocument();
+   }
+
+   void getCategoryData ( Category cat ) {
       browse( "http://www.wizards.com/dndinsider/compendium/CompendiumSearch.asmx/ViewAll?tab=" + cat.id );
    }
 
@@ -102,16 +113,18 @@ public class Crawler {
          + "    result.push( row ); "
          + " } result; " );
 
-      Object[] rows = toArray( data );
-      List<Entry> result = new ArrayList<>( rows.length );
-      for ( Object line : rows ) {
-         Object[] row = toArray( line );
-         String name = row[1].toString();
-         log.log( Level.FINER, "Copying row {0}", name );
-         Object[] props = toArray( row[ 2 ] );
-         String[] fields = Arrays.copyOf( props, props.length, String[].class);
-         result.add( new Entry( row[0].toString(), name, fields ) );
-      }
+      final List<Entry> result = new ArrayList<>( 1024 );
+      JavaFX.runNow( () -> {
+         Object[] rows = toArray( data );
+         for ( Object line : rows ) {
+            Object[] row = toArray( line );
+            String name = row[1].toString();
+            log.log( Level.FINER, "Copying row {0}", name );
+            Object[] props = toArray( row[ 2 ] );
+            String[] fields = Arrays.copyOf( props, props.length, String[].class );
+            result.add( new Entry( row[0].toString(), name, fields ) );
+         }
+      } );
       return result;
    }
 
@@ -124,7 +137,7 @@ public class Crawler {
    }
 
    void getEntry ( Entry entry ) throws InterruptedException, TimeoutException {
-      Object verify = eval( " document.querySelector( 'body > form#form1 + script' ) " );
+      Object verify = eval( " document.querySelector( 'body > form#form1 + script' ) " ); // Make sure form finished loading
       Object content = eval( " document.querySelector( '#detail' ).innerHTML.trim() " );
       if ( content == null || verify == null ) throw new IllegalStateException( "Incomplete or empty entry" );
       if ( ! ( content instanceof CharSequence ) ) throw new IllegalStateException( "Invalid entry" );
@@ -160,7 +173,7 @@ public class Crawler {
     * Well, it's a little bit more complicated than it sounds.
     *
     * @param script Script to run on browser
-    * @return Script result
+    * @return Script result, usually a JSObject and its members must be accessed from FX thread. (bug #27)
     * @throws InterruptedException If interrupted during execution
     */
    private Object eval ( String script ) throws InterruptedException, TimeoutException {

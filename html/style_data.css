@@ -9,15 +9,15 @@
    or may be plain text without p (race).
    So create a default padding for the text and let elements undo the paddings */
 .detail {
-   font-size: 90%;
    background-color: #F8F8F8;
    border: 2px solid #666;
    border-radius: 10px;
    box-shadow: 1ex 1ex 2ex #888;
+   font-size: 90%;
    line-height: 1.2em;
-   padding: 0 10px;
    max-width: 800px;
    margin: 50px auto 10px;
+   padding: 0 10px;
    }
 
    .detail * { /* Reset all margins and paddings */
@@ -236,8 +236,8 @@
 
 .detail .trapblocktitle {
    display: block;
-   margin-top: 1em;
    font-weight: bold;
+   margin-top: 1em;
    }
 .detail .trapblockbody  {
    display: block;

@@ -346,7 +346,7 @@ public class Controller {
 
          runAndGet( "Getting " + name + " template", () ->
             crawler.getCategoryXsl( category ) );
-         Document xsl = engine.getDocument();
+         Document xsl = crawler.getCategoryXsl();
 
          runAndGet( "Getting " + name + " data", () ->
             crawler.getCategoryData( category ) );
@@ -471,15 +471,60 @@ public class Controller {
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
    }
 
+   public CompletableFuture<Void> startExportRaw ( File target, String root ) {
+      gui.setTitle( "Exporting Raw" );
+      gui.setStatus( "Starting export" );
+      gui.stateRunning();
+      gui.setProgress( -1.0 );
+      state.reset();
+      log.log( Level.CONFIG, "Raw export target: {0}", target );
+      return runTask( () -> {
+         try {
+            exporter.testRawViewerExists();
+         } catch ( IOException ex ) {
+            throw new FileNotFoundException( "No viewer. Run ant make-viewer." );
+         }
+
+         setPriority( Thread.MIN_PRIORITY );
+         log.log( Level.CONFIG, "Export raw root: {0}", target );
+         new File( root ).mkdirs();
+
+         checkStop( "Loading content" );
+         dal.loadEntityContent( categories, state );
+
+         checkStop( "Writing catlog" );
+         exporter.writeRawCatalog( root, categories, target );
+
+         checkStop( "Writing data" );
+         exportRawData( root );
+
+         log.log( Level.INFO, "Exported {0} entries in {1} catrgories.", new Object[]{
+            state.total,
+            categories.size() } );
+
+         gui.stateCanExport( "Raw data exported" );
+      } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
+   }
+
    private void exportData ( String root ) throws Exception {
       state.total = exportCategories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
-      exportEachCategory( ( category ) -> {
+      exportEachCategory( exportCategories, ( category ) -> {
          Converter converter = Convert.getConverter( category, gui.isDebugging() );
          if ( converter == null ) return null;
          return () -> { synchronized( category ) {
             converter.convert( state );
             log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
             exporter.writeCategory( root, category, state );
+         } };
+      } );
+   }
+
+   private void exportRawData ( String root ) throws Exception {
+      state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
+      exportEachCategory( categories, ( category ) -> {
+         return () -> { synchronized( category ) {
+            log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
+            exporter.writeRawCategory( root, category, state );
          } };
       } );
    }
@@ -581,7 +626,7 @@ public class Controller {
       } while ( true );
    }
 
-   private void exportEachCategory ( FunctionExcept<Category, RunExcept> task ) throws Exception {
+   private void exportEachCategory ( List<Category> exportCategories, FunctionExcept<Category, RunExcept> task ) throws Exception {
       state.reset();
       state.update();
       log.log( Level.CONFIG, "Running category task in {0} threads.", threads-1 );

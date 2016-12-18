@@ -107,10 +107,11 @@ public class JavaFX {
    }
 
    /**
+    * Setup a WebEngine:
     * 1. Use default value for javascript prompts.
     * 2. Direct javascript alert and error to logger.
-    * 3. Forward page load error to engine.onError. (Message 'Failed to load webpage http:...)
-    * 4. Add console object after page load, either to the logger or to system.out
+    * 3. Forward page load error to engine.onError. (Message "Failed to load webpage http:...")
+    * 4. Add console object after page load, output to the provided logger (or to system.out if logger is null)
     *
     * @param engine Engine to prep
     * @param onHandle Callback on load (throwable is null) or on error (non-null)

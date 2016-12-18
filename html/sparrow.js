@@ -289,7 +289,7 @@ _.ucword = function _ucword ( txt ) {
  */
 _.pref = function _pref ( key, defaultValue ) {
    if ( arguments.length <= 1 ) defaultValue = null;
-   if ( window.localStorage ) {
+   if ( _.pref.hasStorage() ) {
       var store = localStorage;
       if ( key === undefined ) {
          return Array( store.length ).fill( undefined ).map( function _pref_list ( e, i ) {
@@ -336,7 +336,7 @@ _.pref = function _pref ( key, defaultValue ) {
  *                   Otherwise will be stored as string or as json string.
  */
 _.pref.set = function _pref_set ( key, value ) {
-   if ( window.localStorage ) {
+   if ( _.pref.hasStorage() ) {
       var store = window.localStorage;
       if ( _.is.literal( key ) ) {
          setter( key, value );
@@ -359,6 +359,22 @@ _.pref.set = function _pref_set ( key, value ) {
          }
          store.setItem( k, value );
       }
+   }
+};
+
+/**
+ * Detect localStorage access.
+ *
+ * @returns {Boolean} true if localStorage exists and is accessible
+ */
+_.pref.hasStorage = function _pref_hasStorage () {
+   try {
+      if ( window.localStorage )
+         return localStorage.removeItem( '__dummy__' ) || true;
+      else
+         return false;
+   } catch ( err ) {
+      return false; // Edge issue Issue #8816771 - KB3176936 cause local storage access to throw Unspecified Error.
    }
 };
 
@@ -454,7 +470,8 @@ _.js = function _js ( option, onload ) {
    if ( onload !== undefined ) option.onload = onload;
 
    // Validate before doing anything, if pass then we are done
-   if ( option.validate && option.validate.call( null, url, option ) ) return _js_done( option.onload );
+   if ( option.validate && option.validate.call( null, url, option ) )
+      return _.setImmediate( function _js_valid () { _js_done( option.onload ); } );
 
    var url = option.url;
 
@@ -555,7 +572,8 @@ _.html = function _html ( txt, html ) {
       } catch ( err ) {
          frag = range.createContextualFragment( '<body>' + txt + '</body>' );
       }
-      return frag.childElementCount > 1 ? frag : frag.firstElementChild;
+      var children = frag.children /* Firefox/Chrome */ || frag.childNodes /* Edge */;
+      return children.length > 1 ? frag : children[0];
    } else {
       _.forEach( _.domList( txt ), function _html_each( e ) {
          e.innerHTML = html;

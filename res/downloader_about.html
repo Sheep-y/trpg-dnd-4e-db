@@ -85,17 +85,17 @@ li {
             <li>
                <b>How to get DDI subscription?</b> <br/>
                <ol>
-                  <li>You need to have <a href='http://ddi.wizards.com/'>registered</a> and paid before <a href='http://www.enworld.org/forum/content.php?3087-4e-DnD-Insider-Moving'>2015 Dec</a>.</li>
-                  <li>Old email based DDI account must be <a href='https://accounts.wizards.com/'>upgraded</a>, which happens when you login to DDI.</li>
-                  <li>Find help from your D&amp;D community if you never subscripted, sorry I can't help.</li>
-                  <li>To <a href='https://wizards.custhelp.com/app/answers/detail/a_id/2297/=1'>buy access</a>, view an old subscription in <a href='https://store.digitalriver.com/DRHM/store?Action=DisplayAccountOrderListPage&SiteID=dndi'>order history</a> and click "renew" to place a new order.</li>
+                  <li>You need to have <a href='http://ddi.wizards.com/'>registered</a> and paid at least once before <a href='http://www.enworld.org/forum/content.php?3087-4e-DnD-Insider-Moving'>2015 Dec</a>.</li>
+                  <li>Find help from your D&amp;D community if you never subscripted, sorry I can't help with that.</li>
+                  <li>Old email based DDI account must be <a href='https://accounts.wizards.com/'>upgraded</a>, which happens when you manually [login](http://ddi.wizards.com/).</li>
+                  <li>To <a href='https://wizards.custhelp.com/app/answers/detail/a_id/2297/=1'>buy access</a>, goto <a href='https://store.digitalriver.com/DRHM/store?Action=DisplayAccountOrderListPage&SiteID=dndi'>order history</a>, view any old subscription, and click "renew" to place a new order.</li>
                   <li>Once paid, you can <a href='https://wizards.custhelp.com/app/answers/detail/a_id/2297/=1.01'>disable auto-renew</a> by viewing the new order and follow its manage link.</li>
                </ol>
             </li>
             <li>
                <b>Cannot open / read / write database</b> <br/>
                Data is stored in "dnd4_compendium.database", and a backup is normally in the same folder which you can try to manually restore. <br/>
-               If that doesn't help, try "Reset Data" in option tab.  You will need to re-download all data after reset.
+               If that doesn't help, try "Clear Data" in option tab.  You will need to re-download all data after clear.
             </li>
             <li>
                <b>Connection timeout</b> <br/>
@@ -110,7 +110,7 @@ li {
                <b>Slow download</b> <br/>
                <i>Whoever is patient has great understanding, but one who is quick-tempered displays folly.</i> - Proverbs 14:29 <br/>
                Decrease the throttle rate in option tab, but there are 25k pieces of data to download after all.
-               That is 14 hours if your Internet can get it at 1 per 2 seconds.
+               That is 14 hours if you can crawl at 1 page per 2 seconds.
             </li>
             <li>
                <b>Slow export</b> <br/>
@@ -122,17 +122,19 @@ li {
             </li>
             <li>
                <b>~ failed (script error)</b> <br/>
-               This means the login form or compendium has been changed (again).
+               This means the login form or compendium has changed (again).
                May need a programmer to solve this one. See "other errors" below.
             </li>
             <li>
                <b>Unknown host</b> <br/>
-               Most likely, wizards has pulled the plug on ddi.wizards.com.
+               1) Network issue. Try again later. <br/>
+               2) Your network is blocking the site, for example some company networks block gaming sites. <br/>
+               3) Wizards finally pulled the plug on ddi.wizards.com.
             </li>
             <li>
                <b>Not enough space</b> <br/>
                Check the drive where you are exporting data.
-               Exported data is 60 MB in slze,
+               Exported data is 60 MB in size,
                but some devices <a href='http://www.howtogeek.com/180369/why-is-there-a-big-difference-between-size-and-size-on-disk/'>may require</a> 100+ MB.
                <br/>
                If you have used old version (3.5.1 or before) and is overwriting older export, please delete old export first.
@@ -142,26 +144,28 @@ li {
                <b>Data is different from official compendium</b> <br/>
                This downloader will fix known mistakes and re-catogarise some data.
                See <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/#user-content-fixing-compendium-errors'>project homepage</a> for a summary,
-               and the in-app debug log will log each affected entry.
+               and the in-app debug log will log each affected entry. <br/>
+               Alternatively, use the Option tab's data export to export unmodified data in a simple form.
             </li>
             <li>
                <b>Other errors</b> <br/>
-               For export problem - like a ClosedChannelException that I ran into once -
-               try close program and re-export.<br/>
+               Some one-off problems can be solved by closing and rerunning the program. <br/> <br/>
 
-               For download problem, many things can go wrong,
-               such as if Wizards changed something <i>again</i>.<br/>
+               For persistent problems, if you enable debug tabs and restart, you can see a detailed log,
+               and can also see and control the embedded browser.
+               To report <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/'>an issue</a>,
+               please include the log in addition to the steps to reproduce. <br><br>
 
-               If you enable debug tabs and restart program, you can see a detailed log,
-               and can also see and control the embedded browser.<br/>
+               In case this program is no longer maintained,
+               <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/26'>some</a> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/27'>errors</a>
+               may be solved by using another Java or an older Java,
+               such as Oracle Java SE 1.8.0.91. <br/> <br/>
 
-               For example, if you determine that there may be a login problem,
-               you can try to login from the browser.
-               That may allows downloads to proceed normally.<br/>
+               Alternatively, some problems may be solvable with the embedded browser.
+               For example if there is a login problem because Wizards changed the login system,
+               you can try to manually login from this browser.
+               This may allows downloads to proceed normally.<br/>
 
-               If you wish to report <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/'>an issue</a>,
-               remember to copy and paste the log or save it as an attachment,
-               perhaps with a screenshot of the internal browser.
             </li>
          </ol>
       </section>
