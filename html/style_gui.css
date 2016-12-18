@@ -14,6 +14,7 @@ html {
    font: 14px sans-serif;
    }
    html, body {
+      color: black;
       min-height: 100%;
       width: 100%;
       }
@@ -66,6 +67,36 @@ mark {
       background-color: transparent;
       color: inherit;
       }
+   @media screen and ( -ms-high-contrast: active ) {
+      mark {
+         background-color: green;
+         color: white;
+         }
+         .no_highlight mark {
+            background-color: transparent;
+            color: black;
+            }
+   }
+   @media screen and ( -ms-high-contrast: white-on-black ) {
+      mark {
+         background-color: cyan;
+         color: black;;
+         }
+         .no_highlight mark {
+            background-color: transparent;
+            color: white;
+            }
+   }
+   @media screen and ( -ms-high-contrast: black-on-white ) {
+      mark {
+         background-color: purple;
+         color: white;
+         }
+         .no_highlight mark {
+            background-color: transparent;
+            color: black;
+            }
+   }
 
 /** Back / Forward button */
 .btn_prev, .btn_next {
