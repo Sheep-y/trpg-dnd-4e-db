@@ -6,20 +6,21 @@
 /********************** Baseline **************************/
 * {
    box-sizing: border-box;
-}
+   }
 
+/* Pattle: FFD700 - Black - Red */
 html {
    background-color: #ED8;
    font: 14px sans-serif;
-}
-
-html, body, div, th, td { margin: 0; padding: 0; }
-
-html, body {
-   width: 100%;
-   min-height: 100%;
-   /* Pattle: FFD700 - Black - Red */
-}
+   }
+   html, body {
+      min-height: 100%;
+      width: 100%;
+      }
+      html, body, div, th, td {
+         margin: 0;
+         padding: 0;
+         }
 
 /********************** Global UI styles **************************/
 
@@ -28,30 +29,28 @@ html, body {
 a {
    color: darkred;
    text-decoration: none;
-}
-
-a:hover {
-   color: red;
-   text-decoration: underline;
-}
+   }
+   a:hover {
+      color: red;
+      text-decoration: underline;
+      }
 
 button, .button {
-   display: inline-block;
-   padding: 0.5ex 1ex;
+   background-color: gold;
    border-radius: 1ex;
    border: 1px outset #888;
-   background-color: gold;
-   cursor: pointer;
    color: black;
-   text-decoration: none;
-}
-
-.button:hover, .button:focus, button:hover, button:focus {
-   color: FireBrick !important; /* Override no result category gray out */
-   opacity: 1 !important;
-   border-color: red !important;
    cursor: pointer;
-}
+   display: inline-block;
+   padding: 0.5ex 1ex;
+   text-decoration: none;
+   }
+   .button:hover, .button:focus, button:hover, button:focus {
+      border-color: red !important;
+      color: FireBrick !important; /* Override no result category gray out */
+      cursor: pointer;
+      opacity: 1 !important;
+      }
 
 th { text-align: left; }
 
@@ -62,43 +61,42 @@ mark {
    background-color: yellow;
    padding: 0 !important;
    margin: 0 !important;
-}
-
-.no_highlight mark {
-   background-color: transparent;
-   color: inherit;
-}
+   }
+   .no_highlight mark {
+      background-color: transparent;
+      color: inherit;
+      }
 
 /** Back / Forward button */
 .btn_prev, .btn_next {
-   position: fixed;
-   margin: auto;
-   top: 0; left: 1ex; bottom: 0; right: 1ex;
-   height: 2cm; width: 2cm;
    border-radius: 1cm;
    font-size: 1cm;
+   height: 2cm; width: 2cm;
+   margin: auto;
    opacity: 0.3;
-}
-@media (max-width: 12cm) {
-   .btn_prev, .btn_next {
-      height: 1cm; width: 1cm;
-      border-radius: 0.5cm;
-      font-size: 0.5cm;
+   position: fixed;
+   top: 0; left: 1ex; bottom: 0; right: 1ex;
    }
-}
-.btn_prev {
-   margin-left: 0;
-}
-.btn_next {
-   margin-right: 0;
-}
+   .btn_prev {
+      margin-left: 0;
+      }
+   .btn_next {
+      margin-right: 0;
+      }
+   @media (max-width: 12cm) {
+      .btn_prev, .btn_next {
+         border-radius: 0.5cm;
+         font-size: 0.5cm;
+         height: 1cm;
+         width: 1cm;
+         }
+   }
 
 /********************** Utility classes **************************/
 
 .right { float: right; }
 .left { float: left; }
 .hide { display: none; }
-.red { color: red; }
 
 @media print {
    .no-print { display: none; }
@@ -107,48 +105,47 @@ mark {
 /*********************** Page header *************************/
 
 header {
+   background-color: black;
+   height: 40px;
+   overflow: visible;
    position: fixed;
+   text-align: center;
    top: 0;
    width: 100%;
-   height: 40px;
-   background-color: black;
-   text-align: center;
-   overflow: visible;
    z-index: 1;
-}
-
-header h1 {
-   color: white;
-   display: inline-block;
-   font-size: 150%;
-   font-weight: bold;
-   margin: 0;
-   max-width: calc( 100vw - 140px );
-   overflow: hidden;
-   padding: 0;
-   white-space: nowrap;
-}
+   }
+   header h1 {
+      color: white;
+      display: inline-block;
+      font-size: 150%;
+      font-weight: bold;
+      margin: 0;
+      max-width: calc( 100vw - 140px );
+      overflow: hidden;
+      padding: 0;
+      white-space: nowrap;
+      }
 
 header button, header .button { /* Left header button */
-   float: left;
    border-radius: 2ex;
+   float: left;
    font-weight: bold;
-}
+   }
 
 header h1 ~ button, header h1 ~ .button { /* Right header button */
    float: right;
-}
+   }
 
 /******************* Page content ***********************/
 
 body > section {
-   display: none;
-   min-height: calc( 100vh - 40px );
-   width: 100%;
-   margin-top: 40px;
    background-color: rgba( 255, 224, 128, 0.5 );
    box-shadow: 0 0 200px 200px rgba( 255, 224, 128, 0.5 );
-}
+   display: none;
+   margin-top: 40px;
+   min-height: calc( 100vh - 40px );
+   width: 100%;
+   }
 
 body > section > * {
    margin: 10px;
@@ -161,16 +158,15 @@ body > section > * {
 button.pressable {
    color: #666;
    opacity: 0.7;
-}
-
-button.pressable[aria-pressed="true"] {
-   color: #008;
-   opacity: 1;
-}
+   }
+   button.pressable[aria-pressed="true"] {
+      color: #008;
+      opacity: 1;
+      }
 
 input[placeholder] {
    width: 180px;
-}
+   }
 
 input[placeholder=Group] ,
 input[placeholder=Level] ,
@@ -179,7 +175,7 @@ input[placeholder=Rarity] ,
 input[placeholder=Size] {
    min-width: 80px;
    width: 80px;
-}
+   }
 
 input[placeholder=Action] ,
 input[placeholder=Alignment] ,
@@ -192,13 +188,13 @@ input[placeholder=Role] ,
 input[placeholder=Tier] {
    min-width: 120px;
    width: 120px;
-}
+   }
 
 input[placeholder=Type] {
    min-width: 140px;
    width: 140px;
-}
+   }
 
 input[placeholder=Name] {
    width: 240px;
-}
+   }
