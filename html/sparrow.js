@@ -571,7 +571,8 @@ _.html = function _html ( txt, html ) {
       } catch ( err ) {
          frag = range.createContextualFragment( '<body>' + txt + '</body>' );
       }
-      return frag.childElementCount > 1 ? frag : frag.firstElementChild;
+      var children = frag.children /* Firefox/Chrome */ || frag.childNodes /* Edge */;
+      return children.length > 1 ? frag : children[0];
    } else {
       _.forEach( _.domList( txt ), function _html_each( e ) {
          e.innerHTML = html;
