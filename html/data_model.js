@@ -115,8 +115,8 @@ od.data.Category.prototype = {
       var cat = this;
       od.reader.read_data_listing( this.name, function data_Cat_load_listing_done() {
          if ( cat.list.length <= 0 ) cat.build_listing(); // Skip if listing has been built
-         _.call( ondone );
-      }, _.callonce( onerror ) );
+         _.call( ondone, cat );
+      }, _.callonce( onerror, cat ) );
    },
 
    "load_index" : function data_Cat_load_index ( ondone, onerror ) {

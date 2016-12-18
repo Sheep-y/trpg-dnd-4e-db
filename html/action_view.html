@@ -169,7 +169,7 @@ od.action.view = {
          var categories = {},  cat_count = 0;
          for ( var i in ids ) {
             var cat_id = data.category_name_of( ids[ i ] );
-            if ( categories[ cat_id ] ) return;
+            if ( categories[ cat_id ] ) continue;
             var cat = categories[ cat_id ] = data.get( cat_id );
             ++cat_count;
             cat.load_listing( function act_view_popup_links_pop () {

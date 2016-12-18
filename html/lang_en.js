@@ -31,7 +31,7 @@ _.l.set( 'data', {
 });
 
 _.l.set( 'error', {
-   'old_format' : "Data format is outdated. Please re-export this viewer or revert to 3.5.1",
+   'old_format' : "Data format is outdated. Please re-export this viewer.",
    'inconsistent_category' : "Category '%1' has inconsistent data (%2).  Please re-export this viewer."
 });
 

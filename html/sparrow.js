@@ -470,7 +470,8 @@ _.js = function _js ( option, onload ) {
    if ( onload !== undefined ) option.onload = onload;
 
    // Validate before doing anything, if pass then we are done
-   if ( option.validate && option.validate.call( null, url, option ) ) return _js_done( option.onload );
+   if ( option.validate && option.validate.call( null, url, option ) )
+      return _.setImmediate( function _js_valid () { _js_done( option.onload ); } );
 
    var url = option.url;
 
