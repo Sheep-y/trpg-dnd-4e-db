@@ -21,6 +21,7 @@ public class ClassConverter extends Converter {
 
    @Override protected void convertEntry( Entry entry ) {
       super.convertEntry( entry );
+
       regxClassFeatures.reset( entry.data );
       synchronized ( featureMap ) {
          Set<String> features = featureMap.get( entry.shortid );
@@ -37,6 +38,20 @@ public class ClassConverter extends Converter {
             features.add( "Flurry of Blows" ); // Guess what? Flurry of Blows is not listed as a Monk feature, and there is no such power
          if ( features.isEmpty() )
             log.log( Level.WARNING, "Class features not found: {0} {1}", new Object[]{ entry.shortid, entry.name });
+      }
+
+
+      String data = entry.data;
+      switch ( entry.shortid ) {
+         case "class892": // Hybrid Blackguard
+         case "class893": // Hybrid Vampire
+         case "class894": // Hybrid Sentinel
+         case "class895": // Hybrid Cavalier
+         case "class896": // Hybrid Binder
+            entry.data = data.replace( "Dragon Magazine 402", "Dragon Magazine 400" );
+            entry.meta[ 3 ] = "Dra400";
+            corrections.add( "typo" );
+            break;
       }
    }
 

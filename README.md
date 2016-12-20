@@ -37,7 +37,7 @@ This downloader fixes over 520 entries during export:
 * 21 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, etc.)
 * 21 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 15 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot etc.)
-* 4 typos. (Cambion Stalwart "bit points", Fifth Sword of Tyr power keyword, Primal Grove "grp", Rubble Topple "Singe")
+* 9 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 84 entries with missing/wrong listing data not caused by above issues. (Wild Elf, Enlarge Familiar, some traps etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
 
