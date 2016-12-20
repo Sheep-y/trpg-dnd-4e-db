@@ -43,8 +43,11 @@ public class ClassConverter extends Converter {
 
       String data = entry.data;
       switch ( entry.shortid ) {
-         case "class892": // Hybrid Blackguard
          case "class893": // Hybrid Vampire
+            entry.data = data = data.replace( "per Day</b>: 2<", "per Day</b>: As a hybrid vampire, you gain two healing surges regardless of the class that you have combined with vampire to create your character.<" );
+            corrections.add( "missing content" );
+            // Fall-through
+         case "class892": // Hybrid Blackguard
          case "class894": // Hybrid Sentinel
          case "class895": // Hybrid Cavalier
          case "class896": // Hybrid Binder
