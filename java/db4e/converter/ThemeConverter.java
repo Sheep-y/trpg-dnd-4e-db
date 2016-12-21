@@ -20,7 +20,7 @@ public class ThemeConverter extends Converter {
 
    @Override protected void convertEntry( Entry entry ) {
       entry.meta = new Object[]{ "", entry.fields[0] };
-      super.convertEntry(entry);
+      super.convertEntry( entry );
       if ( regxPrerequisite.reset( entry.data ).find() ) {
          String prerequisite = regxPrerequisite.group( 1 );
          int pos = prerequisite.indexOf( "The games of court" );

@@ -39,20 +39,19 @@ public class ClassConverter extends Converter {
          if ( features.isEmpty() )
             log.log( Level.WARNING, "Class features not found: {0} {1}", new Object[]{ entry.shortid, entry.name });
       }
+   }
 
-
-      String data = entry.data;
+   @Override protected void correctEntry( Entry entry ) {
       switch ( entry.shortid ) {
          case "class893": // Hybrid Vampire
-            entry.data = data = data.replace( "per Day</b>: 2<", "per Day</b>: As a hybrid vampire, you gain two healing surges regardless of the class that you have combined with vampire to create your character.<" );
+            entry.data = entry.data.replace( "per Day</b>: 2<", "per Day</b>: As a hybrid vampire, you gain two healing surges regardless of the class that you have combined with vampire to create your character.<" );
             corrections.add( "missing content" );
             // Fall-through
          case "class892": // Hybrid Blackguard
          case "class894": // Hybrid Sentinel
          case "class895": // Hybrid Cavalier
          case "class896": // Hybrid Binder
-            entry.data = data.replace( "Dragon Magazine 402", "Dragon Magazine 400" );
-            entry.meta[ 3 ] = "Dra400";
+            entry.data = entry.data.replace( "Dragon Magazine 402", "Dragon Magazine 400" );
             corrections.add( "typo" );
             break;
       }

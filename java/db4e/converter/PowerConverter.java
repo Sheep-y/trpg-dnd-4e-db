@@ -66,6 +66,11 @@ public class PowerConverter extends LeveledConverter {
          case "power6595": // Bane's Tactics
             entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
             corrections.add( "fix basic attack" );
+            break;
+         case "power9331": // Spot the Path
+            entry.data = entry.data.replace( ": :", ":" );
+            corrections.add( "typo" );
+            break;
       }
    }
 }
