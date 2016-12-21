@@ -31,6 +31,10 @@ public class Entry {
     * Return an unconverted copy of this object
     */
    public Entry clone() {
+      return clone( name );
+   }
+
+   public Entry clone( String name ) {
       assert( contentDownloaded );
       Entry copy = new Entry( id, name );
       copy.fields = this.fields;

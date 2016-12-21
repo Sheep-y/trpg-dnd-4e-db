@@ -57,7 +57,7 @@ public abstract class Convert {
          for ( Category c : categories )
             map.put( c.id, c );
 
-         String[] itemMeta =new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
+         String[] itemMeta  = new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
          Category armour    = new Category( "Armor"    , "Armor"    , itemMeta );
          Category implement = new Category( "Implement", "implement", itemMeta );
          Category weapon    = new Category( "Weapon"   , "weapon"   , itemMeta );
@@ -65,19 +65,13 @@ public abstract class Convert {
          exportCategories.add( implement );
          exportCategories.add( weapon );
 
-         // This pre-processing does not move progress, and is not MT, and thus should be done very fast.
+         // Move entries around before export
          for ( Category c : categories ) synchronized( c ) {
             if ( c.id.equals( "Terrain" ) ) continue;
             Category exported = new Category( c.id, c.name, c.fields );
             exportCategories.add( exported );
             exported.entries.addAll( c.entries );
             switch ( c.id ) {
-               case "Item" :
-                  synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
-                     transferItem( exported, armour, implement, weapon, map );
-                  } } }
-                  break;
-
                case "Glossary" :
                   for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
                      Entry entry = i.next();
@@ -89,8 +83,29 @@ public abstract class Convert {
                   }
                   break;
 
+               case "Item" :
+                  synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
+                     transferItem( exported, armour, implement, weapon, map );
+                  } } }
+                  break;
+
+               // Names is final, the whole entry must be replaced before going to next stage.
+               case "Power":
+                  List<Entry> fixedPowers = new ArrayList<>( 94 );
+                  Iterator<Entry> powers = exported.entries.iterator();
+                  while ( powers.hasNext() ) {
+                     Entry power = powers.next();
+                     if ( power.name.endsWith( " [Attack Technique]" ) ) {
+                        powers.remove();
+                        fixedPowers.add( power.clone( power.name.substring( 0, power.name.length() - 19 ) ) );
+                     }
+                  }
+                  exported.entries.addAll( fixedPowers );
+                  break;
+
                case "Trap" :
                   exported.entries.addAll( map.get( "Terrain" ).entries );
+                  break;
             }
          }
       }

@@ -61,7 +61,10 @@ public class PowerConverter extends LeveledConverter {
       return super.sortEntity( a, b );
    }
 
-   @Override protected void correctEntry(Entry entry) {
+   @Override protected void correctEntry( Entry entry ) {
+      if ( entry.data.contains( " [Attack Technique]" ) )
+         corrections.add( "meta" ); // Fixed in Convert.beforeConvert
+
       switch ( entry.shortid ) {
          case "power6595": // Bane's Tactics
             entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );

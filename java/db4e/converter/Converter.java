@@ -30,7 +30,7 @@ public class Converter extends Convert {
 
    /**
     * Apply common conversions to entry data.
-    * entry.meta may be set, but other prorerties will be overwritten.
+    * entry.meta may be set, but other properties will be overwritten.
     *
     * @param entry
     */
