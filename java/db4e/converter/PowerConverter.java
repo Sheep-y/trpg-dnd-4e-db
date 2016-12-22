@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class PowerConverter extends LeveledConverter {
 
    private final int CLASS = 0;
-   private final int FREQUENCY = 2;
+   private final int TYPE = 2;
    private final int KEYWORDS = 4;
 
    public PowerConverter ( Category category, boolean debug ) {
@@ -20,24 +20,32 @@ public class PowerConverter extends LeveledConverter {
    }
 
    @Override protected void initialise () {
-      category.meta = new String[]{ "ClassName", "Level", "Frequency", "Action", "Keywords", "SourceBook" };
+      category.meta = new String[]{ "ClassName", "Level", "Type", "Action", "Keywords", "SourceBook" };
       super.initialise();
    }
 
-   private Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]+</b>(?:, <b>[\\w ]+</b>)*)" ).matcher( "" );
+   private final Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]+</b>(?:, <b>[\\w ]+</b>)*)" ).matcher( "" );
+   private final Matcher regxLevel = Pattern.compile( "<span class=level>([^<]+) (Attack|Utility|Feature|Racial Power|Pact Boon|Cantrip)( \\d+)?" ).matcher( "" );
 
    @Override protected void convertEntry ( Entry entry ) {
       entry.meta = new Object[]{ entry.fields[0], entry.fields[1], "", entry.fields[2], "", entry.fields[3] };
       super.convertEntry( entry );
       final String data = entry.data;
 
+      if ( ! regxLevel.reset( data ).find() )
+         log.log( Level.WARNING, "Power without type: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+
+      // Add skill name to skill power type
+      if ( entry.meta[ CLASS ].equals( "Skill Power" ) )
+         entry.meta[ CLASS ] += ", " + regxLevel.group( 1 );
+
       // Set power frequency, a new column
       if ( data.startsWith( "<h1 class=dailypower>" ) )
-         entry.meta[ FREQUENCY ] = "Daily";
+         entry.meta[ TYPE ] = "Daily";
       else if ( data.startsWith( "<h1 class=encounterpower>" ) )
-         entry.meta[ FREQUENCY ] = "Encounter";
+         entry.meta[ TYPE ] = "Encounter";
       else if ( data.startsWith( "<h1 class=atwillpower>" ) )
-         entry.meta[ FREQUENCY ] = "At-Will";
+         entry.meta[ TYPE ] = "At-Will";
       else
          log.log( Level.WARNING, "Power with unknown frequency: {0} {1}", new Object[]{ entry.shortid, entry.name } );
 
@@ -68,6 +76,11 @@ public class PowerConverter extends LeveledConverter {
          corrections.add( "meta" ); // Fixed in Convert.beforeConvert
 
       switch ( entry.shortid ) {
+         case "power4713": // Lurk Unseen
+            entry.data = entry.data.replace( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<" );
+            corrections.add( "missing content" );
+            break;
+
          case "power6595": // Bane's Tactics
             entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
             corrections.add( "fix basic attack" );
