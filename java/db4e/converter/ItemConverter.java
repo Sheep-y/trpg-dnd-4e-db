@@ -11,6 +11,7 @@ import sheepy.util.Utils;
 public class ItemConverter extends LeveledConverter {
 
    private static final int CATEGORY = 0;
+   private static int TYPE;
    private static int COST;
    private final boolean isGeneric;
 
@@ -23,6 +24,7 @@ public class ItemConverter extends LeveledConverter {
       if ( isGeneric )
          category.meta = new String[]{ "Category", "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
       super.initialise();
+      TYPE = LEVEL - 1;
       COST = LEVEL + 1;
    }
 
@@ -229,9 +231,9 @@ public class ItemConverter extends LeveledConverter {
          case "item438": // The Returning Beast
             type = "Group"; break;
          case "item431": // Caelynnvala's Boons
-            type = "Group: Fey"; break;
+            type = "Group, Fey"; break;
          case "item432": // Fortune Stones
-            type = "Group: Reroll"; break;
+            type = "Group, Reroll"; break;
          case "item407": // Resplendent Finery
             type = "Illusion"; break;
          case "item427": // Relics of Creation
@@ -417,6 +419,14 @@ public class ItemConverter extends LeveledConverter {
             corrections.add( "fix basic attack" );
             break;
 
+         case "item3331": // Sun's Sliver
+            entry.data = entry.data.replace( ">Level <", ">Epic Tier<" );
+            entry.data = entry.data.replace( "<b>Wondrous Item</b>", "<b>Minor Artifact:</b> Wondrous Item" );
+            entry.meta[ TYPE ] = "Artifact";
+            entry.meta[ COST ] = "";
+            corrections.add( "missing content" );
+            break;
+
          case "item3415": // The Fifth Sword of Tyr
             entry.data = data.replace( "Power (Teleportation) ✦ Daily", "Power (Weapon) ✦ Daily" );
             corrections.add( "typo" );
@@ -431,6 +441,14 @@ public class ItemConverter extends LeveledConverter {
             }
       }
    }
+
+   @Override protected String textData( String data ) {
+      if ( data.startsWith( "<h1 class=miset>" ) )
+         data = data.replaceFirst( "<h1 class=mihead>.*(?=<p class=publishedIn>)", "" );
+      return super.textData( data );
+   }
+
+
 
    @Override protected String[] getLookupName ( Entry entry ) {
       switch ( category.id ) {
