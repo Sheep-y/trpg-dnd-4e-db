@@ -336,6 +336,12 @@ public class ItemConverter extends LeveledConverter {
             corrections.add( "missing power frequency" );
             break;
 
+         case "item509":  // Anarusi Codex
+            entry.data = entry.data.replace( "0 gp", "5,000 gp" );
+            entry.meta[ COST ] = "5,000 gp";
+            corrections.add( "missing content" );
+            break;
+
          case "item588":  // Bahamut's Golden Canary
             entry.data = entry.data.replace( "0 gp", "priceless" );
             entry.meta[ COST ] = "";
