@@ -79,7 +79,7 @@ od.action.view = {
          _( '#act_view_pnl_content')[0].appendChild( div );
          // Load and fill div
          cat.load_data( id, function act_view_show_load () {
-            var content = '<div class="detail">' + cat.data[ id ] + '</div>';
+            var content = '<div class="detail" id="' + id + '">' + cat.data[ id ] + '</div>';
             div.innerHTML = od.gui.highlight( content );
             if ( idList.length === 1 ) {
                var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
@@ -161,7 +161,7 @@ od.action.view = {
 
    "popup_links" : function act_view_popup_links ( evt ) {
       var action = od.action.view,  data = od.data,  pnl = _( '#act_view_pnl_link' )[0];
-      var ids = action.find_internal_links();
+      var ids = action.find_internal_links( evt );
       _.hide( pnl );
       if ( ! ids.length ) return;
 
@@ -204,9 +204,13 @@ od.action.view = {
     * Find entries that match the text in last click position (start of selection).
     * @returns {Array} List of ids that matched, in decending order of name length then in order of name.
     */
-   "find_internal_links" : function act_view_find_internal_links () {
+   "find_internal_links" : function act_view_find_internal_links ( evt ) {
       var sel = window.getSelection(),  range = sel.getRangeAt(0),  node = sel.anchorNode;
       var textTag = [ undefined, 'MARK', 'SPAN' ], result = [];
+      var entry = evt.target.closest( 'div.detail[id]' );
+      if ( ! entry ) // Not within entry body, abort.
+         return [];
+
       _.time();
 
       function findPre ( node, len, offset ) {
@@ -259,7 +263,7 @@ od.action.view = {
       }
 
       result = result.filter( function ( e, i ) { // Remove dups
-         return result.slice( i + 1 ).indexOf( e ) < 0;
+         return e !== entry.id && result.slice( i + 1 ).indexOf( e ) < 0;
       });
 
       _.time( "Done lookup. Found " + result.length + " links." );
