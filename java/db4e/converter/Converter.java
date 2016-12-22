@@ -169,7 +169,7 @@ public class Converter extends Convert {
             if ( published.equals( "Class Compendium." ) )
                lastSource = "CC"; // 11 feats and 2 powers does not list any other source book, only class compendium.
             else
-               log.log(Level.WARNING, "Entry with unparsed book: {0} {1} - {2}", new Object[]{ entry.shortid, entry.name, published} );
+               log.log( Level.WARNING, "Entry with unparsed book: {0} {1} - {2}", new Object[]{ entry.shortid, entry.name, published} );
          entry.meta[ entry.meta.length-1 ] = sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource;
 
       } else if ( entry.data.contains( "ublished in" ) ) {

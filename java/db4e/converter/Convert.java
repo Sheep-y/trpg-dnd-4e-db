@@ -91,19 +91,6 @@ public abstract class Convert {
                      } } }
                      break;
 
-                  // Names is final, the whole entry must be replaced before going to next stage.
-                  case "Power":
-                     List<Entry> fixedPowers = new ArrayList<>( 94 );
-                     for ( Iterator<Entry> powers = exported.entries.iterator() ; powers.hasNext() ; ) {
-                        Entry power = powers.next();
-                        if ( power.name.endsWith( " [Attack Technique]" ) ) {
-                           powers.remove();
-                           fixedPowers.add( power.clone( power.name.substring( 0, power.name.length() - 19 ) ) );
-                        }
-                     }
-                     exported.entries.addAll( fixedPowers );
-                     break;
-
                   case "Trap" :
                      exported.entries.addAll( map.get( "Terrain" ).entries );
                      break;

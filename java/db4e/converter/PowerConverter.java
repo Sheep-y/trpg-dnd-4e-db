@@ -85,8 +85,10 @@ public class PowerConverter extends LeveledConverter {
    }
 
    @Override protected void correctEntry( Entry entry ) {
-      if ( entry.data.contains( " [Attack Technique]" ) )
-         corrections.add( "meta" ); // Fixed in Convert.beforeConvert
+      if ( entry.display_name.endsWith( " [Attack Technique]" ) ) {
+         entry.display_name = entry.display_name.substring( 0, entry.display_name.length() - 19 );
+         corrections.add( "meta" );
+      }
 
       switch ( entry.shortid ) {
          case "power4713": // Lurk Unseen
