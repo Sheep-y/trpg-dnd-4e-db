@@ -11,6 +11,7 @@ import sheepy.util.Utils;
 public class ItemConverter extends LeveledConverter {
 
    private static final int CATEGORY = 0;
+   private static final int COST = 3;
    private final boolean isGeneric;
 
    public ItemConverter ( Category category, boolean debug ) {
@@ -333,6 +334,10 @@ public class ItemConverter extends LeveledConverter {
             break;
 
          case "item588":  // Bahamut's Golden Canary
+            entry.data = entry.data.replace( "0 gp", "priceless" );
+            entry.meta[ COST ] = "";
+            corrections.add( "consistency" );
+            // fall through
          case "item1632": // Instant Portal
             entry.meta[0] = "Consumable";
             corrections.add( "recategorise" );
@@ -375,6 +380,19 @@ public class ItemConverter extends LeveledConverter {
             entry.data = entry.data.replace( "Trigger: You", "<p class='mistat indent1'><i>Trigger:</i> You" );
             entry.data = entry.data.replace( ". Effect: ", "</p><p class='mistat indent1'><i>Effect:</i> " );
             corrections.add( "formatting" );
+            break;
+
+         case "item2971": // Vecna's Boon of Diabolical Choice
+            entry.data = entry.data.replace( "Level 0 Uncommon", "Level 24 Uncommon" );
+            entry.meta[ LEVEL ] = 24;
+            corrections.add( "missing content" );
+            // fall through
+         case "item1806": // Mark of the Star
+         case "item2469": // Shelter of Fate
+         case "item2995": // Vision of the Vizier
+            entry.data = entry.data.replace( "        0 gp", "" );
+            entry.meta[ COST ] = "";
+            corrections.add( "consistency" );
             break;
 
          case "item3328": // Scepter of the Chosen Tyrant
