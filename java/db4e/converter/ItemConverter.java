@@ -11,7 +11,7 @@ import sheepy.util.Utils;
 public class ItemConverter extends LeveledConverter {
 
    private static final int CATEGORY = 0;
-   private static final int COST = 3;
+   private static int COST;
    private final boolean isGeneric;
 
    public ItemConverter ( Category category, boolean debug ) {
@@ -23,6 +23,7 @@ public class ItemConverter extends LeveledConverter {
       if ( isGeneric )
          category.meta = new String[]{ "Category", "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
       super.initialise();
+      COST = LEVEL + 1;
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
@@ -368,10 +369,26 @@ public class ItemConverter extends LeveledConverter {
             corrections.add( "formatting" );
             break;
 
+         case "item1895": // Mrtok, Ogre Chief (Gauntlets of Ogre Power)
+            entry.data = entry.data.replace( " 0 gp", " 1,000 gp" );
+            entry.meta[ COST ] = "1,000 gp";
+            corrections.add( "consistency" );
+            break;
+
          case "item2002": // Orium Implement
-            entry.data = entry.data.replace( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand");
+            entry.data = entry.data.replace( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand" );
             entry.data = entry.data.replace( "<p class='mistat indent'><b>Requirement:</b> Orb, Rod, Staff, Wand</p>", "" );
             corrections.add( "missing content" );
+            break;
+
+         case "item2495": // Shivli, White Wyrmling (Frost Weapon)
+            entry.data = entry.data.replace( ">+2</td><td class=mic3>0 gp<", ">+2</td><td class=mic3>3,400 gp<" );
+            entry.data = entry.data.replace( ">+3</td><td class=mic3>0 gp<", ">+3</td><td class=mic3>17,000 gp<" );
+            entry.data = entry.data.replace( ">+4</td><td class=mic3>0 gp<", ">+4</td><td class=mic3>85,000 gp<" );
+            entry.data = entry.data.replace( ">+5</td><td class=mic3>0 gp<", ">+5</td><td class=mic3>425,000 gp<" );
+            entry.data = entry.data.replace( ">+6</td><td class=mic3>0 gp<", ">+6</td><td class=mic3>2,125,000 gp<" );
+            entry.meta[ COST ] = "3,400+ gp";
+            corrections.add( "consistency" );
             break;
 
          case "item2511": // Silver Hands of Power
