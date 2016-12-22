@@ -30,6 +30,7 @@ public abstract class Convert {
    public static AtomicBoolean stop = new AtomicBoolean();
    private static final Map<String, AtomicInteger> fixCount = new HashMap<>();
    private static final Set<String> fixedEntry = new HashSet<>();
+   private static final Map<String, List<String>> nameList = new HashMap<>();
 
    protected final Category category;
    protected final Set<String> corrections = new HashSet<>();
@@ -376,6 +377,8 @@ public abstract class Convert {
          if ( entry.fulltext == null ) try {
             convertEntry( entry );
             if ( ! corrections.isEmpty() ) {
+               if ( entry.shortid.equals( "weapon147" ) ) // Duplicate of Arrow of Fate
+                  corrections.clear();
                for ( String fix : corrections )
                   corrected( entry, fix );
                if ( corrections.size() > 1 )
@@ -441,8 +444,8 @@ public abstract class Convert {
     * @param fix Type of fix.
     */
    private static void corrected ( Entry entry, String fix ) {
+      log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.name, fix });
       synchronized ( fixCount ) {
-         log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.name, fix });
          if ( fixCount.containsKey( fix ) ) fixCount.get( fix ).incrementAndGet();
          else fixCount.put( fix, new AtomicInteger( 1 ) );
          fixedEntry.add( entry.id );

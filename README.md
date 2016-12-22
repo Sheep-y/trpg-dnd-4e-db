@@ -43,10 +43,9 @@ or filling in missing data such as subrace info.
 Let's face it, the official compendium has errors.
 This downloader fixes over 680 entries during export:
 
-* 152 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
- * The downloader logs 153 fixes. One of them - Arrow of Fate - is a duplicate.
+* 153 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
 * 79 empty glossaries, removed. (male, female, fang titan drake, etc.)
-* 68 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
+* 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 60 entries moved to correct category. (Superior implements, Assassin's poisons, and Consumable wondrous)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 22 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
