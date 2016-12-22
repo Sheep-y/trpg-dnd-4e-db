@@ -31,6 +31,7 @@ public class PowerConverter extends LeveledConverter {
       super.convertEntry( entry );
       final String data = entry.data;
 
+      // Set power frequency, a new column
       if ( data.startsWith( "<h1 class=dailypower>" ) )
          entry.meta[ FREQUENCY ] = "Daily";
       else if ( data.startsWith( "<h1 class=encounterpower>" ) )
@@ -40,6 +41,7 @@ public class PowerConverter extends LeveledConverter {
       else
          log.log( Level.WARNING, "Power with unknown frequency: {0} {1}", new Object[]{ entry.shortid, entry.name } );
 
+      // Set keyword, a new column
       if ( data.indexOf( '✦' ) >= 0 ) {
          if ( regxKeywords.reset( data ).find() ) {
             Set<String> keywords = new HashSet<>(8); // Some power have multiple keyword lines.
@@ -48,7 +50,7 @@ public class PowerConverter extends LeveledConverter {
             } while ( regxKeywords.find() );
             entry.meta[ KEYWORDS ] = String.join( ", ", keywords.toArray( new String[ keywords.size() ] ) );
          } else {
-            // Deathly Glare, Hamadryad Aspects, and Flock Tactics have bullet star but not keywords.
+            // Deathly Glare, Hamadryad Aspects, and Flock Tactics have bullet star in body but not keywords.
             if ( ! entry.shortid.equals( "power12521" ) && ! entry.shortid.equals( "power15829" ) && ! entry.shortid.equals( "power16541" ) )
                log.log( Level.WARNING, "Power with no keywords: {0} {1}", new Object[]{ entry.shortid, entry.name } );
          }
@@ -70,9 +72,16 @@ public class PowerConverter extends LeveledConverter {
             entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
             corrections.add( "fix basic attack" );
             break;
+
          case "power9331": // Spot the Path
             entry.data = entry.data.replace( ": :", ":" );
             corrections.add( "typo" );
+            break;
+
+         case "power15829": // Hamadryad Aspects
+            entry.data = entry.data.replace( "</p><p class=powerstat>  <b>✦", "<br>  ✦" );
+            entry.data = entry.data.replace( "</p><p class=flavor>  <b>✦", "<br>  ✦" );
+            corrections.add( "formatting" );
             break;
       }
    }

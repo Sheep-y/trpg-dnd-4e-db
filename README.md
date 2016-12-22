@@ -23,6 +23,21 @@ This is a fan-made project and does not come with copyrighted data.
    2. See [in-app help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/development/res/downloader_about.html) for steps and troubleshoots.
 6. Once all data is downloaded, you can export the data to an HTML file, which can be opened in browsers .
 
+### New columns ###
+
+This downloader will create new data columns, unavailable in official compendium, for easier search:
+
+* Background: Replace Associated Skills column with a new Benefit column.
+* Theme: New column, Prerequisite.
+* Power: New columns, Frequency and Keyword.
+* Feat: New column, Prerequisite.
+* Item: New column, Type.  New categories: Weapon, Implement, and Armor.
+* Terrain: New columns, Group and Level.  Combined with Trap.
+
+Many existing columns are also enhanced or corrected,
+such as listing all sources in the source column,
+or filling in missing data such as subrace info.
+
 ### Fixing compendium errors ###
 
 Let's face it, the official compendium has errors.
@@ -34,8 +49,8 @@ This downloader fixes over 630 entries during export:
 * 68 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 60 entries moved to correct category. (Superior implements, Assassin's poisons, and Consumable wondrous)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
+* 22 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 21 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, etc.)
-* 21 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 16 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire etc.)
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 189 entries with missing/wrong listing data not caused by above issues. (Wild Elf, Enlarge Familiar, some traps etc.)

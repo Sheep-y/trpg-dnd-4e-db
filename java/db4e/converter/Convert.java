@@ -70,42 +70,43 @@ public abstract class Convert {
             if ( c.id.equals( "Terrain" ) ) continue;
             Category exported = new Category( c.id, c.name, c.fields );
             exportCategories.add( exported );
-            exported.entries.addAll( c.entries );
-            switch ( c.id ) {
-               case "Glossary" :
-                  for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
-                     Entry entry = i.next();
-                     // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
-                     if ( entry.id.equals( "glossary.aspx?id=679" ) || entry.content.contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
-                        i.remove();
-                        corrected( entry, "blacklist" );
+            synchronized( exported ) {
+               exported.entries.addAll( c.entries );
+               switch ( c.id ) {
+                  case "Glossary" :
+                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+                        Entry entry = i.next();
+                        // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
+                        if ( entry.id.equals( "glossary.aspx?id=679" ) || entry.content.contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
+                           i.remove();
+                           corrected( entry, "blacklist" );
+                        }
                      }
-                  }
-                  break;
+                     break;
 
-               case "Item" :
-                  synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
-                     transferItem( exported, armour, implement, weapon, map );
-                  } } }
-                  break;
+                  case "Item" :
+                     synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
+                        transferItem( exported, armour, implement, weapon, map );
+                     } } }
+                     break;
 
-               // Names is final, the whole entry must be replaced before going to next stage.
-               case "Power":
-                  List<Entry> fixedPowers = new ArrayList<>( 94 );
-                  Iterator<Entry> powers = exported.entries.iterator();
-                  while ( powers.hasNext() ) {
-                     Entry power = powers.next();
-                     if ( power.name.endsWith( " [Attack Technique]" ) ) {
-                        powers.remove();
-                        fixedPowers.add( power.clone( power.name.substring( 0, power.name.length() - 19 ) ) );
+                  // Names is final, the whole entry must be replaced before going to next stage.
+                  case "Power":
+                     List<Entry> fixedPowers = new ArrayList<>( 94 );
+                     for ( Iterator<Entry> powers = exported.entries.iterator() ; powers.hasNext() ; ) {
+                        Entry power = powers.next();
+                        if ( power.name.endsWith( " [Attack Technique]" ) ) {
+                           powers.remove();
+                           fixedPowers.add( power.clone( power.name.substring( 0, power.name.length() - 19 ) ) );
+                        }
                      }
-                  }
-                  exported.entries.addAll( fixedPowers );
-                  break;
+                     exported.entries.addAll( fixedPowers );
+                     break;
 
-               case "Trap" :
-                  exported.entries.addAll( map.get( "Terrain" ).entries );
-                  break;
+                  case "Trap" :
+                     exported.entries.addAll( map.get( "Terrain" ).entries );
+                     break;
+               }
             }
          }
       }
