@@ -25,7 +25,7 @@ public class PowerConverter extends LeveledConverter {
    }
 
    private final Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]+</b>(?:, <b>[\\w ]+</b>)*)" ).matcher( "" );
-   private final Matcher regxLevel = Pattern.compile( "<span class=level>([^<]+) (Attack|Utility|Feature|Racial Power|Pact Boon|Cantrip)( \\d+)?" ).matcher( "" );
+   private final Matcher regxLevel = Pattern.compile( "<span class=level>([^<]+) (Racial )?(Attack|Utility|Feature|Pact Boon|Cantrip)( \\d+)?" ).matcher( "" );
 
    @Override protected void convertEntry ( Entry entry ) {
       entry.meta = new Object[]{ entry.fields[0], entry.fields[1], "", entry.fields[2], "", entry.fields[3] };
@@ -39,7 +39,7 @@ public class PowerConverter extends LeveledConverter {
       if ( entry.meta[ CLASS ].equals( "Skill Power" ) )
          entry.meta[ CLASS ] += ", " + regxLevel.group( 1 );
 
-      // Set power frequency, a new column
+      // Set frequency part of power type, a new column
       if ( data.startsWith( "<h1 class=dailypower>" ) )
          entry.meta[ TYPE ] = "Daily";
       else if ( data.startsWith( "<h1 class=encounterpower>" ) )
@@ -48,6 +48,19 @@ public class PowerConverter extends LeveledConverter {
          entry.meta[ TYPE ] = "At-Will";
       else
          log.log( Level.WARNING, "Power with unknown frequency: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+
+      // Set type part of power type column
+      switch ( regxLevel.group( 3 ) ) {
+         case "Attack":
+            entry.meta[ TYPE ] += " Attack";
+            break;
+         case "Cantrip":
+         case "Utility":
+            entry.meta[ TYPE ] += " Utility";
+            break;
+         default:
+            entry.meta[ TYPE ] += " Feature";
+      }
 
       // Set keyword, a new column
       if ( data.indexOf( '✦' ) >= 0 ) {
@@ -96,6 +109,14 @@ public class PowerConverter extends LeveledConverter {
             entry.data = entry.data.replace( "</p><p class=flavor>  <b>✦", "<br>  ✦" );
             corrections.add( "formatting" );
             break;
+      }
+
+      if ( entry.data.contains( "Racial Power" ) ) {
+         if ( entry.data.contains( "<p class=powerstat><b>Attack</b>" ) )
+            entry.data = entry.data.replace( "Racial Power", "Racial Attack" );
+         else
+            entry.data = entry.data.replace( "Racial Power", "Racial Utility" );
+         corrections.add( "consistency" );
       }
    }
 }
