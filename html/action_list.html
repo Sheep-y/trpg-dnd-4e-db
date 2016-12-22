@@ -643,7 +643,7 @@ od.action.list = {
       var count = action.data.length;
       var title = _.l( 'action.list.lbl_page', '%1/%2', gui.page + 1, gui.total_page );
       _('#act_list_h_title')[0].textContent = title;
-      od.gui.update_title();
+      od.gui.update_title( title );
 
       if ( count <= gui.row_per_page ) {
          _.hide( '#act_list_lbl_page, #act_list_btn_prev, #act_list_btn_next' );

@@ -83,7 +83,7 @@ od.action.view = {
             div.innerHTML = od.gui.highlight( content );
             if ( idList.length === 1 ) {
                var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
-               action.set_title( h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' ) );
+               action.set_title( h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>| \[Attack Technique\]/g, '' ) );
             }
          } );
       } );
@@ -146,7 +146,7 @@ od.action.view = {
 
    "set_title" : function act_view_set_title ( title ) {
       _('#act_view_h_title')[0].textContent = title;
-      od.gui.update_title();
+      od.gui.update_title( title );
    },
 
    "update_nav_button" : function act_view_update_nav_button () {

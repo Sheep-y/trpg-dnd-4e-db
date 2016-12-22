@@ -172,10 +172,13 @@ od.gui = {
       _.time( '[Action] Switched to ' + action.id );
    },
 
-   update_title : function gui_update_title () {
-      var str = _.l( 'gui.title', 'Offline 4e database' );
-      if ( od.gui.action ) str += ' - ' + _( "#action_" + od.gui.action.id + ' h1' )[0].textContent;
-      _('title')[0].textContent = str;
+   update_title : function gui_update_title ( title ) {
+      if ( title )
+         _('title')[0].textContent = title;
+      else
+         _('title')[0].textContent = od.gui.action
+            ? _( "#action_" + od.gui.action.id + ' h1' )[0].textContent
+            : _.l( 'gui.title', '4e Database' );
    },
 
    /**
