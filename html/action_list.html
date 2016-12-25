@@ -584,7 +584,6 @@ od.action.list = {
       _.info( 'Filter, sort, and display ' + data.length + ' rows' );
 
       if ( ! table ) table = _( '#act_list_pnl_list table' )[0];
-      _.hide( table );
       var body = _( table, 'tbody' );
       if ( body.length ) body[0].parentNode.removeChild( body[0] );
       body = _.create( 'tbody' );
@@ -631,7 +630,6 @@ od.action.list = {
 
       body.insertAdjacentHTML( 'beforeend', html );
       table.appendChild( body );
-      _.show( table ); // Android Firefox v27 needs an extra kick to trigger redraw
 
       if ( count )
          _.time( 'Listed ' + ( end - start ) + ' / ' + count + ' results.' );
