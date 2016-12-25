@@ -172,10 +172,13 @@ public class Converter extends Convert {
                log.log( Level.WARNING, "Entry with unparsed book: {0} {1} - {2}", new Object[]{ entry.shortid, entry.name, published} );
          entry.meta[ entry.meta.length-1 ] = sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource;
 
+         if ( regxPublished.find() )
+            log.log( Level.WARNING, "Entry with multiple publish: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+
       } else if ( entry.data.contains( "ublished in" ) ) {
          log.log( Level.WARNING, "Entry with unparsed source: {0} {1}", new Object[]{ entry.shortid, entry.name } );
       } else {
-         log.log( Level.INFO, "Entry without source book: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+         log.log( Level.WARNING, "Entry without source book: {0} {1}", new Object[]{ entry.shortid, entry.name } );
       }
    }
 

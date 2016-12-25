@@ -149,9 +149,11 @@ od.action.view = {
    "show_entries" : function act_view_show_entries ( div, cat, idList ) {
       var action = od.action.view;
       var content = idList.map( function act_view_show_entries_each( id ) {
-         return '<div class="detail" id="' + id + '">' + cat.data[ id ] + '</div>';
+         var data = '<div class="detail" id="' + id + '">' + cat.data[ id ] + '</div>';
+         return data.replace( /(?=<p class=publishedIn>)/, "<a class='cat' href='?list.name."+cat.name+"'>" + cat.getTitle() + "</a>" );
       } ).join( '' );
       div.innerHTML = od.gui.highlight( content );
+      // Find title
       var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
       action.set_title( h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>| \[Attack Technique\]/g, '' ) );
    },
