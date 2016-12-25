@@ -304,6 +304,11 @@ public class ItemConverter extends LeveledConverter {
 
       String data = entry.data;
       switch ( entry.shortid ) {
+         case "item1": // Cloth Armor
+            entry.meta[ COST ] = "1 gp";
+            corrections.add( "meta" );
+            break;
+
          case "item105": // Shield of Prator
             entry.data = data.replace( " class=magicitem>", " class=mihead>" );
             corrections.add( "formatting" );
@@ -336,6 +341,14 @@ public class ItemConverter extends LeveledConverter {
             corrections.add( "missing power frequency" );
             break;
 
+         case "item508": // Anarch Sphere
+         case "item1578": // Horreb Ritual Cube
+         case "item2463": // Shard of Evil
+            entry.data = entry.data.replace( "0 gp", "Priceless" );
+            entry.meta[ COST ] = "";
+            corrections.add( "consistency" );
+            break;
+
          case "item509":  // Anarusi Codex
             entry.data = entry.data.replace( "0 gp", "5,000 gp" );
             entry.meta[ COST ] = "5,000 gp";
@@ -343,13 +356,14 @@ public class ItemConverter extends LeveledConverter {
             break;
 
          case "item588":  // Bahamut's Golden Canary
-            entry.data = entry.data.replace( "0 gp", "priceless" );
+            entry.data = entry.data.replace( "0 gp", "Priceless" );
             entry.meta[ COST ] = "";
             corrections.add( "consistency" );
             // fall through
          case "item1632": // Instant Portal
             entry.meta[0] = "Consumable";
             corrections.add( "recategorise" );
+            break;
 
          case "item1007": // Dantrag's Bracers, first (arm) power is daily, second (feet) power is encounter
             entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ Daily</h2>" );
@@ -414,8 +428,9 @@ public class ItemConverter extends LeveledConverter {
             // fall through
          case "item1806": // Mark of the Star
          case "item2469": // Shelter of Fate
+         case "item2533": // Slaying Stone of Kiris Dahn
          case "item2995": // Vision of the Vizier
-            entry.data = entry.data.replace( "        0 gp", "" );
+            entry.data = entry.data.replaceFirst( " +0 gp", "" );
             entry.meta[ COST ] = "";
             corrections.add( "consistency" );
             break;

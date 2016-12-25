@@ -41,9 +41,9 @@ or filling in missing data such as subrace info.
 ### Fixing compendium errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 680 entries during export:
+This downloader fixes over 690 entries during export:
 
-* 152 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
+* 150 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
 * 79 empty glossaries, removed. (male, female, fang titan drake, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 60 entries moved to correct category. (Superior implements, Assassin's poisons, and Consumable wondrous)
@@ -51,8 +51,8 @@ This downloader fixes over 680 entries during export:
 * 22 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 20 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
-* 72 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
-* 189 entries with missing/wrong listing data not caused by above issues. (Wild Elf, Enlarge Familiar, some traps etc.)
+* 76 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
+* 190 entries with missing/wrong listing data not caused by above issues. (Wild Elf, Enlarge Familiar, some traps etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
