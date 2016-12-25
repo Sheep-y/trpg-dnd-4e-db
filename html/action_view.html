@@ -68,6 +68,7 @@ od.action.view = {
    'parse_action_id' : function act_view_parse_action_id () {
       var id = od.gui.act_id, action = od.action.view;
       var idList = id.substr( 'view='.length ).split( ',' );
+      var loadCount = idList.length;
       action.clear();
       idList.forEach( function act_view_show_each ( id ) {
          // Parse id
@@ -79,12 +80,8 @@ od.action.view = {
          _( '#act_view_pnl_content')[0].appendChild( div );
          // Load and fill div
          cat.load_data( id, function act_view_show_load () {
-            var content = '<div class="detail" id="' + id + '">' + cat.data[ id ] + '</div>';
-            div.innerHTML = od.gui.highlight( content );
-            if ( idList.length === 1 ) {
-               var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
-               action.set_title( h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>| \[Attack Technique\]/g, '' ) );
-            }
+            if ( --loadCount === 0 )
+               action.show_entries( div, cat, idList );
          } );
       } );
 
@@ -147,6 +144,16 @@ od.action.view = {
    "set_title" : function act_view_set_title ( title ) {
       _('#act_view_h_title')[0].textContent = title;
       od.gui.update_title( title );
+   },
+
+   "show_entries" : function act_view_show_entries ( div, cat, idList ) {
+      var action = od.action.view;
+      var content = idList.map( function act_view_show_entries_each( id ) {
+         return '<div class="detail" id="' + id + '">' + cat.data[ id ] + '</div>';
+      } ).join( '' );
+      div.innerHTML = od.gui.highlight( content );
+      var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
+      action.set_title( h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>| \[Attack Technique\]/g, '' ) );
    },
 
    "update_nav_button" : function act_view_update_nav_button () {
