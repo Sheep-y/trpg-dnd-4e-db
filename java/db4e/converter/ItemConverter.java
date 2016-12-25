@@ -479,7 +479,9 @@ public class ItemConverter extends LeveledConverter {
             return new String[]{ regxNote.reset( name ).replaceAll( "" ).trim() };
          case "Armor" :
             switch ( entry.shortid ) {
-               case "armor1": case "armor2": case "armor3": case "armor5": case "armor6": // Cloth to Plate
+               case "armor1": // Cloth
+                  return new String[]{ "Cloth Armor", "Cloth", "Clothing" };
+               case "armor2": case "armor3": case "armor5": case "armor6": // Leather to Plate
                   return new String[]{ entry.name, entry.name.replace( " Armor", "" ) };
                case "armor4": // Chainmail
                   return new String[]{ entry.name, "Chain" };
