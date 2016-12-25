@@ -32,11 +32,12 @@ od.config = {
    "level_to_int" : function config_level_to_int ( data ) {
       if ( ! data ) return 0;
       switch ( data.toLowerCase() ) {
-         case 'heroic' : return 1;
-         case 'paragon': return 10.5;
-         case 'epic'   : return 20.5;
+         case 'heroic' : return 5.5;
+         case 'paragon': return 15.5;
+         case 'epic'   : return 25.5;
       }
-      return +data.replace( /\D+/g, '' );
+      var digits = data.replace( /\D+/g, '' );
+      return digits === '0' ? 0.5 : +digits;
    },
 
    "category_order" : [
