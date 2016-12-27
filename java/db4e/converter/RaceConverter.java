@@ -12,19 +12,63 @@ public class RaceConverter extends Converter {
    }
 
    @Override protected void initialise() {
-      category.meta = new String[]{ "DescriptionAttribute", "Size", "SourceBook" };
+      category.meta = new String[]{ "Origin", "DescriptionAttribute", "Size", "SourceBook" };
       super.initialise();
    }
 
    private final Matcher regxAbility  = Pattern.compile( "<b>Ability scores</b>: ([^<]+)" ).matcher( "" );
 
    @Override protected void convertEntry( Entry entry ) {
-      entry.meta = new Object[]{ "", entry.fields[1], entry.fields[2] };
+      entry.meta = new Object[]{ null, null, entry.fields[1], entry.fields[2] };
       super.convertEntry(entry);
-      if ( entry.fields[1].isEmpty() ) {
-         entry.meta[1] = "Medium";
-         corrections.add( "meta" );
+      // Origin column
+      switch ( entry.shortid ) {
+         case "race3":  // Eladrin
+         case "race4":  // Elf
+         case "race16": // Drow
+         case "race20": // Gnome
+         case "race44": // Wilden
+         case "race56": // Moon Elf
+         case "race57": // Sun Elf
+         case "race58": // Wild Elf
+         case "race59": // Wood Elf
+         case "race60": // Hamadryad
+         case "race61": // Pixie
+         case "race62": // Satyr
+         case "race64": // Llewyrr Elf
+         case "race66": // Svirfneblin
+            entry.meta[0] = "Fey";
+            break;
+         case "race14": // Changeling
+            entry.meta[0] = "Natural, shapechanger";
+            break;
+         case "race23": // Kobold
+            entry.meta[0] = "Natural, reptile";
+            break;
+         case "race26": // Shadar-kai
+         case "race52": // Shade
+            entry.meta[0] = "Shadow";
+            break;
+         case "race33": // Genasi
+            entry.meta[0] = "Elemental";
+            break;
+         case "race35": // Deva
+            entry.meta[0] = "Immortal";
+            break;
+         case "race47": // Revenant
+         case "race53": // Vryloka
+            entry.meta[0] = "Undead, living";
+            break;
+         case "race49": // Shardmind
+            entry.meta[0] = "Immortal, construct";
+            break;
+         case "race65": // Hengeyokai
+            entry.meta[0] = "Fey, shapechanger";
+            break;
+         default:
+            entry.meta[0] = "Natural";
       }
+      // Ability column
       if ( regxAbility.reset( entry.data ).find() ) {
          String ability = regxAbility.group(1).replace( "+2 ", "" );
          if ( ability.endsWith( "choice" ) ) {
@@ -37,16 +81,21 @@ public class RaceConverter extends Converter {
             ability = ability.replace( "Wisdom", "Wis" );
             ability = ability.replace( "Charisma", "Cha" );
          }
-         entry.meta[0] = ability;
+         entry.meta[1] = ability;
       } else {
          if ( entry.name.endsWith( "Draconian" ) )
-            entry.meta[0] = "Cha, Con or Str";
+            entry.meta[1] = "Cha, Con or Str";
          else if ( entry.name.endsWith( "Dwarf" ) )
-            entry.meta[0] = "Con, Str or Wis";
+            entry.meta[1] = "Con, Str or Wis";
          else if ( entry.name.endsWith( "Elf" ) )
-            entry.meta[0] = "Dex, Int or Wis";
+            entry.meta[1] = "Dex, Int or Wis";
          else // Eladrin
-            entry.meta[0] = "Int, Cha or Dex";
+            entry.meta[1] = "Int, Cha or Dex";
+         corrections.add( "meta" );
+      }
+      // Size column
+      if ( entry.fields[2].isEmpty() ) {
+         entry.meta[2] = "Medium";
          corrections.add( "meta" );
       }
    }

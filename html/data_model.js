@@ -132,7 +132,7 @@ od.data.Category.prototype = {
       var list = this.list = new Array( data.length );
 
       var catName = _.ucfirst( this.name ), typeCol = 2;
-      if ( [ 'Disease', 'Poison', 'Race', 'Paragonpath', 'Epicdestiny' ].indexOf( catName ) >= 0 ) {
+      if ( [ 'Disease', 'Poison', 'Paragonpath', 'Epicdestiny' ].indexOf( catName ) >= 0 ) {
             catName = _.ucword( catName.replace( /(?=path$|destiny$)/, ' ' ) ); // Split PP/ED into two words
          typeCol = 0;
       } else if ( catName === 'Ritual' ) {

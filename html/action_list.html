@@ -567,7 +567,7 @@ od.action.list = {
 
       for ( var i = 1 ; i < colCount ; i++ ) {
          var conv, set = _.map(), colName = col[ i ];
-         if ( colName === 'SourceBook' )
+         if ( colName === 'SourceBook' || colName === 'Origin' )
             conv = function ( prop ) { prop.split( /\s*,\s*/ ).forEach( function( e ) { set[ e ] = true; } ); };
          else
             conv = function ( prop ) {
