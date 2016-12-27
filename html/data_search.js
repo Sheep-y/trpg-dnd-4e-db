@@ -41,7 +41,7 @@ od.search = {
       if ( cat ) {
          // Search in a single category
          cat.load_listing( function search_search_cat () {
-            cols = od.config.display_columns( cat.columns );
+            cols = cat.columns;
             if ( ! pattern ) return _.call( options.ondone, null, cols );
             if ( type === 'full' ) {
                cat.load_index( do_search );
@@ -121,7 +121,7 @@ od.search = {
       if ( cat ) {
          _.time( 'List ' + cat.name );
          cat.load_listing( function data_search_list_category_load_cat() {
-            _.call( onload, null, od.config.display_columns( cat.columns ), cat.list.concat(), null, null );
+            _.call( onload, null, cat.columns, cat.list.concat(), null, null );
          } );
       } else {
          _.time( 'List all categories' );
