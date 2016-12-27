@@ -505,11 +505,8 @@ od.action.list = {
       var filter_txt = _.ary( _( '.txt_filter' ) ).map( function ( e ) { return e.value; } );
 
       // Remove old table and create a new one.
-      var table = _( '#act_list_table' );
-      if ( table.length ) {
-         table[0].parentNode.removeChild( table[0] );
-      }
-      table = _.create( 'table', { 'id': 'act_list_table', 'aria-label' : _.l( 'action.list.search_result', 'Result' ) } );
+      _.remove( '#act_list_table' );
+      var table = _.create( 'table', { 'id': 'act_list_table', 'aria-label' : _.l( 'action.list.search_result', 'Result' ) } );
       var head_row = _.create( 'tr' ), head = _.create( 'thead' ),  css = '@media (max-width: 1023px) {';
       table.appendChild( head );
       head.appendChild( head_row );
@@ -584,9 +581,8 @@ od.action.list = {
       _.info( 'Filter, sort, and display ' + data.length + ' rows' );
 
       if ( ! table ) table = _( '#act_list_pnl_list table' )[0];
-      var body = _( table, 'tbody' );
-      if ( body.length ) body[0].parentNode.removeChild( body[0] );
-      body = _.create( 'tbody' );
+      _.remove( table, 'tbody' );
+      var body = _.create( 'tbody' );
 
       // Filter data and update displayed result count
       data = action.filter_data( table, col, data );

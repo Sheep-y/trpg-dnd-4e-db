@@ -156,14 +156,18 @@ _.col = function _col ( subject, column /* ... */) {
 /**
  * Returns a sorter function that sort an array of items by given fields.
  *
- * @param {string} field Field name to compare.
+ * @param {(string|Function}} field Field name to compare or a function to convert item to sort value.
  * @param {boolean=} des true for a descending sorter. false for ascending sorter (default).
  * @returns {function(*,*)} Sorter function
  */
 _.sorter = function _sorter ( field, des ) {
    var ab = ! des ? 1 : -1, ba = -ab;
-   if ( field === undefined || field === null ) return function _sorter_val( a, b ) { return a > b ? ab : ( a < b ? ba : 0 ); };
-   return function _sorter_fld( a, b ) { return a[ field ] > b[ field ] ? ab : ( a[ field ] < b[ field ] ? ba : 0 ); };
+   if ( field === undefined || field === null )
+      return function _sorter_val( a, b ) { return a > b ? ab : ( a < b ? ba : 0 ); };
+   else if ( typeof( field ) === 'function' )
+      return function _sorter_fun( a, b ) { a = field( a ); b = field( b ); return a > b ? ab : ( a < b ? ba : 0 ); };
+   else
+      return function _sorter_fld( a, b ) { return a[ field ] > b[ field ] ? ab : ( a[ field ] < b[ field ] ? ba : 0 ); };
 };
 
 /**
@@ -490,7 +494,7 @@ _.js = function _js ( option, onload ) {
       if ( log ) _.info( log );
       _.call( callback, e, url, option );
       _.call( option.ondone || null, e, url, option );
-      if ( e && e.parentNode === document.body ) document.body.removeChild(e);
+      _.remove( e );
    }
 
    e.addEventListener( 'load', function _js_load () {
@@ -1084,6 +1088,29 @@ _.clear = function _clear ( e ) {
    } );
    return e;
 };
+
+
+/**
+ * Remove all matching DOM elements
+ *
+ * @param {(string|Node)} root Optional. Root node to select from. Default to document.
+ * @param {(string|Node|NodeList)} e Selector or element(s).
+ * @returns {(NodeList|Array)} Removed elements.
+ */
+if ( document.head.remove )
+   _.remove = function _remove ( root, e ) {
+      e = e ? _( root, e ) : root;
+      if ( e ) _.forEach( _.domList( e ), function _remove_each ( e ) { e.remove(); } );
+      return e;
+   };
+else
+   _.remove = function _remove ( root, e ) {
+      e = e ? _( root, e ) : root;
+      if ( e ) _.forEach( _.domList( e ), function _remove_each ( e ) {
+         if ( e.parentNode ) e.parentNode.removeChild( e );
+      } );
+      return e;
+   };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Internationalisation and localisation
