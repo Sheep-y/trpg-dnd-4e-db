@@ -130,7 +130,7 @@ od.search = {
             od.data.get().forEach( function data_search_list_category_each( c ) {
                data = data.concat( c.list );
             } );
-            _.call( onload, null, ["ID","Name","Category","Type","Level","SourceBook"], data, null, null );
+            _.call( onload, null, ["ID","Name","_CatName","_TypeName","Level","SourceBook"], data, null, null );
          } );
       }
    },

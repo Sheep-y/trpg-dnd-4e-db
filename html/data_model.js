@@ -135,6 +135,8 @@ od.data.Category.prototype = {
       if ( [ 'Disease', 'Poison', 'Race', 'Paragonpath', 'Epicdestiny' ].indexOf( catName ) >= 0 ) {
             catName = _.ucword( catName.replace( /(?=path$|destiny$)/, ' ' ) ); // Split PP/ED into two words
          typeCol = 0;
+      } else if ( catName === 'Ritual' ) {
+         typeCol = 5; // Key Skill
       }
 
       var colCount = col.length;
