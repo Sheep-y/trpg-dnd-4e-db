@@ -676,8 +676,8 @@ _.time = function _time ( msg ) {
    }
    var fromBase = Math.round( ( now - t.base ) * 1000 ) / 1000;
    var fromLast = Math.round( ( now - t.last ) * 1000 ) / 1000;
-   var txtLast = t.last ? ( 'ms,+' + fromLast ) : '';
-   _.info( msg + ' (+' + fromBase + txtLast + 'ms)' );
+   var txtLast = t.last ? ( 'ms,Δ' + fromLast ) : '';
+   _.info( msg + ' (Σ' + fromBase + txtLast + 'ms)' );
    t.last = now;
    return [fromLast, fromBase];
 };
