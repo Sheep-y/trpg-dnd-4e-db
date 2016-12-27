@@ -86,7 +86,6 @@ od.data = {
 od.data.Category = function Category ( name ) {
    this.name = name;
    this.count = 0;
-   this.raw_list = [];
    this.index = _.map();
    this.columns = [];
    this.list = [];
@@ -96,7 +95,6 @@ od.data.Category = function Category ( name ) {
 od.data.Category.prototype = {
    "name": "",
    "count": 0,
-   "raw_list": [],     // e.g. [ ["sampleId001","Sample",["1+",1,3],["Multiple","Git","Csv"]], ... ]
    "columns": [], // e.g. [ "Name","SourceBook","Level", ... ]
    "list" : [],   // e.g. [ {ID:"sampleId001", SourceBook": { "text":"Multiple", "set": ["Git","Csv"] }, ... ]
    "index": {},   // e.g. { "sampleId001":"Sample Data 1 Published in ...", ... }
@@ -114,7 +112,6 @@ od.data.Category.prototype = {
    "load_listing" : function data_Cat_load_listing ( ondone, onerror ) {
       var cat = this;
       od.reader.read_data_listing( this.name, function data_Cat_load_listing_done() {
-         if ( cat.list.length <= 0 ) cat.build_listing(); // Skip if listing has been built
          _.call( ondone, cat );
       }, _.callonce( onerror, cat ) );
    },
@@ -129,7 +126,7 @@ od.data.Category.prototype = {
 
    // Build this.columns and this.list.
    "build_listing" : function data_Cat_bulid_listing () {
-      var data = this.raw_list;
+      var data = this.list;
       var col = this.columns;
       var map = this.map = _.map();
       var list = this.list = new Array( data.length );
