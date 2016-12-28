@@ -271,7 +271,10 @@ od.action.list = {
 
    'txt_filter_input' : function act_list_txt_filter_input ( evt ) {
       if ( act_list_txt_filter_input.timer ) clearTimeout( act_list_txt_filter_input.timer );
-      act_list_txt_filter_input.timer = setTimeout( od.action.list.show_list, 300 );
+      act_list_txt_filter_input.timer = setTimeout( function act_list_txt_filter_input_timer () {
+         _.time();
+         od.action.list.show_list();
+      }, 300 );
    },
 
    /**
@@ -515,11 +518,10 @@ od.action.list = {
       for ( var i = 1 ; i < cl ; i++ ) {
          // Data field column
          var th = _.create( 'th' ), label = _.l( 'data.field.' + col[i], col[i] );
-         _.remove( '#list' + i );
          th.appendChild( _.create( 'input', { 'type': 'search', 'class' : 'txt_filter', 'placeholder': label, 'list': 'list'+i, 'oninput': action.txt_filter_input } ) );
          //th.appendChild( _.create( 'br' ) );
-         var sorter = _.create( 'span', { 'text': '⇅', 'class': 'button' } );
-         sorter.addEventListener( 'click', ( function ( f, lbl ) { return function act_list_header_click(){
+         var sorter = _.create( 'span', { 'text': '⇅', 'class': 'button', 'onclick': ( function ( f, lbl ) { return function act_list_sort_click(){
+            _.time();
             action.sort_asc = action.sort_field === f ? ! action.sort_asc : true;
             _.attr( '#act_list_pnl_list th span', 'text', '⇅' );
             lbl.textContent = action.sort_asc ? '↓' : '↑';
@@ -527,7 +529,7 @@ od.action.list = {
             action.sort_field = f;
             action.show_list();
             action.update_action_id();
-         }; } )( col[ i ], sorter ) );
+         }; } )( col[ i ], sorter ) } );
          th.appendChild( sorter );
          head_row.appendChild( th );
          if ( i > 1 )
@@ -550,7 +552,6 @@ od.action.list = {
       }
       action.last_cat = action.get_search_category();
 
-      action.build_datalist();
       action.show_list( table );
       table.addEventListener( 'click', action.table_click );
       table.addEventListener( 'keypress', function act_list_table_keypressed ( evt ) {
@@ -559,15 +560,15 @@ od.action.list = {
       _.show( '#act_list_pnl_list' )[0].appendChild( table );
    },
 
-   'build_datalist' : function act_list_build_datalist() {
-      var data = this.data;
-      var col = this.columns, colCount = col.length, listCount = 0;
+   'build_datalist' : function act_list_build_datalist( data ) {
       if ( ! data ) return;
+      var col = this.columns, colCount = col.length, listCount = 0;
       _.time( 'Building ' + colCount + ' datalist' );
 
       for ( var i = 1 ; i < colCount ; i++ ) {
+         _.remove( '#list' + i );
          var conv, set = _.map(), colName = col[ i ];
-         if ( colName === 'SourceBook' || colName === 'Origin' )
+         if ( [ 'SourceBook', 'Origin', 'Keywords' ].indexOf( colName ) >= 0 )
             conv = function ( prop ) { prop.split( /\s*,\s*/ ).forEach( function( e ) { set[ e ] = true; } ); };
          else
             conv = function ( prop ) {
@@ -579,6 +580,7 @@ od.action.list = {
 
          for ( var row = 0, rowCount = data.length ; row < rowCount ; row++ )
             conv( data[ row ][ colName ] );
+         if ( set[''] ) delete set[''];
 
          set = Object.keys( set );
          listCount += set.length;
@@ -608,17 +610,16 @@ od.action.list = {
          if ( filter && data.length )
             data = data.filter( filter );
       } );
-      if ( orig_len === data.length ) {
-         _.attr( '#act_list_lbl_showing', 'text', _.l( 'action.list.lbl_showing', '%1/%2',  data.length, orig_len ) );
-      } else {
-         _.attr( '#act_list_lbl_showing', 'text', _.l( 'action.list.lbl_filter', '%1/%2',  data.length, orig_len ) );
-      }
+      var label = orig_len === data.length ? 'action.list.lbl_showing' : 'action.list.lbl_filter';
+      _.attr( '#act_list_lbl_showing', 'text', _.l( label, '%1/%2',  data.length, orig_len ) );
+      this.build_datalist( data );
       return data;
    },
 
    /** List the current result, e.g. after changing sorting. */
    'show_list' : function act_list_show_list ( table ) {
-      var action = od.action.list, gui = od.gui;
+      _.time();
+      var action = this, gui = od.gui;
       var data = action.data, col = action.columns, cat = action.get_search_category();
       var cl = col.length, idField = col[ 0 ];
       _.info( 'Filter, sort, and display ' + data.length + ' rows' );
