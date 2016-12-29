@@ -44,6 +44,21 @@ public class ClassConverter extends Converter {
 
    @Override protected void correctEntry( Entry entry ) {
       switch ( entry.shortid ) {
+         case "class811": // Assassin (Executioner)
+         case "class891": // Hybrid Assassin (Executioner)
+            entry.meta[1] = "Martial and Shadow";
+            corrections.add( "meta" );
+            break;
+         case "class788": // Ranger (Hunter)
+         case "class790": // Ranger (Scout)
+         case "class906": // Barbarian (Berserker)
+            entry.meta[1] = "Martial and Primal";
+            corrections.add( "meta" );
+            break;
+         case "class907": // Bard (Skald)
+            entry.meta[1] = "Arcane and Martial";
+            corrections.add( "meta" );
+            break;
          case "class893": // Hybrid Vampire
             entry.data = entry.data.replace( "per Day</b>: 2<", "per Day</b>: As a hybrid vampire, you gain two healing surges regardless of the class that you have combined with vampire to create your character.<" );
             corrections.add( "missing content" );
