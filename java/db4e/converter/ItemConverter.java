@@ -72,14 +72,14 @@ public class ItemConverter extends LeveledConverter {
             switch ( entry.meta[0].toString() ) {
             case "Alternative Reward" :
                regxFirstStatBold.reset( entry.data ).find();
-               entry.meta[1] = regxFirstStatBold.group( 1 );
+               entry.meta[ TYPE ] = regxFirstStatBold.group( 1 );
                break;
             case "Armor" :
                setArmorType( entry );
                break;
             case "Equipment" :
                if ( regxType.reset( entry.data ).find() )
-                  entry.meta[1] = regxType.group( 1 );
+                  entry.meta[ TYPE ] = regxType.group( 1 );
                break;
             case "Item Set" :
                setItemSetType( entry );
@@ -92,27 +92,36 @@ public class ItemConverter extends LeveledConverter {
 
    private void setArmorType ( Entry entry ) {
       if ( regxType.reset( entry.data ).find() ) {
-         entry.meta[0] = regxType.group( 1 ).trim();
+         entry.meta[ TYPE ] = regxType.group( 1 ).trim();
          // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
-         if ( entry.meta[0].toString().split( ", " ).length >= 5 ) {
+         if ( entry.meta[ TYPE ].toString().split( ", " ).length >= 5 ) {
             entry.data = regxType.replaceFirst( "<b>$1</b>: Any" );
-            entry.meta[0] = "Any";
+            entry.meta[ TYPE ] = "Any";
             corrections.add( "consistency" );
          }
          int minEnhancement = entry.data.indexOf( "<b>Minimum Enhancement Value</b>: " );
          if ( minEnhancement > 0 ) {
             minEnhancement += "<b>Minimum Enhancement Value</b>: ".length();
-            entry.meta[1] = "Min " + entry.data.substring( minEnhancement, minEnhancement + 2 );
+            entry.meta[ LEVEL ] = "Min " + entry.data.substring( minEnhancement, minEnhancement + 2 );
          }
 
       } else
          switch ( entry.shortid ) {
             case "armor49": case "armor50": case "armor51": case "armor52":
-               entry.meta[0] = "Barding";
+               entry.meta[ TYPE ] = "Barding";
                break;
             default:
                log.log( Level.WARNING, "Armor type not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
          }
+
+      if ( entry.meta[ COST ].toString().contains( ".00 gp" ) ) {
+         entry.meta[ COST ] = entry.meta[ COST ].toString().replace( ".00 ", " " );
+         corrections.add( "meta" );
+      }
+      if ( entry.meta[ LEVEL ].toString().isEmpty() ) {
+         entry.meta[ LEVEL ] = "Mundane";
+         corrections.add( "meta" );
+      }
    }
 
    private final Matcher regxImplementType = Pattern.compile( "<b>Implement: </b>([A-Za-z, ]+)" ).matcher( "" );
@@ -120,18 +129,22 @@ public class ItemConverter extends LeveledConverter {
    private void setImplementType ( Entry entry ) {
       // Magical implements
       if ( regxImplementType.reset( entry.data ).find() ) {
-         entry.meta[0] = regxImplementType.group(1).trim();
+         entry.meta[ TYPE ] = regxImplementType.group(1).trim();
 
       // Superior implements
-      } else if ( entry.meta[0].equals( "Weapon" ) ) {
-         entry.meta[0] = Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) );
-         if ( entry.meta[0].equals( "Symbol" ) ) entry.meta[0] = "Holy Symbol";
-         entry.meta[1] = "Superior";
+      } else if ( entry.meta[ TYPE ].equals( "Weapon" ) ) {
+         entry.meta[ TYPE ] = Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) );
+         if ( entry.meta[ TYPE ].equals( "Symbol" ) ) entry.meta[0] = "Holy Symbol";
+         entry.meta[ LEVEL ] = "Superior";
          corrections.add( "recategorise" );
 
-      } else if ( entry.meta[0].equals( "Equipment" ) ) {
-         entry.meta[0] = entry.name.replaceFirst( " Implement$", "" );
-         entry.meta[1] = "Mundane";
+      } else if ( entry.meta[ TYPE ].equals( "Equipment" ) ) {
+         entry.meta[ TYPE ] = entry.name.replaceFirst( " Implement$", "" );
+         entry.meta[ LEVEL ] = "Mundane";
+         if ( entry.meta[ COST ].toString().isEmpty() ) { // Ki Focus
+            entry.meta[ COST ] = "0 gp";
+            corrections.add( "meta" );
+         }
 
       } else
          log.log( Level.WARNING, "Implement group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
@@ -144,7 +157,7 @@ public class ItemConverter extends LeveledConverter {
    private void setWeaponType ( Entry entry ) {
       String data = entry.data;
       // Ammunitions does not need processing
-      if ( entry.meta[0].equals( "Ammunition" ) ) return;
+      if ( entry.meta[ TYPE ].equals( "Ammunition" ) ) return;
       // Mundane weapons with groups
       if ( data.contains( "<b>Group</b>: " ) ) {
          int groupPos = data.indexOf( "<b>Group</b>: " );
@@ -153,36 +166,36 @@ public class ItemConverter extends LeveledConverter {
          if ( grp.isEmpty() )
             log.log( Level.WARNING, "Weapon group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
          else
-            entry.meta[ 0 ] = String.join( ", ", grp );
-         if ( ! entry.meta[2].equals( "" ) || entry.name.endsWith( "secondary end" ) || entry.name.equals( "Shuriken" ) ) {
+            entry.meta[ TYPE ] = String.join( ", ", grp );
+         if ( ! entry.meta[ 2 ].equals( "" ) || entry.name.endsWith( "secondary end" ) || entry.name.equals( "Shuriken" ) ) {
             regxWeaponDifficulty.reset( entry.data ).find();
-            entry.meta[ 1 ] = regxWeaponDifficulty.group();
+            entry.meta[ LEVEL ] = regxWeaponDifficulty.group();
          }
-         if ( entry.meta[ 1 ].toString().isEmpty() )
-            entry.meta[ 1 ] = entry.meta[ 0 ].equals( "Unarmed" ) ? "Improvised" : "(Level)";
+         if ( entry.meta[ LEVEL ].toString().isEmpty() )
+            entry.meta[ LEVEL ] = entry.meta[ 0 ].equals( "Unarmed" ) ? "Improvised" : "(Level)";
          return;
       }
       // Magical weapons
       if ( data.contains( "<b>Weapon: </b>" ) ) {
          regxWeaponType.reset( data ).find();
-         entry.meta[0] = regxWeaponType.group( 1 );
-         if ( entry.meta[0].equals( "Dragonshard augment" ) )
-            entry.meta[0] = "Dragonshard"; // shorten type
+         entry.meta[ TYPE ] = regxWeaponType.group( 1 );
+         if ( entry.meta[ TYPE ].equals( "Dragonshard augment" ) )
+            entry.meta[ TYPE ] = "Dragonshard"; // shorten type
          return;
       }
       // Manual assign
       switch ( entry.shortid ) {
          case "weapon3677": // Double scimitar - secondary end
-            entry.meta[ 0 ] = "Heavy blade";
-            entry.meta[ 1 ] = "Superior";
+            entry.meta[ TYPE  ] = "Heavy blade";
+            entry.meta[ LEVEL ] = "Superior";
             break;
          case "weapon3624": case "weapon3626": case "weapon3634": // Improvised weapons
-            entry.meta[ 0 ] = "Improvised";
-            entry.meta[ 1 ] = "Improvised";
+            entry.meta[ TYPE  ] = "Improvised";
+            entry.meta[ LEVEL ] = "Improvised";
             break;
          case "weapon176": case "weapon180": case "weapon181": case "weapon219": case "weapon220": case "weapon221": case "weapon222": case "weapon259": // Arrows, magazine, etc.
-            entry.meta[ 0 ] = "Ammunition";
-            entry.meta[ 1 ] = "Mundane";
+            entry.meta[ TYPE  ] = "Ammunition";
+            entry.meta[ LEVEL ] = "Mundane";
             break;
          default:
             log.log( Level.WARNING, "Unknown weapon type: {0} {1}", new Object[]{ entry.shortid, entry.name} );
@@ -198,7 +211,7 @@ public class ItemConverter extends LeveledConverter {
             type = "Artificer"; break;
          case "item439": // Xenda-Dran’s Array
             type = "Assassin";
-            entry.meta[2] = "Heroic";
+            entry.meta[ LEVEL ] = "Heroic";
             break;
          case "item406": // Radiant Temple Treasures
             type = "Avenger"; break;
@@ -270,25 +283,25 @@ public class ItemConverter extends LeveledConverter {
          default:
             log.log( Level.WARNING, "Unknown item set: {0} {1}", new Object[]{ entry.shortid, entry.name} );
       }
-      entry.meta[1] = type;
+      entry.meta[ TYPE ] = type;
    }
 
    private void setWondrousType ( Entry entry ) {
       String data = entry.data;
       Object[] meta = entry.meta;
       if ( entry.name.contains( "Tattoo" ) )
-         meta[1] = "Tattoo";
+         meta[ TYPE ] = "Tattoo";
       else if ( data.contains( "primordial shard" ) )
-         meta[1] = "Primordial Shard";
+         meta[ TYPE ] = "Primordial Shard";
       else if ( data.contains( "Conjuration" ) && data.contains( "figurine" ) )
-         meta[1] = "Figurine";
+         meta[ TYPE ] = "Figurine";
       else if ( data.contains( "standard" ) && data.contains( "plant th" ) )
-         meta[0] = "Standard";
+         meta[ TYPE ] = "Standard";
       if ( data.contains( "Conjuration" ) && data.contains( "mount" ) && ! entry.name.startsWith( "Bag " ) )
          if ( meta[1].toString().isEmpty() )
-            meta[1] = "Mount";
+            meta[ TYPE ] = "Mount";
          else
-            meta[1] = meta[1] + ": Mount";
+            meta[ TYPE ] = meta[ TYPE ] + ": Mount";
    }
 
    @Override protected void correctEntry ( Entry entry ) {
