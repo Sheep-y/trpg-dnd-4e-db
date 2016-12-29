@@ -21,6 +21,7 @@ public class ClassConverter extends Converter {
 
    @Override protected void convertEntry( Entry entry ) {
       super.convertEntry( entry );
+      entry.meta[2] = shortenAbility( entry.meta[2].toString() );
 
       regxClassFeatures.reset( entry.data );
       synchronized ( featureMap ) {

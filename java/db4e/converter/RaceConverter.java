@@ -71,17 +71,11 @@ public class RaceConverter extends Converter {
       // Ability column
       if ( regxAbility.reset( entry.data ).find() ) {
          String ability = regxAbility.group(1).replace( "+2 ", "" );
-         if ( ability.endsWith( "choice" ) ) {
-            ability = "Any";
-         } else {
-            ability = ability.replace( "Strength", "Str" );
-            ability = ability.replace( "Constitution", "Con" );
-            ability = ability.replace( "Dexterity", "Dex" );
-            ability = ability.replace( "Intelligence", "Int" );
-            ability = ability.replace( "Wisdom", "Wis" );
-            ability = ability.replace( "Charisma", "Cha" );
-         }
-         entry.meta[1] = ability;
+         if ( ability.endsWith( "choice" ) )
+            entry.meta[1] = "Any";
+         else
+            entry.meta[1] = shortenAbility( ability );
+
       } else {
          if ( entry.name.endsWith( "Draconian" ) )
             entry.meta[1] = "Cha, Con or Str";

@@ -284,4 +284,14 @@ public class Converter extends Convert {
 
       return data.trim();
    }
+
+   protected String shortenAbility ( String data ) {
+      data = data.replace( "Strength", "Str" );
+      data = data.replace( "Constitution", "Con" );
+      data = data.replace( "Dexterity", "Dex" );
+      data = data.replace( "Intelligence", "Int" );
+      data = data.replace( "Wisdom", "Wis" );
+      data = data.replace( "Charisma", "Cha" );
+      return data;
+   }
 }

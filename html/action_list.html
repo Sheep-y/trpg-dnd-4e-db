@@ -570,7 +570,9 @@ od.action.list = {
          var conv, set = _.map(), colName = col[ i ];
          switch ( colName ) {
             case 'SourceBook': case 'Origin': case 'Keywords': case 'DescriptionAttribute': case 'KeyAbilities':
-               conv = function ( prop ) { prop.split( /\s*[,;]\s*/ ).forEach( function( e ) { set[ e ] = true; } ); };
+               conv = function ( prop ) {
+                  prop.split( /\s*(?:,? or |[,;])\s*/g ).forEach( function( e ) { set[ e ] = true; } );
+               };
                break;
             case "Cost": case "Price": case "Level":
                conv = function ( prop ) {
