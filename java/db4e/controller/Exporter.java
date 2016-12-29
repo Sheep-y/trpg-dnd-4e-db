@@ -71,8 +71,17 @@ class Exporter {
             // Add to listing
             str( buffer.append( '[' ), entry.shortid ).append( ',' );
             str( buffer, entry.display_name ).append( ',' );
-            for ( Object field : entry.meta )
-               str( buffer, field.toString() ).append( ',' );
+            for ( Object field : entry.meta ) {
+               if ( field.getClass().isArray() ) {
+                  Object[] ary = (Object[]) field;
+                  buffer.append( "[\"" ).append( ary[0] ).append( "\"," );
+                  for ( int i = 1, len = ary.length ; i < len ; i++ )
+                     buffer.append( ary[i] ).append( ',' );
+                  buffer.setLength( buffer.length() - 1 );
+                  buffer.append( "]," );
+               } else
+                  str( buffer, field.toString() ).append( ',' );
+            }
             write( "],", listing, buffer );
 
             // Add to full text

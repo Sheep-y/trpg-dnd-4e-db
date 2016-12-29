@@ -21,22 +21,21 @@ class LeveledConverter extends Converter {
       // if ( LEVEL < 0 ) throw new IllegalStateException( "Level field not in " + category.name );
    }
 
-   static Map<String, String> levelText = new HashMap<>(); // Cache level text
-   static Map<Object, Float> levelNumber = new HashMap<>();
+   static final Map<Object, Float> levelMap = new HashMap<>();
 
    @Override protected void beforeSort () {
       super.beforeSort();
-      synchronized ( levelText ) { // Make sure that sortEntity has all the numbers in this category
-         if ( LEVEL < 0 ) return;
+      if ( LEVEL < 0 ) return;
+      synchronized ( levelMap ) { // Make sure that sortEntity has all the numbers in this category
          for ( Entry entry : category.entries ) {
-            String level = entry.meta[ LEVEL ].toString();
-            if ( levelText.containsKey( level ) ) {
-               entry.meta[ LEVEL ] = levelText.get( level ); // Share string to save some memory
-            } else {
+            Object levelText = entry.meta[ LEVEL ];
+            if ( levelText.getClass().isArray() )
+               levelText = ( (Object[]) levelText )[1];
+            String level = levelText.toString();
+            if ( ! levelMap.containsKey( level ) ) {
                float lv = parseLevel( level );
-               levelText.put( level, level );
-               levelNumber.put( level, lv );
-               if ( lv < -10 ) log.log( Level.WARNING, "Unknown level \"{0}\": {1} {2}", new Object[]{level, entry.shortid, entry.name} );
+               levelMap.put( level, lv );
+               if ( lv < -10 ) log.log( Level.WARNING, "Unknown level \"{0}\": {1} {2}", new Object[]{ levelText, entry.shortid, entry.name } );
             }
          }
       }
@@ -88,7 +87,11 @@ class LeveledConverter extends Converter {
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
       if ( LEVEL >= 0 ) {
-         float level = levelNumber.get( a.meta[ LEVEL ] ) - levelNumber.get( b.meta[ LEVEL ] );
+         Object aLv = a.meta[ LEVEL ];
+         Object bLv = b.meta[ LEVEL ];
+         if ( aLv.getClass().isArray() ) aLv = ( ( Object[] ) aLv )[1];
+         if ( bLv.getClass().isArray() ) bLv = ( ( Object[] ) bLv )[1];
+         float level = levelMap.get( aLv ) - levelMap.get( bLv );
          if ( level < 0 )
             return -1;
          else if ( level > 0 )

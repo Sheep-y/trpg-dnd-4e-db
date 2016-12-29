@@ -2,6 +2,7 @@ package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -41,6 +42,7 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxTier = Pattern.compile( "\\b(?:Heroic|Paragon|Epic)\\b" ).matcher( "" );
    private final Matcher regxType = Pattern.compile( "<b>(?:Type|Armor|Arms Slot|Category)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
    private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]+)</b>" ).matcher( "" );
+   private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d+)</td>(?:<td class=mic2>\\+\\d</td>)?<td class=mic3>([\\d,]+) gp</td>" ).matcher( "" );
 
    @Override protected void convertEntry ( Entry entry ) {
       if ( isGeneric ) {
@@ -88,6 +90,7 @@ public class ItemConverter extends LeveledConverter {
                setWondrousType( entry );
          }
       }
+      setCost( entry );
    }
 
    private void setArmorType ( Entry entry ) {
@@ -304,6 +307,37 @@ public class ItemConverter extends LeveledConverter {
             meta[ TYPE ] = meta[ TYPE ] + ": Mount";
    }
 
+   private final List<Object> multi_cost = new ArrayList<>();
+   private final List<Object> multi_level = new ArrayList<>();
+
+   /**
+    * Parse cost and level table to output multiple meta
+    * @param entry
+    */
+   private void setCost ( Entry entry ) {
+      if ( ! entry.meta[ LEVEL ].toString().endsWith( "+" ) ) {
+         if ( ! debug ) return;
+         if ( TYPE > 0 && entry.meta[ TYPE-1 ].equals( "Item Set" ) ) return;
+         if ( regxPriceTable.reset( entry.data ).find() && regxPriceTable.find() )
+            log.log( Level.WARNING, "Price table on non-multilevel item: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+         return;
+      }
+      if ( ! regxPriceTable.reset( entry.data ).find() ) {
+         log.log( Level.WARNING, "Price table not found on multilevel item: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+         return;
+      }
+      multi_cost.clear();
+      multi_level.clear();
+      multi_cost.add( entry.meta[ COST ] );
+      multi_level.add( entry.meta[ LEVEL ] );
+      do {
+         multi_cost.add( regxPriceTable.group( 2 ).replaceAll( "\\D", "" ) );
+         multi_level.add( regxPriceTable.group( 1 ) );
+      } while ( regxPriceTable.find() );
+      entry.meta[ COST  ] = multi_cost.toArray();
+      entry.meta[ LEVEL ] = multi_level.toArray();
+   }
+
    @Override protected void correctEntry ( Entry entry ) {
       if ( ! regxPublished.reset( entry.data ).find() ) {
          entry.data += "<p class=publishedIn>Published in " + entry.meta[ 4 ]  + ".</p>";
@@ -436,7 +470,7 @@ public class ItemConverter extends LeveledConverter {
 
          case "item2971": // Vecna's Boon of Diabolical Choice
             entry.data = entry.data.replace( "Level 0 Uncommon", "Level 24 Uncommon" );
-            entry.meta[ LEVEL ] = 24;
+            entry.meta[ LEVEL ] = "24";
             corrections.add( "missing content" );
             // fall through
          case "item1806": // Mark of the Star
