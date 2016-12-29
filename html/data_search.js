@@ -183,11 +183,18 @@ od.search = {
             }
          }
          return function act_list_filter_data_num_filter ( data ) {
-            var val = ~~data[ col_name ].replace( /[^\d.]/g, '' );
-            if ( val === 0 ) return false; // Don't show heroic/paragon/epic as level;
-            if ( max !== undefined && val > max ) return false;
-            if ( min !== undefined && val < min ) return false;
-            return true;
+            var val = data[ col_name ];
+            if ( val instanceof Object ) {
+               val = val.set;
+            } else {
+               val = [ ~~val.replace( /[^\d.]/g, '' ) ];
+            }
+            return val.find( function( v ) {
+               if ( v === 0 ) return false; // Don't show heroic/paragon/epic as level;
+               if ( max !== undefined && v > max ) return false;
+               if ( min !== undefined && v < min ) return false;
+               return true;
+            } ) ? true : false;
          };
       }
    },
