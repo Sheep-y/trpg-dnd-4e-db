@@ -91,7 +91,7 @@ _.l.set( 'action.list', {
 
    'lbl_showing' : '%2 項結果',
    'lbl_filter' : '從 %2 項結果中過濾出 %1 項',
-   'lbl_page' : '頁數 %1/%2',
+   'lbl_page' : '%1 頁 %2/%3',
    'lbl_no_result' : "無結果"
 });
 
