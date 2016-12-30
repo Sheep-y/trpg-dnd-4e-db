@@ -52,7 +52,7 @@ This downloader fixes over 710 entries during export:
 * 20 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 76 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
-* 209 entries with missing/wrong listing data not caused by above issues. (Wild Elf, Enlarge Familiar, some traps etc.)
+* 215 entries with missing/wrong listing data not caused by above issues. (Wild Elf, Enlarge Familiar, some traps etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).

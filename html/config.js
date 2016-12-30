@@ -26,6 +26,8 @@ od.config = {
          }
    },
    "level_to_int" : function config_level_to_int ( data ) {
+      if ( typeof( data ) === 'object' )
+         data = data.text;
       if ( ! data ) return 0;
       switch ( data.toLowerCase() ) {
          case 'heroic' : return 5.5;

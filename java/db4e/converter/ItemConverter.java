@@ -42,7 +42,7 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxTier = Pattern.compile( "\\b(?:Heroic|Paragon|Epic)\\b" ).matcher( "" );
    private final Matcher regxType = Pattern.compile( "<b>(?:Type|Armor|Arms Slot|Category)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
    private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]+)</b>" ).matcher( "" );
-   private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d+)</td>(?:<td class=mic2>\\+\\d</td>)?<td class=mic3>([\\d,]+) gp</td>" ).matcher( "" );
+   private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d+)(?:<td class=mic2>\\+\\d)?<td class=mic3>([\\d,]+) gp" ).matcher( "" );
 
    @Override protected void convertEntry ( Entry entry ) {
       if ( isGeneric ) {
@@ -451,11 +451,11 @@ public class ItemConverter extends LeveledConverter {
             break;
 
          case "item2495": // Shivli, White Wyrmling (Frost Weapon)
-            entry.data = entry.data.replace( ">+2</td><td class=mic3>0 gp<", ">+2</td><td class=mic3>3,400 gp<" );
-            entry.data = entry.data.replace( ">+3</td><td class=mic3>0 gp<", ">+3</td><td class=mic3>17,000 gp<" );
-            entry.data = entry.data.replace( ">+4</td><td class=mic3>0 gp<", ">+4</td><td class=mic3>85,000 gp<" );
-            entry.data = entry.data.replace( ">+5</td><td class=mic3>0 gp<", ">+5</td><td class=mic3>425,000 gp<" );
-            entry.data = entry.data.replace( ">+6</td><td class=mic3>0 gp<", ">+6</td><td class=mic3>2,125,000 gp<" );
+            entry.data = entry.data.replace( ">+2<td class=mic3>0 gp<", ">+2<td class=mic3>3,400 gp<" );
+            entry.data = entry.data.replace( ">+3<td class=mic3>0 gp<", ">+3<td class=mic3>17,000 gp<" );
+            entry.data = entry.data.replace( ">+4<td class=mic3>0 gp<", ">+4<td class=mic3>85,000 gp<" );
+            entry.data = entry.data.replace( ">+5<td class=mic3>0 gp<", ">+5<td class=mic3>425,000 gp<" );
+            entry.data = entry.data.replace( ">+6<td class=mic3>0 gp<", ">+6<td class=mic3>2,125,000 gp<" );
             entry.meta[ COST ] = "3,400+ gp";
             corrections.add( "consistency" );
             break;

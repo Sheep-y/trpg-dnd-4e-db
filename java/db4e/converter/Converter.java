@@ -194,6 +194,7 @@ public class Converter extends Convert {
    private final Matcher regxAttr1 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\">" ).matcher( "" );
    private final Matcher regxAttr2 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\" (\\w+)=\"(\\w+)\">" ).matcher( "" );
    private final Matcher regxAttr3 = Pattern.compile( "<(\\w+) (\\w+)=\"([^'\"/]+)\">" ).matcher( "" );
+   private final Matcher regxOptionalClose = Pattern.compile( "</?tbody>|</(td|tr)>(?=</?(td|tr|tbody)|</table)" ).matcher( "" );
 
    private final Matcher regxEmptyTag = Pattern.compile( "<(\\w+)[^>]*></\\1>" ).matcher( "" );
 
@@ -230,8 +231,10 @@ public class Converter extends Convert {
       // Convert attribute="value" to attribute=value, for cleaner data
       data = regxAttr1.reset( data ).replaceAll( "<$1 $2=$3>" );
       data = regxAttr2.reset( data ).replaceAll( "<$1 $2=$3 $4=$5>" );
-      // Convert attribute="value value" to attribute='value value', for cleaner data
+      // Convert attribute="value value" to attribute='value value', for less quote escaping
       data = regxAttr3.reset( data ).replaceAll( "<$1 $2='$3'>" );
+      // Remove redundent </td> and </tr>
+      data = regxOptionalClose.reset( data ).replaceAll( "" );
       // Remove empty tags (but not some empty cells which has a space)
       while ( regxEmptyTag.reset( data ).find() )
          data = regxEmptyTag.replaceAll( "" );
