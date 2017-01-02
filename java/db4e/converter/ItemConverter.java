@@ -118,11 +118,11 @@ public class ItemConverter extends LeveledConverter {
 
       if ( meta( COST ).contains( ".00 gp" ) ) {
          meta( COST, meta( COST ).replace( ".00 ", " " ) );
-         fix( "meta" );
+         fix( "wrong meta" );
       }
       if ( meta( LEVEL ).isEmpty() ) {
          meta( LEVEL, "Mundane" );
-         fix( "meta" );
+         fix( "missing meta" );
       }
    }
 
@@ -145,7 +145,7 @@ public class ItemConverter extends LeveledConverter {
          meta( LEVEL, "Mundane" );
          if ( meta( COST ).isEmpty() ) { // Ki Focus
             meta( COST, "0 gp" );
-            fix( "meta" );
+            fix( "missing meta" );
          }
 
       } else
@@ -351,7 +351,7 @@ public class ItemConverter extends LeveledConverter {
       switch ( entry.shortid ) {
          case "item1": // Cloth Armor
             meta( COST, "1 gp" );
-            fix( "meta" );
+            fix( "wrong meta" );
             break;
 
          case "item105": // Shield of Prator

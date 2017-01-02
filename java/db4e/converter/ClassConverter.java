@@ -49,17 +49,17 @@ public class ClassConverter extends Converter {
          case "class811": // Assassin (Executioner)
          case "class891": // Hybrid Assassin (Executioner)
             meta( POWER, "Martial and Shadow" );
-            fix( "meta" );
+            fix( "wrong meta" );
             break;
          case "class788": // Ranger (Hunter)
          case "class790": // Ranger (Scout)
          case "class906": // Barbarian (Berserker)
             meta( POWER, "Martial and Primal" );
-            fix( "meta" );
+            fix( "wrong meta" );
             break;
          case "class907": // Bard (Skald)
             meta( POWER, "Arcane and Martial" );
-            fix( "meta" );
+            fix( "wrong meta" );
             break;
          case "class893": // Hybrid Vampire
             swap( "per Day</b>: 2<", "per Day</b>: As a hybrid vampire, you gain two healing surges regardless of the class that you have combined with vampire to create your character.<" );

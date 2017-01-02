@@ -88,12 +88,12 @@ public class RaceConverter extends Converter {
             meta( ABILITY, "Dex, Int or Wis" );
          else // Eladrin
             meta( ABILITY, "Int, Cha or Dex" );
-         fix( "meta" );
+         fix( "missing meta" );
       }
       // Size column
       if ( entry.fields[ 1 ].isEmpty() ) {
          meta( SIZE, "Medium" );
-         fix( "meta" );
+         fix( "missing meta" );
       }
    }
 }

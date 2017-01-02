@@ -44,9 +44,10 @@ public class FeatConverter extends Converter {
                warn( "Feat with multiple level" );
             if ( level == 11 || level == 21 )
                text = regxLevel.reset( text ).replaceFirst( "" );
-            if ( ( ! entry.fields[0].isEmpty() && ! entry.fields[0].equals( meta( TIER ) ) ) ||
-                 (   entry.fields[0].isEmpty() && ! meta( TIER ).equals( "Heroic" ) ) )
-               fix( "meta" );
+            if ( ! entry.fields[0].isEmpty() && ! entry.fields[0].equals( meta( TIER ) ) )
+               fix( "wrong meta" );
+            else if  ( entry.fields[0].isEmpty() && ! meta( TIER ).equals( "Heroic" ) )
+               fix( "missing meta" );
          } else if ( text.contains( "level" ) && ! text.contains( "has a level" ) )
             warn( "Feat with unparsed level" );
 
