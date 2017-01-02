@@ -18,11 +18,11 @@ public class DeityConverter extends Converter {
 
    private final Matcher regxDomain  = Pattern.compile( "<b>Domain: </b>([^<]+)" ).matcher( "" );
 
-   @Override protected void convertEntry( Entry entry ) {
-      entry.meta = new Object[]{ "", entry.fields[0], entry.fields[1] };
-      super.convertEntry(entry);
+   @Override protected void convertEntry () {
+      meta( "", entry.fields[0], entry.fields[1] );
+      super.convertEntry();
       if ( regxDomain.reset( entry.data ).find() )
-         entry.meta[0] = regxDomain.group( 1 );
+         meta( 0, regxDomain.group( 1 ) );
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {

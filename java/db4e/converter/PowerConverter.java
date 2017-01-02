@@ -27,25 +27,25 @@ public class PowerConverter extends LeveledConverter {
    private final Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]+</b>(?:, <b>[\\w ]+</b>)*)" ).matcher( "" );
    private final Matcher regxLevel = Pattern.compile( "<span class=level>([^<]+) (Racial )?(Attack|Utility|Feature|Pact Boon|Cantrip)( \\d+)?" ).matcher( "" );
 
-   @Override protected void convertEntry ( Entry entry ) {
-      entry.meta = new Object[]{ entry.fields[0], entry.fields[1], "", entry.fields[2], "", entry.fields[3] };
-      super.convertEntry( entry );
+   @Override protected void convertEntry () {
+      meta( entry.fields[0], entry.fields[1], "", entry.fields[2], "", entry.fields[3] );
+      super.convertEntry();
       final String data = entry.data;
 
       if ( ! regxLevel.reset( data ).find() )
          log.log( Level.WARNING, "Power without type: {0} {1}", new Object[]{ entry.shortid, entry.name } );
 
       // Add skill name to skill power type
-      if ( entry.meta[ CLASS ].equals( "Skill Power" ) )
+      if ( meta( CLASS ).equals( "Skill Power" ) )
          entry.meta[ CLASS ] += ", " + regxLevel.group( 1 );
 
       // Set frequency part of power type, a new column
       if ( data.startsWith( "<h1 class=dailypower>" ) )
-         entry.meta[ TYPE ] = "Daily";
+         meta( TYPE, "Daily" );
       else if ( data.startsWith( "<h1 class=encounterpower>" ) )
-         entry.meta[ TYPE ] = "Encounter";
+         meta( TYPE, "Encounter" );
       else if ( data.startsWith( "<h1 class=atwillpower>" ) )
-         entry.meta[ TYPE ] = "At-Will";
+         meta( TYPE, "At-Will" );
       else
          log.log( Level.WARNING, "Power with unknown frequency: {0} {1}", new Object[]{ entry.shortid, entry.name } );
 
@@ -69,7 +69,7 @@ public class PowerConverter extends LeveledConverter {
             do {
                keywords.addAll( Arrays.asList( regxKeywords.group( 1 ).replaceAll( "</?b>", "" ).split( ", " ) ) );
             } while ( regxKeywords.find() );
-            entry.meta[ KEYWORDS ] = String.join( ", ", keywords.toArray( new String[ keywords.size() ] ) );
+            meta( KEYWORDS, String.join( ", ", keywords.toArray( new String[ keywords.size() ] ) ) );
          } else {
             // Deathly Glare, Hamadryad Aspects, and Flock Tactics have bullet star in body but not keywords.
             if ( ! entry.shortid.equals( "power12521" ) && ! entry.shortid.equals( "power15829" ) && ! entry.shortid.equals( "power16541" ) )
@@ -92,32 +92,32 @@ public class PowerConverter extends LeveledConverter {
 
       switch ( entry.shortid ) {
          case "power4713": // Lurk Unseen
-            entry.data = entry.data.replace( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<" );
+            swap( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<" );
             fix( "missing content" );
             break;
 
          case "power6595": // Bane's Tactics
-            entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
+            swap( "basic melee attack", "melee basic attack" );
             fix( "fix basic attack" );
             break;
 
          case "power9331": // Spot the Path
-            entry.data = entry.data.replace( ": :", ":" );
+            swap( ": :", ":" );
             fix( "typo" );
             break;
 
          case "power15829": // Hamadryad Aspects
-            entry.data = entry.data.replace( "</p><p class=powerstat>  <b>✦", "<br>  ✦" );
-            entry.data = entry.data.replace( "</p><p class=flavor>  <b>✦", "<br>  ✦" );
+            swap( "</p><p class=powerstat>  <b>✦", "<br>  ✦" );
+            swap( "</p><p class=flavor>  <b>✦", "<br>  ✦" );
             fix( "formatting" );
             break;
       }
 
       if ( entry.data.contains( "Racial Power" ) ) {
          if ( entry.data.contains( "<p class=powerstat><b>Attack</b>" ) )
-            entry.data = entry.data.replace( "Racial Power", "Racial Attack" );
+            swap( "Racial Power", "Racial Attack" );
          else
-            entry.data = entry.data.replace( "Racial Power", "Racial Utility" );
+            swap( "Racial Power", "Racial Utility" );
          fix( "consistency" );
       }
    }

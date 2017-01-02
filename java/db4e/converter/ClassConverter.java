@@ -12,6 +12,9 @@ import java.util.regex.Pattern;
 
 public class ClassConverter extends Converter {
 
+   private static final int POWER = 1;
+   private static final int ABILITY = 2;
+
    public ClassConverter ( Category category, boolean debug ) {
       super( category, debug );
    }
@@ -19,9 +22,9 @@ public class ClassConverter extends Converter {
    private final Matcher regxClassFeatures = Pattern.compile( "<b>(?:Class Features?|Hybrid Talent Options?):? ?</b>:?([^<.]+)", Pattern.CASE_INSENSITIVE ).matcher( "" );
    static final Map<String, Set<String>> featureMap = new HashMap<>( 77, 1f );
 
-   @Override protected void convertEntry( Entry entry ) {
-      super.convertEntry( entry );
-      entry.meta[2] = shortenAbility( entry.meta[2].toString() );
+   @Override protected void convertEntry () {
+      super.convertEntry();
+      meta( ABILITY, shortenAbility( meta( ABILITY ) ) );
 
       regxClassFeatures.reset( entry.data );
       synchronized ( featureMap ) {
@@ -46,28 +49,28 @@ public class ClassConverter extends Converter {
       switch ( entry.shortid ) {
          case "class811": // Assassin (Executioner)
          case "class891": // Hybrid Assassin (Executioner)
-            entry.meta[1] = "Martial and Shadow";
+            meta( POWER, "Martial and Shadow" );
             fix( "meta" );
             break;
          case "class788": // Ranger (Hunter)
          case "class790": // Ranger (Scout)
          case "class906": // Barbarian (Berserker)
-            entry.meta[1] = "Martial and Primal";
+            meta( POWER, "Martial and Primal" );
             fix( "meta" );
             break;
          case "class907": // Bard (Skald)
-            entry.meta[1] = "Arcane and Martial";
+            meta( POWER, "Arcane and Martial" );
             fix( "meta" );
             break;
          case "class893": // Hybrid Vampire
-            entry.data = entry.data.replace( "per Day</b>: 2<", "per Day</b>: As a hybrid vampire, you gain two healing surges regardless of the class that you have combined with vampire to create your character.<" );
+            swap( "per Day</b>: 2<", "per Day</b>: As a hybrid vampire, you gain two healing surges regardless of the class that you have combined with vampire to create your character.<" );
             fix( "missing content" );
             // Fall-through
          case "class892": // Hybrid Blackguard
          case "class894": // Hybrid Sentinel
          case "class895": // Hybrid Cavalier
          case "class896": // Hybrid Binder
-            entry.data = entry.data.replace( "Dragon Magazine 402", "Dragon Magazine 400" );
+            swap( "Dragon Magazine 402", "Dragon Magazine 400" );
             fix( "typo" );
             break;
       }

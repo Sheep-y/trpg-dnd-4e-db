@@ -34,8 +34,8 @@ public class Converter extends Convert {
     *
     * @param entry
     */
-   @Override protected void convertEntry ( Entry entry ) {
-      super.convertEntry( entry );
+   @Override protected void convertEntry () {
+      super.convertEntry();
       if ( debug ) {
          // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
          if ( shortId.containsKey( entry.shortid ) )
@@ -170,7 +170,7 @@ public class Converter extends Convert {
                lastSource = "CC"; // 11 feats and 2 powers does not list any other source book, only class compendium.
             else
                log.log( Level.WARNING, "Entry with unparsed book: {0} {1} - {2}", new Object[]{ entry.shortid, entry.name, published} );
-         entry.meta[ entry.meta.length-1 ] = sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource;
+         meta( entry.meta.length-1, sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource );
 
          if ( regxPublished.find() )
             log.log( Level.WARNING, "Entry with multiple publish: {0} {1}", new Object[]{ entry.shortid, entry.name } );
@@ -200,34 +200,34 @@ public class Converter extends Convert {
 
    @Override protected String normaliseData ( String data ) {
       // Replace images with character. Every image really appears in the compendium.
-      data = data.replace( "<img src=\"images/bullet.gif\" alt=\"\">", "✦" ); // Four pointed star, 11x11, most common image at 100k hits
-      data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/x.gif\">", "✦" ); // Four pointed star, 7x10, second most common image at 40k hits
+      data = data.replace( "<img src=\"images/bullet.gif\" alt=\"\">", "✦" ) // Four pointed star, 11x11, most common image at 100k hits
+                 .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/x.gif\">", "✦" ); // Four pointed star, 7x10, second most common image at 40k hits
       if ( data.contains( "<img " ) ) { // Most likely monsters
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/S2.gif\">", "(⚔) " ); // Basic melee, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/S3.gif\">", "(➶) " ); // Basic ranged, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z1.gif\">" , "ᗕ " ); // Blast, 20x20, for 10 monsters
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z1a.gif\">", "ᗕ " ); // Blast, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z2a.gif\">", "⚔ " ); // Melee, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z3a.gif\">", "➶ " ); // Ranged, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z4.gif\">",  "✻ " ); // Area, 20x20
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z4a.gif\">", "✻ " ); // Area, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/aura.png\" align=\"top\">", "☼ " ); // Aura, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/aura.png\">", "☼ " ); // Aura, 14x14, ~1000?
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/1a.gif\">", "⚀" ); // Dice 1, 12x12, honors go to monster.4611/"Rort, Goblin Tomeripper"
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/2a.gif\">", "⚁" ); // Dice 2, 12x12, 4 monsters got this
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/3a.gif\">", "⚂" ); // Dice 3, 12x12, ~30
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/4a.gif\">", "⚃" ); // Dice 4, 12x12, ~560
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/5a.gif\">", "⚄" ); // Dice 5, 12x12, ~2100
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/6a.gif\">", "⚅" ); // Dice 6, 12x12, ~2500
+         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/S2.gif\">", "(⚔) " ) // Basic melee, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/S3.gif\">", "(➶) " ) // Basic ranged, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z1.gif\">" , "ᗕ " ) // Blast, 20x20, for 10 monsters
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z1a.gif\">", "ᗕ " ) // Blast, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z2a.gif\">", "⚔ " ) // Melee, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z3a.gif\">", "➶ " ) // Ranged, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z4.gif\">",  "✻ " ) // Area, 20x20
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z4a.gif\">", "✻ " ) // Area, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/aura.png\" align=\"top\">", "☼ " ) // Aura, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/aura.png\">", "☼ " ) // Aura, 14x14, ~1000?
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/1a.gif\">", "⚀" ) // Dice 1, 12x12, honors go to monster.4611/"Rort, Goblin Tomeripper"
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/2a.gif\">", "⚁" ) // Dice 2, 12x12, 4 monsters got this
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/3a.gif\">", "⚂" ) // Dice 3, 12x12, ~30
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/4a.gif\">", "⚃" ) // Dice 4, 12x12, ~560
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/5a.gif\">", "⚄" ) // Dice 5, 12x12, ~2100
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/6a.gif\">", "⚅" ); // Dice 6, 12x12, ~2500
       }
       // Convert spaces and breaks
-      data = data.replace( "&nbsp;", "\u00A0" );
-      data = data.replace( "<br/>", "<br>" ).replace( "<br />", "<br>" );
-      data = regxSpaces.reset( data ).replaceAll( " " );
+      data = data.replace( "&nbsp;", "\u00A0" )
+                 .replace( "<br/>", "<br>" ).replace( "<br />", "<br>" );
+      data = regxSpaces.reset( data ).replaceAll( " " )
       // Convert ’ to ' so that people can actually search for it
-      data = data.replace( "’", "'" );
-      data = data.replace( "“’", "\"" );
-      data = data.replace( "”’", "\"" );
+                 .replace( "’", "'" )
+                 .replace( "“’", "\"" )
+                 .replace( "”’", "\"" );
       // Convert attribute="value" to attribute=value, for cleaner data
       data = regxAttr1.reset( data ).replaceAll( "<$1 $2=$3>" );
       data = regxAttr2.reset( data ).replaceAll( "<$1 $2=$3 $4=$5>" );
@@ -240,9 +240,9 @@ public class Converter extends Convert {
          data = regxEmptyTag.replaceAll( "" );
       // Convert some rare line breaks
       if ( data.indexOf( '\n' ) >= 0 ) {
-         data = data.replace( "\n,", "," );
-         data = data.replace( "\n.", "." );
-         data = data.replace( ".\n", "." );
+         data = data.replace( "\n,", "," )
+                    .replace( "\n.", "." )
+                    .replace( ".\n", "." );
       }
 
       // Remove links
@@ -282,23 +282,43 @@ public class Converter extends Convert {
       data = regxSpaces.reset( data ).replaceAll( " " );
 
       // HTML unescape. Compendium has relatively few escapes.
-      data = data.replace( "&amp;", "&" );
-      data = data.replace( "&gt;", ">" ); // glossary.433/"Weapons and Size"
+      data = data.replace( "&amp;", "&" )
+                 .replace( "&gt;", ">" ); // glossary.433/"Weapons and Size"
 
       return data.trim();
    }
 
-   protected void fix ( String correction ) {
+   protected final void fix ( String correction ) {
       corrections.add( correction );
    }
 
-   protected String shortenAbility ( String data ) {
-      data = data.replace( "Strength", "Str" );
-      data = data.replace( "Constitution", "Con" );
-      data = data.replace( "Dexterity", "Dex" );
-      data = data.replace( "Intelligence", "Int" );
-      data = data.replace( "Wisdom", "Wis" );
-      data = data.replace( "Charisma", "Cha" );
-      return data;
+   protected final void swap ( CharSequence from, CharSequence to ) {
+      entry.data = entry.data.replace( from, to );
+   }
+
+   protected final void swapFirst ( String from, String to ) {
+      entry.data = entry.data.replaceFirst( from, to );
+   }
+
+   protected final String meta ( int index ) {
+      return entry.meta[ index ].toString();
+   }
+
+   protected final void meta ( int index, Object setTo ) {
+      entry.meta[ index ] = setTo;
+   }
+
+   protected final void meta ( Object... setTo ) {
+      entry.meta = setTo;
+   }
+
+   protected final String shortenAbility ( Object txt ) {
+      return txt.toString()
+         .replace( "Strength", "Str" )
+         .replace( "Constitution", "Con" )
+         .replace( "Dexterity", "Dex" )
+         .replace( "Intelligence", "Int" )
+         .replace( "Wisdom", "Wis" )
+         .replace( "Charisma", "Cha" );
    }
 }

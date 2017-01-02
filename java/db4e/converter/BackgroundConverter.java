@@ -23,19 +23,19 @@ public class BackgroundConverter extends Converter {
       "you gain a", "you are", "(?<!kill )your?" };
    private final Matcher regxTrim  = Pattern.compile( "(?:\\s|\\b)(?:" + String.join( "|", trims ) + ")\\b", Pattern.CASE_INSENSITIVE ).matcher( "" );
 
-   @Override protected void convertEntry( Entry entry ) {
-      super.convertEntry(entry);
-      if ( entry.meta[2].toString().isEmpty() && regxBenefit.reset( entry.data ).find() ) {
+   @Override protected void convertEntry () {
+      super.convertEntry();
+      if ( meta( 2 ).isEmpty() && regxBenefit.reset( entry.data ).find() ) {
          String associate = regxTrim.reset( regxBenefit.group( 1 ) ).replaceAll( "" ).trim();
          if ( ! associate.endsWith( "." ) ) associate += '.';
-         entry.meta[2] = Utils.ucfirst( associate.replace( "saving throws", "saves" ) );
+         meta( 2, Utils.ucfirst( associate.replace( "saving throws", "saves" ) ) );
       } else {
-         entry.meta[2] = "Associated: " + entry.meta[2].toString().replace( "you can", "" );
+         meta( 2, "Associated: " + entry.meta[2].toString().replace( "you can", "" ) );
       }
-      if ( entry.meta[1].equals( "Scales of War Adventure Path" ) )
-         entry.meta[1] = "Scales of War";
-      else if ( entry.meta[1].equals( "Forgotten Realms" ) )
-         entry.meta[1] = "Faerûn";
+      if ( meta( 1 ).equals( "Scales of War Adventure Path" ) )
+         meta( 1, "Scales of War" );
+      else if ( meta( 1 ).equals( "Forgotten Realms" ) )
+         meta( 1, "Faerûn" );
    }
 
    @Override protected String[] getLookupName ( Entry entry ) {

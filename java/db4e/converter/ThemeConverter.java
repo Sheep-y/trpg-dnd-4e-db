@@ -1,7 +1,6 @@
 package db4e.converter;
 
 import db4e.data.Category;
-import db4e.data.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,14 +17,14 @@ public class ThemeConverter extends Converter {
 
    private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite: </b>([^<(]+)" ).matcher( "" );
 
-   @Override protected void convertEntry( Entry entry ) {
-      entry.meta = new Object[]{ "", entry.fields[0] };
-      super.convertEntry( entry );
+   @Override protected void convertEntry () {
+      meta( "", entry.fields[0] );
+      super.convertEntry();
       if ( regxPrerequisite.reset( entry.data ).find() ) {
          String prerequisite = regxPrerequisite.group( 1 );
          int pos = prerequisite.indexOf( "The games of court" );
          if ( pos > 0 ) prerequisite = prerequisite.substring( 0, pos-1 );
-         entry.meta[0] = prerequisite;
+         meta( 0, prerequisite );
       }
    }
 }

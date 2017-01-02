@@ -24,9 +24,9 @@ public class FeatConverter extends Converter {
    private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite</b>:\\s*([^<>]+)<" ).matcher( "" );
    private final Matcher regxLevel = Pattern.compile( "(?:, )?([12]?\\d)(?:st|nd|th) level(?:, )?" ).matcher( "" );
 
-   @Override protected void convertEntry ( Entry entry ) {
-      entry.meta = new Object[]{ "Heroic","", entry.fields[1] };
-      super.convertEntry( entry );
+   @Override protected void convertEntry () {
+      meta( "Heroic","", entry.fields[1] );
+      super.convertEntry();
       final String data = entry.data;
 
       if ( regxPrerequisite.reset( data ).find() ) {
@@ -38,15 +38,15 @@ public class FeatConverter extends Converter {
          if ( regxLevel.reset( text ).find() ) {
             int level = Integer.parseInt( regxLevel.group( 1 ) );
             if ( level > 20 )
-               entry.meta[ TIER ] = "Epic";
+               meta( TIER, "Epic" );
             else if ( level > 10 )
-               entry.meta[ TIER ] = "Paragon";
+               meta( TIER, "Paragon" );
             if ( regxLevel.find() )
                log.log( Level.WARNING, "Feat with multiple level: {0} {1}", new Object[]{ entry.shortid, entry.name } );
             if ( level == 11 || level == 21 )
                text = regxLevel.reset( text ).replaceFirst( "" );
-            if ( ( ! entry.fields[0].isEmpty() && ! entry.fields[0].equals( entry.meta[ TIER ] ) ) ||
-                 (   entry.fields[0].isEmpty() && ! entry.meta[ TIER ].equals( "Heroic" ) ) )
+            if ( ( ! entry.fields[0].isEmpty() && ! entry.fields[0].equals( meta( TIER ) ) ) ||
+                 (   entry.fields[0].isEmpty() && ! meta( TIER ).equals( "Heroic" ) ) )
                fix( "meta" );
          } else if ( text.contains( "level" ) && ! text.contains( "has a level" ) )
             log.log( Level.WARNING, "Feat with unparsed level: {0} {1}", new Object[]{ entry.shortid, entry.name } );
@@ -57,7 +57,7 @@ public class FeatConverter extends Converter {
             text = text.replace( "you have a spellscar", "spellscar" );
             text = text.replace( " have the ", " have " ).replace( " has the ", " has ");
             text = Utils.ucfirst( text );
-            entry.meta[ PREREQUISITE ] = text;
+            meta( PREREQUISITE, text );
          }
 
       } else if ( data.contains( "rerequi" ) ) {
@@ -79,17 +79,17 @@ public class FeatConverter extends Converter {
    @Override protected void correctEntry () {
       switch ( entry.shortid ) {
          case "feat1111": // Bane's Tactics
-            entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
+            swap( "basic melee attack", "melee basic attack" );
             fix( "fix basic attack" );
             break;
 
          case "feat2254": // Traveler's Celerity
-            entry.data = entry.data.replace( "11th-level, ", "11th level, " );
+            swap( "11th-level, ", "11th level, " );
             fix( "consistency" );
             break;
 
          case "feat3667": // Powerful Lure
-            entry.data = entry.data.replace( "Level 11, ", "11th level, " );
+            swap( "Level 11, ", "11th level, " );
             fix( "consistency" );
             break;
       }

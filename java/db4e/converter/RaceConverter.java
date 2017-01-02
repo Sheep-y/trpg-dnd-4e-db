@@ -1,11 +1,14 @@
 package db4e.converter;
 
 import db4e.data.Category;
-import db4e.data.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RaceConverter extends Converter {
+
+   private static final int ORIGIN = 0;
+   private static final int ABILITY = 1;
+   private static final int SIZE = 2;
 
    public RaceConverter ( Category category, boolean debug ) {
       super( category, debug );
@@ -18,9 +21,9 @@ public class RaceConverter extends Converter {
 
    private final Matcher regxAbility  = Pattern.compile( "<b>Ability scores</b>: ([^<]+)" ).matcher( "" );
 
-   @Override protected void convertEntry( Entry entry ) {
-      entry.meta = new Object[]{ null, null, entry.fields[1], entry.fields[2] };
-      super.convertEntry(entry);
+   @Override protected void convertEntry () {
+      meta( null, null, entry.fields[1], entry.fields[2] );
+      super.convertEntry();
       // Origin column
       switch ( entry.shortid ) {
          case "race3":  // Eladrin
@@ -37,59 +40,59 @@ public class RaceConverter extends Converter {
          case "race62": // Satyr
          case "race64": // Llewyrr Elf
          case "race66": // Svirfneblin
-            entry.meta[0] = "Fey";
+            meta( ORIGIN, "Fey" );
             break;
          case "race14": // Changeling
-            entry.meta[0] = "Natural, shapechanger";
+            meta( ORIGIN, "Natural, shapechanger" );
             break;
          case "race23": // Kobold
-            entry.meta[0] = "Natural, reptile";
+            meta( ORIGIN, "Natural, reptile" );
             break;
          case "race26": // Shadar-kai
          case "race52": // Shade
-            entry.meta[0] = "Shadow";
+            meta( ORIGIN, "Shadow" );
             break;
          case "race33": // Genasi
-            entry.meta[0] = "Elemental";
+            meta( ORIGIN, "Elemental" );
             break;
          case "race35": // Deva
-            entry.meta[0] = "Immortal";
+            meta( ORIGIN, "Immortal" );
             break;
          case "race47": // Revenant
          case "race53": // Vryloka
-            entry.meta[0] = "Undead, living";
+            meta( ORIGIN, "Undead, living" );
             break;
          case "race49": // Shardmind
-            entry.meta[0] = "Immortal, construct";
+            meta( ORIGIN, "Immortal, construct" );
             break;
          case "race65": // Hengeyokai
-            entry.meta[0] = "Fey, shapechanger";
+            meta( ORIGIN, "Fey, shapechanger" );
             break;
          default:
-            entry.meta[0] = "Natural";
+            meta( ORIGIN, "Natural" );
       }
       // Ability column
       if ( regxAbility.reset( entry.data ).find() ) {
          String ability = regxAbility.group(1).replace( "+2 ", "" );
          if ( ability.endsWith( "choice" ) )
-            entry.meta[1] = "Any";
+            meta( ABILITY, "Any" );
          else
-            entry.meta[1] = shortenAbility( ability );
+            meta( ABILITY, shortenAbility( ability ) );
 
       } else {
-         if ( entry.name.endsWith( "Draconian" ) )
-            entry.meta[1] = "Cha, Con or Str";
-         else if ( entry.name.endsWith( "Dwarf" ) )
-            entry.meta[1] = "Con, Str or Wis";
-         else if ( entry.name.endsWith( "Elf" ) )
-            entry.meta[1] = "Dex, Int or Wis";
+         if ( entry.name.endsWith( " Draconian" ) )
+            meta( ABILITY, "Cha, Con or Str" );
+         else if ( entry.name.endsWith( " Dwarf" ) )
+            meta( ABILITY, "Con, Str or Wis" );
+         else if ( entry.name.endsWith( " Elf" ) )
+            meta( ABILITY, "Dex, Int or Wis" );
          else // Eladrin
-            entry.meta[1] = "Int, Cha or Dex";
+            meta( ABILITY, "Int, Cha or Dex" );
          fix( "meta" );
       }
       // Size column
-      if ( entry.fields[2].isEmpty() ) {
-         entry.meta[2] = "Medium";
+      if ( entry.fields[ 1 ].isEmpty() ) {
+         meta( SIZE, "Medium" );
          fix( "meta" );
       }
    }

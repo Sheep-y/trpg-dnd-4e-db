@@ -44,19 +44,19 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]+)</b>" ).matcher( "" );
    private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d+)(?:<td class=mic2>\\+\\d)?<td class=mic3>([\\d,]+) gp" ).matcher( "" );
 
-   @Override protected void convertEntry ( Entry entry ) {
+   @Override protected void convertEntry () {
       if ( isGeneric ) {
          String[] fields = entry.fields;
          if ( entry.meta == null ) // Fix level field position before sorting
-            entry.meta = new Object[]{ fields[0], "", fields[1], fields[2], fields[3], fields[4] };
+            meta( fields[0], "", fields[1], fields[2], fields[3], fields[4] );
       }
-      super.convertEntry( entry );
+      super.convertEntry();
       if ( ! isGeneric )
          entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
-      if ( ( ! isGeneric && entry.meta[0].toString().startsWith( "Artifact" ) ) ||
-             ( isGeneric && entry.meta[1].toString().startsWith( "Artifact" ) ) ) {
+      if ( ( ! isGeneric && meta( 0 ).startsWith( "Artifact" ) ) ||
+             ( isGeneric && meta( 1 ).startsWith( "Artifact" ) ) ) {
          regxTier.reset( entry.data ).find();
-         entry.meta[ isGeneric ? 2 : 1 ] = regxTier.group();
+         meta( isGeneric ? 2 : 1, regxTier.group() );
          return; // Artifacts already have its type set
       }
       // Group Items
@@ -71,17 +71,17 @@ public class ItemConverter extends LeveledConverter {
             setWeaponType( entry ); // Weapon's original category  may be "Weapon" or "Equipment"
             break;
          default:
-            switch ( entry.meta[0].toString() ) {
+            switch ( meta( 0 ) ) {
             case "Alternative Reward" :
                regxFirstStatBold.reset( entry.data ).find();
-               entry.meta[ TYPE ] = regxFirstStatBold.group( 1 );
+               meta( TYPE, regxFirstStatBold.group( 1 ) );
                break;
             case "Armor" :
                setArmorType( entry );
                break;
             case "Equipment" :
                if ( regxType.reset( entry.data ).find() )
-                  entry.meta[ TYPE ] = regxType.group( 1 );
+                  meta( TYPE, regxType.group( 1 ) );
                break;
             case "Item Set" :
                setItemSetType( entry );
@@ -95,34 +95,34 @@ public class ItemConverter extends LeveledConverter {
 
    private void setArmorType ( Entry entry ) {
       if ( regxType.reset( entry.data ).find() ) {
-         entry.meta[ TYPE ] = regxType.group( 1 ).trim();
+         meta( TYPE, regxType.group( 1 ).trim() );
          // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
-         if ( entry.meta[ TYPE ].toString().split( ", " ).length >= 5 ) {
+         if ( meta( TYPE ).split( ", " ).length >= 5 ) {
             entry.data = regxType.replaceFirst( "<b>$1</b>: Any" );
-            entry.meta[ TYPE ] = "Any";
+            meta( TYPE, "Any" );
             fix( "consistency" );
          }
          int minEnhancement = entry.data.indexOf( "<b>Minimum Enhancement Value</b>: " );
          if ( minEnhancement > 0 ) {
             minEnhancement += "<b>Minimum Enhancement Value</b>: ".length();
-            entry.meta[ LEVEL ] = "Min " + entry.data.substring( minEnhancement, minEnhancement + 2 );
+            meta( LEVEL, "Min " + entry.data.substring( minEnhancement, minEnhancement + 2 ) );
          }
 
       } else
          switch ( entry.shortid ) {
             case "armor49": case "armor50": case "armor51": case "armor52":
-               entry.meta[ TYPE ] = "Barding";
+               meta( TYPE, "Barding" );
                break;
             default:
                log.log( Level.WARNING, "Armor type not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
          }
 
-      if ( entry.meta[ COST ].toString().contains( ".00 gp" ) ) {
-         entry.meta[ COST ] = entry.meta[ COST ].toString().replace( ".00 ", " " );
+      if ( meta( COST ).contains( ".00 gp" ) ) {
+         meta( COST, meta( COST ).replace( ".00 ", " " ) );
          fix( "meta" );
       }
-      if ( entry.meta[ LEVEL ].toString().isEmpty() ) {
-         entry.meta[ LEVEL ] = "Mundane";
+      if ( meta( LEVEL ).isEmpty() ) {
+         meta( LEVEL, "Mundane" );
          fix( "meta" );
       }
    }
@@ -132,20 +132,20 @@ public class ItemConverter extends LeveledConverter {
    private void setImplementType ( Entry entry ) {
       // Magical implements
       if ( regxImplementType.reset( entry.data ).find() ) {
-         entry.meta[ TYPE ] = regxImplementType.group(1).trim();
+         meta( TYPE, regxImplementType.group(1).trim() );
 
       // Superior implements
-      } else if ( entry.meta[ TYPE ].equals( "Weapon" ) ) {
-         entry.meta[ TYPE ] = Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) );
-         if ( entry.meta[ TYPE ].equals( "Symbol" ) ) entry.meta[0] = "Holy Symbol";
-         entry.meta[ LEVEL ] = "Superior";
+      } else if ( meta( TYPE ).equals( "Weapon" ) ) {
+         meta( TYPE, Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) ) );
+         if ( meta( TYPE ).equals( "Symbol" ) ) meta( TYPE, "Holy Symbol" );
+         meta( LEVEL, "Superior" );
          fix( "recategorise" );
 
-      } else if ( entry.meta[ TYPE ].equals( "Equipment" ) ) {
-         entry.meta[ TYPE ] = entry.name.replaceFirst( " Implement$", "" );
-         entry.meta[ LEVEL ] = "Mundane";
-         if ( entry.meta[ COST ].toString().isEmpty() ) { // Ki Focus
-            entry.meta[ COST ] = "0 gp";
+      } else if ( meta( TYPE ).equals( "Equipment" ) ) {
+         meta( TYPE, entry.name.replaceFirst( " Implement$", "" ) );
+         meta( LEVEL, "Mundane" );
+         if ( meta( COST ).isEmpty() ) { // Ki Focus
+            meta( COST, "0 gp" );
             fix( "meta" );
          }
 
@@ -160,7 +160,7 @@ public class ItemConverter extends LeveledConverter {
    private void setWeaponType ( Entry entry ) {
       String data = entry.data;
       // Ammunitions does not need processing
-      if ( entry.meta[ TYPE ].equals( "Ammunition" ) ) return;
+      if ( meta( TYPE ).equals( "Ammunition" ) ) return;
       // Mundane weapons with groups
       if ( data.contains( "<b>Group</b>: " ) ) {
          int groupPos = data.indexOf( "<b>Group</b>: " );
@@ -169,36 +169,36 @@ public class ItemConverter extends LeveledConverter {
          if ( grp.isEmpty() )
             log.log( Level.WARNING, "Weapon group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
          else
-            entry.meta[ TYPE ] = String.join( ", ", grp );
-         if ( ! entry.meta[ 2 ].equals( "" ) || entry.name.endsWith( "secondary end" ) || entry.name.equals( "Shuriken" ) ) {
+            meta( TYPE, String.join( ", ", grp ) );
+         if ( ! meta( 2 ).isEmpty() || entry.name.endsWith( "secondary end" ) || entry.name.equals( "Shuriken" ) ) {
             regxWeaponDifficulty.reset( entry.data ).find();
-            entry.meta[ LEVEL ] = regxWeaponDifficulty.group();
+            meta( LEVEL, regxWeaponDifficulty.group() );
          }
-         if ( entry.meta[ LEVEL ].toString().isEmpty() )
-            entry.meta[ LEVEL ] = entry.meta[ 0 ].equals( "Unarmed" ) ? "Improvised" : "(Level)";
+         if ( meta( LEVEL ).isEmpty() )
+            meta( LEVEL, meta( 0 ).equals( "Unarmed" ) ? "Improvised" : "(Level)" );
          return;
       }
       // Magical weapons
       if ( data.contains( "<b>Weapon: </b>" ) ) {
          regxWeaponType.reset( data ).find();
-         entry.meta[ TYPE ] = regxWeaponType.group( 1 );
-         if ( entry.meta[ TYPE ].equals( "Dragonshard augment" ) )
-            entry.meta[ TYPE ] = "Dragonshard"; // shorten type
+         meta( TYPE, regxWeaponType.group( 1 ) );
+         if ( meta( TYPE ).equals( "Dragonshard augment" ) )
+            meta( TYPE, "Dragonshard" ); // shorten type
          return;
       }
       // Manual assign
       switch ( entry.shortid ) {
          case "weapon3677": // Double scimitar - secondary end
-            entry.meta[ TYPE  ] = "Heavy blade";
-            entry.meta[ LEVEL ] = "Superior";
+            meta( TYPE, "Heavy blade" );
+            meta( LEVEL, "Superior" );
             break;
          case "weapon3624": case "weapon3626": case "weapon3634": // Improvised weapons
-            entry.meta[ TYPE  ] = "Improvised";
-            entry.meta[ LEVEL ] = "Improvised";
+            meta( TYPE, "Improvised" );
+            meta( LEVEL, "Improvised" );
             break;
          case "weapon176": case "weapon180": case "weapon181": case "weapon219": case "weapon220": case "weapon221": case "weapon222": case "weapon259": // Arrows, magazine, etc.
-            entry.meta[ TYPE  ] = "Ammunition";
-            entry.meta[ LEVEL ] = "Mundane";
+            meta( TYPE, "Ammunition" );
+            meta( LEVEL, "Mundane" );
             break;
          default:
             log.log( Level.WARNING, "Unknown weapon type: {0} {1}", new Object[]{ entry.shortid, entry.name} );
@@ -214,7 +214,7 @@ public class ItemConverter extends LeveledConverter {
             type = "Artificer"; break;
          case "item439": // Xenda-Dran’s Array
             type = "Assassin";
-            entry.meta[ LEVEL ] = "Heroic";
+            meta( LEVEL, "Heroic" );
             break;
          case "item406": // Radiant Temple Treasures
             type = "Avenger"; break;
@@ -286,25 +286,24 @@ public class ItemConverter extends LeveledConverter {
          default:
             log.log( Level.WARNING, "Unknown item set: {0} {1}", new Object[]{ entry.shortid, entry.name} );
       }
-      entry.meta[ TYPE ] = type;
+      meta( TYPE, type );
    }
 
    private void setWondrousType ( Entry entry ) {
       String data = entry.data;
-      Object[] meta = entry.meta;
       if ( entry.name.contains( "Tattoo" ) )
-         meta[ TYPE ] = "Tattoo";
+         meta( TYPE, "Tattoo" );
       else if ( data.contains( "primordial shard" ) )
-         meta[ TYPE ] = "Primordial Shard";
+         meta( TYPE, "Primordial Shard" );
       else if ( data.contains( "Conjuration" ) && data.contains( "figurine" ) )
-         meta[ TYPE ] = "Figurine";
+         meta( TYPE, "Figurine" );
       else if ( data.contains( "standard" ) && data.contains( "plant th" ) )
-         meta[ TYPE ] = "Standard";
+         meta( TYPE, "Standard" );
       if ( data.contains( "Conjuration" ) && data.contains( "mount" ) && ! entry.name.startsWith( "Bag " ) )
-         if ( meta[1].toString().isEmpty() )
-            meta[ TYPE ] = "Mount";
+         if ( meta( 1 ).isEmpty() )
+            meta( TYPE, "Mount" );
          else
-            meta[ TYPE ] = meta[ TYPE ] + ": Mount";
+            meta( TYPE, meta( TYPE ) + ": Mount" );
    }
 
    private final List<Object> multi_cost = new ArrayList<>();
@@ -315,9 +314,9 @@ public class ItemConverter extends LeveledConverter {
     * @param entry
     */
    private void setCost ( Entry entry ) {
-      if ( ! entry.meta[ LEVEL ].toString().endsWith( "+" ) ) {
+      if ( ! meta( LEVEL ).endsWith( "+" ) ) {
          if ( ! debug ) return;
-         if ( TYPE > 0 && entry.meta[ TYPE-1 ].equals( "Item Set" ) ) return;
+         if ( TYPE > 0 && meta( TYPE-1 ).equals( "Item Set" ) ) return;
          if ( regxPriceTable.reset( entry.data ).find() && regxPriceTable.find() )
             log.log( Level.WARNING, "Price table on non-multilevel item: {0} {1}", new Object[]{ entry.shortid, entry.name} );
          return;
@@ -328,19 +327,19 @@ public class ItemConverter extends LeveledConverter {
       }
       multi_cost.clear();
       multi_level.clear();
-      multi_cost.add( entry.meta[ COST ] );
-      multi_level.add( entry.meta[ LEVEL ] );
+      multi_cost.add( meta( COST ) );
+      multi_level.add( meta( LEVEL ) );
       do {
          multi_cost.add( regxPriceTable.group( 2 ).replaceAll( "\\D", "" ) );
          multi_level.add( regxPriceTable.group( 1 ) );
       } while ( regxPriceTable.find() );
       entry.meta[ COST  ] = multi_cost.toArray();
-      entry.meta[ LEVEL ] = multi_level.toArray();
+      meta( LEVEL, multi_level.toArray() );
    }
 
    @Override protected void correctEntry () {
       if ( ! regxPublished.reset( entry.data ).find() ) {
-         entry.data += "<p class=publishedIn>Published in " + entry.meta[ 4 ]  + ".</p>";
+         entry.data += "<p class=publishedIn>Published in " + meta( 4 )  + ".</p>";
          fix( "missing published" );
       }
 
@@ -352,17 +351,17 @@ public class ItemConverter extends LeveledConverter {
       String data = entry.data;
       switch ( entry.shortid ) {
          case "item1": // Cloth Armor
-            entry.meta[ COST ] = "1 gp";
+            meta( COST, "1 gp" );
             fix( "meta" );
             break;
 
          case "item105": // Shield of Prator
-            entry.data = data.replace( " class=magicitem>", " class=mihead>" );
+            swap( " class=magicitem>", " class=mihead>" );
             fix( "formatting" );
             break;
 
          case "item434": // Rings of the Akarot
-            entry.data = data.replaceFirst( "<br><br>",
+            swapFirst( "<br><br>",
                          "<br><br><h1 class=dailypower><span class=level>Item Set Power</span>Voice of the Akarot</h1>"
                        + "<p class=flavor><i>Channeling the power of your allies' will, you command your enemy to stop attacking, though each ally is momentarily disoriented.</i></p>"
                        + "<p class=powerstat><b>Daily (Special)</b> ✦     <b>Charm</b><br>"
@@ -379,124 +378,124 @@ public class ItemConverter extends LeveledConverter {
             break;
 
          case "item439": // Xenda-Dran's Array
-            entry.data = data.replace( "> Tier</", "> Heroic Tier</" );
+            swap( "> Tier</", "> Heroic Tier</" );
             fix( "consistency" );
             break;
 
          case "item467": // Alchemical Failsafe
-            entry.data = data.replace( "Power ✦ </h2>", "Power ✦ At-Will</h2>" );
+            swap( "Power ✦ </h2>", "Power ✦ At-Will</h2>" );
             fix( "missing power frequency" );
             break;
 
          case "item508": // Anarch Sphere
          case "item1578": // Horreb Ritual Cube
          case "item2463": // Shard of Evil
-            entry.data = entry.data.replace( "0 gp", "Priceless" );
-            entry.meta[ COST ] = "";
+            swap( "0 gp", "Priceless" );
+            meta( COST, "" );
             fix( "consistency" );
             break;
 
          case "item509":  // Anarusi Codex
-            entry.data = entry.data.replace( "0 gp", "5,000 gp" );
-            entry.meta[ COST ] = "5,000 gp";
+            swap( "0 gp", "5,000 gp" );
+            meta( COST, "5,000 gp" );
             fix( "missing content" );
             break;
 
          case "item588":  // Bahamut's Golden Canary
-            entry.data = entry.data.replace( "0 gp", "Priceless" );
-            entry.meta[ COST ] = "";
+            swap( "0 gp", "Priceless" );
+            meta( COST, "" );
             fix( "consistency" );
             // fall through
          case "item1632": // Instant Portal
-            entry.meta[0] = "Consumable";
+            meta( CATEGORY, "Consumable" );
             fix( "recategorise" );
             break;
 
          case "item1007": // Dantrag's Bracers, first (arm) power is daily, second (feet) power is encounter
-            entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ Daily</h2>" );
-            entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ Encounter</h2>" );
+            swapFirst( "Power ✦ </h2>", "Power ✦ Daily</h2>" );
+            swapFirst( "Power ✦ </h2>", "Power ✦ Encounter</h2>" );
             fix( "missing power frequency" );
             break;
 
          case "item1006": // Dancing Weapon
          case "item1261": // Feral Armor
          case "item2451": // Shadowfell Blade
-            entry.data = data.replace( "basic melee attack", "melee basic attack" );
+            swap( "basic melee attack", "melee basic attack" );
             fix( "fix basic attack" );
             break;
 
          case "item1701": // Kord's Relentlessness
-            entry.data = data.replace( " or 30:</i> Gain a +2 item bonus to death</p>",
+            swap( " or 30:</i> Gain a +2 item bonus to death</p>",
                   " or 20</i>: +4 item bonus to the damage roll<br>    <i>Level 25 or 30:</i> +6 item bonus to the damage roll</p>" );
             fix( "missing content" );
             break;
 
          case "item1864": // Mirror of Deception
-            entry.data = entry.data.replace( " ✦ (Standard", " ✦ At-Will (Standard" );
-            entry.data = entry.data.replace( "alter</p><p class='mistat indent'>sound", "alter sound" );
+            swap( " ✦ (Standard", " ✦ At-Will (Standard" );
+            swap( "alter</p><p class='mistat indent'>sound", "alter sound" );
             fix( "missing power frequency" );
             fix( "formatting" );
             break;
 
          case "item1895": // Mrtok, Ogre Chief (Gauntlets of Ogre Power)
-            entry.data = entry.data.replace( " 0 gp", " 1,000 gp" );
-            entry.meta[ COST ] = "1,000 gp";
+            swap( " 0 gp", " 1,000 gp" );
+            meta( COST, "1,000 gp" );
             fix( "consistency" );
             break;
 
          case "item2002": // Orium Implement
-            entry.data = entry.data.replace( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand" );
-            entry.data = entry.data.replace( "<p class='mistat indent'><b>Requirement:</b> Orb, Rod, Staff, Wand</p>", "" );
+            swap( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand" );
+            swap( "<p class='mistat indent'><b>Requirement:</b> Orb, Rod, Staff, Wand</p>", "" );
             fix( "missing content" );
             break;
 
          case "item2495": // Shivli, White Wyrmling (Frost Weapon)
-            entry.data = entry.data.replace( ">+2<td class=mic3>0 gp<", ">+2<td class=mic3>3,400 gp<" );
-            entry.data = entry.data.replace( ">+3<td class=mic3>0 gp<", ">+3<td class=mic3>17,000 gp<" );
-            entry.data = entry.data.replace( ">+4<td class=mic3>0 gp<", ">+4<td class=mic3>85,000 gp<" );
-            entry.data = entry.data.replace( ">+5<td class=mic3>0 gp<", ">+5<td class=mic3>425,000 gp<" );
-            entry.data = entry.data.replace( ">+6<td class=mic3>0 gp<", ">+6<td class=mic3>2,125,000 gp<" );
-            entry.meta[ COST ] = "3,400+ gp";
+            swap( ">+2<td class=mic3>0 gp<", ">+2<td class=mic3>3,400 gp<" );
+            swap( ">+3<td class=mic3>0 gp<", ">+3<td class=mic3>17,000 gp<" );
+            swap( ">+4<td class=mic3>0 gp<", ">+4<td class=mic3>85,000 gp<" );
+            swap( ">+5<td class=mic3>0 gp<", ">+5<td class=mic3>425,000 gp<" );
+            swap( ">+6<td class=mic3>0 gp<", ">+6<td class=mic3>2,125,000 gp<" );
+            meta( COST, "3,400+ gp" );
             fix( "consistency" );
             break;
 
          case "item2511": // Silver Hands of Power
-            entry.data = entry.data.replace( "<h2 class=mihead>Power", "<h2 class=mihead>Lvl 14<br>Power" );
-            entry.data = entry.data.replace( "<p class='mistat indent1'><i>Level 19:</i> ", "<h2 class=mihead>Lvl 19<br>Power ✦ Daily (Free Action)</h2>" );
-            entry.data = entry.data.replace( "Trigger: You", "<p class='mistat indent1'><i>Trigger:</i> You" );
-            entry.data = entry.data.replace( ". Effect: ", "</p><p class='mistat indent1'><i>Effect:</i> " );
+            swap( "<h2 class=mihead>Power", "<h2 class=mihead>Lvl 14<br>Power" );
+            swap( "<p class='mistat indent1'><i>Level 19:</i> ", "<h2 class=mihead>Lvl 19<br>Power ✦ Daily (Free Action)</h2>" );
+            swap( "Trigger: You", "<p class='mistat indent1'><i>Trigger:</i> You" );
+            swap( ". Effect: ", "</p><p class='mistat indent1'><i>Effect:</i> " );
             fix( "formatting" );
             break;
 
          case "item2971": // Vecna's Boon of Diabolical Choice
-            entry.data = entry.data.replace( "Level 0 Uncommon", "Level 24 Uncommon" );
-            entry.meta[ LEVEL ] = "24";
+            swap( "Level 0 Uncommon", "Level 24 Uncommon" );
+            meta( LEVEL, "24" );
             fix( "missing content" );
             // fall through
          case "item1806": // Mark of the Star
          case "item2469": // Shelter of Fate
          case "item2533": // Slaying Stone of Kiris Dahn
          case "item2995": // Vision of the Vizier
-            entry.data = entry.data.replaceFirst( " +0 gp", "" );
-            entry.meta[ COST ] = "";
+            swapFirst( " +0 gp", "" );
+            meta( COST, "" );
             fix( "consistency" );
             break;
 
          case "item3328": // Scepter of the Chosen Tyrant
-            entry.data = data.replace( "basic ranged attack", "ranged basic attack" );
+            swap( "basic ranged attack", "ranged basic attack" );
             fix( "fix basic attack" );
             break;
 
          case "item3331": // Sun's Sliver
-            entry.data = entry.data.replace( ">Level <", ">Epic Tier<" );
-            entry.data = entry.data.replace( "<b>Wondrous Item</b>", "<b>Minor Artifact:</b> Wondrous Item" );
-            entry.meta[ TYPE ] = "Artifact";
-            entry.meta[ COST ] = "";
+            swap( ">Level <", ">Epic Tier<" );
+            swap( "<b>Wondrous Item</b>", "<b>Minor Artifact:</b> Wondrous Item" );
+            meta( TYPE, "Artifact" );
+            meta( COST, "" );
             fix( "missing content" );
             break;
 
          case "item3415": // The Fifth Sword of Tyr
-            entry.data = data.replace( "Power (Teleportation) ✦ Daily", "Power (Weapon) ✦ Daily" );
+            swap( "Power (Teleportation) ✦ Daily", "Power (Weapon) ✦ Daily" );
             fix( "typo" );
             break;
 
@@ -515,8 +514,6 @@ public class ItemConverter extends LeveledConverter {
          data = data.replaceFirst( "<h1 class=mihead>.*(?=<p class=publishedIn>)", "" );
       return super.textData( data );
    }
-
-
 
    @Override protected String[] getLookupName ( Entry entry ) {
       switch ( category.id ) {

@@ -363,7 +363,8 @@ public abstract class Convert {
       final List<Entry> entries = category.entries;
       for ( Entry entry : entries ) {
          if ( entry.fulltext == null ) try {
-            convertEntry( entry );
+            this.entry = entry;
+            convertEntry();
             if ( ! corrections.isEmpty() ) {
                if ( entry.shortid.equals( "weapon147" ) ) // Duplicate of Arrow of Fate
                   corrections.clear();
@@ -411,8 +412,7 @@ public abstract class Convert {
     *
     * @param entry Entry to be converted
     */
-   protected void convertEntry ( Entry entry ) {
-      this.entry = entry;
+   protected void convertEntry () {
       entry.display_name = entry.name.replace( "’", "'" );
       entry.shortid = entry.id.replace( ".aspx?id=", "" ).toLowerCase();
       if ( entry.meta == null ) {

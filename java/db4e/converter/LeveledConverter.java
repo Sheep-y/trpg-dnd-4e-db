@@ -104,13 +104,13 @@ class LeveledConverter extends Converter {
       switch ( category.id ) {
       case  "Poison":
          if ( entry.data.contains( "<p>Published in" ) ) {
-            entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
+            swap( "<p>Published in", "<p class=publishedIn>Published in" );
             fix( "formatting" );
          }
 
          switch ( entry.shortid ) {
          case "poison19": // Granny's Grief
-            entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
+            swap( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
             fix( "missing published" );
             break;
          case "item3561": // Aboleth Slime Concentrate
@@ -119,16 +119,17 @@ class LeveledConverter extends Converter {
          case "item3564": // Umber Dust
          case "item3565": // Heart of Mimic Powder
          case "item3566": // Mind Flayer Tentacle Extract
-            entry.data = entry.data.replace( " (Consumable)", "" ).replace( "(Consumable, ", "(" );
-            entry.data = entry.data.replace( " ✦ (", " ✦ Consumable (" );
+            swap( " (Consumable)", "" );
+            swap( "(Consumable, ", "(" );
+            swap( " ✦ (", " ✦ Consumable (" );
             fix( "missing power frequency" );
          }
 
          // Convert from item to poison
          if ( entry.meta.length == 5 ) {
-            entry.meta = new Object[]{ entry.meta[1], "", entry.meta[4] };
+            meta( meta( 1 ), "", meta( 4 ) );
             entry.shortid = entry.shortid.replace( "item", "poison0" );
-            entry.data = entry.data.replace( "<h1 class=mihead>", "<h1 class=poison>" );
+            swap( "<h1 class=mihead>", "<h1 class=poison>" );
             fix( "recategorise" );
          }
          break;
@@ -137,19 +138,19 @@ class LeveledConverter extends Converter {
          switch ( entry.shortid ) {
 
          case "monster2248": // Cambion Stalwart
-            entry.data = entry.data.replace( "bit points", "hit points" );
+            swap( "bit points", "hit points" );
             fix( "typo" );
             break;
 
          case "monster3222": // Veln
          case "monster3931": // Demon Furor
-            entry.data = entry.data.replace( "basic melee or basic ranged attack", "melee or ranged basic attack" );
+            swap( "basic melee or basic ranged attack", "melee or ranged basic attack" );
             fix( "fix basic attack" );
             break;
 
          default:
             if ( entry.data.contains( "basic melee attack") ) {
-               entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
+               swap( "basic melee attack", "melee basic attack" );
                fix( "fix basic attack" );
             }
          }
@@ -157,7 +158,7 @@ class LeveledConverter extends Converter {
          switch ( entry.shortid ) {
 
          case "ritual288": // Primal Grove
-            entry.data = entry.data.replace( " grp to ", " gp to " );
+            swap( " grp to ", " gp to " );
             fix( "typo" );
             break;
          }
