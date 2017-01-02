@@ -30,10 +30,11 @@ public abstract class Convert {
    public static AtomicBoolean stop = new AtomicBoolean();
    private static final Map<String, AtomicInteger> fixCount = new HashMap<>();
    private static final Set<String> fixedEntry = new HashSet<>();
-   private static final Map<String, List<String>> nameList = new HashMap<>();
 
    protected final Category category;
    protected final Set<String> corrections = new HashSet<>();
+
+   protected Entry entry; // Current convert subject
 
    public static void reset () {
       synchronized ( fixCount ) {
@@ -411,6 +412,7 @@ public abstract class Convert {
     * @param entry Entry to be converted
     */
    protected void convertEntry ( Entry entry ) {
+      this.entry = entry;
       entry.display_name = entry.name.replace( "’", "'" );
       entry.shortid = entry.id.replace( ".aspx?id=", "" ).toLowerCase();
       if ( entry.meta == null ) {
@@ -419,8 +421,8 @@ public abstract class Convert {
          System.arraycopy( entry.fields, 0, entry.meta, 0, length );
       }
       entry.data = normaliseData( entry.content );
-      correctEntry( entry );
-      parseSourceBook( entry );
+      correctEntry();
+      parseSourceBook();
       entry.fulltext = textData( entry.data );
       // Converter will do some checking if debug is on.
    }
@@ -443,7 +445,7 @@ public abstract class Convert {
     * Entry specific data fixes. No need to call super when overriden.
     * @param entry Entry to be corrected.
     */
-   protected abstract void correctEntry ( Entry entry );
+   protected abstract void correctEntry ();
 
    /**
     * Remove / convert images, unicode, and redundent whitespace
@@ -456,7 +458,7 @@ public abstract class Convert {
     * Read the sourcebook meta data and convert to abbreviated form.
     * @param entry
     */
-   protected abstract void parseSourceBook ( Entry entry );
+   protected abstract void parseSourceBook ();
 
    /**
     * Convert HTML data into full text data for full text search.

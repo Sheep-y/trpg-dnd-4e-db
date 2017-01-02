@@ -20,7 +20,7 @@ public class Converter extends Convert {
       this.debug = debug;
    }
 
-   @Override protected void correctEntry ( Entry entry ) {
+   @Override protected void correctEntry () {
    }
 
    private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
@@ -138,7 +138,7 @@ public class Converter extends Convert {
    protected final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]+)</p>" ).matcher( "" );
    private final Matcher regxBook = Pattern.compile( "([A-Z][^,.]*)(?:, page[^,.]+|\\.)" ).matcher( "" );
 
-   @Override protected void parseSourceBook ( Entry entry ) {
+   @Override protected void parseSourceBook () {
       if ( regxPublished.reset( entry.data ).find() ) {
 
          String published = regxPublished.group( 1 );
@@ -286,6 +286,10 @@ public class Converter extends Convert {
       data = data.replace( "&gt;", ">" ); // glossary.433/"Weapons and Size"
 
       return data.trim();
+   }
+
+   protected void fix ( String correction ) {
+      corrections.add( correction );
    }
 
    protected String shortenAbility ( String data ) {

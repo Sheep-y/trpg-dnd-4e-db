@@ -42,33 +42,33 @@ public class ClassConverter extends Converter {
       }
    }
 
-   @Override protected void correctEntry( Entry entry ) {
+   @Override protected void correctEntry() {
       switch ( entry.shortid ) {
          case "class811": // Assassin (Executioner)
          case "class891": // Hybrid Assassin (Executioner)
             entry.meta[1] = "Martial and Shadow";
-            corrections.add( "meta" );
+            fix( "meta" );
             break;
          case "class788": // Ranger (Hunter)
          case "class790": // Ranger (Scout)
          case "class906": // Barbarian (Berserker)
             entry.meta[1] = "Martial and Primal";
-            corrections.add( "meta" );
+            fix( "meta" );
             break;
          case "class907": // Bard (Skald)
             entry.meta[1] = "Arcane and Martial";
-            corrections.add( "meta" );
+            fix( "meta" );
             break;
          case "class893": // Hybrid Vampire
             entry.data = entry.data.replace( "per Day</b>: 2<", "per Day</b>: As a hybrid vampire, you gain two healing surges regardless of the class that you have combined with vampire to create your character.<" );
-            corrections.add( "missing content" );
+            fix( "missing content" );
             // Fall-through
          case "class892": // Hybrid Blackguard
          case "class894": // Hybrid Sentinel
          case "class895": // Hybrid Cavalier
          case "class896": // Hybrid Binder
             entry.data = entry.data.replace( "Dragon Magazine 402", "Dragon Magazine 400" );
-            corrections.add( "typo" );
+            fix( "typo" );
             break;
       }
    }

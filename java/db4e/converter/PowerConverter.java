@@ -84,32 +84,32 @@ public class PowerConverter extends LeveledConverter {
       return super.sortEntity( a, b );
    }
 
-   @Override protected void correctEntry( Entry entry ) {
+   @Override protected void correctEntry () {
       if ( entry.display_name.endsWith( " [Attack Technique]" ) ) {
          entry.display_name = entry.display_name.substring( 0, entry.display_name.length() - 19 );
-         corrections.add( "meta" );
+         fix( "meta" );
       }
 
       switch ( entry.shortid ) {
          case "power4713": // Lurk Unseen
             entry.data = entry.data.replace( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<" );
-            corrections.add( "missing content" );
+            fix( "missing content" );
             break;
 
          case "power6595": // Bane's Tactics
             entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
-            corrections.add( "fix basic attack" );
+            fix( "fix basic attack" );
             break;
 
          case "power9331": // Spot the Path
             entry.data = entry.data.replace( ": :", ":" );
-            corrections.add( "typo" );
+            fix( "typo" );
             break;
 
          case "power15829": // Hamadryad Aspects
             entry.data = entry.data.replace( "</p><p class=powerstat>  <b>✦", "<br>  ✦" );
             entry.data = entry.data.replace( "</p><p class=flavor>  <b>✦", "<br>  ✦" );
-            corrections.add( "formatting" );
+            fix( "formatting" );
             break;
       }
 
@@ -118,7 +118,7 @@ public class PowerConverter extends LeveledConverter {
             entry.data = entry.data.replace( "Racial Power", "Racial Attack" );
          else
             entry.data = entry.data.replace( "Racial Power", "Racial Utility" );
-         corrections.add( "consistency" );
+         fix( "consistency" );
       }
    }
 }

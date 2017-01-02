@@ -100,7 +100,7 @@ public class ItemConverter extends LeveledConverter {
          if ( entry.meta[ TYPE ].toString().split( ", " ).length >= 5 ) {
             entry.data = regxType.replaceFirst( "<b>$1</b>: Any" );
             entry.meta[ TYPE ] = "Any";
-            corrections.add( "consistency" );
+            fix( "consistency" );
          }
          int minEnhancement = entry.data.indexOf( "<b>Minimum Enhancement Value</b>: " );
          if ( minEnhancement > 0 ) {
@@ -119,11 +119,11 @@ public class ItemConverter extends LeveledConverter {
 
       if ( entry.meta[ COST ].toString().contains( ".00 gp" ) ) {
          entry.meta[ COST ] = entry.meta[ COST ].toString().replace( ".00 ", " " );
-         corrections.add( "meta" );
+         fix( "meta" );
       }
       if ( entry.meta[ LEVEL ].toString().isEmpty() ) {
          entry.meta[ LEVEL ] = "Mundane";
-         corrections.add( "meta" );
+         fix( "meta" );
       }
    }
 
@@ -139,14 +139,14 @@ public class ItemConverter extends LeveledConverter {
          entry.meta[ TYPE ] = Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) );
          if ( entry.meta[ TYPE ].equals( "Symbol" ) ) entry.meta[0] = "Holy Symbol";
          entry.meta[ LEVEL ] = "Superior";
-         corrections.add( "recategorise" );
+         fix( "recategorise" );
 
       } else if ( entry.meta[ TYPE ].equals( "Equipment" ) ) {
          entry.meta[ TYPE ] = entry.name.replaceFirst( " Implement$", "" );
          entry.meta[ LEVEL ] = "Mundane";
          if ( entry.meta[ COST ].toString().isEmpty() ) { // Ki Focus
             entry.meta[ COST ] = "0 gp";
-            corrections.add( "meta" );
+            fix( "meta" );
          }
 
       } else
@@ -338,27 +338,27 @@ public class ItemConverter extends LeveledConverter {
       entry.meta[ LEVEL ] = multi_level.toArray();
    }
 
-   @Override protected void correctEntry ( Entry entry ) {
+   @Override protected void correctEntry () {
       if ( ! regxPublished.reset( entry.data ).find() ) {
          entry.data += "<p class=publishedIn>Published in " + entry.meta[ 4 ]  + ".</p>";
-         corrections.add( "missing published" );
+         fix( "missing published" );
       }
 
       if ( entry.data.contains( ", which is reproduced below." ) ) {
          entry.data = regxWhichIsReproduced.reset( entry.data ).replaceFirst( "" );
-         corrections.add( "consistency" );
+         fix( "consistency" );
       }
 
       String data = entry.data;
       switch ( entry.shortid ) {
          case "item1": // Cloth Armor
             entry.meta[ COST ] = "1 gp";
-            corrections.add( "meta" );
+            fix( "meta" );
             break;
 
          case "item105": // Shield of Prator
             entry.data = data.replace( " class=magicitem>", " class=mihead>" );
-            corrections.add( "formatting" );
+            fix( "formatting" );
             break;
 
          case "item434": // Rings of the Akarot
@@ -375,17 +375,17 @@ public class ItemConverter extends LeveledConverter {
                        + "the group does not regain the use of the power until the person who used it takes an extended rest.</p>"
                        + "<br>Update (4/12/2010)<br> In the Keywords entry, add \"(Special)\" after \"Daily.\" In addition, add the Special entry to the power. "
                        + "These changes limit the potential for this power to shut down multiple encounters.<br><br>" );
-            corrections.add( "missing content" );
+            fix( "missing content" );
             break;
 
          case "item439": // Xenda-Dran's Array
             entry.data = data.replace( "> Tier</", "> Heroic Tier</" );
-            corrections.add( "consistency" );
+            fix( "consistency" );
             break;
 
          case "item467": // Alchemical Failsafe
             entry.data = data.replace( "Power ✦ </h2>", "Power ✦ At-Will</h2>" );
-            corrections.add( "missing power frequency" );
+            fix( "missing power frequency" );
             break;
 
          case "item508": // Anarch Sphere
@@ -393,61 +393,61 @@ public class ItemConverter extends LeveledConverter {
          case "item2463": // Shard of Evil
             entry.data = entry.data.replace( "0 gp", "Priceless" );
             entry.meta[ COST ] = "";
-            corrections.add( "consistency" );
+            fix( "consistency" );
             break;
 
          case "item509":  // Anarusi Codex
             entry.data = entry.data.replace( "0 gp", "5,000 gp" );
             entry.meta[ COST ] = "5,000 gp";
-            corrections.add( "missing content" );
+            fix( "missing content" );
             break;
 
          case "item588":  // Bahamut's Golden Canary
             entry.data = entry.data.replace( "0 gp", "Priceless" );
             entry.meta[ COST ] = "";
-            corrections.add( "consistency" );
+            fix( "consistency" );
             // fall through
          case "item1632": // Instant Portal
             entry.meta[0] = "Consumable";
-            corrections.add( "recategorise" );
+            fix( "recategorise" );
             break;
 
          case "item1007": // Dantrag's Bracers, first (arm) power is daily, second (feet) power is encounter
             entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ Daily</h2>" );
             entry.data = entry.data.replaceFirst( "Power ✦ </h2>", "Power ✦ Encounter</h2>" );
-            corrections.add( "missing power frequency" );
+            fix( "missing power frequency" );
             break;
 
          case "item1006": // Dancing Weapon
          case "item1261": // Feral Armor
          case "item2451": // Shadowfell Blade
             entry.data = data.replace( "basic melee attack", "melee basic attack" );
-            corrections.add( "fix basic attack" );
+            fix( "fix basic attack" );
             break;
 
          case "item1701": // Kord's Relentlessness
             entry.data = data.replace( " or 30:</i> Gain a +2 item bonus to death</p>",
                   " or 20</i>: +4 item bonus to the damage roll<br>    <i>Level 25 or 30:</i> +6 item bonus to the damage roll</p>" );
-            corrections.add( "missing content" );
+            fix( "missing content" );
             break;
 
          case "item1864": // Mirror of Deception
             entry.data = entry.data.replace( " ✦ (Standard", " ✦ At-Will (Standard" );
             entry.data = entry.data.replace( "alter</p><p class='mistat indent'>sound", "alter sound" );
-            corrections.add( "missing power frequency" );
-            corrections.add( "formatting" );
+            fix( "missing power frequency" );
+            fix( "formatting" );
             break;
 
          case "item1895": // Mrtok, Ogre Chief (Gauntlets of Ogre Power)
             entry.data = entry.data.replace( " 0 gp", " 1,000 gp" );
             entry.meta[ COST ] = "1,000 gp";
-            corrections.add( "consistency" );
+            fix( "consistency" );
             break;
 
          case "item2002": // Orium Implement
             entry.data = entry.data.replace( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand" );
             entry.data = entry.data.replace( "<p class='mistat indent'><b>Requirement:</b> Orb, Rod, Staff, Wand</p>", "" );
-            corrections.add( "missing content" );
+            fix( "missing content" );
             break;
 
          case "item2495": // Shivli, White Wyrmling (Frost Weapon)
@@ -457,7 +457,7 @@ public class ItemConverter extends LeveledConverter {
             entry.data = entry.data.replace( ">+5<td class=mic3>0 gp<", ">+5<td class=mic3>425,000 gp<" );
             entry.data = entry.data.replace( ">+6<td class=mic3>0 gp<", ">+6<td class=mic3>2,125,000 gp<" );
             entry.meta[ COST ] = "3,400+ gp";
-            corrections.add( "consistency" );
+            fix( "consistency" );
             break;
 
          case "item2511": // Silver Hands of Power
@@ -465,13 +465,13 @@ public class ItemConverter extends LeveledConverter {
             entry.data = entry.data.replace( "<p class='mistat indent1'><i>Level 19:</i> ", "<h2 class=mihead>Lvl 19<br>Power ✦ Daily (Free Action)</h2>" );
             entry.data = entry.data.replace( "Trigger: You", "<p class='mistat indent1'><i>Trigger:</i> You" );
             entry.data = entry.data.replace( ". Effect: ", "</p><p class='mistat indent1'><i>Effect:</i> " );
-            corrections.add( "formatting" );
+            fix( "formatting" );
             break;
 
          case "item2971": // Vecna's Boon of Diabolical Choice
             entry.data = entry.data.replace( "Level 0 Uncommon", "Level 24 Uncommon" );
             entry.meta[ LEVEL ] = "24";
-            corrections.add( "missing content" );
+            fix( "missing content" );
             // fall through
          case "item1806": // Mark of the Star
          case "item2469": // Shelter of Fate
@@ -479,12 +479,12 @@ public class ItemConverter extends LeveledConverter {
          case "item2995": // Vision of the Vizier
             entry.data = entry.data.replaceFirst( " +0 gp", "" );
             entry.meta[ COST ] = "";
-            corrections.add( "consistency" );
+            fix( "consistency" );
             break;
 
          case "item3328": // Scepter of the Chosen Tyrant
             entry.data = data.replace( "basic ranged attack", "ranged basic attack" );
-            corrections.add( "fix basic attack" );
+            fix( "fix basic attack" );
             break;
 
          case "item3331": // Sun's Sliver
@@ -492,12 +492,12 @@ public class ItemConverter extends LeveledConverter {
             entry.data = entry.data.replace( "<b>Wondrous Item</b>", "<b>Minor Artifact:</b> Wondrous Item" );
             entry.meta[ TYPE ] = "Artifact";
             entry.meta[ COST ] = "";
-            corrections.add( "missing content" );
+            fix( "missing content" );
             break;
 
          case "item3415": // The Fifth Sword of Tyr
             entry.data = data.replace( "Power (Teleportation) ✦ Daily", "Power (Weapon) ✦ Daily" );
-            corrections.add( "typo" );
+            fix( "typo" );
             break;
 
          default:
@@ -505,7 +505,7 @@ public class ItemConverter extends LeveledConverter {
             // I checked each one and the exceptions are above.
             if ( regxPowerFrequency.reset( data ).find() ) {
                entry.data = regxPowerFrequency.replaceAll( "✦ At-Will (" );
-               corrections.add( "missing power frequency" );
+               fix( "missing power frequency" );
             }
       }
    }

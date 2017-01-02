@@ -9,12 +9,12 @@ public class TrapConverter extends LeveledConverter {
       super( category, debug );
    }
 
-   @Override protected void correctEntry (Entry entry) {
+   @Override protected void correctEntry () {
       if ( entry.meta.length == 4 ) { // Trap
          if ( entry.shortid.equals( "trap1019" ) ) { // Rubble Topple
             entry.data = entry.data.replace( "Singe-Use", "Single-Use" );
             entry.meta[ 0 ] = "Single-Use Terrain";
-            corrections.add( "typo" );
+            fix( "typo" );
          }
 
          String type = entry.meta[ 0 ].toString();
@@ -24,18 +24,17 @@ public class TrapConverter extends LeveledConverter {
             String[] roles = type.split( " ", 2 );
             entry.meta[ 1 ] = roles[ 0 ];
             entry.meta[ 0 ] = roles[ 1 ];
-            corrections.add( "meta" );
+            fix( "meta" );
 
          } else if ( level.endsWith( "Minion" ) ) {
             // 7 traps in Dungeon 214-215 has level like "8 Minion" and no group role.
             entry.meta[ 1 ] = "Minion";
             entry.meta[ LEVEL ] = level.substring( 0, level.length() - " Minion".length() );
-            corrections.add( "meta" );
+            fix( "meta" );
          }
       } else {
          // Terrain; change meta to fit into Trap
          entry.meta = new Object[]{ "Terrain", entry.fields[ 0 ], "", entry.fields[ 1 ] };
-         // corrections.add( "recatogrise" ); // Not exactly a fix; doesn't count
       }
    }
 

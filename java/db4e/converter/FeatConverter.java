@@ -33,7 +33,7 @@ public class FeatConverter extends Converter {
          String text = regxPrerequisite.group( 1 ).trim();
          if ( text.contains( "-level" ) ) {
             text = text.replace( "-level", " level" );
-            corrections.add( "consistency" );
+            fix( "consistency" );
          }
          if ( regxLevel.reset( text ).find() ) {
             int level = Integer.parseInt( regxLevel.group( 1 ) );
@@ -47,7 +47,7 @@ public class FeatConverter extends Converter {
                text = regxLevel.reset( text ).replaceFirst( "" );
             if ( ( ! entry.fields[0].isEmpty() && ! entry.fields[0].equals( entry.meta[ TIER ] ) ) ||
                  (   entry.fields[0].isEmpty() && ! entry.meta[ TIER ].equals( "Heroic" ) ) )
-               corrections.add( "meta" );
+               fix( "meta" );
          } else if ( text.contains( "level" ) && ! text.contains( "has a level" ) )
             log.log( Level.WARNING, "Feat with unparsed level: {0} {1}", new Object[]{ entry.shortid, entry.name } );
 
@@ -76,21 +76,21 @@ public class FeatConverter extends Converter {
       return super.sortEntity( a, b );
    }
 
-   @Override protected void correctEntry ( Entry entry ) {
+   @Override protected void correctEntry () {
       switch ( entry.shortid ) {
          case "feat1111": // Bane's Tactics
             entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
-            corrections.add( "fix basic attack" );
+            fix( "fix basic attack" );
             break;
 
          case "feat2254": // Traveler's Celerity
             entry.data = entry.data.replace( "11th-level, ", "11th level, " );
-            corrections.add( "consistency" );
+            fix( "consistency" );
             break;
 
          case "feat3667": // Powerful Lure
             entry.data = entry.data.replace( "Level 11, ", "11th level, " );
-            corrections.add( "consistency" );
+            fix( "consistency" );
             break;
       }
    }
