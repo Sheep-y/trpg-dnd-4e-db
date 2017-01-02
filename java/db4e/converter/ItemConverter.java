@@ -4,7 +4,6 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.Utils;
@@ -114,7 +113,7 @@ public class ItemConverter extends LeveledConverter {
                meta( TYPE, "Barding" );
                break;
             default:
-               log.log( Level.WARNING, "Armor type not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+               warn( "Armor type not found" );
          }
 
       if ( meta( COST ).contains( ".00 gp" ) ) {
@@ -150,7 +149,7 @@ public class ItemConverter extends LeveledConverter {
          }
 
       } else
-         log.log( Level.WARNING, "Implement group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+         warn( "Implement group not found" );
    }
 
    private final Matcher regxWeaponDifficulty = Pattern.compile( "\\bSimple|Military|Superior\\b" ).matcher( "" );
@@ -167,7 +166,7 @@ public class ItemConverter extends LeveledConverter {
          String region = data.substring( groupPos );
          List<String> grp = Utils.matchAll( regxWeaponGroup, region, 1 );
          if ( grp.isEmpty() )
-            log.log( Level.WARNING, "Weapon group not found: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+            warn( "Weapon group not found" );
          else
             meta( TYPE, String.join( ", ", grp ) );
          if ( ! meta( 2 ).isEmpty() || entry.name.endsWith( "secondary end" ) || entry.name.equals( "Shuriken" ) ) {
@@ -201,7 +200,7 @@ public class ItemConverter extends LeveledConverter {
             meta( LEVEL, "Mundane" );
             break;
          default:
-            log.log( Level.WARNING, "Unknown weapon type: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+            warn( "Unknown weapon type" );
       }
    }
 
@@ -284,7 +283,7 @@ public class ItemConverter extends LeveledConverter {
          case "item423": // Regalia of the Golden General
             type = "Warlord"; break;
          default:
-            log.log( Level.WARNING, "Unknown item set: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+            warn( "Unknown item set" );
       }
       meta( TYPE, type );
    }
@@ -318,11 +317,11 @@ public class ItemConverter extends LeveledConverter {
          if ( ! debug ) return;
          if ( TYPE > 0 && meta( TYPE-1 ).equals( "Item Set" ) ) return;
          if ( regxPriceTable.reset( entry.data ).find() && regxPriceTable.find() )
-            log.log( Level.WARNING, "Price table on non-multilevel item: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+            warn( "Price table on non-multilevel item" );
          return;
       }
       if ( ! regxPriceTable.reset( entry.data ).find() ) {
-         log.log( Level.WARNING, "Price table not found on multilevel item: {0} {1}", new Object[]{ entry.shortid, entry.name} );
+         warn( "Price table not found on multilevel item" );
          return;
       }
       multi_cost.clear();

@@ -45,7 +45,7 @@ public class Converter extends Convert {
 
          // Validate content tags
          if ( entry.data.contains( "<img " ) || entry.data.contains( "<a " ) )
-            log.log( Level.WARNING, "Unremoved image or link in {0} {1}", new Object[]{ entry.shortid, entry.name } );
+            warn( "Unremoved image or link" );
 
          int unclosed_p = 0, unclosed_span = 0, unclosed_b = 0, unclosed_i = 0;
          regxCheckOpenClose.reset( entry.data );
@@ -58,15 +58,15 @@ public class Converter extends Convert {
             }
          }
          if ( ( unclosed_p | unclosed_span | unclosed_p | unclosed_i ) != 0 )
-            log.log( Level.WARNING, "Unbalanced open and closing bracket in {0} ({1})", new Object[]{ entry.shortid, entry.name } );
+            warn( "Unbalanced open and closing bracket" );
 
          // Validate fulltext
          if ( regxCheckFulltext.reset( entry.fulltext ).find() )
-            log.log( Level.WARNING, "Unremoved html tag in fulltext of {0} ({1})", new Object[]{ entry.shortid, entry.name } );
+            warn( "Unremoved html tag in fulltext" );
          if ( regxCheckDate.reset( entry.fulltext ).find() )
-            log.log( Level.WARNING, "Unremoved errata date in fulltext of {0} ({1})", new Object[]{ entry.shortid, entry.name } );
+            warn( "Unremoved errata date in fulltext" );
          if ( ! entry.fulltext.endsWith( "." ) ) // Item144 & Item152 fails this check
-            log.log( Level.WARNING, "Not ending in full stop: {0} ({1})", new Object[]{ entry.shortid, entry.name } );
+            warn( "Not ending in full stop" );
       }
    }
 
@@ -169,16 +169,16 @@ public class Converter extends Convert {
             if ( published.equals( "Class Compendium." ) )
                lastSource = "CC"; // 11 feats and 2 powers does not list any other source book, only class compendium.
             else
-               log.log( Level.WARNING, "Entry with unparsed book: {0} {1} - {2}", new Object[]{ entry.shortid, entry.name, published} );
+               warn( "Entry with unparsed book" );
          meta( entry.meta.length-1, sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource );
 
          if ( regxPublished.find() )
-            log.log( Level.WARNING, "Entry with multiple publish: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+            warn( "Entry with multiple publish" );
 
       } else if ( entry.data.contains( "ublished in" ) ) {
-         log.log( Level.WARNING, "Entry with unparsed source: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+         warn( "Entry with unparsed source" );
       } else {
-         log.log( Level.WARNING, "Entry without source book: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+         warn( "Entry without source book" );
       }
    }
 
@@ -310,6 +310,10 @@ public class Converter extends Convert {
 
    protected final void meta ( Object... setTo ) {
       entry.meta = setTo;
+   }
+
+   protected final void warn ( String issue ) {
+      log.log( Level.WARNING, issue + ": {0} {1}", new Object[]{ entry.shortid, entry.name } );
    }
 
    protected final String shortenAbility ( Object txt ) {

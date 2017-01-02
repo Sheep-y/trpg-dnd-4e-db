@@ -2,7 +2,6 @@ package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.Utils;
@@ -42,14 +41,14 @@ public class FeatConverter extends Converter {
             else if ( level > 10 )
                meta( TIER, "Paragon" );
             if ( regxLevel.find() )
-               log.log( Level.WARNING, "Feat with multiple level: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+               warn( "Feat with multiple level" );
             if ( level == 11 || level == 21 )
                text = regxLevel.reset( text ).replaceFirst( "" );
             if ( ( ! entry.fields[0].isEmpty() && ! entry.fields[0].equals( meta( TIER ) ) ) ||
                  (   entry.fields[0].isEmpty() && ! meta( TIER ).equals( "Heroic" ) ) )
                fix( "meta" );
          } else if ( text.contains( "level" ) && ! text.contains( "has a level" ) )
-            log.log( Level.WARNING, "Feat with unparsed level: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+            warn( "Feat with unparsed level" );
 
          if ( ! text.isEmpty() ) {
             text = Character.toLowerCase( text.charAt( 0 ) ) + text.substring( 1 );
@@ -61,7 +60,7 @@ public class FeatConverter extends Converter {
          }
 
       } else if ( data.contains( "rerequi" ) ) {
-         log.log( Level.WARNING, "Feat with unparsed prerequisites: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+         warn( "Feat with unparsed prerequisites" );
       }
    }
 

@@ -5,7 +5,6 @@ import db4e.data.Entry;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +32,7 @@ public class PowerConverter extends LeveledConverter {
       final String data = entry.data;
 
       if ( ! regxLevel.reset( data ).find() )
-         log.log( Level.WARNING, "Power without type: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+         warn( "Power without type" );
 
       // Add skill name to skill power type
       if ( meta( CLASS ).equals( "Skill Power" ) )
@@ -47,7 +46,7 @@ public class PowerConverter extends LeveledConverter {
       else if ( data.startsWith( "<h1 class=atwillpower>" ) )
          meta( TYPE, "At-Will" );
       else
-         log.log( Level.WARNING, "Power with unknown frequency: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+         warn( "Power with unknown frequency" );
 
       // Set type part of power type column
       switch ( regxLevel.group( 3 ) ) {
@@ -73,7 +72,7 @@ public class PowerConverter extends LeveledConverter {
          } else {
             // Deathly Glare, Hamadryad Aspects, and Flock Tactics have bullet star in body but not keywords.
             if ( ! entry.shortid.equals( "power12521" ) && ! entry.shortid.equals( "power15829" ) && ! entry.shortid.equals( "power16541" ) )
-               log.log( Level.WARNING, "Power with no keywords: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+               warn( "Power without keywords" );
          }
       }
    }
