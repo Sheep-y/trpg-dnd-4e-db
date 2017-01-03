@@ -103,7 +103,7 @@ class LeveledConverter extends Converter {
    @Override protected void correctEntry () {
       switch ( category.id ) {
       case  "Poison":
-         if ( entry.data.contains( "<p>Published in" ) ) {
+         if ( find( "<p>Published in" ) ) {
             swap( "<p>Published in", "<p class=publishedIn>Published in" );
             fix( "formatting" );
          }
@@ -149,7 +149,7 @@ class LeveledConverter extends Converter {
             break;
 
          default:
-            if ( entry.data.contains( "basic melee attack") ) {
+            if ( find( "basic melee attack") ) {
                swap( "basic melee attack", "melee basic attack" );
                fix( "fix basic attack" );
             }

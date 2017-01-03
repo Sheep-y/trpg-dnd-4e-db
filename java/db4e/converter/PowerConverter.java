@@ -29,9 +29,8 @@ public class PowerConverter extends LeveledConverter {
    @Override protected void convertEntry () {
       meta( entry.fields[0], entry.fields[1], "", entry.fields[2], "", entry.fields[3] );
       super.convertEntry();
-      final String data = entry.data;
 
-      if ( ! regxLevel.reset( data ).find() )
+      if ( ! find( regxLevel ) )
          warn( "Power without type" );
 
       // Add skill name to skill power type
@@ -39,11 +38,11 @@ public class PowerConverter extends LeveledConverter {
          entry.meta[ CLASS ] += ", " + regxLevel.group( 1 );
 
       // Set frequency part of power type, a new column
-      if ( data.startsWith( "<h1 class=dailypower>" ) )
+      if ( entry.data.startsWith( "<h1 class=dailypower>" ) )
          meta( TYPE, "Daily" );
-      else if ( data.startsWith( "<h1 class=encounterpower>" ) )
+      else if ( entry.data.startsWith( "<h1 class=encounterpower>" ) )
          meta( TYPE, "Encounter" );
-      else if ( data.startsWith( "<h1 class=atwillpower>" ) )
+      else if ( entry.data.startsWith( "<h1 class=atwillpower>" ) )
          meta( TYPE, "At-Will" );
       else
          warn( "Power with unknown frequency" );
@@ -62,8 +61,8 @@ public class PowerConverter extends LeveledConverter {
       }
 
       // Set keyword, a new column
-      if ( data.indexOf( '✦' ) >= 0 ) {
-         if ( regxKeywords.reset( data ).find() ) {
+      if ( find( "✦" ) ) {
+         if ( find( regxKeywords ) ) {
             Set<String> keywords = new HashSet<>(8); // Some power have multiple keyword lines.
             do {
                keywords.addAll( Arrays.asList( regxKeywords.group( 1 ).replaceAll( "</?b>", "" ).split( ", " ) ) );
@@ -112,8 +111,8 @@ public class PowerConverter extends LeveledConverter {
             break;
       }
 
-      if ( entry.data.contains( "Racial Power" ) ) {
-         if ( entry.data.contains( "<p class=powerstat><b>Attack</b>" ) )
+      if ( find( "Racial Power" ) ) {
+         if ( find( "<p class=powerstat><b>Attack</b>" ) )
             swap( "Racial Power", "Racial Attack" );
          else
             swap( "Racial Power", "Racial Utility" );

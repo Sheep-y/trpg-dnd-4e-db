@@ -21,7 +21,7 @@ public class DeityConverter extends Converter {
    @Override protected void convertEntry () {
       meta( "", entry.fields[0], entry.fields[1] );
       super.convertEntry();
-      if ( regxDomain.reset( entry.data ).find() )
+      if ( find( regxDomain ) )
          meta( 0, regxDomain.group( 1 ) );
    }
 

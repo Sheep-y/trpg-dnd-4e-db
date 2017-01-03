@@ -25,7 +25,7 @@ public class BackgroundConverter extends Converter {
 
    @Override protected void convertEntry () {
       super.convertEntry();
-      if ( meta( 2 ).isEmpty() && regxBenefit.reset( entry.data ).find() ) {
+      if ( meta( 2 ).isEmpty() && find( regxBenefit ) ) {
          String associate = regxTrim.reset( regxBenefit.group( 1 ) ).replaceAll( "" ).trim();
          if ( ! associate.endsWith( "." ) ) associate += '.';
          meta( 2, Utils.ucfirst( associate.replace( "saving throws", "saves" ) ) );

@@ -44,7 +44,7 @@ public class Converter extends Convert {
             shortId.put( entry.shortid, entry );
 
          // Validate content tags
-         if ( entry.data.contains( "<img " ) || entry.data.contains( "<a " ) )
+         if ( find( "<img " ) || find( "<a " ) )
             warn( "Unremoved image or link" );
 
          int unclosed_p = 0, unclosed_span = 0, unclosed_b = 0, unclosed_i = 0;
@@ -139,7 +139,7 @@ public class Converter extends Convert {
    private final Matcher regxBook = Pattern.compile( "([A-Z][^,.]*)(?:, page[^,.]+|\\.)" ).matcher( "" );
 
    @Override protected void parseSourceBook () {
-      if ( regxPublished.reset( entry.data ).find() ) {
+      if ( find( regxPublished ) ) {
 
          String published = regxPublished.group( 1 );
          StringBuilder sourceBook = new StringBuilder();
@@ -175,7 +175,7 @@ public class Converter extends Convert {
          if ( regxPublished.find() )
             warn( "Entry with multiple publish" );
 
-      } else if ( entry.data.contains( "ublished in" ) ) {
+      } else if ( find( "ublished in" ) ) {
          warn( "Entry with unparsed source" );
       } else {
          warn( "Entry without source book" );
@@ -314,6 +314,14 @@ public class Converter extends Convert {
 
    protected final void warn ( String issue ) {
       log.log( Level.WARNING, issue + ": {0} {1}", new Object[]{ entry.shortid, entry.name } );
+   }
+
+   protected final boolean find ( CharSequence substr ) {
+      return entry.data.contains( substr );
+   }
+
+   protected final boolean find ( Matcher regx ) {
+      return regx.reset( entry.data ).find();
    }
 
    protected final String shortenAbility ( Object txt ) {

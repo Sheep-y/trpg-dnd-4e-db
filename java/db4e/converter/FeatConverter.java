@@ -26,9 +26,8 @@ public class FeatConverter extends Converter {
    @Override protected void convertEntry () {
       meta( "Heroic","", entry.fields[1] );
       super.convertEntry();
-      final String data = entry.data;
 
-      if ( regxPrerequisite.reset( data ).find() ) {
+      if ( find( regxPrerequisite ) ) {
          String text = regxPrerequisite.group( 1 ).trim();
          if ( text.contains( "-level" ) ) {
             text = text.replace( "-level", " level" );
@@ -60,7 +59,7 @@ public class FeatConverter extends Converter {
             meta( PREREQUISITE, text );
          }
 
-      } else if ( data.contains( "rerequi" ) ) {
+      } else if ( find( "rerequi" ) ) {
          warn( "Feat with unparsed prerequisites" );
       }
    }

@@ -28,7 +28,7 @@ public class FieldSortConverter extends Converter {
       switch ( category.id ) {
       case "Glossary":
          if ( entry.shortid.startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
-            if ( ! entry.data.contains( "IMPROVISING WITH" ) ) {
+            if ( ! find( "IMPROVISING WITH" ) ) {
                entry.data = Pattern.compile( "<p class=flavor>(?!.*<p class=flavor>)" ).matcher( entry.data ).replaceFirst( "<h3>IMPROVISING WITH "+entry.name.toUpperCase()+"</h3><p class=flavor>" );
                fix( "missing content" );
             }

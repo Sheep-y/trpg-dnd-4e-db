@@ -54,7 +54,7 @@ public class ItemConverter extends LeveledConverter {
          entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
       if ( ( ! isGeneric && meta( 0 ).startsWith( "Artifact" ) ) ||
              ( isGeneric && meta( 1 ).startsWith( "Artifact" ) ) ) {
-         regxTier.reset( entry.data ).find();
+         find( regxTier );
          meta( isGeneric ? 2 : 1, regxTier.group() );
          return; // Artifacts already have its type set
       }
@@ -72,14 +72,14 @@ public class ItemConverter extends LeveledConverter {
          default:
             switch ( meta( 0 ) ) {
             case "Alternative Reward" :
-               regxFirstStatBold.reset( entry.data ).find();
+               find( regxFirstStatBold );
                meta( TYPE, regxFirstStatBold.group( 1 ) );
                break;
             case "Armor" :
                setArmorType( entry );
                break;
             case "Equipment" :
-               if ( regxType.reset( entry.data ).find() )
+               if ( find( regxType ) )
                   meta( TYPE, regxType.group( 1 ) );
                break;
             case "Item Set" :
@@ -93,7 +93,7 @@ public class ItemConverter extends LeveledConverter {
    }
 
    private void setArmorType ( Entry entry ) {
-      if ( regxType.reset( entry.data ).find() ) {
+      if ( find( regxType ) ) {
          meta( TYPE, regxType.group( 1 ).trim() );
          // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
          if ( meta( TYPE ).split( ", " ).length >= 5 ) {
@@ -130,7 +130,7 @@ public class ItemConverter extends LeveledConverter {
 
    private void setImplementType ( Entry entry ) {
       // Magical implements
-      if ( regxImplementType.reset( entry.data ).find() ) {
+      if ( find( regxImplementType ) ) {
          meta( TYPE, regxImplementType.group(1).trim() );
 
       // Superior implements
@@ -157,20 +157,18 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxWeaponGroup = Pattern.compile( "<br>([A-Za-z ]+?)(?= \\()" ).matcher( "" );
 
    private void setWeaponType ( Entry entry ) {
-      String data = entry.data;
       // Ammunitions does not need processing
       if ( meta( TYPE ).equals( "Ammunition" ) ) return;
       // Mundane weapons with groups
-      if ( data.contains( "<b>Group</b>: " ) ) {
-         int groupPos = data.indexOf( "<b>Group</b>: " );
-         String region = data.substring( groupPos );
+      if ( find( "<b>Group</b>: " ) ) {
+         String region = entry.data.substring( entry.data.indexOf( "<b>Group</b>: " ) );
          List<String> grp = Utils.matchAll( regxWeaponGroup, region, 1 );
          if ( grp.isEmpty() )
             warn( "Weapon group not found" );
          else
             meta( TYPE, String.join( ", ", grp ) );
          if ( ! meta( 2 ).isEmpty() || entry.name.endsWith( "secondary end" ) || entry.name.equals( "Shuriken" ) ) {
-            regxWeaponDifficulty.reset( entry.data ).find();
+            find( regxWeaponDifficulty );
             meta( LEVEL, regxWeaponDifficulty.group() );
          }
          if ( meta( LEVEL ).isEmpty() )
@@ -178,8 +176,8 @@ public class ItemConverter extends LeveledConverter {
          return;
       }
       // Magical weapons
-      if ( data.contains( "<b>Weapon: </b>" ) ) {
-         regxWeaponType.reset( data ).find();
+      if ( find( "<b>Weapon: </b>" ) ) {
+         find( regxWeaponType );
          meta( TYPE, regxWeaponType.group( 1 ) );
          if ( meta( TYPE ).equals( "Dragonshard augment" ) )
             meta( TYPE, "Dragonshard" ); // shorten type
@@ -289,16 +287,15 @@ public class ItemConverter extends LeveledConverter {
    }
 
    private void setWondrousType ( Entry entry ) {
-      String data = entry.data;
       if ( entry.name.contains( "Tattoo" ) )
          meta( TYPE, "Tattoo" );
-      else if ( data.contains( "primordial shard" ) )
+      else if ( find( "primordial shard" ) )
          meta( TYPE, "Primordial Shard" );
-      else if ( data.contains( "Conjuration" ) && data.contains( "figurine" ) )
+      else if ( find( "Conjuration" ) && find( "figurine" ) )
          meta( TYPE, "Figurine" );
-      else if ( data.contains( "standard" ) && data.contains( "plant th" ) )
+      else if ( find( "standard" ) && find( "plant th" ) )
          meta( TYPE, "Standard" );
-      if ( data.contains( "Conjuration" ) && data.contains( "mount" ) && ! entry.name.startsWith( "Bag " ) )
+      if ( find( "Conjuration" ) && find( "mount" ) && ! entry.name.startsWith( "Bag " ) )
          if ( meta( 1 ).isEmpty() )
             meta( TYPE, "Mount" );
          else
@@ -316,11 +313,11 @@ public class ItemConverter extends LeveledConverter {
       if ( ! meta( LEVEL ).endsWith( "+" ) ) {
          if ( ! debug ) return;
          if ( TYPE > 0 && meta( TYPE-1 ).equals( "Item Set" ) ) return;
-         if ( regxPriceTable.reset( entry.data ).find() && regxPriceTable.find() )
+         if ( find( regxPriceTable ) && regxPriceTable.find() )
             warn( "Price table on non-multilevel item" );
          return;
       }
-      if ( ! regxPriceTable.reset( entry.data ).find() ) {
+      if ( ! find( regxPriceTable ) ) {
          warn( "Price table not found on multilevel item" );
          return;
       }
@@ -337,17 +334,16 @@ public class ItemConverter extends LeveledConverter {
    }
 
    @Override protected void correctEntry () {
-      if ( ! regxPublished.reset( entry.data ).find() ) {
+      if ( ! find( regxPublished ) ) {
          entry.data += "<p class=publishedIn>Published in " + meta( 4 )  + ".</p>";
          fix( "missing published" );
       }
 
-      if ( entry.data.contains( ", which is reproduced below." ) ) {
+      if ( find( ", which is reproduced below." ) ) {
          entry.data = regxWhichIsReproduced.reset( entry.data ).replaceFirst( "" );
          fix( "consistency" );
       }
 
-      String data = entry.data;
       switch ( entry.shortid ) {
          case "item1": // Cloth Armor
             meta( COST, "1 gp" );
@@ -501,7 +497,7 @@ public class ItemConverter extends LeveledConverter {
          default:
             // Add "At-Will" to the ~150 items missing a power frequency.
             // I checked each one and the exceptions are above.
-            if ( regxPowerFrequency.reset( data ).find() ) {
+            if ( find( regxPowerFrequency ) ) {
                entry.data = regxPowerFrequency.replaceAll( "✦ At-Will (" );
                fix( "missing power frequency" );
             }

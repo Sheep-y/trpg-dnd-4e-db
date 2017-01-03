@@ -72,7 +72,7 @@ public class RaceConverter extends Converter {
             meta( ORIGIN, "Natural" );
       }
       // Ability column
-      if ( regxAbility.reset( entry.data ).find() ) {
+      if ( find( regxAbility ) ) {
          String ability = regxAbility.group(1).replace( "+2 ", "" );
          if ( ability.endsWith( "choice" ) )
             meta( ABILITY, "Any" );
