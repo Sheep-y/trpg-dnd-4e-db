@@ -287,7 +287,7 @@ public class Controller {
       final boolean downloadIncomplete = categories.stream().anyMatch( e -> e.downloaded_entry.get() <= 0 );
       if ( downloadIncomplete ) {
          gui.stateCanDownload( "Ready to download" );
-         if ( state.done.get() <= 0 && ! hasReset && gui.getUsername().isEmpty() && gui.getPassword().isEmpty() )
+         if ( state.get() <= 0 && ! hasReset && gui.getUsername().isEmpty() && gui.getPassword().isEmpty() )
             gui.selectTab( "help" );
       } else
          gui.stateCanExport( "Ready to export" );
@@ -371,7 +371,7 @@ public class Controller {
 
    private void downloadEntities () throws Exception {
       Instant[] pastFinishTime = new Instant[ 64 ]; // Past 64 finish time
-      int remainingCount = state.total - state.done.get(), second;
+      int remainingCount = state.total - state.get(), second;
       for ( Category category : categories ) {
          for ( Entry entry : category.entries ) {
             if ( ! entry.contentDownloaded ) {
@@ -427,8 +427,7 @@ public class Controller {
                }
                folder.delete(); // Folder case has changed in 3.5.2.
             }
-         state.done.set( state.total );
-         state.update();
+         state.set( state.total );
       } );
    }
 

@@ -179,7 +179,7 @@ class DbAbstraction {
       } finally {
          db.commit();
       }
-      state.done.set( downCount );
+      state.set( downCount );
    }
 
    void loadEntityContent ( List<Category> categories, ProgressState state ) throws SqlJetException {

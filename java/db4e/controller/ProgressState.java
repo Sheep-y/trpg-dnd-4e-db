@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class ProgressState {
-   public final AtomicInteger done = new AtomicInteger( 0 );
+   private final AtomicInteger done = new AtomicInteger( 0 );
    public volatile int total;
 
    private final Consumer<Double> updater;
@@ -15,10 +15,20 @@ public class ProgressState {
 
    public void reset () {
       done.set( 0 );
+      update();
    }
 
    public void add ( int i ) {
       done.addAndGet( i );
+      update();
+   }
+
+   public int get () {
+      return done.get();
+   }
+
+   public void set ( int i ) {
+      done.set( i );
       update();
    }
 

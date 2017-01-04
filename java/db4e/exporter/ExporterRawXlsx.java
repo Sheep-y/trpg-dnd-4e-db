@@ -14,9 +14,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import sheepy.util.ResourceUtils;
 
 /**
@@ -24,11 +24,17 @@ import sheepy.util.ResourceUtils;
  */
 public class ExporterRawXlsx extends Exporter {
 
-   private FileSystem fs;
+   private FileSystem fs; // Zip file system
+   private static final Map<String,Integer> SharedString = new HashMap<>( 78200, 1f );
+   private static final AtomicInteger shareCount = new AtomicInteger();
 
    @Override public void preExport ( List<Category> categories ) throws IOException {
       log.log( Level.CONFIG, "Export raw XLSX: {0}", target );
       StringBuilder buffer = new StringBuilder( 65535 );
+      synchronized ( SharedString ) {
+         SharedString.clear();
+         shareCount.set( 0 );
+      }
 
       target.getParentFile().mkdirs();
       try ( InputStream reader = ResourceUtils.getStream( "res/xlsx.zip" ) ) {
@@ -89,7 +95,7 @@ public class ExporterRawXlsx extends Exporter {
       cell( buffer, "Url" );
       cell( buffer, "Name" );
       for ( String field : category.fields )
-         buffer.append( "<c t=\"s\"><v>").append( field ).append( "</v></c>" );
+         cell( buffer, field );
       cell( buffer, "Content" );
       buffer.append( "</row>" );
 
@@ -100,7 +106,7 @@ public class ExporterRawXlsx extends Exporter {
          cell( buffer, entry.name );
          for ( String field : entry.fields )
             cell( buffer, field );
-         cell( buffer, entry.content );
+         longCell( buffer, entry.content );
          buffer.append( "</row>" );
       }
       buffer.append( "</sheetData></worksheet>" );
@@ -114,31 +120,77 @@ public class ExporterRawXlsx extends Exporter {
    }
 
    @Override public void postExport( List<Category> categories ) throws IOException {
+      checkStop( "Building table" );
+      state.set( -1 );
+      StringBuilder buffer = new StringBuilder( 65535 );
+      synchronized ( SharedString ) {
+         int size = SharedString.size();
+         String[] list = new String[ size ];
+         for ( Map.Entry<String, Integer> e : SharedString.entrySet() )
+            list[ e.getValue() ] = e.getKey();
+
+         buffer.append( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+            "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"" ).append( shareCount.get() ).append( "\" uniqueCount=\"" ).append( size ).append( "\">" );
+         for ( String text : list )
+            buffer.append( "<si><t>" ).append( xml( text ) ).append( "</t></si>" );
+      }
+      buffer.append( "</sst>" );
+
+      try ( Writer writer = openStream( fs.getPath( "xl/sharedStrings.xml" ) ) ) {
+         writer.write( buffer.toString() );
+      }
+
+      checkStop( "Packing to xlsx" );
+      state.set( state.total );
       fs.close();
    }
 
-   private final Matcher regxNumber = Pattern.compile( "\\d+" ).matcher( "" );
-
-   private StringBuilder cell ( StringBuilder buffer, String text ) throws InterruptedException {
-      try {
-         if ( text.isEmpty() )
-            return buffer.append( "<c></c>" );
-         else if ( regxNumber.reset( text ).matches() )
-            return buffer.append( "<c><v>" ).append( text ).append( "</v></c>" );
-         else
-            return buffer.append( "<c t=\"s\"><v><![CDATA[").append( text ).append( "]]></v></c>" );
-      } catch ( StringIndexOutOfBoundsException e1 ) {
-         Thread.sleep( 20 ); // Random matcher bug
-         return cell( buffer, text );
-         /*
-         log.log( Level.WARNING, "Error from thread {0} {1}", new Object[]{ Thread.currentThread(), this } );
-         try {
-            Integer.parseInt( text );
-            return buffer.append( "<c><v>" ).append( text ).append( "</v></c>" );
-         } catch ( NumberFormatException e2 ) {
-            return buffer.append( "<c t=\"s\"><v><![CDATA[").append( text ).append( "]]></v></c>" );
-         }*/
+   private StringBuilder longCell ( StringBuilder buffer, String text ) throws InterruptedException {
+      while ( text.length() > 32000 ) {
+         cell( buffer, text.substring( 0, 32000 ) );
+         text = text.substring( 32000 );
       }
+      return cell( buffer, text );
    }
 
+   private StringBuilder cell ( StringBuilder buffer, String text ) throws InterruptedException {
+      if ( text.isEmpty() )
+         return buffer.append( "<c/>" );
+      else if ( text.length() > 32000 )
+         log.log( Level.WARNING, "Text longer than Excel limit: {0}", text.substring( 0, 1000 ) );
+
+      // Check whether it is a number.  Tried to use Pattern but has random false negatives and false positives
+      for ( int i = text.length() - 1 ; i >= 0 ; i-- ) {
+         char c = text.charAt( i );
+         if ( c < '0' || c > '9' )
+            return cellText( buffer, text );
+      }
+
+      // Number does not need to be shared.
+      return buffer.append( "<c><v>" ).append( text ).append( "</v></c>" );
+   }
+
+   private StringBuilder cellText ( StringBuilder buffer, String text ) throws InterruptedException {
+      shareCount.incrementAndGet();
+      Integer pos;
+      text.hashCode(); // Pre-calculate hash out of lock
+      synchronized ( SharedString ) {
+         pos = SharedString.get( text );
+         if ( pos == null ) {
+            pos = SharedString.size();
+            SharedString.put( text, pos );
+         }
+      }
+      return buffer.append( "<c t=\"s\"><v>").append( pos ).append( "</v></c>" );
+   }
+
+   private String xml ( String text ) {
+      for ( int i = text.length() - 1 ; i >= 0 ; i-- ) {
+         char c = text.charAt( i );
+         if ( c == '<' || c == '>' || c == '&' )
+            return "<![CDATA[" + text + "]]>";
+      }
+      return text;
+      //return text.replace( "&", "&amp;" ).replace( "<", "&lt;" ).replace( ">", "&gt;" );
+   }
 }
