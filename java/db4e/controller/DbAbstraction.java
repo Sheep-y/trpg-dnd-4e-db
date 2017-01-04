@@ -290,7 +290,7 @@ class DbAbstraction {
       return csvBuffer.toArray( new String[ csvBuffer.size() ] );
    }
 
-   private final Matcher csvQuotable = Pattern.compile( "[\r\n,]" ).matcher( "" );
+   private final Matcher csvQuotable = Pattern.compile( "[\r\n,\"]" ).matcher( "" );
 
    private synchronized StringBuilder buildCsvLine ( String[] line ) {
       StringBuilder result = new StringBuilder(32);

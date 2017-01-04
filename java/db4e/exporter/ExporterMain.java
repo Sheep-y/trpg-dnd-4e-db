@@ -32,10 +32,10 @@ import sheepy.util.ResourceUtils;
  */
 public class ExporterMain extends Exporter {
 
-   private final String root;
+   private String root;
 
-   public ExporterMain ( File target, Consumer<String> stopChecker, ProgressState state ) {
-      super( target, stopChecker, state );
+   @Override public void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
+      super.setState( target, stopChecker, state );
       root = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
    }
 
@@ -46,7 +46,6 @@ public class ExporterMain extends Exporter {
       } catch ( IOException ex ) {
          throw new FileNotFoundException( "No viewer. Run ant make-viewer." );
       }
-      log.log( Level.CONFIG, "Export root: {0}", target );
       new File( root ).mkdirs();
       writeCatalog( root, categories );
       state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
@@ -116,8 +115,7 @@ public class ExporterMain extends Exporter {
                   buffer.append( "[\"" ).append( ary[0] ).append( "\"," );
                   for ( int i = 1, len = ary.length ; i < len ; i++ )
                      buffer.append( ary[i] ).append( ',' );
-                  buffer.setLength( buffer.length() - 1 );
-                  buffer.append( "]," );
+                  backspace( buffer ).append( "]," );
                } else
                   str( buffer, field.toString() ).append( ',' );
             }
@@ -196,8 +194,7 @@ public class ExporterMain extends Exporter {
          else {
             buffer.append( '[' );
             for ( String id : ids ) str( buffer, id ).append( ',' );
-            buffer.setLength( buffer.length() - 1 );
-            buffer.append( "]," );
+            backspace( buffer ).append( "]," );
          }
       }
 

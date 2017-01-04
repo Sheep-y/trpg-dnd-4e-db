@@ -28,11 +28,11 @@ public abstract class Exporter {
    public static AtomicBoolean stop = new AtomicBoolean();
    protected static final Logger log = Main.log;
 
-   private final Consumer<String> stopChecker;
-   protected final File target;
-   protected final ProgressState state;
+   private Consumer<String> stopChecker;
+   protected File target;
+   protected ProgressState state;
 
-   public Exporter ( File target, Consumer<String> stopChecker, ProgressState state ) {
+   public void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
       this.stopChecker = stopChecker;
       this.target = target;
       this.state = state;
@@ -40,7 +40,7 @@ public abstract class Exporter {
 
    public abstract void preExport ( List<Category> categories ) throws IOException;
    public abstract Controller.RunExcept export ( Category category ) throws IOException;
-   public abstract void postExport ( List<Category> categories ) throws IOException;
+   public void postExport ( List<Category> categories ) throws IOException {};
 
    protected void checkStop ( String status ) {
       stopChecker.accept( status );
@@ -50,28 +50,39 @@ public abstract class Exporter {
    // Utils
    /////////////////////////////////////////////////////////////////////////////
 
-   protected OutputStreamWriter openStream ( String path ) throws FileNotFoundException {
+   protected final OutputStreamWriter openStream ( String path ) throws FileNotFoundException {
       return new OutputStreamWriter( new BufferedOutputStream( new FileOutputStream( path, false ) ), StandardCharsets.UTF_8 );
    }
 
-   protected void write ( Writer writer, String buf ) throws IOException {
+   protected final StringBuilder backspace ( StringBuilder buf ) {
+      buf.setLength( buf.length() - 1 );
+      return buf;
+   }
+
+   protected final void write ( Writer writer, String buf ) throws IOException {
       writer.write( buf );
    }
 
-   protected void write ( CharSequence postfix, Writer writer, StringBuilder buf ) throws IOException {
+   protected final void write ( CharSequence postfix, Writer writer, StringBuilder buf ) throws IOException {
       if ( ! ( postfix.charAt( 0 ) == ',' ) )
-         buf.setLength( buf.length() - 1 ); // Remove last comma if postfix does not start with comma
+         backspace( buf ); // Remove last comma if postfix does not start with comma
       buf.append( postfix );
       writer.write( buf.toString() );
       buf.setLength( 0 );
    }
 
-   protected StringBuilder str ( StringBuilder buf, String txt ) {
+   protected final StringBuilder str ( StringBuilder buf, String txt ) {
       return buf.append( '"' ).append( js( txt ) ).append( '"' );
    }
 
-   protected String js ( String in ) {
+   protected final String js ( String in ) {
       return in.replace( "\\", "\\\\" ).replace( "\"", "\\\"" );
+   }
+
+   protected final StringBuilder csv ( StringBuilder buf, String in ) {
+      if ( in.contains( "\"" ) || in.contains( "\n" ) )
+         return buf.append( '"' ).append( in.replace( "\"", "\"\"" ) ).append( '"' );
+      return buf.append( in );
    }
 
    void copyRes ( String target, String source ) throws IOException {

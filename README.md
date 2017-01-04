@@ -60,6 +60,9 @@ If you find similar mistakes that aren't fixed, please [file an issue](https://g
 
 ## Source code and building ##
 
+This section is for programmers only.
+Average user should download the [ready-made program](https://github.com/Sheep-y/trpg-dnd-4e-db/releases/).
+
 * Viewer source code is in html folder.
 * Downloader source code is in java folder, and use libraries in java_lib folder.
 * Both use resources at the root (license) and in the resource folder.

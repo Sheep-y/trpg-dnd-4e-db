@@ -20,41 +20,34 @@ import sheepy.util.Utils;
  */
 public class ExporterRawHtml extends Exporter {
 
-   private final String root;
+   private String root;
 
-   public ExporterRawHtml ( File target, Consumer<String> stopChecker, ProgressState state ) {
-      super( target, stopChecker, state );
+   @Override public void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
+      super.setState( target, stopChecker, state );
       root = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
    }
 
    @Override public void preExport ( List<Category> categories ) throws IOException {
-      log.log( Level.CONFIG, "Export target: {0}", target );
+      log.log( Level.CONFIG, "Export raw HTML: {0}", target );
       try {
-         testRawViewerExists();
+         testViewerExists();
       } catch ( IOException ex ) {
          throw new FileNotFoundException( "No viewer. Run ant make-viewer." );
       }
-      log.log( Level.CONFIG, "Export raw root: {0}", target );
       new File( root ).mkdirs();
       checkStop( "Writing catlog" );
-      writeRawCatalog( root, categories, target );
+      writeCatalog( categories );
       state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
    @Override public Controller.RunExcept export ( Category category ) throws IOException {
       return () -> { synchronized( category ) {
          log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
-         writeRawCategory( root, category, state );
+         writeCategory( category );
       } };
    }
 
-   @Override public void postExport ( List<Category> categories ) throws IOException {
-      log.log( Level.INFO, "Exported {0} entries in {1} catrgories.", new Object[]{
-         state.total,
-         categories.size() } );
-   }
-
-   protected void writeRawCatalog ( String root, List<Category> categories, File target ) throws IOException {
+   protected void writeCatalog ( List<Category> categories ) throws IOException {
       final String template = ResourceUtils.getText( "res/export_list.html" );
 
       final StringBuilder index_body = new StringBuilder();
@@ -99,7 +92,7 @@ public class ExporterRawHtml extends Exporter {
       }
    }
 
-   protected void writeRawCategory ( String root, Category category, ProgressState state ) throws IOException, InterruptedException {
+   protected void writeCategory ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       String template = ResourceUtils.getText( "res/export_entry.html" );
       String cat_id = category.id.toLowerCase();
@@ -109,17 +102,17 @@ public class ExporterRawHtml extends Exporter {
          if ( ! entry.contentDownloaded ) continue;
 
          if ( stop.get() ) throw new InterruptedException();
-         String output = template;
-         output = output.replace( "[title]", Utils.escapeHTML( entry.name ) );
-         output = output.replace( "[body]", entry.content );
+         String buffer = template;
+         buffer = buffer.replace( "[title]", Utils.escapeHTML( entry.name ) );
+         buffer = buffer.replace( "[body]", entry.content );
          try ( OutputStreamWriter writer = openStream( root + cat_id + "/" + entry.id.replace( ".aspx?id=", "-" ) + ".html" ) ) {
-            write( writer, output );
+            write( writer, buffer );
          }
          state.addOne();
       }
    }
 
-   protected void testRawViewerExists () throws IOException {
+   protected void testViewerExists () throws IOException {
       ResourceUtils.getText( "res/export_list.html" );
       ResourceUtils.getText( "res/export_entry.html" );
    }

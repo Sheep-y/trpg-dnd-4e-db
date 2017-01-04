@@ -8,6 +8,7 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import db4e.exporter.Exporter;
 import db4e.exporter.ExporterMain;
+import db4e.exporter.ExporterRawCsv;
 import db4e.exporter.ExporterRawHtml;
 import java.io.File;
 import java.io.StringWriter;
@@ -32,6 +33,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableView;
 import javafx.scene.web.WebEngine;
 import javax.security.auth.login.LoginException;
@@ -439,9 +442,10 @@ public class Controller {
          checkStop( "Loading content" );
          dal.loadEntityContent( categories, state );
 
-         checkStop( "Writing main catlog" );
+         checkStop( "Writing catlog" );
+         Exporter exporter = new ExporterMain();
+         exporter.setState( target, this::checkStop, state );
          Convert.beforeConvert( categories, exportCategories );
-         Exporter exporter = new ExporterMain( target, this::checkStop, state );
          exporter.preExport( exportCategories );
          checkStop( "Writing data" );
          exportEachCategory( exportCategories, exporter::export );
@@ -453,20 +457,29 @@ public class Controller {
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
    }
 
-   public CompletableFuture<Void> startExportRaw ( File target, String root ) {
+   public void startExportRaw ( File target ) {
+      Exporter exporter;
+      if ( target.getName().toLowerCase().endsWith( ".html" ) )
+         exporter = new ExporterRawHtml();
+      else if ( target.getName().toLowerCase().endsWith( ".csv" ) )
+         exporter = new ExporterRawCsv();
+      else {
+         new Alert( Alert.AlertType.ERROR, "Unknown file type. Must be html, csv, or xml.", ButtonType.OK ).showAndWait();
+         return;
+      }
+      exporter.setState( target, this::checkStop, state );
       gui.setTitle( "Exporting Raw" );
       gui.setStatus( "Starting export" );
       gui.stateRunning();
       gui.setProgress( -1.0 );
       state.reset();
       log.log( Level.CONFIG, "Raw export target: {0}", target );
-      return runTask( () -> {
+      runTask( () -> {
          setPriority( Thread.MIN_PRIORITY );
          checkStop( "Loading content" );
          dal.loadEntityContent( categories, state );
 
-         checkStop( "Writing main catlog" );
-         Exporter exporter = new ExporterRawHtml( target, this::checkStop, state );
+         checkStop( "Writing catlog" );
          exporter.preExport( categories );
          checkStop( "Writing data" );
          exportEachCategory( categories, exporter::export );

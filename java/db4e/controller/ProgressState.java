@@ -17,6 +17,11 @@ public class ProgressState {
       done.set( 0 );
    }
 
+   public void add ( int i ) {
+      done.addAndGet( i );
+      update();
+   }
+
    public void addOne () {
       if ( done.incrementAndGet() % 256 == 0 )
          update();

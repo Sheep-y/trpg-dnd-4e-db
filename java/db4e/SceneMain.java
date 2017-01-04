@@ -98,8 +98,8 @@ public class SceneMain extends Scene {
            "Show app log and console.  Will slow down download & export and use more memory." );
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
-   final Button btnExportData = JavaFX.tooltip( new Button( "Export Downloaded Data" ), // Export RAW data
-           "Export raw data as simple HTML." );
+   final Button btnExportData = JavaFX.tooltip( new Button( "Export Raw Data" ),
+           "Export raw data in different formats." );
    final Button btnCheckUpdate = JavaFX.tooltip( new Button( "Check update" ),
            "Check for availability of new releases." );
    private final Pane pnlOptionTab = new VBox( 8,
@@ -437,14 +437,19 @@ public class SceneMain extends Scene {
    private FileChooser dlgExportRaw;
 
    private void action_export_raw ( ActionEvent evt ) {
-      if ( dlgExportRaw == null )
-         dlgExportRaw = createExportDialog( "Raw Compendium Dump", "index.html" );
+      if ( dlgExportRaw == null ) {
+         dlgExportRaw = createExportDialog( "dummy", "*.*" );
+         dlgExportRaw.getExtensionFilters().clear();
+         dlgExportRaw.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter( "HTML", "raw_dump.html" ),
+            new FileChooser.ExtensionFilter( "CSV (fixed filenames)", "race.csv" ),
+            new FileChooser.ExtensionFilter( "Excel", "raw_dump.xlsx" ) );
+         dlgExportRaw.setInitialFileName( "raw_dump.html" );
+      }
       File target = dlgExportRaw.showSaveDialog( getWindow() );
-      if ( target == null || ! target.getName().toLowerCase().endsWith( ".html" ) ) return;
-
-      String data_dir = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
+      if ( target == null ) return;
       pnlC.getSelectionModel().select( tabData );
-      loader.startExportRaw( target, data_dir );
+      loader.startExportRaw( target );
    }
 
    private FileChooser createExportDialog ( String display, String filename ) {
