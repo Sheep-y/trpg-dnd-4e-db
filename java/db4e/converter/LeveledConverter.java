@@ -11,8 +11,8 @@ class LeveledConverter extends Converter {
 
    protected int LEVEL = -1;
 
-   protected LeveledConverter ( Category category, boolean debug ) {
-      super( category, debug );
+   protected LeveledConverter ( Category category ) {
+      super( category );
    }
 
    @Override protected void initialise () {

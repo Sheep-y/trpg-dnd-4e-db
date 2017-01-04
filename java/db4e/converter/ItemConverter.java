@@ -1,5 +1,6 @@
 package db4e.converter;
 
+import db4e.Main;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
@@ -15,8 +16,8 @@ public class ItemConverter extends LeveledConverter {
    private static int COST;
    private final boolean isGeneric;
 
-   public ItemConverter ( Category category, boolean debug ) {
-      super( category, debug ); // Sort by category
+   public ItemConverter ( Category category ) {
+      super( category ); // Sort by category
       isGeneric = category.id.equals( "Item" );
    }
 
@@ -311,7 +312,7 @@ public class ItemConverter extends LeveledConverter {
     */
    private void setCost ( Entry entry ) {
       if ( ! meta( LEVEL ).endsWith( "+" ) ) {
-         if ( ! debug ) return;
+         if ( ! Main.debug.get() ) return;
          if ( TYPE > 0 && meta( TYPE-1 ).equals( "Item Set" ) ) return;
          if ( find( regxPriceTable ) && regxPriceTable.find() )
             warn( "Price table on non-multilevel item" );

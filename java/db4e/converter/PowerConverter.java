@@ -14,8 +14,8 @@ public class PowerConverter extends LeveledConverter {
    private final int TYPE = 2;
    private final int KEYWORDS = 4;
 
-   public PowerConverter ( Category category, boolean debug ) {
-      super( category, debug );
+   public PowerConverter ( Category category ) {
+      super( category );
    }
 
    @Override protected void initialise () {

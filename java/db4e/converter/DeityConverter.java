@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
 
 public class DeityConverter extends Converter {
 
-   public DeityConverter ( Category category, boolean debug ) {
-      super( category, debug );
+   public DeityConverter ( Category category ) {
+      super( category );
    }
 
    @Override protected void initialise() {

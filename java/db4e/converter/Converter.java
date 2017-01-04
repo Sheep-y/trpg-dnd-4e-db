@@ -1,5 +1,6 @@
 package db4e.converter;
 
+import db4e.Main;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.HashMap;
@@ -13,11 +14,8 @@ import java.util.regex.Pattern;
  */
 public class Converter extends Convert {
 
-   protected final boolean debug;
-
-   public Converter ( Category category, boolean debug ) {
+   public Converter ( Category category ) {
       super( category );
-      this.debug = debug;
    }
 
    @Override protected void correctEntry () {
@@ -36,7 +34,7 @@ public class Converter extends Convert {
     */
    @Override protected void convertEntry () {
       super.convertEntry();
-      if ( debug ) {
+      if ( Main.debug.get() ) {
          // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
          if ( shortId.containsKey( entry.shortid ) )
             log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.id, entry.name, entry.shortid, shortId.get( entry.shortid ).name } );

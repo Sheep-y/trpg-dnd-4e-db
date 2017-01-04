@@ -11,8 +11,8 @@ public class FeatConverter extends Converter {
    private final int TIER = 0;
    private final int PREREQUISITE = 1;
 
-   public FeatConverter ( Category category, boolean debug ) {
-      super( category, debug );
+   public FeatConverter ( Category category ) {
+      super( category );
    }
 
    @Override protected void initialise () {

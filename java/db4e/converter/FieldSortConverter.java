@@ -13,8 +13,8 @@ public class FieldSortConverter extends Converter {
 
    private final int SORT_FIELD;
 
-   public FieldSortConverter(Category category, int sort_field, boolean debug) {
-      super(category, debug);
+   public FieldSortConverter( Category category, int sort_field ) {
+      super(category);
       SORT_FIELD = sort_field;
    }
 

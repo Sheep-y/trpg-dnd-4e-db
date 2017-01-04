@@ -313,41 +313,41 @@ public abstract class Convert {
       return new String[]{ regxNote.reset( entry.name ).replaceAll( "" ).trim() };
    }
 
-   public static Converter getConverter ( Category category, boolean debug ) {
+   public static Converter getConverter ( Category category ) {
       switch ( category.id ) {
          case "Background":
-            return new BackgroundConverter( category, debug );
+            return new BackgroundConverter( category );
          case "Class":
-            return new ClassConverter( category, debug );
+            return new ClassConverter( category );
          case "Deity":
-            return new DeityConverter( category, debug );
+            return new DeityConverter( category );
          case "Companion":
          case "Glossary":
-            return new FieldSortConverter( category, 0, debug ); // Sort by first field
+            return new FieldSortConverter( category, 0 ); // Sort by first field
          case "Feat":
-            return new FeatConverter( category, debug );
+            return new FeatConverter( category );
          case "Item":
          case "Armor":
          case "Implement":
          case "Weapon":
-            return new ItemConverter( category, debug );
+            return new ItemConverter( category );
          case "Ritual":
          case "Monster":
          case "Poison":
          case "Disease":
-            return new LeveledConverter( category, debug );
+            return new LeveledConverter( category );
          case "Power":
-            return new PowerConverter( category, debug );
+            return new PowerConverter( category );
          case "Race":
-            return new RaceConverter( category, debug );
+            return new RaceConverter( category );
          case "Theme":
-            return new ThemeConverter( category, debug );
+            return new ThemeConverter( category );
          case "Trap":
-            return new TrapConverter( category, debug );
+            return new TrapConverter( category );
          case "Terrain":
             return null;
          default:
-            return new Converter( category, debug );
+            return new Converter( category );
       }
    }
 

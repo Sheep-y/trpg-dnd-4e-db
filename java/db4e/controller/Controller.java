@@ -6,9 +6,10 @@ import db4e.converter.Convert;
 import db4e.converter.Converter;
 import db4e.data.Category;
 import db4e.data.Entry;
+import db4e.exporter.Exporter;
+import db4e.exporter.ExporterMain;
+import db4e.exporter.ExporterRawHtml;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -80,7 +81,6 @@ public class Controller {
    private final ConsoleWebView browser;
    private final WebEngine engine;
    private final Crawler crawler;
-   private final Exporter exporter;
    private final Timer scheduler = new Timer();
    private final int threads = Math.max( 2, Math.min( Runtime.getRuntime().availableProcessors(), 22 ) );
    private final ExecutorService threadPool = Executors.newFixedThreadPool( threads );
@@ -90,7 +90,6 @@ public class Controller {
       browser = main.getWorker();
       engine = browser.getWebEngine();
       crawler = new Crawler( engine );
-      exporter = new Exporter();
       state = new ProgressState( ( progress ) -> {
          checkStop( null );
          main.setProgress( progress );
@@ -110,11 +109,7 @@ public class Controller {
    }
 
    private void checkStop ( String status ) {
-      checkStop( status, null );
-   }
-   private void checkStop ( String status, Double progress ) {
       if ( status != null ) gui.setStatus( status );
-      if ( progress != null ) gui.setProgress( progress );
       synchronized ( this ) {
          assert( currentThread == Thread.currentThread() );
          if ( Thread.interrupted() )
@@ -433,40 +428,27 @@ public class Controller {
       } );
    }
 
-   public CompletableFuture<Void> startExport ( File target, String root ) {
+   public CompletableFuture<Void> startExport ( File target ) {
       gui.setTitle( "Exporting" );
       gui.setStatus( "Starting export" );
       gui.stateRunning();
       gui.setProgress( -1.0 );
       state.reset();
-      log.log( Level.CONFIG, "Export target: {0}", target );
       return runTask( () -> {
-         // Export process is mainly IO limited. Not wasting time to make it multi-thread.
-         try {
-            exporter.testViewerExists();
-         } catch ( IOException ex ) {
-            throw new FileNotFoundException( "No viewer. Run ant make-viewer." );
-         }
-
          setPriority( Thread.MIN_PRIORITY );
-         log.log( Level.CONFIG, "Export root: {0}", target );
-         new File( root ).mkdirs();
-
          checkStop( "Loading content" );
          dal.loadEntityContent( categories, state );
 
          checkStop( "Writing main catlog" );
          Convert.beforeConvert( categories, exportCategories );
-         exporter.writeCatalog( root, exportCategories );
-
+         Exporter exporter = new ExporterMain( target, this::checkStop, state );
+         exporter.preExport( exportCategories );
          checkStop( "Writing data" );
-         exportData( root );
+         exportEachCategory( exportCategories, exporter::export );
 
-         checkStop( "Writing viewer" );
+         exporter.postExport( exportCategories );
+
          Convert.afterConvert();
-         exporter.writeIndex( root, exportCategories );
-         exporter.writeViewer( root, target );
-
          gui.stateCanExport( "Export complete, may view data" );
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
    }
@@ -479,54 +461,19 @@ public class Controller {
       state.reset();
       log.log( Level.CONFIG, "Raw export target: {0}", target );
       return runTask( () -> {
-         try {
-            exporter.testRawViewerExists();
-         } catch ( IOException ex ) {
-            throw new FileNotFoundException( "No viewer. Run ant make-viewer." );
-         }
-
          setPriority( Thread.MIN_PRIORITY );
-         log.log( Level.CONFIG, "Export raw root: {0}", target );
-         new File( root ).mkdirs();
-
          checkStop( "Loading content" );
          dal.loadEntityContent( categories, state );
 
-         checkStop( "Writing catlog" );
-         exporter.writeRawCatalog( root, categories, target );
-
+         checkStop( "Writing main catlog" );
+         Exporter exporter = new ExporterRawHtml( target, this::checkStop, state );
+         exporter.preExport( categories );
          checkStop( "Writing data" );
-         exportRawData( root );
-
-         log.log( Level.INFO, "Exported {0} entries in {1} catrgories.", new Object[]{
-            state.total,
-            categories.size() } );
+         exportEachCategory( categories, exporter::export );
+         exporter.postExport( categories );
 
          gui.stateCanExport( "Raw data exported" );
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
-   }
-
-   private void exportData ( String root ) throws Exception {
-      state.total = exportCategories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
-      exportEachCategory( exportCategories, ( category ) -> {
-         Converter converter = Convert.getConverter( category, gui.isDebugging() );
-         if ( converter == null ) return null;
-         return () -> { synchronized( category ) {
-            converter.convert( state );
-            log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
-            exporter.writeCategory( root, category, state );
-         } };
-      } );
-   }
-
-   private void exportRawData ( String root ) throws Exception {
-      state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
-      exportEachCategory( categories, ( category ) -> {
-         return () -> { synchronized( category ) {
-            log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
-            exporter.writeRawCategory( root, category, state );
-         } };
-      } );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -626,7 +573,7 @@ public class Controller {
       } while ( true );
    }
 
-   private void exportEachCategory ( List<Category> exportCategories, FunctionExcept<Category, RunExcept> task ) throws Exception {
+   private void exportEachCategory ( List<Category> categories, FunctionExcept<Category, RunExcept> task ) throws Exception {
       state.reset();
       state.update();
       log.log( Level.CONFIG, "Running category task in {0} threads.", threads-1 );
@@ -634,7 +581,7 @@ public class Controller {
          Converter.stop.set( false );
          Exporter.stop.set( false );
          List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
-         for ( Category category : exportCategories ) {
+         for ( Category category : categories ) {
             RunExcept job = task.apply( category );
             if ( job == null ) return;
             CompletableFuture<Void> future = new CompletableFuture<>();

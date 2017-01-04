@@ -1,35 +1,74 @@
-package db4e.controller;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package db4e.exporter;
 
+import db4e.controller.Controller;
+import db4e.controller.ProgressState;
+import db4e.converter.Convert;
+import db4e.converter.Converter;
 import db4e.data.Category;
 import db4e.data.Entry;
-import java.io.BufferedOutputStream;
+import static db4e.exporter.Exporter.stop;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.ResourceUtils;
-import sheepy.util.Utils;
 
-class Exporter {
+/**
+ * Export viewer and data.
+ */
+public class ExporterMain extends Exporter {
 
-//   private static final Logger log = Main.log;
+   private final String root;
 
-   public static AtomicBoolean stop = new AtomicBoolean();
+   public ExporterMain ( File target, Consumer<String> stopChecker, ProgressState state ) {
+      super( target, stopChecker, state );
+      root = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
+   }
 
-   void writeCatalog ( String root, List<Category> categories ) throws IOException {
+   @Override public void preExport ( List<Category> categories ) throws IOException {
+      log.log( Level.CONFIG, "Export target: {0}", target );
+      try {
+         testViewerExists();
+      } catch ( IOException ex ) {
+         throw new FileNotFoundException( "No viewer. Run ant make-viewer." );
+      }
+      log.log( Level.CONFIG, "Export root: {0}", target );
+      new File( root ).mkdirs();
+      writeCatalog( root, categories );
+      state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
+   }
+
+   @Override public Controller.RunExcept export ( Category category ) throws IOException {
+      Converter converter = Convert.getConverter( category );
+      if ( converter == null ) return null;
+      return () -> { synchronized( category ) {
+         converter.convert( state );
+         log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
+         writeCategory( root, category, state );
+      } };
+   }
+
+   @Override public void postExport ( List<Category> categories ) throws IOException {
+      checkStop( "Writing viewer" );
+      writeIndex( root, categories );
+      writeViewer( root, target );
+   }
+
+   private void writeCatalog ( String root, List<Category> categories ) throws IOException {
       StringBuilder buffer = new StringBuilder( 320 );
       try ( OutputStreamWriter writer = openStream( root + "/catalog.js" ) ) {
          buffer.append( "od.reader.jsonp_catalog(20130616,{" );
@@ -40,7 +79,7 @@ class Exporter {
       }
    }
 
-   void writeCategory ( String root, Category category, ProgressState state ) throws IOException, InterruptedException {
+   private void writeCategory ( String root, Category category, ProgressState state ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       String cat_id = category.id.toLowerCase();
 
@@ -125,7 +164,7 @@ class Exporter {
          throw new IllegalStateException( category.id + " entry exported " + category.sorted.length + " mismatch with total " + category.getExportCount() );
    }
 
-   void writeIndex ( String target, List<Category> categories ) throws IOException {
+   private void writeIndex ( String target, List<Category> categories ) throws IOException {
       Map<String, List<String>> index = new HashMap<>();
       for ( Category category : categories ) synchronized ( index ) {
          if ( index.isEmpty() )
@@ -167,125 +206,15 @@ class Exporter {
       }
    }
 
-   void testViewerExists () throws IOException {
+   private void testViewerExists () throws IOException {
       ResourceUtils.getText( "res/4e_database.html" );
    }
 
-   void writeViewer ( String root, File target ) throws IOException {
+   private void writeViewer ( String root, File target ) throws IOException {
       new File( root + "res" ).mkdir();
       copyRes( root + "res/icon.png", "res/icon.png" );
       copyRes( target.getPath(), "res/4e_database.html" );
    }
 
-   /////////////////////////////////////////////////////////////////////////////
-   // Raw data export
-   /////////////////////////////////////////////////////////////////////////////
 
-   void writeRawCatalog ( String root, List<Category> categories, File target ) throws IOException {
-      final String template = ResourceUtils.getText( "res/export_list.html" );
-
-      final StringBuilder index_body = new StringBuilder();
-      final String folder = new File( root ).getName() + "/";
-
-      for ( Category category : categories ) {
-         if ( category.entries.isEmpty() ) continue;
-
-         index_body.append( "<tr><td><a href='" ).append( folder ).append( category.id ).append( ".html'>" ).append( Utils.escapeHTML( category.getName() ) ).append( "</a></td>" );
-         index_body.append( "<td>" ).append( category.entries.stream().filter( e -> e.contentDownloaded ).count() ).append( "</td></tr>" );
-
-         final StringBuilder head = new StringBuilder( "<th>Name</th>");
-         for ( String field : category.fields )
-            head.append( "<th>" ).append( Utils.escapeHTML( field ) ).append( "</th>" );
-
-         final StringBuilder body = new StringBuilder();
-         final String cat_id = category.id.toLowerCase() + "/";
-         for ( Entry entry : category.entries ) {
-            body.append( "<tr><td><a href='" ).append( cat_id ).append( entry.id.replace( ".aspx?id=", "-" ) ).append( ".html'>" );
-            body.append( Utils.escapeHTML( entry.name ) ).append( "</a></td>" );
-            for ( String field : entry.fields )
-               body.append( "<td>" ).append( Utils.escapeHTML( field ) ).append( "</td>" );
-            body.append( "</tr>" );
-         }
-
-         String output = template;
-         output = output.replace( "[title]", Utils.escapeHTML( category.getName() ) );
-         output = output.replace( "[head]", head );
-         output = output.replace( "[body]", body );
-         try ( OutputStreamWriter writer = openStream( root + category.id + ".html" ) ) {
-            write( writer, output );
-         }
-      }
-
-      // Output index
-      String output = template;
-      output = output.replace( "[title]", "4e Compendium Data" );
-      output = output.replace( "[head]", "<th>Category</th><th>Count</th>" );
-      output = output.replace( "[body]", index_body );
-      try ( OutputStreamWriter writer = openStream( target.toString() ) ) {
-         write( writer, output );
-      }
-   }
-
-   void writeRawCategory ( String root, Category category, ProgressState state ) throws IOException, InterruptedException {
-      if ( stop.get() ) throw new InterruptedException();
-      String template = ResourceUtils.getText( "res/export_entry.html" );
-      String cat_id = category.id.toLowerCase();
-      new File( root + cat_id ).mkdirs();
-
-      for ( Entry entry : category.entries ) {
-         if ( ! entry.contentDownloaded ) continue;
-
-         if ( stop.get() ) throw new InterruptedException();
-         String output = template;
-         output = output.replace( "[title]", Utils.escapeHTML( entry.name ) );
-         output = output.replace( "[body]", entry.content );
-         try ( OutputStreamWriter writer = openStream( root + cat_id + "/" + entry.id.replace( ".aspx?id=", "-" ) + ".html" ) ) {
-            write( writer, output );
-         }
-         state.addOne();
-      }
-   }
-
-   void testRawViewerExists () throws IOException {
-      ResourceUtils.getText( "res/export_list.html" );
-      ResourceUtils.getText( "res/export_entry.html" );
-   }
-
-   /////////////////////////////////////////////////////////////////////////////
-   // Utils
-   /////////////////////////////////////////////////////////////////////////////
-
-   private OutputStreamWriter openStream ( String path ) throws FileNotFoundException {
-      return new OutputStreamWriter( new BufferedOutputStream( new FileOutputStream( path, false ) ), StandardCharsets.UTF_8 );
-   }
-
-   private void write ( Writer writer, String buf ) throws IOException {
-      writer.write( buf );
-   }
-
-   private void write ( CharSequence postfix, Writer writer, StringBuilder buf ) throws IOException {
-      if ( ! ( postfix.charAt( 0 ) == ',' ) )
-         buf.setLength( buf.length() - 1 ); // Remove last comma if postfix does not start with comma
-      buf.append( postfix );
-      writer.write( buf.toString() );
-      buf.setLength( 0 );
-   }
-
-   private StringBuilder str ( StringBuilder buf, String txt ) {
-      return buf.append( '"' ).append( js( txt ) ).append( '"' );
-   }
-
-   private String js ( String in ) {
-      return in.replace( "\\", "\\\\" ).replace( "\"", "\\\"" );
-   }
-
-   void copyRes ( String target, String source ) throws IOException {
-      try ( OutputStream out = new FileOutputStream( target, false );
-            InputStream in = ResourceUtils.getStream( source );
-              ) {
-         byte[] buffer =  new byte[ 32768 ];
-         for ( int length ; (length = in.read( buffer ) ) != -1; )
-            out.write( buffer, 0, length );
-      }
-   }
 }

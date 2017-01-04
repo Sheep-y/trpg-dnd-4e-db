@@ -11,6 +11,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -38,6 +39,7 @@ public class Main {
    // Global log ang preference
    public static final Logger log = Logger.getLogger( Main.class.getName() );
    static final Preferences prefs = Preferences.userNodeForPackage( Main.class );
+   public static final AtomicBoolean debug = new AtomicBoolean( false );
 
    // Main method. No need to check java version because min version is compile target.
    public static void main( String[] args ) {

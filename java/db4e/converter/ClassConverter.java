@@ -14,8 +14,8 @@ public class ClassConverter extends Converter {
    private static final int POWER = 1;
    private static final int ABILITY = 2;
 
-   public ClassConverter ( Category category, boolean debug ) {
-      super( category, debug );
+   public ClassConverter ( Category category ) {
+      super( category );
    }
 
    private final Matcher regxClassFeatures = Pattern.compile( "<b>(?:Class Features?|Hybrid Talent Options?):? ?</b>:?([^<.]+)", Pattern.CASE_INSENSITIVE ).matcher( "" );

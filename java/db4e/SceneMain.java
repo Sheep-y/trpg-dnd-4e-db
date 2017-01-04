@@ -429,7 +429,7 @@ public class SceneMain extends Scene {
 
       ready.thenRun( () -> {
          prefs.remove( "export.last_file" );
-         loader.startExport( target, data_dir ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );
+         loader.startExport( target ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );
          prefs.put( "export.dir", target.getParent() );
       } );
    }
@@ -513,6 +513,7 @@ public class SceneMain extends Scene {
 
    private void chkDebug_change ( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
       prefs.putBoolean("gui.debug", newValue );
+      Main.debug.set( newValue );
       ObservableList<Tab> tabs = pnlC.getTabs();
       if ( newValue ) {
          log.setLevel( Level.FINE );
@@ -575,8 +576,6 @@ public class SceneMain extends Scene {
          return null;
       } );
    }
-
-   public boolean isDebugging () { return chkDebug.isSelected(); };
 
    /////////////////////////////////////////////////////////////////////////////
    // Worker Screen

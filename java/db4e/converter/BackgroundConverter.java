@@ -8,8 +8,8 @@ import sheepy.util.Utils;
 
 public class BackgroundConverter extends Converter {
 
-   public BackgroundConverter ( Category category, boolean debug ) {
-      super( category, debug );
+   public BackgroundConverter ( Category category ) {
+      super( category );
    }
 
    @Override protected void initialise() {

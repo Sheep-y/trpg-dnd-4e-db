@@ -10,8 +10,8 @@ public class RaceConverter extends Converter {
    private static final int ABILITY = 1;
    private static final int SIZE = 2;
 
-   public RaceConverter ( Category category, boolean debug ) {
-      super( category, debug );
+   public RaceConverter ( Category category ) {
+      super( category );
    }
 
    @Override protected void initialise() {

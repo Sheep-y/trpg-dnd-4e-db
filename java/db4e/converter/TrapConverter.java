@@ -5,8 +5,8 @@ import db4e.data.Entry;
 
 public class TrapConverter extends LeveledConverter {
 
-   public TrapConverter ( Category category, boolean debug ) {
-      super( category, debug );
+   public TrapConverter ( Category category ) {
+      super( category );
    }
 
    @Override protected void correctEntry () {

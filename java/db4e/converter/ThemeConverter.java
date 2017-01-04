@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 
 public class ThemeConverter extends Converter {
 
-   public ThemeConverter ( Category category, boolean debug ) {
-      super( category, debug );
+   public ThemeConverter ( Category category ) {
+      super( category );
    }
 
    @Override protected void initialise() {
