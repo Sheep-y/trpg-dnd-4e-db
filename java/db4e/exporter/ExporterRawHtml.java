@@ -22,7 +22,7 @@ public class ExporterRawHtml extends Exporter {
 
    private String root;
 
-   @Override public void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
+   @Override public synchronized void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
       super.setState( target, stopChecker, state );
       root = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
    }
@@ -42,7 +42,6 @@ public class ExporterRawHtml extends Exporter {
 
    @Override public Controller.RunExcept export ( Category category ) throws IOException {
       return () -> { synchronized( category ) {
-         log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
          writeCategory( category );
       } };
    }
@@ -94,6 +93,8 @@ public class ExporterRawHtml extends Exporter {
 
    protected void writeCategory ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
+      log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
+
       String template = ResourceUtils.getText( "res/export_entry.html" );
       String cat_id = category.id.toLowerCase();
       new File( root + cat_id ).mkdirs();

@@ -4,7 +4,6 @@ import db4e.controller.Controller;
 import db4e.data.Category;
 import db4e.data.Entry;
 import static db4e.exporter.Exporter.stop;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
@@ -23,16 +22,15 @@ public class ExporterRawCsv extends Exporter {
 
    @Override public Controller.RunExcept export ( Category category ) throws IOException {
       return () -> { synchronized( category ) {
-         log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
          writeCategory( category );
       } };
    }
 
    protected void writeCategory ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
+      log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
+
       String root = target.getParent();
-      String cat_id = category.id.toLowerCase();
-      new File( root + cat_id ).mkdirs();
       StringBuilder buffer = new StringBuilder( 65536 );
 
       buffer.append( "Url,Name," );
@@ -42,7 +40,7 @@ public class ExporterRawCsv extends Exporter {
 
       for ( Entry entry : category.entries ) {
          if ( ! entry.contentDownloaded ) continue;
-         csv( buffer.append( entry.id ).append( ',' ), entry.name ).append( ',' );
+         csv( buffer.append( "http://www.wizards.com/dndinsider/compendium/" ).append( entry.id ).append( ',' ), entry.name ).append( ',' );
          for ( String field : entry.fields )
             csv( buffer, field ).append( ',' );
          csv( buffer, entry.content ).append( '\n' );

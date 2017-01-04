@@ -34,7 +34,7 @@ public class ExporterMain extends Exporter {
 
    private String root;
 
-   @Override public void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
+   @Override public synchronized void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
       super.setState( target, stopChecker, state );
       root = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
    }
@@ -56,7 +56,6 @@ public class ExporterMain extends Exporter {
       if ( converter == null ) return null;
       return () -> { synchronized( category ) {
          converter.convert( state );
-         log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
          writeCategory( root, category, state );
       } };
    }
@@ -80,6 +79,7 @@ public class ExporterMain extends Exporter {
 
    private void writeCategory ( String root, Category category, ProgressState state ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
+      log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
       String cat_id = category.id.toLowerCase();
 
       StringBuilder buffer = new StringBuilder( 1024 );

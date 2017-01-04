@@ -14,6 +14,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -32,7 +35,7 @@ public abstract class Exporter {
    protected File target;
    protected ProgressState state;
 
-   public void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
+   public synchronized void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
       this.stopChecker = stopChecker;
       this.target = target;
       this.state = state;
@@ -52,6 +55,10 @@ public abstract class Exporter {
 
    protected final OutputStreamWriter openStream ( String path ) throws FileNotFoundException {
       return new OutputStreamWriter( new BufferedOutputStream( new FileOutputStream( path, false ) ), StandardCharsets.UTF_8 );
+   }
+
+   protected final OutputStreamWriter openStream ( Path path ) throws FileNotFoundException, IOException {
+      return new OutputStreamWriter( new BufferedOutputStream( Files.newOutputStream( path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING ) ), StandardCharsets.UTF_8 );
    }
 
    protected final StringBuilder backspace ( StringBuilder buf ) {

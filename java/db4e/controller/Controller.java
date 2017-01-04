@@ -10,6 +10,7 @@ import db4e.exporter.Exporter;
 import db4e.exporter.ExporterMain;
 import db4e.exporter.ExporterRawCsv;
 import db4e.exporter.ExporterRawHtml;
+import db4e.exporter.ExporterRawXlsx;
 import java.io.File;
 import java.io.StringWriter;
 import java.nio.file.Files;
@@ -463,6 +464,8 @@ public class Controller {
          exporter = new ExporterRawHtml();
       else if ( target.getName().toLowerCase().endsWith( ".csv" ) )
          exporter = new ExporterRawCsv();
+      else if ( target.getName().toLowerCase().endsWith( ".xlsx" ) )
+         exporter = new ExporterRawXlsx();
       else {
          new Alert( Alert.AlertType.ERROR, "Unknown file type. Must be html, csv, or xml.", ButtonType.OK ).showAndWait();
          return;
