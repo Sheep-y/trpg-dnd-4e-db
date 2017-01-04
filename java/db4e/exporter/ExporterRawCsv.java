@@ -1,6 +1,5 @@
 package db4e.exporter;
 
-import db4e.controller.Controller;
 import db4e.data.Category;
 import db4e.data.Entry;
 import static db4e.exporter.Exporter.stop;
@@ -20,13 +19,7 @@ public class ExporterRawCsv extends Exporter {
       state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
-   @Override public Controller.RunExcept export ( Category category ) throws IOException {
-      return () -> { synchronized( category ) {
-         writeCategory( category );
-      } };
-   }
-
-   protected void writeCategory ( Category category ) throws IOException, InterruptedException {
+   @Override public void export ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 

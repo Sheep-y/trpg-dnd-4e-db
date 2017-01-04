@@ -448,11 +448,10 @@ public class Controller {
          Convert.beforeConvert( categories, exportCategories );
          exporter.preExport( exportCategories );
          checkStop( "Writing data" );
-         exportEachCategory( exportCategories, exporter::export );
-
+         exportEachCategory( exportCategories, exporter );
          exporter.postExport( exportCategories );
-
          Convert.afterConvert();
+
          gui.stateCanExport( "Export complete, may view data" );
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
    }
@@ -466,7 +465,7 @@ public class Controller {
       else if ( target.getName().toLowerCase().endsWith( ".xlsx" ) )
          exporter = new ExporterRawXlsx();
       else {
-         new Alert( Alert.AlertType.ERROR, "Unknown file type. Must be html, csv, or xml.", ButtonType.OK ).showAndWait();
+         new Alert( Alert.AlertType.ERROR, "Unknown file type. Must be html, csv, or xlsx.", ButtonType.OK ).showAndWait();
          return;
       }
       exporter.setState( target, this::checkStop, state );
@@ -484,7 +483,7 @@ public class Controller {
          checkStop( "Writing catlog" );
          exporter.preExport( categories );
          checkStop( "Writing data" );
-         exportEachCategory( categories, exporter::export );
+         exportEachCategory( categories, exporter );
          exporter.postExport( categories );
 
          gui.stateCanExport( "Raw data exported" );
@@ -588,7 +587,7 @@ public class Controller {
       } while ( true );
    }
 
-   private void exportEachCategory ( List<Category> categories, FunctionExcept<Category, RunExcept> task ) throws Exception {
+   private void exportEachCategory ( List<Category> categories, Exporter exporter ) throws Exception {
       state.reset();
       state.update();
       log.log( Level.CONFIG, "Running category task in {0} threads.", threads-1 );
@@ -597,12 +596,13 @@ public class Controller {
          Exporter.stop.set( false );
          List<CompletableFuture<Void>> tasks = new ArrayList<>( categories.size() );
          for ( Category category : categories ) {
-            RunExcept job = task.apply( category );
-            if ( job == null ) return;
             CompletableFuture<Void> future = new CompletableFuture<>();
             tasks.add( future );
             threadPool.execute( () -> { try {
-               job.run();
+               synchronized ( exporter ) { /* sync with exporter.setState */ }
+               synchronized ( category ) {
+                  exporter.export( category );
+               }
                future.complete( null );
             } catch ( Exception e ) {
                future.completeExceptionally( e );
@@ -621,12 +621,5 @@ public class Controller {
     */
    public static interface RunExcept {
       void run ( ) throws Exception;
-   }
-
-   /**
-    * Same as Consumer, but throws Exception.
-    */
-   private static interface FunctionExcept<T,R> {
-      R apply ( T t ) throws Exception;
    }
 }

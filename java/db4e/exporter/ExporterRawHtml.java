@@ -1,6 +1,5 @@
 package db4e.exporter;
 
-import db4e.controller.Controller;
 import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
@@ -40,13 +39,7 @@ public class ExporterRawHtml extends Exporter {
       state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
-   @Override public Controller.RunExcept export ( Category category ) throws IOException {
-      return () -> { synchronized( category ) {
-         writeCategory( category );
-      } };
-   }
-
-   protected void writeCatalog ( List<Category> categories ) throws IOException {
+   private void writeCatalog ( List<Category> categories ) throws IOException {
       final String template = ResourceUtils.getText( "res/export_list.html" );
 
       final StringBuilder index_body = new StringBuilder();
@@ -91,7 +84,7 @@ public class ExporterRawHtml extends Exporter {
       }
    }
 
-   protected void writeCategory ( Category category ) throws IOException, InterruptedException {
+   @Override public void export ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 
@@ -113,7 +106,7 @@ public class ExporterRawHtml extends Exporter {
       }
    }
 
-   protected void testViewerExists () throws IOException {
+   private void testViewerExists () throws IOException {
       ResourceUtils.getText( "res/export_list.html" );
       ResourceUtils.getText( "res/export_entry.html" );
    }

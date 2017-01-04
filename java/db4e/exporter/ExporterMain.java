@@ -5,7 +5,6 @@
  */
 package db4e.exporter;
 
-import db4e.controller.Controller;
 import db4e.controller.ProgressState;
 import db4e.converter.Convert;
 import db4e.converter.Converter;
@@ -47,17 +46,15 @@ public class ExporterMain extends Exporter {
          throw new FileNotFoundException( "No viewer. Run ant make-viewer." );
       }
       new File( root ).mkdirs();
-      writeCatalog( root, categories );
+      writeCatalog( categories );
       state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
    }
 
-   @Override public Controller.RunExcept export ( Category category ) throws IOException {
+   @Override public void export ( Category category ) throws IOException, InterruptedException {
       Converter converter = Convert.getConverter( category );
-      if ( converter == null ) return null;
-      return () -> { synchronized( category ) {
-         converter.convert( state );
-         writeCategory( root, category, state );
-      } };
+      if ( converter == null ) return;
+      converter.convert( state );
+      writeCategory( category );
    }
 
    @Override public void postExport ( List<Category> categories ) throws IOException {
@@ -66,7 +63,7 @@ public class ExporterMain extends Exporter {
       writeViewer( root, target );
    }
 
-   private void writeCatalog ( String root, List<Category> categories ) throws IOException {
+   private void writeCatalog ( List<Category> categories ) throws IOException {
       StringBuilder buffer = new StringBuilder( 320 );
       try ( OutputStreamWriter writer = openStream( root + "/catalog.js" ) ) {
          buffer.append( "od.reader.jsonp_catalog(20130616,{" );
@@ -77,7 +74,7 @@ public class ExporterMain extends Exporter {
       }
    }
 
-   private void writeCategory ( String root, Category category, ProgressState state ) throws IOException, InterruptedException {
+   private void writeCategory ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
       String cat_id = category.id.toLowerCase();
@@ -212,6 +209,5 @@ public class ExporterMain extends Exporter {
       copyRes( root + "res/icon.png", "res/icon.png" );
       copyRes( target.getPath(), "res/4e_database.html" );
    }
-
 
 }

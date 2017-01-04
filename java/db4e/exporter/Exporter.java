@@ -1,7 +1,6 @@
 package db4e.exporter;
 
 import db4e.Main;
-import db4e.controller.Controller;
 import db4e.controller.ProgressState;
 import db4e.data.Category;
 import java.io.BufferedOutputStream;
@@ -42,7 +41,7 @@ public abstract class Exporter {
    }
 
    public abstract void preExport ( List<Category> categories ) throws IOException;
-   public abstract Controller.RunExcept export ( Category category ) throws IOException;
+   public abstract void export ( Category category ) throws IOException, InterruptedException;
    public void postExport ( List<Category> categories ) throws IOException {};
 
    protected void checkStop ( String status ) {
