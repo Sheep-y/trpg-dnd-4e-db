@@ -10,6 +10,8 @@ import db4e.exporter.Exporter;
 import db4e.exporter.ExporterMain;
 import db4e.exporter.ExporterRawCsv;
 import db4e.exporter.ExporterRawHtml;
+import db4e.exporter.ExporterRawJson;
+import db4e.exporter.ExporterRawTsv;
 import db4e.exporter.ExporterRawXlsx;
 import java.io.File;
 import java.io.StringWriter;
@@ -458,14 +460,18 @@ public class Controller {
 
    public void startExportRaw ( File target ) {
       Exporter exporter;
-      if ( target.getName().toLowerCase().endsWith( ".html" ) )
+      if ( target.getName().toLowerCase().endsWith( ".html" ) || target.getName().toLowerCase().endsWith( ".htm" ) )
          exporter = new ExporterRawHtml();
       else if ( target.getName().toLowerCase().endsWith( ".csv" ) )
          exporter = new ExporterRawCsv();
+      else if ( target.getName().toLowerCase().endsWith( ".tsv" ) )
+         exporter = new ExporterRawTsv();
+      else if ( target.getName().toLowerCase().endsWith( ".json" ) || target.getName().toLowerCase().endsWith( ".js" ) )
+         exporter = new ExporterRawJson();
       else if ( target.getName().toLowerCase().endsWith( ".xlsx" ) )
          exporter = new ExporterRawXlsx();
       else {
-         new Alert( Alert.AlertType.ERROR, "Unknown file type. Must be html, csv, or xlsx.", ButtonType.OK ).showAndWait();
+         new Alert( Alert.AlertType.ERROR, "Unknown file type. Must be html, csv, tsv, json, js, or xlsx.", ButtonType.OK ).showAndWait();
          return;
       }
       exporter.setState( target, this::checkStop, state );

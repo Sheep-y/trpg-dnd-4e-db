@@ -441,10 +441,12 @@ public class SceneMain extends Scene {
          dlgExportRaw = createExportDialog( "dummy", "*.*" );
          dlgExportRaw.getExtensionFilters().clear();
          dlgExportRaw.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter( "HTML", "raw_dump.html" ),
+            new FileChooser.ExtensionFilter( "Excel", "*.xlsx" ),
             new FileChooser.ExtensionFilter( "CSV (fixed filenames)", "race.csv" ),
-            new FileChooser.ExtensionFilter( "Excel", "raw_dump.xlsx" ) );
-         dlgExportRaw.setInitialFileName( "raw_dump.html" );
+            new FileChooser.ExtensionFilter( "TSV (fixed filenames)", "race.tsv" ),
+            new FileChooser.ExtensionFilter( "JSON", "*.json", "*.js" ),
+            new FileChooser.ExtensionFilter( "HTML", "*.html", "*.htm" ) );
+         dlgExportRaw.setInitialFileName( "raw_compendium.xlsx" );
       }
       File target = dlgExportRaw.showSaveDialog( getWindow() );
       if ( target == null ) return;

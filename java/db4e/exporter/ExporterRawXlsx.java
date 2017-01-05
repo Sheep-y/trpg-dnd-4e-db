@@ -95,7 +95,7 @@ public class ExporterRawXlsx extends Exporter {
       for ( Entry entry : category.entries ) {
          if ( ! entry.contentDownloaded ) continue;
          buffer.append( "<row>" );
-         cell( buffer, "http://www.wizards.com/dndinsider/compendium/" + entry.id );
+         cell( buffer, entry.getUrl() );
          cell( buffer, entry.name );
          for ( String field : entry.fields )
             cell( buffer, field );
