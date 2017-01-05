@@ -445,6 +445,7 @@ public class SceneMain extends Scene {
             new FileChooser.ExtensionFilter( "CSV (fixed filenames)", "race.csv" ),
             new FileChooser.ExtensionFilter( "TSV (fixed filenames)", "race.tsv" ),
             new FileChooser.ExtensionFilter( "JSON", "*.json", "*.js" ),
+            new FileChooser.ExtensionFilter( "SQL", "*.sql" ),
             new FileChooser.ExtensionFilter( "HTML", "*.html", "*.htm" ) );
          dlgExportRaw.setInitialFileName( "raw_compendium.xlsx" );
       }

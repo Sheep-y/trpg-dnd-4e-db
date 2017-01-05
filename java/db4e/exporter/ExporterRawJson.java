@@ -29,9 +29,9 @@ public class ExporterRawJson extends Exporter {
 
    @Override public void export ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
-      log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
+      log.log( Level.FINE, "Building {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 
-      StringBuilder buffer = new StringBuilder( 65536 );
+      StringBuilder buffer = new StringBuilder( 3 * 1024 * 1024 );
       str( buffer, category.id ).append( ":[ " ); // extra space to allow backspace in empty category
 
 

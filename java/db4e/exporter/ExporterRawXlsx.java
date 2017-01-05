@@ -77,7 +77,7 @@ public class ExporterRawXlsx extends Exporter {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 
-      StringBuilder buffer = new StringBuilder( 65535 );
+      StringBuilder buffer = new StringBuilder( 3 * 1024 * 1024 );
       buffer.append( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
          "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\">"
               // Freeze top row
@@ -115,7 +115,7 @@ public class ExporterRawXlsx extends Exporter {
    @Override public void postExport( List<Category> categories ) throws IOException {
       checkStop( "Building table" );
       state.set( -1 );
-      StringBuilder buffer = new StringBuilder( 65535 );
+      StringBuilder buffer = new StringBuilder( 46 * 1024 * 1024 );
       synchronized ( SharedString ) {
          int size = SharedString.size();
          String[] list = new String[ size ];
@@ -194,11 +194,10 @@ public class ExporterRawXlsx extends Exporter {
          char c = text.charAt( i );
          if ( c == '<' || c == '>' || c == '&' )
             if ( ! text.contains( "]]>" ) )
-               return "<![CDATA[" + text + "]]>"; // Works with Excel and is shorter.
+               return "<![CDATA[" + text + "]]>"; // Works with Excel and is much shorter on average.
             else
-               break;
+               return text.replace( "&", "&amp;" ).replace( "<", "&lt;" ).replace( ">", "&gt;" );
       }
       return text;
-      //return text.replace( "&", "&amp;" ).replace( "<", "&lt;" ).replace( ">", "&gt;" );
    }
 }

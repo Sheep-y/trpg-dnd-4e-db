@@ -25,7 +25,7 @@ public class ExporterRawTsv extends Exporter {
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 
       String root = target.getParent();
-      StringBuilder buffer = new StringBuilder( 65536 );
+      StringBuilder buffer = new StringBuilder( 3 * 1024 * 1024 );
 
       buffer.append( "Url\tName\t" );
       for ( String field : category.fields )

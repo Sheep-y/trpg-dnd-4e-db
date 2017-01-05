@@ -11,6 +11,7 @@ import db4e.exporter.ExporterMain;
 import db4e.exporter.ExporterRawCsv;
 import db4e.exporter.ExporterRawHtml;
 import db4e.exporter.ExporterRawJson;
+import db4e.exporter.ExporterRawSql;
 import db4e.exporter.ExporterRawTsv;
 import db4e.exporter.ExporterRawXlsx;
 import java.io.File;
@@ -468,6 +469,8 @@ public class Controller {
          exporter = new ExporterRawTsv();
       else if ( target.getName().toLowerCase().endsWith( ".json" ) || target.getName().toLowerCase().endsWith( ".js" ) )
          exporter = new ExporterRawJson();
+      else if ( target.getName().toLowerCase().endsWith( ".sql" ) )
+         exporter = new ExporterRawSql();
       else if ( target.getName().toLowerCase().endsWith( ".xlsx" ) )
          exporter = new ExporterRawXlsx();
       else {
