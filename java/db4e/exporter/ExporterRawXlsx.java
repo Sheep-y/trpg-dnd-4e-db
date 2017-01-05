@@ -135,9 +135,19 @@ public class ExporterRawXlsx extends Exporter {
 
       checkStop( "Packing to xlsx" );
       state.set( state.total );
-      fs.close();
    }
 
+   @Override public synchronized void close() throws IOException {
+      if ( fs == null ) return;
+      fs.close();
+      fs = null;
+   }
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Utils
+   /////////////////////////////////////////////////////////////////////////////
+
+   /** Break a long text into 32k chunk to work around Excel's limit. */
    private StringBuilder longCell ( StringBuilder buffer, String text ) throws InterruptedException {
       while ( text.length() > 32000 ) {
          cell( buffer, text.substring( 0, 32000 ) );
@@ -146,6 +156,7 @@ public class ExporterRawXlsx extends Exporter {
       return cell( buffer, text );
    }
 
+   /** Output text to a cell. */
    private StringBuilder cell ( StringBuilder buffer, String text ) throws InterruptedException {
       if ( text.isEmpty() )
          return buffer.append( "<c/>" );
@@ -163,6 +174,7 @@ public class ExporterRawXlsx extends Exporter {
       return buffer.append( "<c><v>" ).append( text ).append( "</v></c>" );
    }
 
+   /** Add text to xlsx's shared string table and put its id into cell. */
    private StringBuilder cellText ( StringBuilder buffer, String text ) throws InterruptedException {
       shareCount.incrementAndGet();
       Integer pos;
@@ -181,7 +193,10 @@ public class ExporterRawXlsx extends Exporter {
       for ( int i = text.length() - 1 ; i >= 0 ; i-- ) {
          char c = text.charAt( i );
          if ( c == '<' || c == '>' || c == '&' )
-            return "<![CDATA[" + text + "]]>";
+            if ( ! text.contains( "]]>" ) )
+               return "<![CDATA[" + text + "]]>"; // Works with Excel and is shorter.
+            else
+               break;
       }
       return text;
       //return text.replace( "&", "&amp;" ).replace( "<", "&lt;" ).replace( ">", "&gt;" );

@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -206,8 +208,7 @@ public class ExporterMain extends Exporter {
 
    private void writeViewer ( String root, File target ) throws IOException {
       new File( root + "res" ).mkdir();
-      copyRes( root + "res/icon.png", "res/icon.png" );
-      copyRes( target.getPath(), "res/4e_database.html" );
+      Files.copy( ResourceUtils.getStream( "res/icon.png" ), new File( root + "res/icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      Files.copy( ResourceUtils.getStream( "res/4e_database.html" ), target.toPath(), StandardCopyOption.REPLACE_EXISTING );
    }
-
 }

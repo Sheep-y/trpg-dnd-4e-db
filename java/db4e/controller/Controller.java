@@ -435,22 +435,22 @@ public class Controller {
       gui.setTitle( "Exporting" );
       gui.setStatus( "Starting export" );
       gui.stateRunning();
-      gui.setProgress( -1.0 );
-      state.reset();
+      state.set( -1 );
       return runTask( () -> {
          setPriority( Thread.MIN_PRIORITY );
          checkStop( "Loading content" );
          dal.loadEntityContent( categories, state );
 
          checkStop( "Writing catlog" );
-         Exporter exporter = new ExporterMain();
-         exporter.setState( target, this::checkStop, state );
-         Convert.beforeConvert( categories, exportCategories );
-         exporter.preExport( exportCategories );
-         checkStop( "Writing data" );
-         exportEachCategory( exportCategories, exporter );
-         exporter.postExport( exportCategories );
-         Convert.afterConvert();
+         try ( Exporter exporter = new ExporterMain() ) {
+            exporter.setState( target, this::checkStop, state );
+            Convert.beforeConvert( categories, exportCategories );
+            exporter.preExport( exportCategories );
+            checkStop( "Writing data" );
+            exportEachCategory( exportCategories, exporter );
+            exporter.postExport( exportCategories );
+            Convert.afterConvert();
+         }
 
          gui.stateCanExport( "Export complete, may view data" );
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
@@ -469,22 +469,22 @@ public class Controller {
          return;
       }
       exporter.setState( target, this::checkStop, state );
-      gui.setTitle( "Exporting Raw" );
+      gui.setTitle( "Exporting" );
       gui.setStatus( "Starting export" );
       gui.stateRunning();
-      gui.setProgress( -1.0 );
-      state.reset();
-      log.log( Level.CONFIG, "Raw export target: {0}", target );
+      state.set( -1 );
       runTask( () -> {
          setPriority( Thread.MIN_PRIORITY );
          checkStop( "Loading content" );
          dal.loadEntityContent( categories, state );
 
-         checkStop( "Writing catlog" );
-         exporter.preExport( categories );
-         checkStop( "Writing data" );
-         exportEachCategory( categories, exporter );
-         exporter.postExport( categories );
+         try ( Exporter exp = exporter ) {
+            checkStop( "Writing catlog" );
+            exp.preExport( categories );
+            checkStop( "Writing data" );
+            exportEachCategory( categories, exp );
+            exp.postExport( categories );
+         }
 
          gui.stateCanExport( "Raw data exported" );
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );

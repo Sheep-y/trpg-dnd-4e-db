@@ -7,7 +7,7 @@ import static db4e.exporter.Exporter.stop;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -69,8 +69,8 @@ public class ExporterRawHtml extends Exporter {
          output = output.replace( "[title]", Utils.escapeHTML( category.getName() ) );
          output = output.replace( "[head]", head );
          output = output.replace( "[body]", body );
-         try ( OutputStreamWriter writer = openStream( root + category.id + ".html" ) ) {
-            write( writer, output );
+         try ( Writer writer = openStream( root + category.id + ".html" ) ) {
+            writer.write( output );
          }
       }
 
@@ -79,8 +79,8 @@ public class ExporterRawHtml extends Exporter {
       output = output.replace( "[title]", "4e Compendium Data" );
       output = output.replace( "[head]", "<th>Category</th><th>Count</th>" );
       output = output.replace( "[body]", index_body );
-      try ( OutputStreamWriter writer = openStream( target.toString() ) ) {
-         write( writer, output );
+      try ( Writer writer = openStream( target.toString() ) ) {
+         writer.write( output );
       }
    }
 
@@ -99,8 +99,8 @@ public class ExporterRawHtml extends Exporter {
          String buffer = template;
          buffer = buffer.replace( "[title]", Utils.escapeHTML( entry.name ) );
          buffer = buffer.replace( "[body]", entry.content );
-         try ( OutputStreamWriter writer = openStream( root + cat_id + "/" + entry.id.replace( ".aspx?id=", "-" ) + ".html" ) ) {
-            write( writer, buffer );
+         try ( Writer writer = openStream( root + cat_id + "/" + entry.id.replace( ".aspx?id=", "-" ) + ".html" ) ) {
+            writer.write( buffer );
          }
          state.addOne();
       }

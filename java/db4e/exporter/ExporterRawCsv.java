@@ -4,7 +4,7 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import static db4e.exporter.Exporter.stop;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -28,23 +28,28 @@ public class ExporterRawCsv extends Exporter {
 
       buffer.append( "Url,Name," );
       for ( String field : category.fields )
-         csv( buffer, field ).append( ',' );
+         cell( buffer, field ).append( ',' );
       buffer.append( "Content\n" );
 
       for ( Entry entry : category.entries ) {
          if ( ! entry.contentDownloaded ) continue;
-         csv( buffer.append( "http://www.wizards.com/dndinsider/compendium/" ).append( entry.id ).append( ',' ), entry.name ).append( ',' );
+         cell( buffer.append( "http://www.wizards.com/dndinsider/compendium/" ).append( entry.id ).append( ',' ), entry.name ).append( ',' );
          for ( String field : entry.fields )
-            csv( buffer, field ).append( ',' );
-         csv( buffer, entry.content ).append( '\n' );
+            cell( buffer, field ).append( ',' );
+         cell( buffer, entry.content ).append( '\n' );
       }
       backspace( buffer );
 
       if ( stop.get() ) throw new InterruptedException();
-      try ( OutputStreamWriter writer = openStream( root + "/" + category.id + ".csv" ) ) {
-         write( writer, buffer.toString() );
+      try ( Writer writer = openStream( root + "/" + category.id + ".csv" ) ) {
+         writer.write( buffer.toString() );
       }
       state.add( category.entries.size() );
    }
 
+   private StringBuilder cell ( StringBuilder buf, String in ) {
+      if ( in.contains( "\"" ) || in.contains( "\n" ) || in.contains( "," ) )
+         return buf.append( '"' ).append( in.replace( "\"", "\"\"" ) ).append( '"' );
+      return buf.append( in );
+   }
 }
