@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import java.util.logging.Level;
+import javafx.scene.control.ButtonType;
 
 /**
  *\ Export raw data as Json
@@ -14,17 +15,24 @@ import java.util.logging.Level;
 public class ExporterRawSql extends Exporter {
 
    private Writer writer;
+
+   private static final ButtonType MYSQL = new ButtonType( "MySQL" );
+   private static final ButtonType MSSQL = new ButtonType( "MySQL" );
+   private static final ButtonType POSTGRE = new ButtonType( "MySQL" );
+
    private char id_quote_start;
    private char id_quote_end;
    private char string_prefix;
-   private String varchar = " VARCHAR(1000)";
-   private String text = " TEXT";
+   private String url = " VARCHAR(70)"; // max 69
+   private String varchar = " VARCHAR(310)"; // max 303
+   private String text = " MEDIUMTEXT"; // max 127599
 
    @Override public void preExport ( List<Category> categories ) throws IOException {
       log.log( Level.CONFIG, "Export raw Sql: {0}", target );
       target.getParentFile().mkdirs();
       synchronized ( this ) {
          writer = openStream( target.toPath() );
+         writer.write( "SET NAMES 'UTF8';\n" );
          id_quote_start = id_quote_end = '`';
          string_prefix = ' ';
       }
@@ -38,17 +46,18 @@ public class ExporterRawSql extends Exporter {
       StringBuilder buffer = new StringBuilder( 3 * 1024 * 1024 );
       id( buffer.append( "\nDROP TABLE IF EXISTS " ), category.id ).append( ";\n" );
       id( buffer.append( "CREATE TABLE " ), category.id ).append( "(\n  " );
-      id( buffer, "Url" ).append( varchar ).append( ",\n  " );
+      id( buffer, "Url" ).append( url ).append( " PRIMARY KEY,\n  " );
       id( buffer, "Name" ).append( varchar ).append( ",\n  " );
       for ( String field : category.fields )
          id( buffer, field ).append( varchar ).append( ",\n  " );
-      id( buffer, "Content" ).append( text );
-      buffer.append( ");\n\n" );
+      id( buffer, "Content" ).append( text ).append( "\n   " );
+      buffer.append( ") " );
 
-      id( buffer.append( "INSERT INTO "), category.id ).append( " VALUES " );
-
+      int rowCount = 0;
       for ( Entry entry : category.entries ) {
          if ( ! entry.contentDownloaded ) continue;
+         if ( rowCount++ % 20 == 0 )
+            id( backspace( buffer ).append( ";\nINSERT INTO "), category.id ).append( " VALUES " );
          buffer.append( "\n(" );
          txt( buffer, entry.getUrl() ).append( ',' );
          txt( buffer, entry.name ).append( ',' );
