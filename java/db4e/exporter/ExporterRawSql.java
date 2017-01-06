@@ -1,12 +1,16 @@
 package db4e.exporter;
 
+import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
 import static db4e.exporter.Exporter.stop;
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Level;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
 /**
@@ -17,24 +21,41 @@ public class ExporterRawSql extends Exporter {
    private Writer writer;
 
    private static final ButtonType MYSQL = new ButtonType( "MySQL" );
-   private static final ButtonType MSSQL = new ButtonType( "MySQL" );
-   private static final ButtonType POSTGRE = new ButtonType( "MySQL" );
+   private static final ButtonType MSSQL = new ButtonType( "MS SQL" );
+   private static final ButtonType POSTGRE = new ButtonType( "Postgre" );
 
    private char id_quote_start;
    private char id_quote_end;
    private char string_prefix;
-   private String url = " VARCHAR(70)"; // max 69
-   private String varchar = " VARCHAR(310)"; // max 303
+   private String varchar = " VARCHAR"; // max 303
    private String text = " MEDIUMTEXT"; // max 127599
 
-   @Override public void preExport ( List<Category> categories ) throws IOException {
-      log.log( Level.CONFIG, "Export raw Sql: {0}", target );
+   @Override public synchronized void setState( File target, Consumer<String> stopChecker, ProgressState state ) {
+      super.setState(target, stopChecker, state);
+      ButtonType choice = new Alert( Alert.AlertType.CONFIRMATION, "Select database type:", MYSQL, MSSQL, ButtonType.CANCEL ).showAndWait().orElse( ButtonType.CANCEL );
+      if ( choice.equals( MYSQL ) ) {
+         id_quote_start = id_quote_end = '`';
+         string_prefix = ' ';
+      } else if ( choice.equals( MSSQL ) ) {
+         id_quote_start = '[';
+         id_quote_end = ']';
+         string_prefix = 'N';
+         varchar = " NVARCHAR";
+         text = " NTEXT";
+      } else if ( choice.equals( POSTGRE ) ) {
+         id_quote_start = id_quote_end = '"';
+         string_prefix = ' ';
+      } else //if ( choice.equals( ButtonType.CANCEL ) )
+         throw new RuntimeException( "Cancelled" );
+   }
+
+   @Override public void preExport ( List<Category> categories ) throws IOException, InterruptedException {
+      log.log( Level.CONFIG, "Export raw {1}Sql{2}: {0}", new Object[]{ target, id_quote_start, id_quote_end } );
       target.getParentFile().mkdirs();
       synchronized ( this ) {
          writer = openStream( target.toPath() );
-         writer.write( "SET NAMES 'UTF8';\n" );
-         id_quote_start = id_quote_end = '`';
-         string_prefix = ' ';
+         if ( id_quote_start == '`' )
+            writer.write( "SET NAMES 'UTF8';\n" );
       }
       state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
@@ -43,14 +64,24 @@ public class ExporterRawSql extends Exporter {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Building {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 
+      int maxField = category.fields.length - 1;
+      int[] maxLen = new int[ category.fields.length + 2 ];
+      for ( Entry entry : category.entries ) {
+         if ( entry.getUrl().length() > maxLen[0] ) maxLen[0] = entry.getUrl().length();
+         if ( entry.name.length() > maxLen[1] ) maxLen[1] = entry.name.length();
+         for ( int i = 0 ; i <= maxField ; i++ )
+            if ( entry.fields[i].length() > maxLen[i+2] )
+               maxLen[i+2] = entry.fields[i].length();
+      }
+
       StringBuilder buffer = new StringBuilder( 3 * 1024 * 1024 );
       id( buffer.append( "\nDROP TABLE IF EXISTS " ), category.id ).append( ";\n" );
       id( buffer.append( "CREATE TABLE " ), category.id ).append( "(\n  " );
-      id( buffer, "Url" ).append( url ).append( " PRIMARY KEY,\n  " );
-      id( buffer, "Name" ).append( varchar ).append( ",\n  " );
-      for ( String field : category.fields )
-         id( buffer, field ).append( varchar ).append( ",\n  " );
-      id( buffer, "Content" ).append( text ).append( "\n   " );
+      id( buffer, "Url" ).append( varchar ).append( '(' ).append( maxLen[0] ).append( ") NOT NULL PRIMARY KEY,\n  " );
+      id( buffer, "Name" ).append( varchar ).append( '(' ).append( maxLen[1] ).append( ") NOT NULL,\n  " );
+      for ( int i = 0 ; i <= maxField ; i++ )
+         id( buffer, category.fields[i] ).append( varchar ).append( '(' ).append( maxLen[i+2] ).append( ") NOT NULL,\n  " );
+      id( buffer, "Content" ).append( text ).append( " NOT NULL \n   " );
       buffer.append( ") " );
 
       int rowCount = 0;

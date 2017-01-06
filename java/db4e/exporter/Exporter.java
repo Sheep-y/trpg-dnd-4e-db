@@ -38,7 +38,7 @@ public abstract class Exporter implements Closeable {
       this.state = state;
    }
 
-   public abstract void preExport ( List<Category> categories ) throws IOException;
+   public abstract void preExport ( List<Category> categories ) throws IOException, InterruptedException;
    public abstract void export ( Category category ) throws IOException, InterruptedException;
    public void postExport ( List<Category> categories ) throws IOException {};
    @Override public void close() throws IOException { }

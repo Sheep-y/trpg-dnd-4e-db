@@ -326,7 +326,7 @@ public class SceneMain extends Scene {
                popupHandler.getLoadWorker().cancel();
             } catch ( Exception err ) {
                // Should not happen because invalid url won't trigger popup
-               log.log( Level.WARNING, "Malformed URL: {0}", err );
+               log.log( Level.WARNING, "Malformed URL: {0}", Utils.stacktrace( err ) );
                //new Alert( Alert.AlertType.ERROR, "Cannot open " + now, ButtonType.OK ).show();
             } } );
          }
@@ -338,8 +338,8 @@ public class SceneMain extends Scene {
             runFX( () -> {
                   web.getEngine().loadContent( txt );
             } );
-         } catch ( IOException ex ) {
-            log.log( Level.WARNING, "Error when loading help: {0}", Utils.stacktrace(ex) );
+         } catch ( IOException err ) {
+            log.log( Level.WARNING, "Error when loading help: {0}", Utils.stacktrace( err ) );
             runFX( () -> {
                web.getEngine().loadContent( "<h1>Cannot load help.</h1>"
                      + "<h2><a href='https://github.com/Sheep-y/trpg-dnd-4e-db'>Project Home</a.></h2>" );
@@ -451,8 +451,12 @@ public class SceneMain extends Scene {
       }
       File target = dlgExportRaw.showSaveDialog( getWindow() );
       if ( target == null ) return;
-      pnlC.getSelectionModel().select( tabData );
-      loader.startExportRaw( target );
+      try {
+         loader.startExportRaw( target );
+         pnlC.getSelectionModel().select( tabData );
+      } catch ( RuntimeException err ) {
+         log.log( Level.INFO, "Cannot initiate raw export: {0}", Utils.stacktrace( err ) );
+      }
    }
 
    private FileChooser createExportDialog ( String display, String filename ) {
