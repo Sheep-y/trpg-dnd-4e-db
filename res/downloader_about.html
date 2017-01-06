@@ -80,7 +80,7 @@ li {
          </ol>
       </section>
       <section>
-         <h2 id='faq'> Troubleshoot </h2>
+         <h2 id='faq'> Troubleshoot (Download)</h2>
          <ol>
             <li>
                <b>How to get DDI subscription?</b> <br/>
@@ -123,7 +123,7 @@ li {
             <li>
                <b>~ failed (script error)</b> <br/>
                This means the login form or compendium has changed (again).
-               May need a programmer to solve this one. See "other errors" below.
+               May need a programmer to solve this one. See "other download errors" below.
             </li>
             <li>
                <b>Unknown host</b> <br/>
@@ -132,23 +132,7 @@ li {
                3) Wizards finally pulled the plug on ddi.wizards.com.
             </li>
             <li>
-               <b>Not enough space</b> <br/>
-               Check the drive where you are exporting data.
-               Exported data is 60 MB in size,
-               but some devices <a href='http://www.howtogeek.com/180369/why-is-there-a-big-difference-between-size-and-size-on-disk/'>may require</a> 100+ MB.
-               <br/>
-               If you have used old version (3.5.1 or before) and is overwriting older export, please delete old export first.
-               New version use a more efficient format that dramatically reduce waste space and speedup file copy.
-            </li>
-            <li>
-               <b>Data is different from official compendium</b> <br/>
-               This downloader will fix known mistakes and re-catogarise some data.
-               See <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/#user-content-fixing-compendium-errors'>project homepage</a> for a summary,
-               and the in-app debug log will log each affected entry. <br/>
-               Alternatively, use the Option tab's data export to export unmodified data in a simple form.
-            </li>
-            <li>
-               <b>Other errors</b> <br/>
+               <b>Other download errors</b> <br/>
                Some one-off problems can be solved by closing and rerunning the program. <br/> <br/>
 
                For persistent problems, if you enable debug tabs and restart, you can see a detailed log,
@@ -165,7 +149,61 @@ li {
                For example if there is a login problem because Wizards changed the login system,
                you can try to manually login from this browser.
                This may allows downloads to proceed normally.<br/>
-
+            </li>
+         </ol>
+         <h2 id='faq_export'> Troubleshoot (Export)</h2>
+         <ol>
+            <li>
+               <b>Not enough space</b> <br/>
+               Check the drive's free space.
+               Exported data takes up 60 MB,
+               but some devices <a href='http://www.howtogeek.com/180369/why-is-there-a-big-difference-between-size-and-size-on-disk/'>may require</a> 100+ MB.
+               <br/>
+               If you are overwriting an export from older version (3.5.1 or before), please delete old export first.
+               New version use a more efficient format that dramatically reduce waste space and speedup file copy.
+            </li>
+            <li>
+               <b>Data is wrong / different from official compendium</b> <br/>
+               The official compendium has  known errors and they will be fixed during export, in addition to other enhancements.
+               See <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/#user-content-fixing-compendium-errors'>project homepage</a> for a summary,
+               and the in-app debug log will log each affected entry. <br/>
+               Alternatively, use the Option tab's data export to export unmodified data in a simple form.
+            </li>
+            <li>
+               <b>How to extract the data?</b> <br/>
+               Go to options tab, click on "Dump Data", and select the dump file from the save file dialog.
+            </li>
+            <li>
+               <b>I want the data in XXX format.</b> <br/>
+               You can file <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/'>an issue</a> to request it. <br/>
+               The current format list is pretty comprehensive and representative of how far I'd go. <br/>
+               No txt because txt has no standard format.  No Oracle SQL because it is too different.  No Word or pdf because it's almost impossible.
+            </li>
+            <li>
+               <b>Dumped data is incomplete</b> <br/>
+               1) Official data contains empty entries, and some other miss a good chunk of their content.<br/>
+               <br/>
+               2) The tools that read the dump have its limits.<br/>
+               For example Excel has a <a href='https://support.office.com/en-us/article/Excel-specifications-and-limits-ca36e2dc-1f09-4620-b726-67c00b05040f'>32k character limits</a> per cell.
+               It will chop off longer data when it reads the csv/tsv dump.
+               <br/>
+               3) The raw data depends on online images and css, the same as official compendium.<br/>
+               If you dump the data in HTML format, they can recreate the original view when online.
+            </li>
+            <li>
+               <b>Cannot import dumped data</b> <br/>
+               1) See above question, especially the limit part.
+               <br/>
+               2) The data contains Unicode characters and are in UTF-8 format.<br/>
+               Program that does not use Unicode by default may display garbage or throw error.
+               <br/>
+               3) For SQL, the export is tested on latest database during development, at default settings: <br/>
+               MySQL 5.7, SQL Server 2016, and Postgre 9.6. <br/>
+               Older versions may not support the syntax being used, which you can fix with search and replace.
+               <br/>
+               4) For Excel (xlsx), the export opens without error in Excel 2013.<br/>
+               As of Jan 2017, Google Sheet cannot import the data regardless of the format.
+               If you ask for their support and they reply something useful, please file <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/'>an issue</a>.
             </li>
          </ol>
       </section>

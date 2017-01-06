@@ -98,8 +98,8 @@ public class SceneMain extends Scene {
            "Show app log and console.  Will slow down download & export and use more memory." );
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
-   final Button btnExportData = JavaFX.tooltip( new Button( "Export Raw Data" ),
-           "Export raw data in different formats." );
+   final Button btnExportData = JavaFX.tooltip( new Button( "Dump Data" ),
+           "Dump raw downloaded data in different formats." );
    final Button btnCheckUpdate = JavaFX.tooltip( new Button( "Check update" ),
            "Check for availability of new releases." );
    private final Pane pnlOptionTab = new VBox( 8,
@@ -445,7 +445,7 @@ public class SceneMain extends Scene {
             new FileChooser.ExtensionFilter( "Excel", "*.xlsx" ),
             new FileChooser.ExtensionFilter( "CSV (fixed filenames)", "race.csv" ),
             new FileChooser.ExtensionFilter( "TSV (fixed filenames)", "race.tsv" ),
-            new FileChooser.ExtensionFilter( "JSON", "*.json", "*.js" ),
+            new FileChooser.ExtensionFilter( "JSON", "*.json" ),
             new FileChooser.ExtensionFilter( "SQL", "*.sql" ),
             new FileChooser.ExtensionFilter( "HTML", "*.html", "*.htm" ) );
          dlgExportRaw.setInitialFileName( "raw_compendium.xlsx" );
@@ -457,7 +457,7 @@ public class SceneMain extends Scene {
          loader.startExportRaw( target );
          pnlC.getSelectionModel().select( tabData );
       } catch ( RuntimeException err ) {
-         log.log( Level.INFO, "Cannot initiate raw export: {0}", Utils.stacktrace( err ) );
+         log.log( Level.INFO, "Cannot initiate dump: {0}", Utils.stacktrace( err ) );
       }
    }
 

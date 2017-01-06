@@ -467,19 +467,19 @@ public class Controller {
          exporter = new ExporterRawCsv();
       else if ( target.getName().toLowerCase().endsWith( ".tsv" ) )
          exporter = new ExporterRawTsv();
-      else if ( target.getName().toLowerCase().endsWith( ".json" ) || target.getName().toLowerCase().endsWith( ".js" ) )
+      else if ( target.getName().toLowerCase().endsWith( ".json" ) )
          exporter = new ExporterRawJson();
       else if ( target.getName().toLowerCase().endsWith( ".sql" ) )
          exporter = new ExporterRawSql();
       else if ( target.getName().toLowerCase().endsWith( ".xlsx" ) )
          exporter = new ExporterRawXlsx();
       else {
-         new Alert( Alert.AlertType.ERROR, "Unknown file type. Must be html, csv, tsv, json, js, or xlsx.", ButtonType.OK ).showAndWait();
+         new Alert( Alert.AlertType.ERROR, "Unknown file type. Must be html, csv, tsv, json, or xlsx.", ButtonType.OK ).showAndWait();
          return;
       }
       exporter.setState( target, this::checkStop, state );
-      gui.setTitle( "Exporting" );
-      gui.setStatus( "Starting export" );
+      gui.setTitle( "Dumping" );
+      gui.setStatus( "Starting dump" );
       gui.stateRunning();
       state.set( -1 );
       runTask( () -> {
@@ -495,8 +495,8 @@ public class Controller {
             exp.postExport( categories );
          }
 
-         gui.stateCanExport( "Raw data exported" );
-      } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
+         gui.stateCanExport( "Raw data dumped" );
+      } ).whenComplete( terminate( "Dump", gui::stateCanExport ) );
    }
 
    /////////////////////////////////////////////////////////////////////////////
