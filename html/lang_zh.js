@@ -107,21 +107,21 @@ _.l.set( 'action.about', {
    'opt_highlight_off' : "不顯示",
 
    'h_license' : "授權及私隱聲明",
-   'p_license' : "此程式稿免費開源，以 GNU AGPL v3 授權發佈。<br/>本程式稿不收集任何可以辨認個人的資訊。",
-   'a_github'  : "Github 源碼",
+   'p_license' : "此程式稿免費開源，以 GNU AGPL v3 授權發佈。<br/>本應用不收集任何個人資訊。",
+   'a_github'  : "主頁",
    'a_email'  : "電郵",
-   'lbl_source_manual' : "請在關閉此提示後右按並點選'顯示源碼'，因為 IE 不支援，因為您的瀏覽器不能用程序呼叫這功能。",
 
-   'h_get_data' : "如何獲取數據",
-   'p_get_data' :
-      "此文本不附帶任何數據。如果你有生效中(已付費)的 <a href='http://ddi.wizards.com/'>Dungeons & Dragons Insider</a> 訂閱及一部電腦，你可以用<a href='https://github.com/Sheep-y/trpg-dnd-4e-db#readme'>下載器</a>獲取數據。",
+   'h_intro' : "這是甚麼？",
+   'p_intro' :
+      "這是個由同好者重制的 <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider 數據庫</a>，適用於查找四代龍與地下城的資源。 <br><br>"+
+      "如果你發現沒有數據或數據不全，可以用<a href='https://github.com/Sheep-y/trpg-dnd-4e-db#readme'>下載器</a>獲取數據。",
 
-   'h_search_data' : "如何搜尋數據",
+   'h_search_data' : "如何搜尋",
    'p_search_data' :
       "輸入要找的字詞，就會找出包含所有字詞的結果，不論順序，不論大小寫。 <br/>"+
-      "例、<kbd>fighter heal</kbd> 會找出同時包括 <q>Fighter</q> 和 <q>Heal</q> 或 <q>Healing</q> 或 <q>Healer</q> 的結果. <br/>"+
+      "例、<kbd>fighter heal</kbd> 會找出同時包括 <q>Fighter</q> 和 <q>Heal</q> 或 <q>Healing</q> 或 <q>Healer</q> 的資料. <br/>"+
       "<br/>"+
-      "您可以先選取一個類別，以收窄搜尋範圍。搜尋字會自動以高亮顯示，在 Firefox 裡可以從右按選單中關閉。<br/>"+
+      "您可以先選取一個類別，以收窄搜尋範圍。搜尋字會自動以高亮顯示，可以在選項中關閉。<br/>"+
       "<br/> <ul>"+
       "<li> 要搜尋特定詞組，可以用半形雙引號 <q>\"</q> 包裹它。 <br/>"+
       " &nbsp; 例、<kbd>\"extra damage\"</kbd> 只符合詞組 <q>Extra damage</q>，而不是分成 <q>Extra</q> 和 <q>Damage</q>。 <br/>"+
@@ -133,24 +133,24 @@ _.l.set( 'action.about', {
       " &nbsp; 例、<kbd>ranger OR rogue blind</kbd> 會搜尋包含 <q>Blind</q> 以及 <q>Ranger</q> 或 <q>Rogue</q>。 <br/>"+
       "<li> 用 '*' 作萬用字符。 <br/>"+
       " &nbsp; 例、<kbd>p* bonus</kbd> 同時符合 <q>Proficiency bonus</q> 和 <q>Power bonus</q>。 <br/>"+
+      "<li> 等級和價格欄可以施予數字範圍 <br/>"+
+      " &nbsp; 例、在等級欄中輸入 <kbd>10-12</kbd> 會得出等級 10 至 12 的結果。<br/>物品的等級和價格包括它的所有等級，例如 聖劍復仇 Holy Avenger 同時視作 25級 和 30級。<br/>"+
       "<li> 如果您會用正規表逹式，您可以用它代替字詞。 <br/>"+
       " &nbsp; 例、<kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd>. "+
       "</ul>",
 
-   'h_move_data' : "如何搬移數據",
+   'h_move_data' : "手機支援",
    'p_move_data' :
-      "已獲取的數據會儲存在 <q id='action_about_lbl_folder'></q> 目錄之內。 <br/>"+
-      "你只需要開啓本 HTML 就可以離線瀏覽和搜尋它們。 <br/>"+
-      "在個人使用的前提下，您可以合法地將本 HTML 和數據目錄複制到 USB 或智能電話。 <br/>"+
+      "數據儲存在 <q id='action_about_lbl_folder'></q> 目錄之內。 <br/>"+
+      "在個人使用的前提下，您可以合法地將本 HTML 和數據目錄複制到 USB 儲存裝置或智能電話。 <br/>"+
       "<br/>"+
-      "預設的安卓瀏覽器不支援開啓本機檔案，但您可以用 <a href='https://play.google.com/store/apps/details?id=com.opera.browser'>Opera Mobile</a> 或 <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox Mobile</a>。不能用 Chrome。 <br/> "+
-      "蘋果的 iTune 有各種限制，目前您需要已越獄的裝置。"+
-      "如果您有對其他智能電話/裝置的經驗，請讓我知道。"+
+      "預設的安卓瀏覽器可能不允許瀏覽本機檔案，但您可以用 <a href='https://play.google.com/store/apps/details?id=com.opera.browser'>Opera</a> 或 <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox</a>。Chrome 不一定能開。 <br/> "+
+      "蘋果有諸多限制。如果您有方法在 iOS 上閱讀資料，請讓我知道。"+
       "<br/>"+
-      "你可以把東西都放到個人網頁伺服器，不過初始的搜尋可能很慢，完整全文搜尋需要 ~37MB 數據。",
+      "你可以把全部檔案當成是一個網站上載到互聯網，不過搜尋會需時：完整的全文搜尋需要下載 ~24MB 數據。",
 
    'h_history' : "產品歷史",
-   'lbl_english_only' : "此章節只有英文版本。",
+   'lbl_english_only' : "此節只有英文版本。",
 
    'h_version_history' : "版本歷史",
 
