@@ -416,6 +416,7 @@ public class SceneMain extends Scene {
          dlgCreateView = createExportDialog( "4e Offline Compendium", "4e_database.html" );
       File target = dlgCreateView.showSaveDialog( getWindow() );
       if ( target == null || ! target.getName().toLowerCase().endsWith( ".html" ) ) return;
+      dlgCreateView.setInitialFileName( target.getName() );
 
       CompletableFuture<Void> ready = CompletableFuture.completedFuture( null );
       String data_dir = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
@@ -451,6 +452,7 @@ public class SceneMain extends Scene {
       }
       File target = dlgExportRaw.showSaveDialog( getWindow() );
       if ( target == null ) return;
+      dlgExportRaw.setInitialFileName( target.getName() );
       try {
          loader.startExportRaw( target );
          pnlC.getSelectionModel().select( tabData );

@@ -22,20 +22,22 @@ public class ExporterRawSql extends Exporter {
 
    private static final ButtonType MYSQL = new ButtonType( "MySQL" );
    private static final ButtonType MSSQL = new ButtonType( "MS SQL" );
-   private static final ButtonType POSTGRE = new ButtonType( "Postgre" );
+   private static final ButtonType POSTGRE = new ButtonType( "ANSI (Postgre)" );
 
    private char id_quote_start;
    private char id_quote_end;
    private char string_prefix;
-   private String varchar = " VARCHAR"; // max 303
-   private String text = " MEDIUMTEXT"; // max 127599
+   private String varchar; // max 303
+   private String text; // max 127599
 
    @Override public synchronized void setState( File target, Consumer<String> stopChecker, ProgressState state ) {
       super.setState(target, stopChecker, state);
-      ButtonType choice = new Alert( Alert.AlertType.CONFIRMATION, "Select database type:", MYSQL, MSSQL, ButtonType.CANCEL ).showAndWait().orElse( ButtonType.CANCEL );
+      ButtonType choice = new Alert( Alert.AlertType.CONFIRMATION, "Select database type:", MYSQL, MSSQL, POSTGRE, ButtonType.CANCEL ).showAndWait().orElse( ButtonType.CANCEL );
       if ( choice.equals( MYSQL ) ) {
          id_quote_start = id_quote_end = '`';
          string_prefix = ' ';
+         varchar = " VARCHAR";
+         text = " MEDIUMTEXT";
       } else if ( choice.equals( MSSQL ) ) {
          id_quote_start = '[';
          id_quote_end = ']';
@@ -45,6 +47,8 @@ public class ExporterRawSql extends Exporter {
       } else if ( choice.equals( POSTGRE ) ) {
          id_quote_start = id_quote_end = '"';
          string_prefix = ' ';
+         varchar = " VARCHAR";
+         text = " TEXT";
       } else //if ( choice.equals( ButtonType.CANCEL ) )
          throw new RuntimeException( "Cancelled" );
    }
@@ -54,7 +58,7 @@ public class ExporterRawSql extends Exporter {
       target.getParentFile().mkdirs();
       synchronized ( this ) {
          writer = openStream( target.toPath() );
-         if ( id_quote_start == '`' )
+         if ( id_quote_start == '`' || id_quote_start == '"' )
             writer.write( "SET NAMES 'UTF8';\n" );
       }
       state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
