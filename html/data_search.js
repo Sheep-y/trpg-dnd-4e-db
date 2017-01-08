@@ -72,15 +72,15 @@ od.search = {
          if ( cat ) {
             result = cache[ cat.name ];
             if ( ! result ) {
-               _.time( 'Search ' + cat.name + ': ' + options.term );
+               _.time( '[Search] Search ' + cat.name + ': ' + options.term );
                cache[ cat.name ] = result = search( cat.list );
                count[ cat.name ] = result.length;
-               _.time( 'Search done, ' + result.length + ' result(s).' );
+               _.time( '[Search] Search done, ' + result.length + ' result(s).' );
             }
          } else {
             result = cache[ '' ];
             if ( ! result ) {
-               _.time( 'Searching all categories: ' + options.term  );
+               _.time( '[Search] Searching all categories: ' + options.term  );
                result = [];
                count[''] = 0;
                od.data.get().forEach( function search_search_each ( cat ) {
@@ -93,7 +93,7 @@ od.search = {
                   count[ '' ] += data.length;
                } );
                cache[ '' ] = result;
-               _.time( 'Search done, ' + result.length + ' result(s).' );
+               _.time( '[Search] Search done, ' + result.length + ' result(s).' );
             }
          }
          done( result, count );
@@ -105,7 +105,7 @@ od.search = {
                   // Name search. Just try to match name.
                   return regx.test( row.Name );
                } else {
-                  // Full body search.  If does not have exclude term, try name first. If fail or otherwise do full body.
+                  // Full body search.  If does not have exclude term, try name first. If fail or has exclude then do full body.
                   if ( ( ! pattern.hasExclude ) && regx.test( row.Name ) ) return true;
                   return regx.test( row._category.index[ row.ID ] );
                }
@@ -119,12 +119,12 @@ od.search = {
       _.time();
       var list = { "columns":[], "data":[] };
       if ( cat ) {
-         _.time( 'List ' + cat.name );
+         _.time( '[Search] List ' + cat.name );
          cat.load_listing( function data_search_list_category_load_cat() {
             _.call( onload, null, cat.columns, cat.list.concat(), null, null );
          } );
       } else {
-         _.time( 'List all categories' );
+         _.time( '[Search] List all categories' );
          od.data.load_all_listing( function data_search_list_category_load_all(){
             var data = [];
             od.data.get().forEach( function data_search_list_category_each( c ) {
@@ -202,7 +202,7 @@ od.search = {
    /** Sort given data and returns a copy. */
    'sort_data' : function data_search_sort_data ( data, sort_field, direction ) {
       var sorter, ab = direction === 'asc' ? 1 : -1, ba = ab * -1;
-      _.time( 'Sorting ' + data.length + ' results by ' + sort_field );
+      _.time( '[Search] Sorting ' + data.length + ' results by ' + sort_field );
       switch( sort_field ) {
          case 'Cost' :
          case 'Level' :
@@ -236,7 +236,7 @@ od.search = {
     *
     * Example : javascript OR ecmascript "bug database"
     *
-    * @param {String} terms  Terms to search for
+    * @param {String} terms  Terms to search fogen_searchr
     * @return {Array} return { 'regexp': RegExp for searching, 'highlight': ["highlight 1", "highlight 2", ... ], 'hasExclude': true/false }
     *                        OR null (if terms turn out to be empty conditions)
     */
@@ -279,12 +279,14 @@ od.search = {
                // Quoted terms need to be unquoted first
                } else if ( /^"[^"]*"$/.test( term ) ) {
                   term = term.length > 2 ? _.escRegx( term.substr( 1, term.length-2 ) ) : '';
+                  term = term.replace( /\\\*/g, '\\S+' );
 
                // Otherwise is normal word, just need to unescape
                } else {
                   // Remove leading double quote for incomplete terms
                   if ( term.charAt(0) === '"' ) term = term.substr( 1 );
                   if ( term ) term = _.escRegx( term );
+                  term = term.replace( /\\\*/g, '\\S+' );
                }
                if ( term ) {
                   if ( is_whole_word ) term = '\\b' + term + '\\b';
@@ -313,6 +315,7 @@ od.search = {
          }
       }
       if ( regx === '^' ) return null;
+      _.info( "[Search] Regx: " + regx );
       return { 'regexp': RegExp( regx, 'i' ), 'highlight': hl.length ? hl : null, 'hasExclude': hasExclude };
    }
 

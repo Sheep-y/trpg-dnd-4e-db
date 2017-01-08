@@ -72,9 +72,9 @@ od.action.view = {
       action.clear();
       idList.forEach( function act_view_show_each ( id ) {
          // Parse id
-         _.info( "Parsing " + id );
+         _.info( "[View] Parsing " + id );
          var cat = od.data.create( od.data.category_name_of( id ) );
-         _.info( "Display " + cat.name + "." + id );
+         _.info( "[View] Display " + cat.name + "." + id );
          // Create div
          var div = _.html( '<div><h1>' + _.l( 'gui.loading', 'Loading' ) + '</h1></div>' );
          _( '#act_view_pnl_content')[0].appendChild( div );
@@ -183,7 +183,7 @@ od.action.view = {
             ++cat_count;
             cat.load_listing( function act_view_popup_links_pop () {
                if ( --cat_count !== 0 ) return;
-               _.info( "Showing popup for " + ids );
+               _.info( "[View] Showing popup for " + ids );
                _( '#act_view_pnl_link tbody' )[0].innerHTML = ids.map( function( id ) {
                   var cat = data.get( data.category_name_of( id ) );
                   var row = cat.map[ id ];
@@ -203,7 +203,7 @@ od.action.view = {
                setTimeout( function() { // Defer to after global un-popup handler
                   _.style( pnl, { top: y+'px', left: x+'px', display: 'block' } );
                }, 0 );
-               _.time( "Shown popup." );
+               _.time( "[View] Shown popup." );
             } );
          }
       });
@@ -255,7 +255,7 @@ od.action.view = {
       // Longest name is 45 chars long. Add one more for safe word cut.
       var pre  = normalise( findPre ( node, 46, range.startOffset ).replace( /^\s+/, "" ) );
       var post = normalise( findPost( node, 46, range.startOffset ).replace( /\s+$/, "" ) );
-      _.time( "Lookup: " + pre + "^" + post );
+      _.time( "[Lookup] Lookup: " + pre + "^" + post );
       var nextSpace = pre.indexOf( ' ' ),  text = pre + post,   index = od.data.index;
 
       for ( var name in index ) {
@@ -275,7 +275,7 @@ od.action.view = {
          return e !== entry.id && result.slice( i + 1 ).indexOf( e ) < 0;
       });
 
-      _.time( "Done lookup. Found " + result.length + " links." );
+      _.time( "[Lookup] Done lookup. Found " + result.length + " links." );
       return result;
    }
 };

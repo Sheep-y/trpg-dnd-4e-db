@@ -498,7 +498,7 @@ od.action.list = {
 
    /** Callback for search / list, to display the results */
    'build_list' : function act_list_build_list ( col, data, counts, highlight ) {
-      _.time( 'Building header for ' + JSON.stringify( col ) );
+      _.time( '[List] Building header for ' + JSON.stringify( col ) );
       var action = od.action.list, cl = col.length;
       action.columns = col;
       action.data = data;
@@ -563,7 +563,7 @@ od.action.list = {
    'build_datalist' : function act_list_build_datalist( data ) {
       if ( ! data ) return;
       var col = this.columns, colCount = col.length, listCount = 0;
-      _.time( 'Building ' + colCount + ' datalist' );
+      _.time( '[List] Building ' + colCount + ' datalist' );
 
       for ( var i = 1 ; i < colCount ; i++ ) {
          _.remove( '#list' + i );
@@ -607,7 +607,7 @@ od.action.list = {
          }).join( '' ) + '</datalist>';
          document.body.insertAdjacentHTML( 'beforeend', html );
       }
-      _.time( 'Built ' + colCount + ' datalist, total ' + listCount + ' items.'  );
+      _.time( '[List] Built ' + colCount + ' datalist, total ' + listCount + ' items.'  );
    },
 
    /** Filter given data and returns a copy. */
@@ -630,7 +630,7 @@ od.action.list = {
       var action = this, gui = od.gui;
       var data = action.data, col = action.columns, cat = action.get_search_category();
       var cl = col.length, idField = col[ 0 ];
-      _.info( 'Filter, sort, and display ' + data.length + ' rows' );
+      _.info( '[List] Filter, sort, and display ' + data.length + ' rows' );
 
       if ( ! table ) table = _( '#act_list_pnl_list table' )[0];
       _.remove( table, 'tbody' );
@@ -657,7 +657,7 @@ od.action.list = {
 
          // Show data
          var doc = document, html = '';
-         _.time( 'Listing results ' + start + ' to ' + end + ' (' + col + ')' );
+         _.time( '[List] Listing results ' + start + ' to ' + end + ' (' + col + ')' );
          for ( var i = start ; i < end ; i++ ) { // Create row; intensive
             var line = data[i];
             if ( ! line ) continue;
@@ -680,7 +680,7 @@ od.action.list = {
       table.appendChild( body );
 
       if ( count )
-         _.time( 'Listed ' + ( end - start ) + ' / ' + count + ' results.' );
+         _.time( '[List] Listed ' + ( end - start ) + ' / ' + count + ' results.' );
    },
 
    /** Update paging state */
