@@ -113,7 +113,7 @@ _.l.set( 'action.about', {
 
    'h_intro' : "這是甚麼？",
    'p_intro' :
-      "這是個由同好者重制的 <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider 數據庫</a>，適用於查找四代龍與地下城的資源。 <br><br>"+
+      "這是個由同好者重制的 <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider 數據庫</a>，適用於查找四代龍與地下城的資源。 <br>"+
       "如果你發現沒有數據或數據不全，可以用<a href='https://github.com/Sheep-y/trpg-dnd-4e-db#readme'>下載器</a>獲取數據。",
 
    'h_search_data' : "如何搜尋",
@@ -121,20 +121,20 @@ _.l.set( 'action.about', {
       "輸入要找的字詞，就會找出包含所有字詞的結果，不論順序，不論大小寫。 <br/>"+
       "例、<kbd>fighter heal</kbd> 會找出同時包括 <q>Fighter</q> 和 <q>Heal</q> 或 <q>Healing</q> 或 <q>Healer</q> 的資料. <br/>"+
       "<br/>"+
-      "您可以先選取一個類別，以收窄搜尋範圍。搜尋字會自動以高亮顯示，可以在選項中關閉。<br/>"+
-      "<br/> <ul>"+
+      "您可以先選取一個類別，以收窄搜尋範圍。搜尋字會自動以高亮顯示，可以在選項中關閉。"+
+      "<ul>"+
       "<li> 要搜尋特定詞組，可以用半形雙引號 <q>\"</q> 包裹它。 <br/>"+
-      " &nbsp; 例、<kbd>\"extra damage\"</kbd> 只符合詞組 <q>Extra damage</q>，而不是分成 <q>Extra</q> 和 <q>Damage</q>。 <br/>"+
+      " &nbsp; 例、<kbd>\"extra damage\"</kbd> 只符合詞組 <q>Extra damage</q>，而不是分成 <q>Extra</q> 和 <q>Damage</q>。 <br/><br/>"+
       "<li> 要自結果排除字詞，可以在前面加半型減號 <q>-</q>。 <br/>"+
-      " &nbsp; 例、<kbd>-\"feat bonus\"</kbd> 會排除包含 <q>Feat bonus</q> 詞組的結果。 <br/>"+
+      " &nbsp; 例、<kbd>-\"feat bonus\"</kbd> 會排除包含 <q>Feat bonus</q> 詞組的結果。 <br/><br/>"+
       "<li> 要搜尋獨立的單字，可以在前面加半型加減號 <q>+</q>。 <br/>"+
-      " &nbsp; 例、<kbd>+power</kbd> 會找出含 <q>power</q> 單字的結果，而不會找出 <q>empower</q>、<q>powerful</q> 等部分匹配的字。 <br/>"+
+      " &nbsp; 例、<kbd>+power</kbd> 會找出含 <q>power</q> 單字的結果，而不會找出 <q>empower</q>、<q>powerful</q> 等部分匹配的字。 <br/><br/>"+
       "<li> 要指定'或者'條件，可用大寫 <q>OR</q>. <br/>"+
-      " &nbsp; 例、<kbd>ranger OR rogue blind</kbd> 會搜尋包含 <q>Blind</q> 以及 <q>Ranger</q> 或 <q>Rogue</q>。 <br/>"+
+      " &nbsp; 例、<kbd>ranger OR rogue blind</kbd> 會搜尋包含 <q>Blind</q> 以及 <q>Ranger</q> 或 <q>Rogue</q>。 <br/><br/>"+
       "<li> 用 '*' 作萬用字符。 <br/>"+
-      " &nbsp; 例、<kbd>p* bonus</kbd> 同時符合 <q>Proficiency bonus</q> 和 <q>Power bonus</q>。 <br/>"+
+      " &nbsp; 例、<kbd>p* bonus</kbd> 同時符合 <q>Proficiency bonus</q> 和 <q>Power bonus</q>。 <br/><br/>"+
       "<li> 等級和價格欄可以施予數字範圍 <br/>"+
-      " &nbsp; 例、在等級欄中輸入 <kbd>10-12</kbd> 會得出等級 10 至 12 的結果。<br/>物品的等級和價格包括它的所有等級，例如 聖劍復仇 Holy Avenger 同時視作 25級 和 30級。<br/>"+
+      " &nbsp; 例、在等級欄中輸入 <kbd>10-12</kbd> 會得出等級 10 至 12 的結果。<br/>物品的等級和價格包括它的所有等級，例如 聖劍復仇 Holy Avenger 同時視作 25級 和 30級。<br/><br/>"+
       "<li> 如果您會用正規表逹式，您可以用它代替字詞。 <br/>"+
       " &nbsp; 例、<kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd>. "+
       "</ul>",
