@@ -244,8 +244,9 @@ od.search = {
       var hl = [], hasExclude = false;
       var regx = "^";
       // Break down search input into tokens
-      var parts = terms.match( /[+-]?(?:"[^"]+"|\S+)/g );
+      var parts = terms.match( /(^| )\/.+\/(?= |$)|[+-]?(?:"[^"]+"|\S+)/g );
       if ( ! parts ) return null;
+      _.info( "[Search] Tokens: " + JSON.stringify( parts ) );
 
       // Remove leading / trailing OR which is invalid
       while ( parts.length > 0 && parts[0] === 'OR' ) parts.splice(0,1);
@@ -256,7 +257,7 @@ od.search = {
          // Contains all parts joined by OR, e.g. a OR b OR c >>> ['(?=.*a.*)','(?=.*b.*)','(?=.*c.*)']
          var addPart = [];
          do {
-            var term = parts[i];
+            var term = parts[i].trim();
             var part = "";
             var is_whole_word = false;
             // Detect whether to include or exclude term
