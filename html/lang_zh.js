@@ -82,8 +82,8 @@ _.l.set( 'action.list', {
    'link_text' : "瀏覽",
    'result_summary' : "結果",
 
-   'txt_search_name_placeholder' : "輸入名字，然後選擇分類。",
-   'txt_search_full_placeholder' : "輸入搜尋關鍵詞。例： ranger OR martial bonus -\"feat bonus\"，然後選擇分類。",
+   'txt_search_name_placeholder' : "在此輸入名字，然後選擇分類。",
+   'txt_search_full_placeholder' : "在此輸入搜尋關鍵詞。例： ranger OR martial bonus -\"feat bonus\"，然後選擇分類。",
    'btn_search_name' : "名字搜索",
    'btn_search_body' : "全文搜索",
    'a_all' : "全類別",
@@ -113,36 +113,41 @@ _.l.set( 'action.about', {
 
    'h_intro' : "這是甚麼？",
    'p_intro' :
-      "這是個由同好者重制的 <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider 數據庫</a>，適用於查找四代龍與地下城的資源。 <br>"+
+      "這是個由同好者重制的 <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider 數據庫</a>，以便離線地威力查找四代龍與地下城的資源。 <br>"+
       "如果你發現沒有數據或數據不全，可以用<a href='https://github.com/Sheep-y/trpg-dnd-4e-db#readme'>下載器</a>獲取數據。",
 
    'h_search_data' : "如何搜尋",
    'p_search_data' :
       "輸入要找的字詞，就會找出包含所有字詞的結果，不論順序，不論大小寫。 <br/>"+
-      "例、<kbd>fighter heal</kbd> 會找出同時包括 <q>Fighter</q> 和 <q>Heal</q> 或 <q>Healing</q> 或 <q>Healer</q> 的資料. <br/>"+
+      "例、<a href='?list.full.power=fighter heal'><kbd>fighter heal</kbd></a> 會找出同時包括 <q>Fighter</q> 和 <q>Heal</q> 或 <q>Healing</q> 或 <q>Healer</q> 的資料. <br/>"+
       "<br/>"+
       "您可以先選取一個類別，以收窄搜尋範圍。搜尋字會自動以高亮顯示，可以在選項中關閉。"+
       "<ul>"+
       "<li> 要搜尋特定詞組，可以用半形雙引號 <q>\"</q> 包裹它。 <br/>"+
-      " &nbsp; 例、<kbd>\"extra damage\"</kbd> 只符合詞組 <q>Extra damage</q>，而不是分成 <q>Extra</q> 和 <q>Damage</q>。 <br/><br/>"+
+      " &nbsp; 例、<a href='?list.full.theme=\"extra damage\"'><kbd>\"extra damage\"</kbd></a> 只符合詞組 <q>Extra damage</q>，而不是分成 <q>Extra</q> 和 <q>Damage</q>。 <br/>"+
+      "<br/>"+
       "<li> 要自結果排除字詞，可以在前面加半型減號 <q>-</q>。 <br/>"+
-      " &nbsp; 例、<kbd>-\"feat bonus\"</kbd> 會排除包含 <q>Feat bonus</q> 詞組的結果。 <br/><br/>"+
+      " &nbsp; 例、<a href='?list.full.feat=\"attack roll\" -\"feat bonus\"'><kbd>-\"feat bonus\"</kbd></a> 會排除包含 <q>Feat bonus</q> 詞組的結果。 <br/>"+
+      "<br/>"+
       "<li> 要搜尋獨立的單字，可以在前面加半型加減號 <q>+</q>。 <br/>"+
-      " &nbsp; 例、<kbd>+power</kbd> 會找出含 <q>power</q> 單字的結果，而不會找出 <q>empower</q>、<q>powerful</q> 等部分匹配的字。 <br/><br/>"+
+      " &nbsp; 例、<a href='?list.name.power=%2Bpower'><kbd>+power</kbd></a> 會找出含 <q>power</q> 單字的結果，跳過 <q>empower</q>、<q>powerful</q> <a href='?list.name.power=power'>等字</a>。 <br/>"+
+      "<br/>"+
       "<li> 要指定'或者'條件，可用大寫 <q>OR</q>. <br/>"+
-      " &nbsp; 例、<kbd>ranger OR rogue blind</kbd> 會搜尋包含 <q>Blind</q> 以及 <q>Ranger</q> 或 <q>Rogue</q>。 <br/><br/>"+
+      " &nbsp; 例、 <a href='?list.full.power=ranger OR rogue blind'><kbd></a>ranger OR rogue blind</kbd> 會搜尋包含 <q>Blind</q> 以及 <q>Ranger</q> 或 <q>Rogue</q>。 <br/>"+
+      "<br/>"+
       "<li> 用 '*' 作萬用字符。 <br/>"+
-      " &nbsp; 例、<kbd>p* bonus</kbd> 同時符合 <q>Proficiency bonus</q> 和 <q>Power bonus</q>。 <br/><br/>"+
+      " &nbsp; 例、<a href='?list.full.ritual=\"p* bonus\"'><kbd>p* bonus</kbd></a> 同時符合 <q>Proficiency bonus</q> 和 <q>Power bonus</q>。 <br/>"+
+      "<br/>"+
       "<li> 等級和價格欄可以施予數字範圍 <br/>"+
-      " &nbsp; 例、在等級欄中輸入 <kbd>10-12</kbd> 會得出等級 10 至 12 的結果。<br/>物品的等級和價格包括它的所有等級，例如 聖劍復仇 Holy Avenger 同時視作 25級 和 30級。<br/><br/>"+
+      " &nbsp; 例、在等級欄中輸入 <kbd>10-12</kbd> 會得出等級 10 至 12 的結果。"+
+      "<br/>"+
       "<li> 如果您會用正規表逹式，您可以用它代替字詞。 <br/>"+
-      " &nbsp; 例、<kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd>. "+
+      " &nbsp; 例、<a href='?list.full.feat=/(martial|arcane) power( 2)?/ damage bonus'><kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd></a>。"+
       "</ul>",
 
    'h_move_data' : "手機支援",
    'p_move_data' :
-      "數據儲存在 <q id='action_about_lbl_folder'></q> 目錄之內。 <br/>"+
-      "在個人使用的前提下，您可以合法地將本 HTML 和數據目錄複制到 USB 儲存裝置或智能電話。 <br/>"+
+      "數據儲存在 <q id='action_about_lbl_folder'></q> 目錄之內，您可以將本 HTML 和數據目錄複制到 USB 儲存裝置或智能電話。 <br/>"+
       "<br/>"+
       "預設的安卓瀏覽器可能不允許瀏覽本機檔案，但您可以用 <a href='https://play.google.com/store/apps/details?id=com.opera.browser'>Opera</a> 或 <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox</a>。Chrome 不一定能開。 <br/> "+
       "蘋果有諸多限制。如果您有方法在 iOS 上閱讀資料，請讓我知道。"+
