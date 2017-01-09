@@ -21,10 +21,13 @@ public class BackgroundConverter extends Converter {
       super.initialise();
    }
 
+   private final Matcher regxAssociate  = Pattern.compile( "<i>Associated (?:Skills?|Languages?): </i>([^<(.]+)" ).matcher( "" );
    private final Matcher regxBenefit  = Pattern.compile( "<i>Benefit: </i>([^<(.]+)" ).matcher( "" );
+   private final Matcher regxAnyLang  = Pattern.compile( "Any (one|language) (other than|except) " ).matcher( "" );
    private final String[] trims = { "list of", "list", "checks?", "bonus", "additional",
       "if you[^,]+, ", " rather than your own", "of your choice", ", allowing[^:]+:",
-      "you gain a", "you are", "(?<!kill )your?" };
+      "you gain a", "you are", "(?<!kill )your?",
+      ", but you must keep the second result(, even if it is worse)?" };
    private final Matcher regxTrim  = Pattern.compile( "(?:\\s|\\b)(?:" + String.join( "|", trims ) + ")\\b", Pattern.CASE_INSENSITIVE ).matcher( "" );
 
    @Override protected void convertEntry () {
@@ -32,9 +35,8 @@ public class BackgroundConverter extends Converter {
       if ( meta( BENEFIT ).isEmpty() && find( regxBenefit ) ) {
          String associate = regxTrim.reset( regxBenefit.group( 1 ) ).replaceAll( "" ).trim();
          if ( ! associate.endsWith( "." ) ) associate += '.';
-         meta( BENEFIT, Utils.ucfirst( associate.replace( "saving throws", "saves" ) ) );
-      } else {
-         meta( BENEFIT, "Associated: " + entry.meta[2].toString().replace( "you can", "" ) );
+         associate = associate.replace( "saving throws", "saves" );
+         meta( BENEFIT, Utils.ucfirst( associate ) );
       }
 
       if ( meta( 1 ).equals( "Scales of War Adventure Path" ) )
@@ -48,6 +50,20 @@ public class BackgroundConverter extends Converter {
          meta( TYPE, entry.display_name.split( " - " )[0] );
          fix( "missing meta" );
       }
+
+      if ( find( regxAnyLang ) ) {
+         entry.data = regxAnyLang.replaceFirst( "Any language except " );
+         fix( "consistency" );
+      }
+
+      if ( find( regxAssociate ) ) { // Skill or language
+         String associate = regxAssociate.group( 1 );
+         if ( regxAssociate.find() ) // Language
+            associate += ", " + regxAssociate.group( 1 );
+         //if ( ! assoc.equals( meta( BENEFIT ) ) ) fix( "wrong meta" ); // The skill column always miss language, but can't blame them
+         meta( BENEFIT, "Associated: " + associate );
+      } else if ( ! meta( BENEFIT ).isEmpty() )
+         meta( BENEFIT, "Associated: " + meta( BENEFIT ).replace( "you can", "" ) );
    }
 
    @Override protected String[] getLookupName ( Entry entry ) {

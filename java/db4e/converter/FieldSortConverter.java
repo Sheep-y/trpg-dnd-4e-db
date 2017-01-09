@@ -4,6 +4,7 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -12,6 +13,8 @@ import java.util.regex.Pattern;
 public class FieldSortConverter extends Converter {
 
    private final int SORT_FIELD;
+
+   private final Matcher regxFlavor = Pattern.compile( "<p class=flavor>(?!.*<p class=flavor>)" ).matcher( "" );
 
    public FieldSortConverter( Category category, int sort_field ) {
       super(category);
@@ -29,7 +32,7 @@ public class FieldSortConverter extends Converter {
       case "Glossary":
          if ( entry.shortid.startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
             if ( ! find( "IMPROVISING WITH" ) ) {
-               entry.data = Pattern.compile( "<p class=flavor>(?!.*<p class=flavor>)" ).matcher( entry.data ).replaceFirst( "<h3>IMPROVISING WITH "+entry.name.toUpperCase()+"</h3><p class=flavor>" );
+               entry.data = regxFlavor.replaceFirst( "<h3>IMPROVISING WITH "+entry.name.toUpperCase()+"</h3><p class=flavor>" );
                fix( "missing content" );
             }
          }
