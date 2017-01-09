@@ -8,6 +8,10 @@ import sheepy.util.Utils;
 
 public class BackgroundConverter extends Converter {
 
+   private static final int TYPE = 0;
+   private static final int CAMPAIGN = 1;
+   private static final int BENEFIT = 2;
+
    public BackgroundConverter ( Category category ) {
       super( category );
    }
@@ -25,17 +29,25 @@ public class BackgroundConverter extends Converter {
 
    @Override protected void convertEntry () {
       super.convertEntry();
-      if ( meta( 2 ).isEmpty() && find( regxBenefit ) ) {
+      if ( meta( BENEFIT ).isEmpty() && find( regxBenefit ) ) {
          String associate = regxTrim.reset( regxBenefit.group( 1 ) ).replaceAll( "" ).trim();
          if ( ! associate.endsWith( "." ) ) associate += '.';
-         meta( 2, Utils.ucfirst( associate.replace( "saving throws", "saves" ) ) );
+         meta( BENEFIT, Utils.ucfirst( associate.replace( "saving throws", "saves" ) ) );
       } else {
-         meta( 2, "Associated: " + entry.meta[2].toString().replace( "you can", "" ) );
+         meta( BENEFIT, "Associated: " + entry.meta[2].toString().replace( "you can", "" ) );
       }
+
       if ( meta( 1 ).equals( "Scales of War Adventure Path" ) )
-         meta( 1, "Scales of War" );
+         meta( CAMPAIGN, "Scales of War" );
       else if ( meta( 1 ).equals( "Forgotten Realms" ) )
-         meta( 1, "Faerûn" );
+         meta( CAMPAIGN, "Faerûn" );
+   }
+
+   @Override protected void correctEntry () {
+      if ( meta( TYPE ).isEmpty() && entry.display_name.contains( " - " ) ) {
+         meta( TYPE, entry.display_name.split( " - " )[0] );
+         fix( "missing meta" );
+      }
    }
 
    @Override protected String[] getLookupName ( Entry entry ) {
