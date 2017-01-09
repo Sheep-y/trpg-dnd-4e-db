@@ -600,7 +600,7 @@ od.action.list = {
                set.sort( _.sorter( od.config.level_to_int ) );
                break;
             default:
-               set.sort();
+               set.sort( _.sorter( function( e ){ return e.trim().toLowerCase(); } ) );
          }
 
          var html = '<datalist id="list' + i + '">' + set.map( function( e ) {
