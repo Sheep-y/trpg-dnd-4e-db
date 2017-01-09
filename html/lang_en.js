@@ -80,20 +80,24 @@ _.l.set( 'action.about', {
 
    'h_intro' : "What is this?",
    'p_intro' :
-      "This is a fan remake of the official <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider's Compendium</a> for powerful, offline search of 4<suo>th</sup> edition D&amp;D data. <br/>"+
-      "If you see no data or incomplete data, data can be acquired with the <a href='https://github.com/Sheep-y/trpg-dnd-4e-db#readme'>downloader</a>.",
+      "This is a fan remake of the official <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider's Compendium</a> for powerful, offline search of 4<suo>th</sup> edition D&amp;D data.",
+   'p_nodata':
+      "There is no data. Please fetch with <a href='https://github.com/Sheep-y/trpg-dnd-4e-db#readme'>downloader</a>.",
 
    'h_search_data' : "How to Search",
    'p_search_data' :
-      "Type in search terms to find results that contains all the terms, in any order, regardless of case. <br/>"+
+      "There are two types of searches: name only and full text. <br/>"+
+      "Name search (default) is fast.  Full search is big and slow. <br/>"+
+      "For full search, input search terms and select data category, then search type, for quickest result. <br/>"+
+      "<br/>"+
+      "Both searches find results that contains every terms, in any order, regardless of case. <br/>"+
       "e.g. <a href='?list.full.power=fighter heal'><kbd>fighter heal</kbd></a> will search for data that contains <q>Fighter</q> and <q>Heal</q> or <q>Healing</q> or <q>Healer</q>. <br/>"+
-      "You can select a category to limit the search.  Search terms are highlighted by default, and can be disabled from the options above."+
       "<ul>"+
       "<li> To search for a multi-word term, surround it with double quotes <q>\"</q>. <br/>"+
       " &nbsp; e.g. <a href='?list.full.theme=\"extra damage\"'><kbd>\"extra damage\"</kbd></a> matches the exact term <q>Extra damage</q>, instead of <q>Extra</q> and <q>Damage</q>. <br/>"+
       "<br/>"+
       "<li> To exclude a term from result, prefix it with minus <q>-</q>. <br/>"+
-      " &nbsp; e.g. <a href='?list.full.feat=\"attack roll\" -\"feat bonus\"'><kbd>-\"feat bonus\"</kbd></a> will exclude results containing the term <q>Feat bonus</q>. <br/>"+
+      " &nbsp; e.g. <a href='?list.full.feat=\"bonus to attack roll\" -\"feat bonus\"'><kbd>-\"feat bonus\"</kbd></a> will exclude results containing the term <q>Feat bonus</q>. <br/>"+
       "<br/>"+
       "<li> To search for a whole word, prefix it with plus <q>+</q>. <br/>"+
       " &nbsp; e.g. <a href='?list.name.power=%2Bpower'><kbd>+power</kbd></a> will include result containing the word <q>power</q>, <a href='?list.name.power=power'>but not</a> <q>empower</q> or <q>powerful</q>. <br/>"+
@@ -101,23 +105,21 @@ _.l.set( 'action.about', {
       "<li> To specify an OR condition, use an uppercase <q>OR</q>. <br/>"+
       " &nbsp; e.g. <a href='?list.full.power=ranger OR rogue blind'><kbd>ranger OR rogue blind</kbd></a> will search for results containing <q>Blind</q> and either <q>Ranger</q> or <q>Rogue</q>. <br/>"+
       "<br/>"+
-      "<li> Use '*' as wild cast. <br/>"+
-      " &nbsp; e.g. <a href='?list.full.ritual=\"p* bonus\"'><kbd>p* bonus</kbd></a> matches both <q>Proficiency bonus</q> and <q>Power bonus</q>. <br/>"+
+      "<li> Use asterisk <q>*</q> as wild cast. <br/>"+
+      " &nbsp; e.g. <a href='?list.full.ritual=\"p* bonus\"'><kbd>\"p* bonus\"</kbd></a> matches both <q>Proficiency bonus</q> and <q>Power bonus</q>. <br/>"+
       "<br/>"+
       "<li> Number range is supported in level and cost column. <br/>"+
-      " &nbsp; e.g. <kbd>10-12</kbd> in the level field will yield data that is between level 10 to 12. <br/>"+
+      " &nbsp; e.g. <kbd>10-12</kbd> in the level field will yield data that is level 10, 11, or 12. <br/>"+
       "<br/>"+
-      "<li> If you know regular expression, you can use it as terms. <br/>"+
+      "<li> If you know <a href='http://www.regular-expressions.info/quickstart.html'>regular expression</a>, you can use it as a term. <br/>"+
       " &nbsp; e.g. <a href='?list.full.feat=/(martial|arcane) power( 2)?/ damage bonus'><kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd></a>. "+
       "</ul>",
 
    'h_move_data' : "Viewing on Mobile",
    'p_move_data' :
       "Acquired data are stored locally, in <q id='action_about_lbl_folder'></q> folder. "+
-      "You can copy this html file and the data folder to USB drive or to smart phone. <br/>"+
-      "<br/>"+
-      "Default Android browser may not allow browsing local file, but you can use <a href='https://play.google.com/store/apps/details?id=com.opera.browser'>Opera</a> or <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox</a>. Chrome may NOT work.<br/> "+
-      "Apple forbids lots of things.  Please let me know if you find a way to read on iOS. "+
+      "You can copy this html file and the data folder together to USB drive or to smart phone. <br/>"+
+      "Default Android browser may not allow browsing offline file; you can use <a href='https://play.google.com/store/apps/details?id=com.opera.browser'>Opera</a> or <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox</a>. Chrome may NOT work.<br/> "+
       "<br/>"+
       "You can also upload it to Internet as a web site, but search speed can be slow: a full search needs ~24MB data.",
 

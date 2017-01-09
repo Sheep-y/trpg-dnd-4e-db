@@ -493,6 +493,7 @@ od.action.list = {
          if ( ondone ) _.call( ondone );
       }, function act_list_build_category_error () {
          od.gui.go( "about" );
+         _.show( '.nodata' );
       });
    },
 

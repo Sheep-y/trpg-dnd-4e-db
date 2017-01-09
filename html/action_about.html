@@ -9,9 +9,12 @@
       #action_about img { border: 2px ridge lightgrey; width: 400px; }
       #action_about figure.right { margin-left: 1em; }
       #action_about figure.left  { margin-right: 1em; }
+      #action_about .nodata { font-weight: bold; font-size: 150%; }
    </style>
 
    <div>
+      <p class='nodata i18n' style='display: none'> action.about.p_nodata </p>
+
       <article class='left'>
          <h1 class='i18n'> action.about.h_language </h1>
          <p>
@@ -83,10 +86,10 @@
             <h2> 1<sup>st</sup> Version </h2>
                <figure class='left'>
                   <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/res/img/History - 1st gen.jpg"><img alt='' id="action_about_history_1" src=''/></a>
-                  <figcaption>Date: <time>2012-03-23</time>;<br/>Main development ceased in 2011 March. </figcaption>
+                  <figcaption>Date: <time>2012-03-23</time>; Development stopped 2011 March. </figcaption>
                </figure>
             <p>
-               So I kept working on it.
+               It is nice to have an offline catalog.  So I keep working on it.
                Inspired by DataTables' search code, I coded a search term parser that works with Google like syntax.
             </p><p>
                With the ability to search for feat with <q>"bonus to damage" OR "extra damage" -"feat bonus"</q>, it is now possible to build characters using a goal-oriented approach, instead of choosing from valid options.
@@ -121,11 +124,11 @@
             <h2> 3<sup>rd</sup> Version </h2>
                <figure class='left'>
                   <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/res/img/History - 3rd alpha.jpg"><img alt='' id="action_about_history_3" src=''/></a>
-                  <figcaption>Date: <time>2012-05-16</time></figcaption>
+                  <figcaption>Date: <time>2012-05-16</time>, prototype. Later releases look like v3.5.</figcaption>
                </figure>
             <p>
                Third version development started in 2012 Sep, and is a bold experiment in what can JavaScript do.
-               Instead of letting others do most of the work, the new version do download, convert, index, everything by itself.
+               Instead of letting the official compendium do most of the work, the new version do download, convert, index, everything by itself.
             </p><p>
                Sadly, soon after the first prototype, Firefox <a title="Security Checks and enablePrivilege in Gecko, part 1" href="https://blog.mozilla.org/mrbkap/2012/09/12/">killed file writing</a> permanently. <br/>
                That leaves IE as the only supported browser, until IE 11 arrives which <a href="https://msdn.microsoft.com/library/dn423948(v=vs.85).aspx">hides</a> (and breaks) file writing too. <br/>
@@ -149,11 +152,14 @@
                Our firstborn is due in October, too, so I better fix the <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/9'>download</a> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/12'>problems</a> <i>asap</i>.
             </p><p>
                In <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/commit/0fede587e31f7ec90f00e779f906822ddb3413a6#diff-49da3f7f21ed8673cfa993016bea63a7'>July 2016</a>,
-               a downloader is coded in Java in two weeks.
-               Code is simple.  No need to check new data, no need to fool JavaScript security, and it makes some v3 plans come true.
-               Power listing now shows frequency and keywords, full text search now excludes flavour text, and these are just the beginning.
+               a downloader is coded in Java.
+               Code is simple.  No need to check new data, no need to fool security, and clean separation of input and output.
+               I can fix errors, add new columns, or exclude flavour text from full text search.  Things that were too complicated in v3.
             </p><p>
-               The plan was to bug fix the old viewer and call it a version, but it works pretty well, so maybe I'll put more work on this version before putting it down to teach my baby D&amp;D.
+               The plan was to bug fix the old viewer and write a new one.
+               But it works so well, I keep improving it after my baby is born.
+               As of writing it has decent mobile support, many new columns, small data structure, data dump, and fixed many errors both data and code.
+               This should be the final major release of the 3.5 branch.
             </p>
          </section>
       </article>
@@ -163,7 +169,7 @@
          <p class="i18n"> action.about.lbl_english_only </p>
          <dl>
             <dt> 3.5.3 <time>??-??-??</time> </dt>
-            <dd> Autocomplete in column filters, list power types and race origins, item can be filtered by high level versions, item set text index exclude items.  Add csv, tsv, json, sql, and xlsx export of raw data.  Total fixed 710+ entries.  Assorted fixes and improvements. </dd>
+            <dd> Autocomplete in column filters, list power types and race origins, item can be filtered by high level versions, item set text index exclude items.  Add csv, tsv, json, sql, and xlsx dump of raw data.  Total fixed 710+ entries.  Assorted fixes and improvements. </dd>
 
             <dt> 3.5.2.1 <time>2016-12-19</time> </dt>
             <dd> Add raw data export in html and high contrast theme (Windows). Fix new Java compatibility and other bugs. </dd>
