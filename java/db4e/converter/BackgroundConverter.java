@@ -64,6 +64,43 @@ public class BackgroundConverter extends Converter {
          meta( BENEFIT, "Associated: " + associate );
       } else if ( ! meta( BENEFIT ).isEmpty() )
          meta( BENEFIT, "Associated: " + meta( BENEFIT ).replace( "you can", "" ) );
+
+      switch ( entry.shortid ) {
+         case "background34": // Warsmithr
+            meta( BENEFIT, "Can construct weapons and armor. Can cast Creation rituals as if you have Ritual Caster." );
+            break;
+         case "background77": // Imbuer
+            meta( BENEFIT, "Can construct implements and wondrous items. Can cast Creation rituals as if you have Ritual Caster." );
+            break;
+         case "background276": // Windrise Ports
+            meta( BENEFIT, "Add one skill to your class skill list, and gain one additional language." );
+            break;
+
+         case "background747": // Baldur's Gate (Shifter)
+            meta( BENEFIT, "Add History to class skill. +2 bonus to History. Add Elven to known languages. Pass as Elf when not shifting." );
+            break;
+         case "background748": // The Dalelands (Shifter)
+            meta( BENEFIT, "Add Stealth and Nature to class skill. +2 bonus to Stealth. While shifting, +2 bonus to Intimidate." );
+            break;
+         case "background750": // Durpar (Shifter)
+            meta( BENEFIT, "Reroll any Dungeoneering. Add Goblin to known languages." );
+            break;
+         case "background751": // The Great Dale (Shifter)
+            meta( BENEFIT, "Reroll any Nature. Add Elven to known languages." );
+            break;
+         case "background753": // Luskan (Shifter)
+            meta( BENEFIT, "Reroll any Stealth. Add Shou to known languages." );
+            break;
+         case "background754": // Moonshae Isles (Shifter)
+            meta( BENEFIT, "Add Athletics to class skill. +3 bonus to Athletics checks made to swim, piloting water vessels, or move on boat. Add Chondathan to known languages." );
+            break;
+         case "background756": // Sembia (Shifter)
+            meta( BENEFIT, "Add Bluff and Diplomacy to class skill. Add Netherese to known languages. Pass as Human when not shifting." );
+            break;
+         case "background757": // Tethyr (Shifter)
+            meta( BENEFIT, "Add Stealth to class skill. +2 bonus to Stealth. Add Chondathan or Draconic to known languages." );
+            break;
+      }
    }
 
    @Override protected String[] getLookupName ( Entry entry ) {

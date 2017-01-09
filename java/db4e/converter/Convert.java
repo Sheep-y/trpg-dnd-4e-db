@@ -95,13 +95,34 @@ public abstract class Convert {
                   case "Trap" :
                      exported.entries.addAll( map.get( "Terrain" ).entries );
                      break;
+
+                  case "Background" :
+                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+                        Entry entry = i.next();
+                        // Nine background from Dra376 are hooks only, not actual character resources.
+                        if ( entry.fields[3].endsWith( "376" ) ) {
+                           switch ( entry.id ) {
+                              case "background.aspx?id=283" :
+                              case "background.aspx?id=284" :
+                              case "background.aspx?id=285" :
+                              case "background.aspx?id=286" :
+                              case "background.aspx?id=287" :
+                              case "background.aspx?id=288" :
+                              case "background.aspx?id=289" :
+                              case "background.aspx?id=290" :
+                              case "background.aspx?id=291" :
+                                 i.remove();
+                                 corrected( entry, "blacklist" );
+                           }
+                        }
+                     }
                }
             }
          }
       }
    }
 
-   private static void transferItem( Category exported, Category armour, Category implement, Category weapon, Map<String, Category> map ) {
+   private static void transferItem ( Category exported, Category armour, Category implement, Category weapon, Map<String, Category> map ) {
       // May convert to parallel stream if this part grows too much...
       for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
          Entry entry = i.next();

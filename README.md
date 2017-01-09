@@ -4,11 +4,11 @@
 
 ![Screenshot of program](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History%20-%20v3.5%20viewer.png)
 
-This app can fetches and stores D&D 4th edition resources from [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx). <br/>
-Stored entries can be exported, then browsed and searched offline with exact phase search, wildcast, exclusion, join ("OR"), and even regular expression.
+This app can fetches, stores, and exports D&D 4th edition resources from [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx). <br/>
+Exported entries can be browsed and searched offline with exact phase search, wildcast, exclusion, join ("OR"), and more.
 
-本應用能從四代龍與地下城的[官方資料庫](http://www.wizards.com/dndinsider/compendium/database.aspx)提取及儲存資料。儲存的資料可以匯出，然後進行離線的威力搜尋。<br/>
-由於資料庫的訂閱和內容是純英語，下載器的說明也限於英語。匯出資料後會有中文操作說明。
+本應用能從四代龍與地下城的[官方資料庫](http://www.wizards.com/dndinsider/compendium/database.aspx)提取、儲存、及匯出資料，以便進行離線的威力搜尋。<br/>
+下載器的說明只限英語。匯出資料後會有中文操作說明。
 
 This is a fan project and does not come with copyrighted data.
 
@@ -41,17 +41,17 @@ Many existing columns are also enhanced or corrected.
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes 760 entries during export:
+This downloader fixes over 770 entries during export:
 
 * 150 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
-* 79 empty glossaries, removed. (male, female, fang titan drake, etc.)
+* 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 60 entries moved to correct category. (Superior implements, Assassin's poisons, and Consumable wondrous)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 22 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 20 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
-* 76 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
+* 80 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 94 entries with missing listing data not caused by above issues. (Subrace abilities, Heroic feat tier etc.)
 * 182 entries with wrong/inconsistent listing data not caused by above issues. (Multi-source classes, traps roles etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
