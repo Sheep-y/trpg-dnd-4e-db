@@ -32,7 +32,7 @@ public class FieldSortConverter extends Converter {
       case "Glossary":
          if ( entry.shortid.startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
             if ( ! find( "IMPROVISING WITH" ) ) {
-               entry.data = regxFlavor.replaceFirst( "<h3>IMPROVISING WITH "+entry.name.toUpperCase()+"</h3><p class=flavor>" );
+               entry.data = regxFlavor.reset( entry.data ).replaceFirst( "<h3>IMPROVISING WITH "+entry.name.toUpperCase()+"</h3><p class=flavor>" );
                fix( "missing content" );
             }
          }

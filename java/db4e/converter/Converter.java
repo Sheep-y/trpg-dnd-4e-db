@@ -34,8 +34,8 @@ public class Converter extends Convert {
     */
    @Override protected void convertEntry () {
       super.convertEntry();
+      // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
       if ( Main.debug.get() ) {
-         // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
          if ( shortId.containsKey( entry.shortid ) )
             log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.id, entry.name, entry.shortid, shortId.get( entry.shortid ).name } );
          else
@@ -44,6 +44,10 @@ public class Converter extends Convert {
          // Validate content tags
          if ( find( "<img " ) || find( "<a " ) )
             warn( "Unremoved image or link" );
+
+         // Check that we have content
+         if ( Main.debug.get() && entry.data.isEmpty() )
+            warn( "Empty data" );
 
          int unclosed_p = 0, unclosed_span = 0, unclosed_b = 0, unclosed_i = 0;
          regxCheckOpenClose.reset( entry.data );
@@ -55,8 +59,8 @@ public class Converter extends Convert {
                case "i":    unclosed_i += regxCheckOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
             }
          }
-         if ( ( unclosed_p | unclosed_span | unclosed_p | unclosed_i ) != 0 )
-            warn( "Unbalanced open and closing bracket" );
+         if ( ( unclosed_p | unclosed_span | unclosed_b | unclosed_i ) != 0 )
+            warn( "Unbalanced open and closing element" );
 
          // Validate fulltext
          if ( regxCheckFulltext.reset( entry.fulltext ).find() )
