@@ -105,8 +105,8 @@ public class PowerConverter extends LeveledConverter {
             break;
 
          case "power15829": // Hamadryad Aspects
-            swap( "</p><p class=powerstat>  <b>✦", "<br>  ✦" );
-            swap( "</p><p class=flavor>  <b>✦", "<br>  ✦" );
+            swap( "</p><p class=powerstat>  <b>✦", "<br>  <b>✦" );
+            swap( "</p><p class=flavor>  <b>✦", "<br>  <b>✦" );
             fix( "formatting" );
             break;
       }

@@ -5,9 +5,11 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Default entry handling goes here.
@@ -22,9 +24,10 @@ public class Converter extends Convert {
    }
 
    private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
-   private final Matcher regxCheckOpenClose = Pattern.compile( "<(/?)(p|span|b|i)\\b" ).matcher( "" );
+   private final Matcher regxCheckOpenClose = Pattern.compile( "<(/?)(p|span|b|i|a|h[1-6])\\b" ).matcher( "" );
    private final Matcher regxCheckDate  = Pattern.compile( "\\(\\d+/\\d+/\\d+\\)" ).matcher( "" );
    private final Map<String, Entry> shortId = new HashMap<>();
+   private final Map<String, AtomicInteger> openCloseCount = new HashMap<>();
 
    /**
     * Apply common conversions to entry data.
@@ -49,18 +52,22 @@ public class Converter extends Convert {
          if ( Main.debug.get() && entry.data.isEmpty() )
             warn( "Empty data" );
 
-         int unclosed_p = 0, unclosed_span = 0, unclosed_b = 0, unclosed_i = 0;
          regxCheckOpenClose.reset( entry.data );
          while ( regxCheckOpenClose.find() ) {
-            switch( regxCheckOpenClose.group( 2 ) ) {
-               case "p":    unclosed_p += regxCheckOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
-               case "span": unclosed_span += regxCheckOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
-               case "b":    unclosed_b += regxCheckOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
-               case "i":    unclosed_i += regxCheckOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
-            }
+            String tag = regxCheckOpenClose.group( 2 );
+            boolean isOpen = regxCheckOpenClose.group( 1 ).isEmpty();
+            AtomicInteger count = openCloseCount.get( tag );
+            if ( count == null )
+               openCloseCount.put( tag, new AtomicInteger( 1 ) );
+            else if ( isOpen )
+               count.incrementAndGet();
+            else
+               count.decrementAndGet();
          }
-         if ( ( unclosed_p | unclosed_span | unclosed_b | unclosed_i ) != 0 )
-            warn( "Unbalanced open and closing element" );
+         String unbalanced = openCloseCount.entrySet().stream().filter( tag -> tag.getValue().intValue() != 0 ).map( tag -> tag.getKey() + ":" + tag.getValue() ).collect( Collectors.joining( ", " ) );
+         if ( ! unbalanced.isEmpty() )
+            warn( "Unbalanced open and closing element (" + unbalanced + ")" );
+         openCloseCount.clear();
 
          // Validate fulltext
          if ( regxCheckFulltext.reset( entry.fulltext ).find() )
