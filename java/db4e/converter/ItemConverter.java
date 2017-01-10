@@ -42,7 +42,7 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxTier = Pattern.compile( "\\b(?:Heroic|Paragon|Epic)\\b" ).matcher( "" );
    private final Matcher regxType = Pattern.compile( "<b>(?:Type|Armor|Arms Slot|Category)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
    private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]+)</b>" ).matcher( "" );
-   private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d+)(?:<td class=mic2>\\+\\d)?<td class=mic3>([\\d,]+) gp" ).matcher( "" );
+   private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d+)(?:<td class=mic2>(?:\\+\\d)?)?<td class=mic3>([\\d,]+) gp" ).matcher( "" );
 
    @Override protected void convertEntry () {
       if ( isGeneric ) {
@@ -314,7 +314,7 @@ public class ItemConverter extends LeveledConverter {
       if ( ! meta( LEVEL ).endsWith( "+" ) ) {
          if ( ! Main.debug.get() ) return;
          if ( TYPE > 0 && meta( TYPE-1 ).equals( "Item Set" ) ) return;
-         if ( find( regxPriceTable ) && regxPriceTable.find() )
+         if ( Main.debug.get() && find( regxPriceTable ) && regxPriceTable.find() )
             warn( "Price table on non-multilevel item" );
          return;
       }
