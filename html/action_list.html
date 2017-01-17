@@ -561,6 +561,7 @@ od.action.list = {
       _.show( '#act_list_pnl_list' )[0].appendChild( table );
    },
 
+   /* Fill in autocomplete data */
    'build_datalist' : function act_list_build_datalist( data ) {
       if ( ! data ) return;
       var col = this.columns, colCount = col.length, listCount = 0;
@@ -651,6 +652,15 @@ od.action.list = {
             od.search.sort_data( data, action.sort_field, action.sort_asc ? 'asc' : 'desc' );
          }
 
+         // Create highlight for each column
+         var col_highlight = new Array( cl ).fill( gui.hlp );
+         _.ary( _( table, '.txt_filter' ) ).forEach( function act_list_show_list_col_highlight( e, i ) {
+            if ( ! e.value.trim() ) return;
+            var pattern = od.search.gen_search( e.value + ' ' + action.get_search_term() );
+            if ( ! pattern || ! pattern.highlight ) return;
+            col_highlight[ i+1 ] = new RegExp( '((?:' + pattern.highlight.join( ')|(?:' ) + '))', 'ig' );
+         } );
+
          // Calculate paging
          gui.total_page = Math.ceil( count / gui.row_per_page );
          gui.page = Math.min( Math.max( 0, gui.page ), gui.total_page - 1 );
@@ -664,13 +674,12 @@ od.action.list = {
             if ( ! line ) continue;
 
             var cat_name = line._category.name, id = line[ idField ];
-            html += '<tr data-id="' + _.escHtml( id ) + '">';
-            var cells = '<td><a href="?view=' + id + '">' + line.Name + '</a>';
+            html += '<tr data-id="' + _.escHtml( id ) + '"><td><a href="?view=' + id + '">';
+            html += gui.highlight( line.Name, col_highlight[ 1 ] ) + '</a>';
             for ( var j = 2 ; j < cl ; j++ ) { // Note: Very intensive loop.
                var d = line[ col[ j ] ] || '';
-               cells += '<td>' + ( d.text ? d.text : d );
+               html += '<td>' + gui.highlight( d.text ? d.text : d, col_highlight[ j ] );
             }
-            html += gui.highlight( cells );
          }
          od.action.view.siblings = data.map( function( e ) { return e.ID });
       }

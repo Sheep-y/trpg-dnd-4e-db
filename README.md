@@ -58,18 +58,17 @@ This downloader fixes over 770 entries during export:
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 
-## Source code and building ##
+## Developer's Guide ##
 
-This section is for programmers only.
-Average user should download the [ready-made program](https://github.com/Sheep-y/trpg-dnd-4e-db/releases/).
+This app has two parts: a downloader that fetch and export data, and a viewer that browse exported data.
+The downloader will embed the viewer on build, so that there is only one deployable file.
 
+* The [development branch](https://github.com/Sheep-y/trpg-dnd-4e-db/tree/development) is less vigorously tested but usually have more features and/or fixes.
 * Downloader source code is in java folder, and use libraries in java_lib folder.
-* Viewer source code is in html folder.
+* Viewer source code is in html folder.  It is built with [CocoDoc](https://github.com/Sheep-y/CocoDoc/), also in java_lib.
 * Both use resources at the root (license) and in the resource folder.
 * Use Ant (build.xml) to 'make' an executable jar.  The make_exe target depends on [Launch4j](http://launch4j.sourceforge.net/).
 * The jar can also be extracted to a new project folder; use Ant to move the extracted files back to original structure.
-
-The viewer is built with [CocoDoc](https://github.com/Sheep-y/CocoDoc/) app builder, which is bundled and must run in GUI.
 
 [SQLJet](https://sqljet.com/) is used to access sqlite database, but the data cannot be read by other SQLite libraries.
 It may be a sqljet issue.

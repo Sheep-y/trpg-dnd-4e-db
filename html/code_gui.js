@@ -13,8 +13,6 @@ od.gui = {
    /** List of initiated actions. */
    initialized: [],
 
-   /** Array of regexp string to highlight */
-   hl: null,
    /** True to show highlight, false to not show */
    hl_enabled : true,
    /** RegExp pattern used in highlight */
@@ -188,11 +186,11 @@ od.gui = {
     * @param {Array} highlights Array of terms to highlight.
     */
    "set_highlight" : function gui_set_highlight ( highlights ) {
-      od.gui.hl = highlights;
-      if ( ! highlights ) return;
+      var gui = od.gui;
+      if ( ! highlights ) return gui.hlp = null;
       // Join as alternatives and add a negative lookahead to prevent changing HTML tag.
       highlights = '((?:' + highlights.join( ')|(?:' ) + '))(?![^<]*>)';
-      od.gui.hlp = new RegExp( highlights, 'ig' );
+      gui.hlp = new RegExp( highlights, 'ig' );
    },
 
    /**
@@ -201,12 +199,11 @@ od.gui = {
     * @param {String} html source html
     * @returns {String} result html
     */
-   "highlight" : function gui_highlight ( html ) {
-      var gui = od.gui, hl = gui.hl;
+   "highlight" : function gui_highlight ( html, hl ) {
+      if ( ! hl ) hl = od.gui.hlp;
       if ( ! hl ) return html; // Nothing to highlight (e.g. all exclude search)
       // Apply highlight, then concat space separated highlights
-      html = html.replace( gui.hlp, '<mark>$1</mark>' ).replace( /<\/mark>(\s+)<mark>/g, '$1' );
-      return html;
+      return html.replace( hl, '<mark>$1</mark>' ).replace( /<\/mark>(\s+)<mark>/g, '$1' );
    },
 
    /**

@@ -149,7 +149,7 @@ od.search = {
       } else if ( search === '0' ) {
          return function act_list_filter_data_zero_filter( data ) {
             var str = data[ col_name ];
-            return ! str || str === '0' || str === '0 gp' || str === '0+ gp'; // The last is Shivli Frost Spear
+            return ! str || str === '0' || str === '0 gp';
          };
       } else {
          // Number based search.
@@ -244,7 +244,7 @@ od.search = {
       var hl = [], hasExclude = false;
       var regx = "^";
       // Break down search input into tokens
-      var parts = terms.match( /(^| )\/.+\/(?= |$)|[+-]?(?:"[^"]+"|\S+)/g );
+      var parts = terms.trim().match( /(^| )\/.+\/(?= |$)|[+-]?(?:"[^"]+"|\S+)/g );
       if ( ! parts ) return null;
       _.info( "[Search] Tokens: " + JSON.stringify( parts ) );
 
@@ -287,7 +287,7 @@ od.search = {
                   // Remove leading double quote for incomplete terms
                   if ( term.charAt(0) === '"' ) term = term.substr( 1 );
                   if ( term ) term = _.escRegx( term );
-                  term = term.replace( /\\\*/g, '\\S+' );
+                  term = term.replace( /\\\*/g, '[^\\s<>]+' );
                }
                if ( term ) {
                   if ( is_whole_word ) term = '\\b' + term + '\\b';
@@ -296,7 +296,7 @@ od.search = {
 
                // If not exclude, add term to highlight
                if ( part ) {
-                  if ( part.indexOf( '(?=' ) === 0 && term && term.length > 2 )
+                  if ( part.indexOf( '(?=' ) === 0 && term && term.length > 2 ) // Highlight if not exclude and is 3 chars or above
                      hl.push( term );
                   part += '.*)';
                   addPart.push( part );
