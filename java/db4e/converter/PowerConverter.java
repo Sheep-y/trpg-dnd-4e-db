@@ -36,6 +36,10 @@ public class PowerConverter extends LeveledConverter {
       // Add skill name to skill power type
       if ( meta( CLASS ).equals( "Skill Power" ) )
          entry.meta[ CLASS ] += ", " + regxLevel.group( 1 );
+      else if ( meta( CLASS ).equals( "Theme Power" ) ) {
+         meta( CLASS, regxLevel.group( 1 ) );
+         fix( "wrong meta" );
+      }
 
       // Set frequency part of power type, a new column
       if ( entry.data.startsWith( "<h1 class=dailypower>" ) )
@@ -117,6 +121,11 @@ public class PowerConverter extends LeveledConverter {
          else
             swap( "Racial Power", "Racial Utility" );
          fix( "consistency" );
+      }
+
+      if ( meta( CLASS ).equals( "Multiclass" ) ) {
+         meta( CLASS, "Spellscarred" );
+         fix( "wrong meta" );
       }
    }
 }

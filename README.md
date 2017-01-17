@@ -41,7 +41,7 @@ Many existing columns are also enhanced or corrected.
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 770 entries during export:
+This downloader fixes over 1300 entries during export:
 
 * 150 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
@@ -53,7 +53,7 @@ This downloader fixes over 770 entries during export:
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 80 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 94 entries with missing listing data not caused by above issues. (Subrace abilities, Heroic feat tier etc.)
-* 182 entries with wrong/inconsistent listing data not caused by above issues. (Multi-source classes, traps roles etc.)
+* 733 entries with wrong/inconsistent listing data not caused by above issues. (Multi-source classes, theme powers etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
