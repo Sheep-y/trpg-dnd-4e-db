@@ -367,7 +367,7 @@ od.action.list = {
             }
             _( '#act_list_txt_search' )[0].value = parts[3] ? decodeURIComponent( parts[3].substr(1) ) : "";
             action.sort_field = parts[4] ? parts[4] : undefined;
-            action.sort_asc = !!parts[5];
+            action.sort_asc = !parts[5];
             action.search( parts[1] );
          }
       } catch ( ex ) {
