@@ -40,9 +40,12 @@ public class Main {
    public static final Logger log = Logger.getLogger( Main.class.getName() );
    static final Preferences prefs = Preferences.userNodeForPackage( Main.class );
    public static final AtomicBoolean debug = new AtomicBoolean( false );
+   public static final AtomicBoolean simulate = new AtomicBoolean( false ); // Simulate data download without getting real data.
 
    // Main method. No need to check java version because min version is compile target.
    public static void main( String[] args ) {
+      if ( simulate.get() && ! TITLE.contains( "(development)" ) )
+         simulate.set( false );
       log.setLevel( Level.CONFIG );
       try {
          Class.forName( "javafx.stage.Stage" ); // OpenJDK does not come with JavaFX by default

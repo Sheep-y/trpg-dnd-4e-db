@@ -38,7 +38,7 @@ public class ConsoleWebView extends SplitPane {
       txtOutput.setMinHeight( 100 );
 
       txtOutput.setEditable( false );
-      txtInput.setPromptText( "Browser console input" );
+      txtInput.setPromptText( "JavaScript" );
       txtInput.requestFocus();
       txtInput.setOnKeyPressed( e -> {
          if ( e.getCode() == KeyCode.UP )

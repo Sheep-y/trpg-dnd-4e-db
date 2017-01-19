@@ -331,7 +331,9 @@ public class Controller {
       log.log( Level.CONFIG, "Timeout {0} ms / Interval {1} ms ", new Object[]{ TIMEOUT_MS, INTERVAL_MS } );
       return runTask( () -> {
          setPriority( Thread.NORM_PRIORITY );
-         if ( categories.stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
+         if ( Main.simulate.get() )
+            log.info( "Login check skipped for simulation" );
+         else if ( categories.stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
             runAndCheckLogin( "Testing login", crawler::randomGlossary );
          downloadCategory();
          downloadEntities();
@@ -534,6 +536,7 @@ public class Controller {
     */
    private void runAndCheckLogin ( String taskName, RunExcept task ) throws Exception {
       runAndGet( taskName, task );
+      if ( Main.simulate.get() ) return;
       if ( crawler.needLogin() ) {
          log.log( Level.INFO, "Requires login: {0}", engine.getLocation() );
          runAndGet( "Opening login page", crawler::openLoginPage );
