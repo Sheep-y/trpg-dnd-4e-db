@@ -47,8 +47,12 @@ od.gui = {
                   var right = _( 'section[id^=action_][style*=block] > nav > .btn_next:not([style*=none])' )[0];
                   if ( right ) right.click();
                   break;
+               case "Escape":
+                  if ( od.gui.get_act_id().startsWith( 'view' ) )
+                     od.gui.action.btn_browse_click();
+                  break;
             }
-         },
+         }
       } );
 
       // Monitor url change - disabled because Chrome no longer support history push/replace
