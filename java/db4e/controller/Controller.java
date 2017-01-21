@@ -262,7 +262,7 @@ public class Controller {
    }
 
    private void openOrCreateTable () {
-      gui.setStatus( "Reading data" );
+      gui.setStatus( "Checking data" );
       try {
          synchronized ( categories ) {
             dal.setDb( db, categories, state );
@@ -443,7 +443,7 @@ public class Controller {
       state.set( -1 );
       return runTask( () -> {
          setPriority( Thread.MIN_PRIORITY );
-         checkStop( "Loading content" );
+         checkStop( "Loading data" );
          dal.loadEntityContent( categories, state );
 
          checkStop( "Writing catlog" );
@@ -486,7 +486,7 @@ public class Controller {
       state.set( -1 );
       runTask( () -> {
          setPriority( Thread.MIN_PRIORITY );
-         checkStop( "Loading content" );
+         checkStop( "Loading data" );
          dal.loadEntityContent( categories, state );
 
          try ( Exporter exp = exporter ) {
