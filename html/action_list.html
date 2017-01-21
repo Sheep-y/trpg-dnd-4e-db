@@ -266,6 +266,7 @@ od.action.list = {
          // If nothing is selected, assume a full catalog search
          if ( this.get_search_category() === undefined ) this.set_search_category( "" );
          this.search();
+         if ( od.gui.is_soft_keyboard ) document.documentElement.focus();
       }
    },
 
@@ -287,7 +288,7 @@ od.action.list = {
       od.gui.page = 0;
       action.set_search_category( cat ? od.data.get( cat ) : "" );
       action.search();
-      _( '#act_list_txt_search' )[0].focus();
+      action.focus_searchbox();
    },
 
    /**
@@ -328,6 +329,27 @@ od.action.list = {
       }
    },
 
+   /** Focus on search box if not using on-screen keyboard, or detect its present if status unknown */
+   'focus_searchbox' : function act_list_focus_searchbox () {
+      var gui = od.gui;
+      if ( gui.is_soft_keyboard === true ) return; // Don't focus if using on-screen keyboard
+      var old_height = window.innerHeight;
+      _( '#act_list_txt_search' )[0].focus();
+      if ( gui.is_soft_keyboard === false ) return;
+      // Detect keyboard
+      _.info( "[List] Detecting soft keyboard" );
+      gui.is_soft_keyboard = false;
+      for ( var i = 1 ; i <= 10 ; i++ )
+         setTimeout( act_list_focus_searchbox_detect, i*200 );
+      setTimeout( function(){ _.info( "[List] Soft keyboard: " + gui.is_soft_keyboard ); }, 2000 );
+
+      function act_list_focus_searchbox_detect (){
+         if ( window.innerHeight > old_height )
+            old_height = window.innerHeight;
+         else if ( window.innerHeight < old_height - 100 )
+            gui.is_soft_keyboard = true;
+      }
+   },
 
    /*************************************************************************/
 
@@ -406,7 +428,7 @@ od.action.list = {
             } );
          }
       }
-      _( '#act_list_txt_search' )[0].focus();
+      action.focus_searchbox();
    },
 
    /** Update result count for each category */

@@ -25,6 +25,9 @@ od.gui = {
    /** Total page count. */
    total_page: 0,
 
+   /** Status of on-screen keyboard detection: null = not tested, true / false otherwise */
+   is_soft_keyboard: null,
+
    init : function gui_init () {
       _( 'link[rel="icon"]' )[0].href = od.config.data_read_path + "/res/icon.png";
       _.l.detectLocale( 'en' );
