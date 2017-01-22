@@ -343,10 +343,11 @@ public abstract class Convert {
          case "Deity":
             return new DeityConverter( category );
          case "Companion":
-         case "Glossary":
             return new FieldSortConverter( category, 0 ); // Sort by first field
          case "Feat":
             return new FeatConverter( category );
+         case "Glossary":
+            return new GlossaryConverter( category );
          case "Item":
          case "Armor":
          case "Implement":
