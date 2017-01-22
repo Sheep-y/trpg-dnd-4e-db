@@ -245,6 +245,11 @@ od.gui = {
                return ! e.prerelease && new Date( e.published_at ) - new Date( od.gui.build_time ) > 24*60*60*1000;
             } ) ) {
                _.info( '[Update] Update available' );
+               _.attr( 'header .top', {
+                  'onclick' : function(){ open( 'https://github.com/Sheep-y/trpg-dnd-4e-db/releases', 'trpg-dnd-4e-db-upgrade' ); },
+                  'data-i18n' : 'gui.update'
+               } );
+               _.l.localise();
             }
       } ).catch( function ( error ) {
          return _.info( '[Update] Cannot check update.' );

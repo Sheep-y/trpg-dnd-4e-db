@@ -74,7 +74,8 @@ _.l.set( 'gui', {
    'loading' : '載入中...',
    'loading1': '載入 %1 中',
 
-   'menu_view_highlight' : '顯示/隱藏搜尋結果高亮'
+   'menu_view_highlight' : '顯示/隱藏搜尋結果高亮',
+   'update': '新版本'
 });
 
 _.l.set( 'action.list', {

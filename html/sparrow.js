@@ -1003,6 +1003,8 @@ _.attr = function _attr( ary, obj, value ) {
             default:
                if ( name.substr( 0, 2 ) === 'on' ) {
                   e.addEventListener( name.substr( 2 ), val );
+               } else if ( name.substr( 0, 5 ) === 'data-' ) {
+                  e.dataset[ name.substr( 5 ) ] = val;
                } else if ( val !== undefined ) {
                   e.setAttribute( name, val );
                } else {
