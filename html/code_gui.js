@@ -6,6 +6,9 @@
 
 // GUI namespace
 od.gui = {
+   /** Build time */
+   build_time: '<?coco var( time.last_modified ) ?>',
+
    /** Current action id. */
    act_id: null,
    /** Current action. */
@@ -28,15 +31,16 @@ od.gui = {
    /** Status of on-screen keyboard detection: null = not tested, true / false otherwise */
    is_soft_keyboard: null,
 
-   init : function gui_init () {
+   "init" : function gui_init () {
+      var gui = od.gui;
       _( 'link[rel="icon"]' )[0].href = od.config.data_read_path + "/res/icon.png";
       _.l.detectLocale( 'en' );
-      od.gui.l10n();
-      od.gui.go();
+      gui.l10n();
+      gui.go();
       // Perform navigation on pop state
       _.attr( window, {
          'onpopstate' : function window_popstate () {
-            od.gui.go();
+            gui.go();
          },
          'onkeypress' : function window_keypress ( evt ) {
             if ( evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey ) return;
@@ -51,8 +55,8 @@ od.gui = {
                   if ( right ) right.click();
                   break;
                case "Escape":
-                  if ( od.gui.get_act_id().startsWith( 'view' ) )
-                     od.gui.action.btn_browse_click();
+                  if ( gui.get_act_id().startsWith( 'view' ) )
+                     gui.action.btn_browse_click();
                   break;
             }
          }
@@ -61,18 +65,19 @@ od.gui = {
       // Monitor url change - disabled because Chrome no longer support history push/replace
       /*
       (function(){
-         var gui = od.gui, get_act_id = gui.get_act_id;
+         var get_act_id = gui.get_act_id;
          setInterval( function window_interval_url_monitor() {
             if ( get_act_id() !== gui.act_id ) gui.go();
          }, od.config.url_monitor_interval );
       })();
       */
+     gui.check_update();
    },
 
    /**
     * Localise current action.
     */
-   l10n : function gui_l10n () {
+   "l10n" : function gui_l10n () {
       _.l.localise();
       if ( od.gui.action ) _.call( od.gui.action.l10n );
    },
@@ -226,4 +231,23 @@ od.gui = {
       document.body.classList[ gui.hl_enabled ? 'remove' : 'add' ]( 'no_highlight' );
       _.prop( '#action_about_rdo_highlight_' + ( od.gui.hl_enabled ? 'on' : 'off' ), { 'checked': true } );
    },
+
+   'check_update' : function gui_check_update ( ) {
+      var lastCheck = new Date( _.pref( 'oddi_last_update_check', '2000-01-01' ) );
+//      if ( ! window.fetch || new Date().getTime() - lastCheck.getTime() < 7*24*60*60*1000 ) return; // Check once a week
+      _.info( '[Update] Check update. Last check: ' + lastCheck );
+
+      fetch( 'https://api.github.com/repos/Sheep-y/trpg-dnd-4e-db/releases' ).then( function( response ) {
+         return response.json();
+      } ).then( function ( json ) {
+         _.pref.set( 'oddi_last_update_check', new Date().toISOString() );
+         if ( json.some( function( e ) {
+               return ! e.prerelease && new Date( e.published_at ) - new Date( od.gui.build_time ) > 24*60*60*1000;
+            } ) ) {
+               _.info( '[Update] Update available' );
+            }
+      } ).catch( function ( error ) {
+         return _.info( '[Update] Cannot check update.' );
+      } );
+   }
 };
