@@ -517,6 +517,12 @@ public class ItemConverter extends LeveledConverter {
             String name = entry.name;
             if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 ); // Basic implements
             return new String[]{ regxNote.reset( name ).replaceAll( "" ).trim() };
+         case "" :
+            switch ( entry.shortid ) {
+               case "item171": // Belt Pouch (empty)
+                  return new String[]{ "Belt Pouch", "Pouch" };
+            }
+            break;
          case "Armor" :
             switch ( entry.shortid ) {
                case "armor1": // Cloth
@@ -530,9 +536,8 @@ public class ItemConverter extends LeveledConverter {
                case "armor49": case "armor51": // Barding (Normal)
                   return new String[]{ entry.name, "Barding", "Bardings" };
             }
-            // Fall through
-         default:
-            return super.getLookupName( entry );
+            break;
       }
+      return super.getLookupName( entry );
    }
 }

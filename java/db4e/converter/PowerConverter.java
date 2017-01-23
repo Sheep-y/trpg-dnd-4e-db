@@ -93,6 +93,11 @@ public class PowerConverter extends LeveledConverter {
       }
 
       switch ( entry.shortid ) {
+         case "power3660": // Indomitable Resolve
+            swapFirst( "<br>", "" ); // <br> in flavor text
+            fix( "formatting" );
+            break;
+
          case "power4713": // Lurk Unseen
             swap( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<" );
             fix( "missing content" );

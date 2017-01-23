@@ -27,10 +27,14 @@ public class GlossaryConverter extends FieldSortConverter {
    @Override protected String[] getLookupName ( Entry entry ) {
       String name = entry.name;
       switch ( entry.shortid ) {
+         case "skill27": // Athletics
+            return new String[]{ "Athletics", "Escape", "Climb", "Climbing", "Swim", "Swimming", "Jump", "Jumping", "Long Jump", "Long Jump" };
          case "glossary86": // Teleportation
             return new String[]{ "Teleport", "Teleportation" };
          case "glossary159": // Hit Points
             return new String[]{ "HP", "Hit Point", "Bloodied" };
+         case "glossary163": // Sustained Durations
+            return new String[]{ "Sustained Durations", "Sustain", "Sustain Minor", "Sustain Move", "Sustain Standard", "Sustain No Action" };
          case "glossary179": // Defense Scores
             return new String[]{ "Defense Scores", "Defenses", "Defense", "Fortitude", "Reflex", "Will" };
          case "glossary341": // Dying and Death
@@ -39,6 +43,10 @@ public class GlossaryConverter extends FieldSortConverter {
             return new String[]{ "Carry", "Carrying", "Lift", "Lifting", "Drag", "Dragging", "Normal Load", "Heavy Load", "Maximum Drag Load" };
          case "glossary622": // Action Types
             return new String[]{ "Standard Action", "Move Action", "Minor Action", "Immediate Reaction", "Immediate Action", "Immediate Interrupt", "Opportunity Action", "Free Action" };
+         case "glossary623": // Languages
+            return new String[]{ "Language", "Script" };
+         case "glossary670": // Magic Item Level and Rarity
+            return new String[]{ "Magic Item Level and Rarity", "Common", "Uncommon", "Rare", "" };
       }
       if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) )
          return new String[]{ name.substring( 0, name.length() - 6 ) };

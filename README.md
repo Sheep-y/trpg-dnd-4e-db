@@ -48,7 +48,7 @@ This downloader fixes over 1300 entries during export:
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 60 entries moved to correct category. (Superior implements, Assassin's poisons, and Consumable wondrous)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
-* 22 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
+* 23 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 20 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 80 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
