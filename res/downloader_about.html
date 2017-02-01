@@ -28,20 +28,32 @@ a {
 li {
    margin-bottom: 1ex;
    }
+
+iframe {
+   width: 100%;
+   }
    </style>
 </head><body>
    <main>
       <h1> 4e Compendium (v3.5) Downloader </h1>
       <p>
-         This is a program for reading <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Compendium</a>, the official database of Dungeons &amp; Dragons™ 4<sup>th</sup> edition resources,
-         and save it for offline browsing and advanced searching.
-         This program does not come with copyrighted data; an active (paid) account is required.
-      </p>
-      <p>
-         <small> Dungeons &amp; Dragons is a trademark of Wizards of the Coast LLC. </small>
+         This is a program for reading <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Compendium</a>,
+         the official database of Dungeons &amp; Dragons™ 4<sup>th</sup> edition resources,
+         and save it for offline use.
+         An active (paid) account is required to run the initial download.
       </p>
       <section>
-         <h2 id='help'> How to Use </h2>
+         <p style='float:right'><a href='https://youtu.be/aNDze9Ok5fE'>(Open video in browser)</a></p>
+         <h2 id='help'>How to Use</h2>
+         <iframe src="https://www.youtube.com/embed/aNDze9Ok5fE" frameborder="0" allowfullscreen></iframe>
+         <script>(function(){
+            var video = document.querySelector( 'iframe' );
+            function resizeVideo () {
+               video.style.height = Math.round( video.clientWidth / 16 * 9 ) + 'px';
+            }
+            resizeVideo();
+            addEventListener( 'resize', resizeVideo );
+         })()</script>
          <ol>
             <li>
                <b>You need an active (paid) <a href='https://store.digitalriver.com/store/dndi/DisplayHelpPage'>D&amp;D Insider subscription</a>.</b> <br/>
@@ -218,7 +230,8 @@ li {
             Program icon derived from RRZEicons's <a href='https://commons.wikimedia.org/wiki/File:Database.svg'>database</a> and pixabay's <a href='https://commons.wikimedia.org/wiki/File:Dragon-154551.svg'>dragon</a>.
          </p>
          <p>
-            The free licenses apply to code and related resources, but not to the data you downloaded.
+            <small> The free licenses apply to code and related resources, not to the data you downloaded.<br/>
+            Dungeons &amp; Dragons is a trademark of Wizards of the Coast LLC. </small>
          </p>
       </section>
    </main>
