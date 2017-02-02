@@ -236,7 +236,7 @@ od.search = {
     *
     * Example : javascript OR ecmascript "bug database"
     *
-    * @param {String} terms  Terms to search fogen_searchr
+    * @param {String} terms  Terms to search for
     * @return {Array} return { 'regexp': RegExp for searching, 'highlight': ["highlight 1", "highlight 2", ... ], 'hasExclude': true/false }
     *                        OR null (if terms turn out to be empty conditions)
     */
