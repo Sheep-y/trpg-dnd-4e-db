@@ -33,18 +33,19 @@ If you use [OpenJDK](http://openjdk.java.net/), you also need [OpenJFX](http://o
 The viewer is tested on Chrome 56, Edge 14, Firefox 52, IE 11, Android Chrome 56, and Android Firefox 52. <br/>
 Mac and iOS cannot be supported.  Walled garden is walled.
 
-## Different from Official Compendium ##
+## Differences from Official Compendium ##
 
 This downloader will create new data columns for easier data filter:
 
+* Race: Origin (and keywords).
 * Background: Benefit (Replace Associated Skills).
-* Theme: Prerequisite.
+* Theme: Prerequisites.
 * Power: Type (Frequency + Type) and Keyword.
 * Feat: Prerequisite.
 * Item: Split into 4 categories (Item, Weapon, Implement, and Armor). Add Type column.
 * Terrain: Group and Level.  Combine with Trap for better mobile layout.
 
-Many existing columns are also enhanced or corrected.
+Many existing columns are also enhanced or corrected, such as multi-source classes.
 
 ### Fixed errors ###
 
