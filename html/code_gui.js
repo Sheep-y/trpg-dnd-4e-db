@@ -42,21 +42,29 @@ od.gui = {
          'onpopstate' : function window_popstate () {
             gui.go();
          },
-         'onkeypress' : function window_keypress ( evt ) {
+         'onkeydown' : function window_keydown ( evt ) {
             if ( evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey ) return;
             if ( document.activeElement && document.activeElement.tagName === 'INPUT' ) return;
             switch ( evt.key ) {
                case "ArrowLeft":
                   var left = _( 'section[id^=action_][style*=block] > nav > .btn_prev:not([style*=none])' )[0];
-                  if ( left ) left.click();
+                  if ( left ) {
+                     left.click();
+                     evt.preventDefault();
+                  }
                   break;
                case "ArrowRight":
                   var right = _( 'section[id^=action_][style*=block] > nav > .btn_next:not([style*=none])' )[0];
-                  if ( right ) right.click();
+                  if ( right ) {
+                     right.click();
+                     evt.preventDefault();
+                  }
                   break;
                case "Escape":
-                  if ( gui.get_act_id().startsWith( 'view' ) )
+                  if ( gui.get_act_id().startsWith( 'view' ) ) {
                      gui.action.btn_browse_click();
+                     evt.preventDefault();
+                  }
                   break;
             }
          }

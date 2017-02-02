@@ -24,18 +24,18 @@ This is a fan project and does not come with copyrighted data.
    1. Download can be stopped and resumed any time.
    2. See [in-app help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/development/res/downloader_about.html) for steps and troubleshoots.
 6. Once all data is downloaded, you can export the data to an HTML file, which can be opened in browsers.
+7. There is a [video guide](https://youtu.be/aNDze9Ok5fE) for the above steps.
 
 ### Compatibility ###
 
-The downloader is tested with Sun Java version 8 update 121. <br/>
-If you use [OpenJDK](http://openjdk.java.net/), make sure you have [OpenJFX](http://openjdk.java.net/projects/openjfx/).
-
+The downloader is tested with Sun Java version 8 update 121.
+If you use [OpenJDK](http://openjdk.java.net/), you also need [OpenJFX](http://openjdk.java.net/projects/openjfx/). <br/>
 The viewer is tested on Chrome 56, Edge 14, Firefox 52, IE 11, Android Chrome 56, and Android Firefox 52. <br/>
 Mac and iOS cannot be supported.  Walled garden is walled.
 
-### New data columns ###
+## Different from Official Compendium ##
 
-This downloader will create new data columns, unavailable in official compendium, for easier data filter:
+This downloader will create new data columns for easier data filter:
 
 * Background: Benefit (Replace Associated Skills).
 * Theme: Prerequisite.
