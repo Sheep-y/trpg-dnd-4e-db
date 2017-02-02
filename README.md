@@ -23,7 +23,15 @@ This is a fan project and does not come with copyrighted data.
 5. In the downloader, fill in DDI username and password, then click "Download".
    1. Download can be stopped and resumed any time.
    2. See [in-app help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/development/res/downloader_about.html) for steps and troubleshoots.
-6. Once all data is downloaded, you can export the data to an HTML file, which can be opened in browsers .
+6. Once all data is downloaded, you can export the data to an HTML file, which can be opened in browsers.
+
+### Compatibility ###
+
+The downloader is tested with Sun Java version 8 update 121. <br/>
+If you use [OpenJDK](http://openjdk.java.net/), make sure you have [OpenJFX](http://openjdk.java.net/projects/openjfx/).
+
+The viewer is tested on Chrome 56, Edge 14, Firefox 52, IE 11, Android Chrome 56, and Android Firefox 52. <br/>
+Mac and iOS cannot be supported.  Walled garden is walled.
 
 ### New data columns ###
 
