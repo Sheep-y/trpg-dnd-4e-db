@@ -39,4 +39,8 @@ public class Entry {
       return copy;
    }
 
+   public String getUrl() {
+      return "http://www.wizards.com/dndinsider/compendium/" + id;
+   }
+
 }

@@ -137,6 +137,10 @@ public class Crawler {
    }
 
    void getEntry ( Entry entry ) throws InterruptedException, TimeoutException {
+      if ( Main.simulate.get() ) {
+         entry.content = "Simulated";
+         return;
+      }
       Object verify = eval( " document.querySelector( 'body > form#form1 + script' ) " ); // Make sure form finished loading
       Object content = eval( " document.querySelector( '#detail' ).innerHTML.trim() " );
       if ( content == null || verify == null ) throw new IllegalStateException( "Incomplete or empty entry" );

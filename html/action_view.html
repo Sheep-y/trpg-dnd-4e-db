@@ -30,7 +30,7 @@
    <header role="banner">
       <button class='i18n' onclick='od.action.view.btn_browse_click(event)' accesskey='1'> action.list.link_text </button>
       <h1 id="act_view_h_title"></h1>
-      <button class='i18n' onclick='scrollTo(0,0)'> gui.top </button>
+      <button class='i18n top' onclick='scrollTo(0,0)'> gui.top </button>
    </header>
 </section>
 
@@ -68,23 +68,20 @@ od.action.view = {
    'parse_action_id' : function act_view_parse_action_id () {
       var id = od.gui.act_id, action = od.action.view;
       var idList = id.substr( 'view='.length ).split( ',' );
+      var loadCount = idList.length;
       action.clear();
       idList.forEach( function act_view_show_each ( id ) {
          // Parse id
-         _.info( "Parsing " + id );
+         _.info( "[View] Parsing " + id );
          var cat = od.data.create( od.data.category_name_of( id ) );
-         _.info( "Display " + cat.name + "." + id );
+         _.info( "[View] Display " + cat.name + "." + id );
          // Create div
          var div = _.html( '<div><h1>' + _.l( 'gui.loading', 'Loading' ) + '</h1></div>' );
          _( '#act_view_pnl_content')[0].appendChild( div );
          // Load and fill div
          cat.load_data( id, function act_view_show_load () {
-            var content = '<div class="detail">' + cat.data[ id ] + '</div>';
-            div.innerHTML = od.gui.highlight( content );
-            if ( idList.length === 1 ) {
-               var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
-               action.set_title( h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' ) );
-            }
+            if ( --loadCount === 0 )
+               action.show_entries( div, cat, idList );
          } );
       } );
 
@@ -146,7 +143,19 @@ od.action.view = {
 
    "set_title" : function act_view_set_title ( title ) {
       _('#act_view_h_title')[0].textContent = title;
-      od.gui.update_title();
+      od.gui.update_title( title );
+   },
+
+   "show_entries" : function act_view_show_entries ( div, cat, idList ) {
+      var action = od.action.view;
+      var content = idList.map( function act_view_show_entries_each( id ) {
+         var data = '<div class="detail" id="' + id + '">' + cat.data[ id ] + '</div>';
+         return data.replace( /(?=<p class=publishedIn>)/, "<a class='cat' href='?list.name."+cat.name+"'>" + cat.getTitle() + "</a>" );
+      } ).join( '' );
+      div.innerHTML = od.gui.highlight( content );
+      // Find title
+      var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
+      action.set_title( h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' ) );
    },
 
    "update_nav_button" : function act_view_update_nav_button () {
@@ -161,7 +170,7 @@ od.action.view = {
 
    "popup_links" : function act_view_popup_links ( evt ) {
       var action = od.action.view,  data = od.data,  pnl = _( '#act_view_pnl_link' )[0];
-      var ids = action.find_internal_links();
+      var ids = action.find_internal_links( evt );
       _.hide( pnl );
       if ( ! ids.length ) return;
 
@@ -174,7 +183,7 @@ od.action.view = {
             ++cat_count;
             cat.load_listing( function act_view_popup_links_pop () {
                if ( --cat_count !== 0 ) return;
-               _.info( "Showing popup for " + ids );
+               _.info( "[View] Showing popup for " + ids );
                _( '#act_view_pnl_link tbody' )[0].innerHTML = ids.map( function( id ) {
                   var cat = data.get( data.category_name_of( id ) );
                   var row = cat.map[ id ];
@@ -194,7 +203,7 @@ od.action.view = {
                setTimeout( function() { // Defer to after global un-popup handler
                   _.style( pnl, { top: y+'px', left: x+'px', display: 'block' } );
                }, 0 );
-               _.time( "Shown popup." );
+               _.time( "[View] Shown popup." );
             } );
          }
       });
@@ -204,9 +213,13 @@ od.action.view = {
     * Find entries that match the text in last click position (start of selection).
     * @returns {Array} List of ids that matched, in decending order of name length then in order of name.
     */
-   "find_internal_links" : function act_view_find_internal_links () {
+   "find_internal_links" : function act_view_find_internal_links ( evt ) {
       var sel = window.getSelection(),  range = sel.getRangeAt(0),  node = sel.anchorNode;
       var textTag = [ undefined, 'MARK', 'SPAN' ], result = [];
+      var entry = evt.target.closest( 'div.detail[id]' );
+      if ( ! entry ) // Not within entry body, abort.
+         return [];
+
       _.time();
 
       function findPre ( node, len, offset ) {
@@ -242,7 +255,7 @@ od.action.view = {
       // Longest name is 45 chars long. Add one more for safe word cut.
       var pre  = normalise( findPre ( node, 46, range.startOffset ).replace( /^\s+/, "" ) );
       var post = normalise( findPost( node, 46, range.startOffset ).replace( /\s+$/, "" ) );
-      _.time( "Lookup: " + pre + "^" + post );
+      _.time( "[Lookup] Lookup: " + pre + "^" + post );
       var nextSpace = pre.indexOf( ' ' ),  text = pre + post,   index = od.data.index;
 
       for ( var name in index ) {
@@ -259,10 +272,10 @@ od.action.view = {
       }
 
       result = result.filter( function ( e, i ) { // Remove dups
-         return result.slice( i + 1 ).indexOf( e ) < 0;
+         return e !== entry.id && result.slice( i + 1 ).indexOf( e ) < 0;
       });
 
-      _.time( "Done lookup. Found " + result.length + " links." );
+      _.time( "[Lookup] Done lookup. Found " + result.length + " links." );
       return result;
    }
 };

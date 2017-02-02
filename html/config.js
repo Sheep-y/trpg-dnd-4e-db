@@ -25,18 +25,17 @@ od.config = {
             return od.config.data_read_path + '/' + category.toLowerCase() + '/data' + matches[1] + '.js';
          }
    },
-   "display_columns" : function  config_display_columns ( cols ) {
-      if ( typeof( cols ) === 'string' ) return cols.substr( cols.length - 4 ) !== 'Sort';
-      return cols.filter( od.config.display_columns );
-   },
    "level_to_int" : function config_level_to_int ( data ) {
+      if ( typeof( data ) === 'object' )
+         data = data.text;
       if ( ! data ) return 0;
       switch ( data.toLowerCase() ) {
-         case 'heroic' : return 1;
-         case 'paragon': return 10.5;
-         case 'epic'   : return 20.5;
+         case 'heroic' : return 5.5;
+         case 'paragon': return 15.5;
+         case 'epic'   : return 25.5;
       }
-      return +data.replace( /\D+/g, '' );
+      var digits = data.replace( /\D+/g, '' );
+      return digits === '0' ? 0.5 : +digits;
    },
 
    "category_order" : [

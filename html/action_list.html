@@ -206,12 +206,126 @@
    <header role="banner">
       <button class='i18n' onclick='od.gui.go("about")'> action.about.link_text </button>
       <h1 id='act_list_h_title' class='i18n'>action.list.title</h1>
-      <button class='i18n' onclick='scrollTo(0,0)'> gui.top </button>
+      <button class='i18n top' onclick='scrollTo(0,0)'> gui.top </button>
    </header>
 
 </section>
 
 <script><?coco-start js(minify) ?>   'use strict';(function action_list_init(){
+
+if (!Array.prototype.fill) {
+  Object.defineProperty(Array.prototype, 'fill', {
+    value: function(value) {
+
+      // Steps 1-2.
+      if (this == null) {
+        throw new TypeError('this is null or not defined');
+      }
+
+      var O = Object(this);
+
+      // Steps 3-5.
+      var len = O.length >>> 0;
+
+      // Steps 6-7.
+      var start = arguments[1];
+      var relativeStart = start >> 0;
+
+      // Step 8.
+      var k = relativeStart < 0 ?
+        Math.max(len + relativeStart, 0) :
+        Math.min(relativeStart, len);
+
+      // Steps 9-10.
+      var end = arguments[2];
+      var relativeEnd = end === undefined ?
+        len : end >> 0;
+
+      // Step 11.
+      var final = relativeEnd < 0 ?
+        Math.max(len + relativeEnd, 0) :
+        Math.min(relativeEnd, len);
+
+      // Step 12.
+      while (k < final) {
+        O[k] = value;
+        k++;
+      }
+
+      // Step 13.
+      return O;
+    }
+  });
+}
+
+if (!Array.prototype.find) {
+  Object.defineProperty(Array.prototype, 'find', {
+    value: function(predicate) {
+     // 1. Let O be ? ToObject(this value).
+      if (this == null) {
+        throw new TypeError('"this" is null or not defined');
+      }
+
+      var o = Object(this);
+
+      // 2. Let len be ? ToLength(? Get(O, "length")).
+      var len = o.length >>> 0;
+
+      // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+      if (typeof predicate !== 'function') {
+        throw new TypeError('predicate must be a function');
+      }
+
+      // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+      var thisArg = arguments[1];
+
+      // 5. Let k be 0.
+      var k = 0;
+
+      // 6. Repeat, while k < len
+      while (k < len) {
+        // a. Let Pk be ! ToString(k).
+        // b. Let kValue be ? Get(O, Pk).
+        // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
+        // d. If testResult is true, return kValue.
+        var kValue = o[k];
+        if (predicate.call(thisArg, kValue, k, o)) {
+          return kValue;
+        }
+        // e. Increase k by 1.
+        k++;
+      }
+
+      // 7. Return undefined.
+      return undefined;
+    }
+  });
+}
+
+
+(function (ElementProto) {
+	if (typeof ElementProto.matches !== 'function') {
+		ElementProto.matches = ElementProto.msMatchesSelector || ElementProto.mozMatchesSelector || ElementProto.webkitMatchesSelector || function matches(selector) {
+			var element = this;
+			var elements = (element.document || element.ownerDocument).querySelectorAll(selector);
+			var index = 0;
+			while (elements[index] && elements[index] !== element)
+				++index;
+			return Boolean(elements[index]);
+		};
+	}
+	if (typeof ElementProto.closest !== 'function') {
+		ElementProto.closest = function closest(selector) {
+			var element = this;
+			while (element && element.nodeType === 1) {
+				if (element.matches(selector)) return element;
+				element = element.parentNode;
+			}
+			return null;
+		};
+	}
+})(window.Element.prototype);
+
 od.action.list = {
    'url' : /^list\b/,
    'last_url' : null,
@@ -266,12 +380,16 @@ od.action.list = {
          // If nothing is selected, assume a full catalog search
          if ( this.get_search_category() === undefined ) this.set_search_category( "" );
          this.search();
+         if ( od.gui.is_soft_keyboard ) document.documentElement.focus();
       }
    },
 
    'txt_filter_input' : function act_list_txt_filter_input ( evt ) {
       if ( act_list_txt_filter_input.timer ) clearTimeout( act_list_txt_filter_input.timer );
-      act_list_txt_filter_input.timer = setTimeout( od.action.list.show_list, 300 );
+      act_list_txt_filter_input.timer = setTimeout( function act_list_txt_filter_input_timer () {
+         _.time();
+         od.action.list.show_list();
+      }, 300 );
    },
 
    /**
@@ -284,7 +402,7 @@ od.action.list = {
       od.gui.page = 0;
       action.set_search_category( cat ? od.data.get( cat ) : "" );
       action.search();
-      _( '#act_list_txt_search' )[0].focus();
+      action.focus_searchbox();
    },
 
    /**
@@ -297,6 +415,7 @@ od.action.list = {
       _.time();
       gui.page += deviation;
       action.show_list();
+      _( '#act_list_lbl_page' )[0].scrollIntoView();
    },
 
    /**
@@ -324,6 +443,27 @@ od.action.list = {
       }
    },
 
+   /** Focus on search box if not using on-screen keyboard, or detect its present if status unknown */
+   'focus_searchbox' : function act_list_focus_searchbox () {
+      var gui = od.gui;
+      if ( gui.is_soft_keyboard === true ) return; // Don't focus if using on-screen keyboard
+      var old_height = window.innerHeight;
+      _( '#act_list_txt_search' )[0].focus();
+      if ( gui.is_soft_keyboard === false ) return;
+      // Detect keyboard
+      _.info( "[List] Detecting soft keyboard" );
+      gui.is_soft_keyboard = false;
+      for ( var i = 1 ; i <= 10 ; i++ )
+         setTimeout( act_list_focus_searchbox_detect, i*200 );
+      setTimeout( function(){ _.info( "[List] Soft keyboard: " + gui.is_soft_keyboard ); }, 2000 );
+
+      function act_list_focus_searchbox_detect (){
+         if ( window.innerHeight > old_height )
+            old_height = window.innerHeight;
+         else if ( window.innerHeight < old_height - 100 )
+            gui.is_soft_keyboard = true;
+      }
+   },
 
    /*************************************************************************/
 
@@ -363,7 +503,7 @@ od.action.list = {
             }
             _( '#act_list_txt_search' )[0].value = parts[3] ? decodeURIComponent( parts[3].substr(1) ) : "";
             action.sort_field = parts[4] ? parts[4] : undefined;
-            action.sort_asc = !!parts[5];
+            action.sort_asc = !parts[5];
             action.search( parts[1] );
          }
       } catch ( ex ) {
@@ -384,6 +524,7 @@ od.action.list = {
          action.search_type = search_type;
          action.l10n();
       }
+      od.gui.page = 0;
       var cat = action.get_search_category();
       if ( cat !== undefined ) {
          action.update_action_id();
@@ -401,7 +542,7 @@ od.action.list = {
             } );
          }
       }
-      _( '#act_list_txt_search' )[0].focus();
+      action.focus_searchbox();
    },
 
    /** Update result count for each category */
@@ -490,12 +631,13 @@ od.action.list = {
          if ( ondone ) _.call( ondone );
       }, function act_list_build_category_error () {
          od.gui.go( "about" );
+         _.show( '.nodata' );
       });
    },
 
    /** Callback for search / list, to display the results */
    'build_list' : function act_list_build_list ( col, data, counts, highlight ) {
-      _.info( 'Building header for ' + JSON.stringify( col ) );
+      _.time( '[List] Building header for ' + JSON.stringify( col ) );
       var action = od.action.list, cl = col.length;
       action.columns = col;
       action.data = data;
@@ -505,11 +647,8 @@ od.action.list = {
       var filter_txt = _.ary( _( '.txt_filter' ) ).map( function ( e ) { return e.value; } );
 
       // Remove old table and create a new one.
-      var table = _( '#act_list_table' );
-      if ( table.length ) {
-         table[0].parentNode.removeChild( table[0] );
-      }
-      table = _.create( 'table', { 'id': 'act_list_table', 'aria-label' : _.l( 'action.list.search_result', 'Result' ) } );
+      _.remove( '#act_list_table' );
+      var table = _.create( 'table', { 'id': 'act_list_table', 'aria-label' : _.l( 'action.list.search_result', 'Result' ) } );
       var head_row = _.create( 'tr' ), head = _.create( 'thead' ),  css = '@media (max-width: 1023px) {';
       table.appendChild( head );
       head.appendChild( head_row );
@@ -518,18 +657,18 @@ od.action.list = {
       for ( var i = 1 ; i < cl ; i++ ) {
          // Data field column
          var th = _.create( 'th' ), label = _.l( 'data.field.' + col[i], col[i] );
-         th.appendChild( _.create( 'input', { 'type': 'search', 'class' : 'txt_filter', 'placeholder': label, 'oninput': action.txt_filter_input } ) );
+         th.appendChild( _.create( 'input', { 'type': 'search', 'class' : 'txt_filter', 'placeholder': label, 'list': 'list'+i, 'oninput': action.txt_filter_input } ) );
          //th.appendChild( _.create( 'br' ) );
-         var sorter = _.create( 'span', { 'text': '⇅', 'class': 'button' } );
-         sorter.addEventListener( 'click', ( function ( f, lbl ) { return function act_list_header_click(){
+         var sorter = _.create( 'span', { 'text': '⇅', 'class': 'button', 'onclick': ( function ( f ) { return function act_list_sort_click( evt ){
+            _.time();
             action.sort_asc = action.sort_field === f ? ! action.sort_asc : true;
             _.attr( '#act_list_pnl_list th span', 'text', '⇅' );
-            lbl.textContent = action.sort_asc ? '↓' : '↑';
+            evt.target.textContent = action.sort_asc ? '↓' : '↑';
             od.gui.page = 0;
             action.sort_field = f;
             action.show_list();
             action.update_action_id();
-         }; } )( col[ i ], sorter ) );
+         }; } )( col[ i ] ) } );
          th.appendChild( sorter );
          head_row.appendChild( th );
          if ( i > 1 )
@@ -560,6 +699,60 @@ od.action.list = {
       _.show( '#act_list_pnl_list' )[0].appendChild( table );
    },
 
+   /* Fill in autocomplete data */
+   'build_datalist' : function act_list_build_datalist( data ) {
+      if ( ! data ) return;
+      var col = this.columns, colCount = col.length, listCount = 0;
+
+      if ( navigator.userAgent.match( /Trident\// ) ) return _.warn( '[List] Datalist skipped on IE because it may crash' );
+
+      _.time( '[List] Building ' + colCount + ' datalist' );
+
+      for ( var i = 1 ; i < colCount ; i++ ) {
+         _.remove( '#list' + i );
+         var conv, set = _.map(), colName = col[ i ];
+         switch ( colName ) {
+            case 'SourceBook': case 'Origin': case 'Keywords': case 'DescriptionAttribute': case 'RoleName': case 'PowerSourceText': case 'KeyAbilities':
+               conv = function ( prop ) {
+                  prop.split( /\s*(?:,? or | and |[,;])\s*/g ).forEach( function( e ) { set[ e ] = true; } );
+               };
+               break;
+            case "Cost": case "Price": case "Level":
+               conv = function ( prop ) {
+                  if ( prop instanceof Object )
+                     prop.set.forEach( function( e ) { set[ e ] = true; } );
+                  else if ( typeof( prop ) === 'string' )
+                     set[ prop.replace( /,| gp$/g, '' ) ] = true;
+                  else
+                     set[ prop ] = true;
+               };
+               break;
+            default:
+               conv = function ( prop ) { set[ prop ] = true; };
+         }
+
+         for ( var row = 0, rowCount = data.length ; row < rowCount ; row++ )
+            conv( data[ row ][ colName ] );
+         if ( set[''] ) delete set[''];
+
+         set = Object.keys( set );
+         listCount += set.length;
+         switch ( colName ) {
+            case "Cost": case "Tier": case "Level": case "Price":
+               set.sort( _.sorter( od.config.level_to_int ) );
+               break;
+            default:
+               set.sort( _.sorter( function( e ){ return e.trim().toLowerCase(); } ) );
+         }
+
+         var html = '<datalist id="list' + i + '">' + set.map( function( e ) {
+            return '<option value="' + _.escHtml( e ) + '">';
+         }).join( '' ) + '</datalist>';
+         document.body.insertAdjacentHTML( 'beforeend', html );
+      }
+      _.time( '[List] Built ' + colCount + ' datalist, total ' + listCount + ' items.'  );
+   },
+
    /** Filter given data and returns a copy. */
    'filter_data' : function act_list_filter_data ( table, col, data ) {
       var orig_len = data.length;
@@ -568,26 +761,23 @@ od.action.list = {
          if ( filter && data.length )
             data = data.filter( filter );
       } );
-      if ( orig_len === data.length ) {
-         _.attr( '#act_list_lbl_showing', 'text', _.l( 'action.list.lbl_showing', '%1/%2',  data.length, orig_len ) );
-      } else {
-         _.attr( '#act_list_lbl_showing', 'text', _.l( 'action.list.lbl_filter', '%1/%2',  data.length, orig_len ) );
-      }
+      var label = orig_len === data.length ? 'action.list.lbl_showing' : 'action.list.lbl_filter';
+      _.attr( '#act_list_lbl_showing', 'text', _.l( label, '%1/%2',  data.length, orig_len ) );
+      this.build_datalist( data );
       return data;
    },
 
    /** List the current result, e.g. after changing sorting. */
    'show_list' : function act_list_show_list ( table ) {
-      var action = od.action.list, gui = od.gui;
+      _.time();
+      var action = this, gui = od.gui;
       var data = action.data, col = action.columns, cat = action.get_search_category();
       var cl = col.length, idField = col[ 0 ];
-      _.info( 'Filter, sort, and display ' + data.length + ' rows' );
+      _.info( '[List] Filter, sort, and display ' + data.length + ' rows' );
 
       if ( ! table ) table = _( '#act_list_pnl_list table' )[0];
-      _.hide( table );
-      var body = _( table, 'tbody' );
-      if ( body.length ) body[0].parentNode.removeChild( body[0] );
-      body = _.create( 'tbody' );
+      _.remove( table, 'tbody' );
+      var body = _.create( 'tbody' );
 
       // Filter data and update displayed result count
       data = action.filter_data( table, col, data );
@@ -603,6 +793,15 @@ od.action.list = {
             od.search.sort_data( data, action.sort_field, action.sort_asc ? 'asc' : 'desc' );
          }
 
+         // Create highlight for each column
+         var col_highlight = new Array( cl ).fill( gui.hlp );
+         _.ary( _( table, '.txt_filter' ) ).forEach( function act_list_show_list_col_highlight( e, i ) {
+            if ( ! e.value.trim() ) return;
+            var pattern = od.search.gen_search( e.value + ' ' + action.get_search_term() );
+            if ( ! pattern || ! pattern.highlight ) return;
+            col_highlight[ i+1 ] = new RegExp( '((?:' + pattern.highlight.join( ')|(?:' ) + '))', 'ig' );
+         } );
+
          // Calculate paging
          gui.total_page = Math.ceil( count / gui.row_per_page );
          gui.page = Math.min( Math.max( 0, gui.page ), gui.total_page - 1 );
@@ -610,19 +809,18 @@ od.action.list = {
 
          // Show data
          var doc = document, html = '';
-         _.time( 'Listing results ' + start + ' to ' + end + ' (' + col + ')' );
+         _.time( '[List] Listing results ' + start + ' to ' + end + ' (' + col + ')' );
          for ( var i = start ; i < end ; i++ ) { // Create row; intensive
             var line = data[i];
             if ( ! line ) continue;
 
             var cat_name = line._category.name, id = line[ idField ];
-            html += '<tr data-id="' + _.escHtml( id ) + '">';
-            var cells = '<td><a href="?view=' + id + '">' + line.Name + '</a>';
+            html += '<tr data-id="' + _.escHtml( id ) + '"><td><a href="?view=' + id + '">';
+            html += gui.highlight( line.Name, col_highlight[ 1 ] ) + '</a>';
             for ( var j = 2 ; j < cl ; j++ ) { // Note: Very intensive loop.
                var d = line[ col[ j ] ] || '';
-               cells += '<td>' + ( d.text ? d.text : d );
+               html += '<td>' + gui.highlight( d.text ? d.text : d, col_highlight[ j ] );
             }
-            html += gui.highlight( cells );
          }
          od.action.view.siblings = data.map( function( e ) { return e.ID });
       }
@@ -631,19 +829,19 @@ od.action.list = {
 
       body.insertAdjacentHTML( 'beforeend', html );
       table.appendChild( body );
-      _.show( table ); // Android Firefox v27 needs an extra kick to trigger redraw
 
       if ( count )
-         _.time( 'Listed ' + ( end - start ) + ' / ' + count + ' results.' );
+         _.time( '[List] Listed ' + ( end - start ) + ' / ' + count + ' results.' );
    },
 
    /** Update paging state */
    'update_paging' : function act_list_update_paging () {
       var action = od.action.list, gui = od.gui;
       var count = action.data.length;
-      var title = _.l( 'action.list.lbl_page', '%1/%2', gui.page + 1, gui.total_page );
+      var catTitle = action.category ? action.category.getTitle() : _.l( 'action.list.a_all' );
+      var title = _.l( 'action.list.lbl_page', '%1 %2/%3', catTitle, gui.page + 1, gui.total_page );
       _('#act_list_h_title')[0].textContent = title;
-      od.gui.update_title();
+      od.gui.update_title( title );
 
       if ( count <= gui.row_per_page ) {
          _.hide( '#act_list_lbl_page, #act_list_btn_prev, #act_list_btn_next' );

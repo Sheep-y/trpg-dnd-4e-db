@@ -5,37 +5,36 @@ import db4e.data.Entry;
 
 public class TrapConverter extends LeveledConverter {
 
-   public TrapConverter ( Category category, boolean debug ) {
-      super( category, debug );
+   public TrapConverter ( Category category ) {
+      super( category );
    }
 
-   @Override protected void correctEntry (Entry entry) {
+   @Override protected void correctEntry () {
       if ( entry.meta.length == 4 ) { // Trap
          if ( entry.shortid.equals( "trap1019" ) ) { // Rubble Topple
-            entry.data = entry.data.replace( "Singe-Use", "Single-Use" );
-            entry.meta[ 0 ] = "Single-Use Terrain";
-            corrections.add( "typo" );
+            swap( "Singe-Use", "Single-Use" );
+            meta( 0, "Single-Use Terrain" );
+            fix( "typo" );
          }
 
-         String type = entry.meta[ 0 ].toString();
-         String level = entry.meta[ LEVEL ].toString();
+         String type = meta( 0 );
+         String level = meta( LEVEL );
          if ( type.startsWith( "Minion " ) || type.startsWith( "Elite " ) || type.startsWith( "Solo " ) || type.startsWith( "Single-Use ") ) {
             // 33 traps / hazards has mixed type and role. 3 terrain can also be split this way.
             String[] roles = type.split( " ", 2 );
-            entry.meta[ 1 ] = roles[ 0 ];
-            entry.meta[ 0 ] = roles[ 1 ];
-            corrections.add( "meta" );
+            meta( 1, roles[ 0 ] );
+            meta( 0, roles[ 1 ] );
+            fix( "wrong meta" );
 
          } else if ( level.endsWith( "Minion" ) ) {
             // 7 traps in Dungeon 214-215 has level like "8 Minion" and no group role.
-            entry.meta[ 1 ] = "Minion";
-            entry.meta[ LEVEL ] = level.substring( 0, level.length() - " Minion".length() );
-            corrections.add( "meta" );
+            meta( 1, "Minion" );
+            meta( LEVEL, level.substring( 0, level.length() - " Minion".length() ) );
+            fix( "wrong meta" );
          }
       } else {
          // Terrain; change meta to fit into Trap
-         entry.meta = new Object[]{ "Terrain", entry.fields[ 0 ], "", entry.fields[ 1 ] };
-         // corrections.add( "recatogrise" ); // Not exactly a fix; doesn't count
+         meta( "Terrain", entry.fields[ 0 ], "", entry.fields[ 1 ] );
       }
    }
 

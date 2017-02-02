@@ -1,72 +1,81 @@
 package db4e.converter;
 
+import db4e.Main;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Default entry handling goes here.
  */
 public class Converter extends Convert {
 
-   protected final boolean debug;
-
-   public Converter ( Category category, boolean debug ) {
+   public Converter ( Category category ) {
       super( category );
-      this.debug = debug;
    }
 
-   @Override protected void correctEntry ( Entry entry ) {
+   @Override protected void correctEntry () {
    }
 
    private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
-   private final Matcher regxCheckOpenClose = Pattern.compile( "<(/?)(p|span|b|i)\\b" ).matcher( "" );
+   private final Matcher regxCheckOpenClose = Pattern.compile( "<(/?)(p|span|b|i|a|h[1-6])\\b" ).matcher( "" );
    private final Matcher regxCheckDate  = Pattern.compile( "\\(\\d+/\\d+/\\d+\\)" ).matcher( "" );
    private final Map<String, Entry> shortId = new HashMap<>();
+   private final Map<String, AtomicInteger> openCloseCount = new HashMap<>();
 
    /**
     * Apply common conversions to entry data.
-    * entry.meta may be set, but other prorerties will be overwritten.
+    * entry.meta may be set, but other properties will be overwritten.
     *
     * @param entry
     */
-   @Override protected void convertEntry ( Entry entry ) {
-      super.convertEntry( entry );
-      if ( debug ) {
-         // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
+   @Override protected void convertEntry () {
+      super.convertEntry();
+      // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
+      if ( Main.debug.get() ) {
          if ( shortId.containsKey( entry.shortid ) )
             log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.id, entry.name, entry.shortid, shortId.get( entry.shortid ).name } );
          else
             shortId.put( entry.shortid, entry );
 
          // Validate content tags
-         if ( entry.data.contains( "<img " ) || entry.data.contains( "<a " ) )
-            log.log( Level.WARNING, "Unremoved image or link in {0} {1}", new Object[]{ entry.shortid, entry.name } );
+         if ( find( "<img " ) || find( "<a " ) )
+            warn( "Unremoved image or link" );
 
-         int unclosed_p = 0, unclosed_span = 0, unclosed_b = 0, unclosed_i = 0;
+         // Check that we have content
+         if ( Main.debug.get() && entry.data.isEmpty() )
+            warn( "Empty data" );
+
          regxCheckOpenClose.reset( entry.data );
          while ( regxCheckOpenClose.find() ) {
-            switch( regxCheckOpenClose.group( 2 ) ) {
-               case "p":    unclosed_p += regxCheckOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
-               case "span": unclosed_span += regxCheckOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
-               case "b":    unclosed_b += regxCheckOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
-               case "i":    unclosed_i += regxCheckOpenClose.group( 1 ).isEmpty() ? 1 : -1 ; break;
-            }
+            String tag = regxCheckOpenClose.group( 2 );
+            boolean isOpen = regxCheckOpenClose.group( 1 ).isEmpty();
+            AtomicInteger count = openCloseCount.get( tag );
+            if ( count == null )
+               openCloseCount.put( tag, new AtomicInteger( 1 ) );
+            else if ( isOpen )
+               count.incrementAndGet();
+            else
+               count.decrementAndGet();
          }
-         if ( ( unclosed_p | unclosed_span | unclosed_p | unclosed_i ) != 0 )
-            log.log( Level.WARNING, "Unbalanced open and closing bracket in {0} ({1})", new Object[]{ entry.shortid, entry.name } );
+         String unbalanced = openCloseCount.entrySet().stream().filter( tag -> tag.getValue().intValue() != 0 ).map( tag -> tag.getKey() + ":" + tag.getValue() ).collect( Collectors.joining( ", " ) );
+         if ( ! unbalanced.isEmpty() )
+            warn( "Unbalanced open and closing element (" + unbalanced + ")" );
+         openCloseCount.clear();
 
          // Validate fulltext
          if ( regxCheckFulltext.reset( entry.fulltext ).find() )
-            log.log( Level.WARNING, "Unremoved html tag in fulltext of {0} ({1})", new Object[]{ entry.shortid, entry.name } );
+            warn( "Unremoved html tag in fulltext" );
          if ( regxCheckDate.reset( entry.fulltext ).find() )
-            log.log( Level.WARNING, "Unremoved errata date in fulltext of {0} ({1})", new Object[]{ entry.shortid, entry.name } );
+            warn( "Unremoved errata date in fulltext" );
          if ( ! entry.fulltext.endsWith( "." ) ) // Item144 & Item152 fails this check
-            log.log( Level.WARNING, "Not ending in full stop: {0} ({1})", new Object[]{ entry.shortid, entry.name } );
+            warn( "Not ending in full stop" );
       }
    }
 
@@ -138,8 +147,8 @@ public class Converter extends Convert {
    protected final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]+)</p>" ).matcher( "" );
    private final Matcher regxBook = Pattern.compile( "([A-Z][^,.]*)(?:, page[^,.]+|\\.)" ).matcher( "" );
 
-   @Override protected void parseSourceBook ( Entry entry ) {
-      if ( regxPublished.reset( entry.data ).find() ) {
+   @Override protected void parseSourceBook () {
+      if ( find( regxPublished ) ) {
 
          String published = regxPublished.group( 1 );
          StringBuilder sourceBook = new StringBuilder();
@@ -169,13 +178,16 @@ public class Converter extends Convert {
             if ( published.equals( "Class Compendium." ) )
                lastSource = "CC"; // 11 feats and 2 powers does not list any other source book, only class compendium.
             else
-               log.log(Level.WARNING, "Entry with unparsed book: {0} {1} - {2}", new Object[]{ entry.shortid, entry.name, published} );
-         entry.meta[ entry.meta.length-1 ] = sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource;
+               warn( "Entry with unparsed book" );
+         meta( entry.meta.length-1, sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource );
 
-      } else if ( entry.data.contains( "ublished in" ) ) {
-         log.log( Level.WARNING, "Entry with unparsed source: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+         if ( regxPublished.find() )
+            warn( "Entry with multiple publish" );
+
+      } else if ( find( "ublished in" ) ) {
+         warn( "Entry with unparsed source" );
       } else {
-         log.log( Level.INFO, "Entry without source book: {0} {1}", new Object[]{ entry.shortid, entry.name } );
+         warn( "Entry without source book" );
       }
    }
 
@@ -191,52 +203,55 @@ public class Converter extends Convert {
    private final Matcher regxAttr1 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\">" ).matcher( "" );
    private final Matcher regxAttr2 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\" (\\w+)=\"(\\w+)\">" ).matcher( "" );
    private final Matcher regxAttr3 = Pattern.compile( "<(\\w+) (\\w+)=\"([^'\"/]+)\">" ).matcher( "" );
+   private final Matcher regxOptionalClose = Pattern.compile( "</?tbody>|</(td|tr)>(?=</?(td|tr|tbody)|</table)" ).matcher( "" );
 
    private final Matcher regxEmptyTag = Pattern.compile( "<(\\w+)[^>]*></\\1>" ).matcher( "" );
 
    @Override protected String normaliseData ( String data ) {
       // Replace images with character. Every image really appears in the compendium.
-      data = data.replace( "<img src=\"images/bullet.gif\" alt=\"\">", "✦" ); // Four pointed star, 11x11, most common image at 100k hits
-      data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/x.gif\">", "✦" ); // Four pointed star, 7x10, second most common image at 40k hits
+      data = data.replace( "<img src=\"images/bullet.gif\" alt=\"\">", "✦" ) // Four pointed star, 11x11, most common image at 100k hits
+                 .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/x.gif\">", "✦" ); // Four pointed star, 7x10, second most common image at 40k hits
       if ( data.contains( "<img " ) ) { // Most likely monsters
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/S2.gif\">", "(⚔) " ); // Basic melee, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/S3.gif\">", "(➶) " ); // Basic ranged, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z1.gif\">" , "ᗕ " ); // Blast, 20x20, for 10 monsters
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z1a.gif\">", "ᗕ " ); // Blast, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z2a.gif\">", "⚔ " ); // Melee, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z3a.gif\">", "➶ " ); // Ranged, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z4.gif\">",  "✻ " ); // Area, 20x20
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z4a.gif\">", "✻ " ); // Area, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/aura.png\" align=\"top\">", "☼ " ); // Aura, 14x14
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/aura.png\">", "☼ " ); // Aura, 14x14, ~1000?
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/1a.gif\">", "⚀" ); // Dice 1, 12x12, honors go to monster.4611/"Rort, Goblin Tomeripper"
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/2a.gif\">", "⚁" ); // Dice 2, 12x12, 4 monsters got this
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/3a.gif\">", "⚂" ); // Dice 3, 12x12, ~30
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/4a.gif\">", "⚃" ); // Dice 4, 12x12, ~560
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/5a.gif\">", "⚄" ); // Dice 5, 12x12, ~2100
-         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/6a.gif\">", "⚅" ); // Dice 6, 12x12, ~2500
+         data = data.replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/S2.gif\">", "(⚔) " ) // Basic melee, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/S3.gif\">", "(➶) " ) // Basic ranged, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z1.gif\">" , "ᗕ " ) // Blast, 20x20, for 10 monsters
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z1a.gif\">", "ᗕ " ) // Blast, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z2a.gif\">", "⚔ " ) // Melee, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z3a.gif\">", "➶ " ) // Ranged, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z4.gif\">",  "✻ " ) // Area, 20x20
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/Z4a.gif\">", "✻ " ) // Area, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/aura.png\" align=\"top\">", "☼ " ) // Aura, 14x14
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/aura.png\">", "☼ " ) // Aura, 14x14, ~1000?
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/1a.gif\">", "⚀" ) // Dice 1, 12x12, honors go to monster.4611/"Rort, Goblin Tomeripper"
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/2a.gif\">", "⚁" ) // Dice 2, 12x12, 4 monsters got this
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/3a.gif\">", "⚂" ) // Dice 3, 12x12, ~30
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/4a.gif\">", "⚃" ) // Dice 4, 12x12, ~560
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/5a.gif\">", "⚄" ) // Dice 5, 12x12, ~2100
+                    .replace( "<img src=\"http://www.wizards.com/dnd/images/symbol/6a.gif\">", "⚅" ); // Dice 6, 12x12, ~2500
       }
       // Convert spaces and breaks
-      data = data.replace( "&nbsp;", "\u00A0" );
-      data = data.replace( "<br/>", "<br>" ).replace( "<br />", "<br>" );
-      data = regxSpaces.reset( data ).replaceAll( " " );
+      data = data.replace( "&nbsp;", "\u00A0" )
+                 .replace( "<br/>", "<br>" ).replace( "<br />", "<br>" );
+      data = regxSpaces.reset( data ).replaceAll( " " )
       // Convert ’ to ' so that people can actually search for it
-      data = data.replace( "’", "'" );
-      data = data.replace( "“’", "\"" );
-      data = data.replace( "”’", "\"" );
+                 .replace( "’", "'" )
+                 .replace( "“’", "\"" )
+                 .replace( "”’", "\"" );
       // Convert attribute="value" to attribute=value, for cleaner data
       data = regxAttr1.reset( data ).replaceAll( "<$1 $2=$3>" );
       data = regxAttr2.reset( data ).replaceAll( "<$1 $2=$3 $4=$5>" );
-      // Convert attribute="value value" to attribute='value value', for cleaner data
+      // Convert attribute="value value" to attribute='value value', for less quote escaping
       data = regxAttr3.reset( data ).replaceAll( "<$1 $2='$3'>" );
+      // Remove redundent </td> and </tr>
+      data = regxOptionalClose.reset( data ).replaceAll( "" );
       // Remove empty tags (but not some empty cells which has a space)
       while ( regxEmptyTag.reset( data ).find() )
          data = regxEmptyTag.replaceAll( "" );
       // Convert some rare line breaks
       if ( data.indexOf( '\n' ) >= 0 ) {
-         data = data.replace( "\n,", "," );
-         data = data.replace( "\n.", "." );
-         data = data.replace( ".\n", "." );
+         data = data.replace( "\n,", "," )
+                    .replace( "\n.", "." )
+                    .replace( ".\n", "." );
       }
 
       // Remove links
@@ -276,9 +291,55 @@ public class Converter extends Convert {
       data = regxSpaces.reset( data ).replaceAll( " " );
 
       // HTML unescape. Compendium has relatively few escapes.
-      data = data.replace( "&amp;", "&" );
-      data = data.replace( "&gt;", ">" ); // glossary.433/"Weapons and Size"
+      data = data.replace( "&amp;", "&" )
+                 .replace( "&gt;", ">" ); // glossary.433/"Weapons and Size"
 
       return data.trim();
+   }
+
+   protected final void fix ( String correction ) {
+      corrections.add( correction );
+   }
+
+   protected final void swap ( CharSequence from, CharSequence to ) {
+      entry.data = entry.data.replace( from, to );
+   }
+
+   protected final void swapFirst ( String from, String to ) {
+      entry.data = entry.data.replaceFirst( from, to );
+   }
+
+   protected final String meta ( int index ) {
+      return entry.meta[ index ].toString();
+   }
+
+   protected final void meta ( int index, Object setTo ) {
+      entry.meta[ index ] = setTo;
+   }
+
+   protected final void meta ( Object... setTo ) {
+      entry.meta = setTo;
+   }
+
+   protected final void warn ( String issue ) {
+      log.log( Level.WARNING, issue + ": {0} {1}", new Object[]{ entry.shortid, entry.name } );
+   }
+
+   protected final boolean find ( CharSequence substr ) {
+      return entry.data.contains( substr );
+   }
+
+   protected final boolean find ( Matcher regx ) {
+      return regx.reset( entry.data ).find();
+   }
+
+   protected final String shortenAbility ( Object txt ) {
+      return txt.toString()
+         .replace( "Strength", "Str" )
+         .replace( "Constitution", "Con" )
+         .replace( "Dexterity", "Dex" )
+         .replace( "Intelligence", "Int" )
+         .replace( "Wisdom", "Wis" )
+         .replace( "Charisma", "Cha" );
    }
 }

@@ -34,6 +34,8 @@ public abstract class Convert {
    protected final Category category;
    protected final Set<String> corrections = new HashSet<>();
 
+   protected Entry entry; // Current convert subject
+
    public static void reset () {
       synchronized ( fixCount ) {
          fixCount.clear();
@@ -57,7 +59,7 @@ public abstract class Convert {
          for ( Category c : categories )
             map.put( c.id, c );
 
-         String[] itemMeta =new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
+         String[] itemMeta  = new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
          Category armour    = new Category( "Armor"    , "Armor"    , itemMeta );
          Category implement = new Category( "Implement", "implement", itemMeta );
          Category weapon    = new Category( "Weapon"   , "weapon"   , itemMeta );
@@ -65,38 +67,62 @@ public abstract class Convert {
          exportCategories.add( implement );
          exportCategories.add( weapon );
 
-         // This pre-processing does not move progress, and is not MT, and thus should be done very fast.
+         // Move entries around before export
          for ( Category c : categories ) synchronized( c ) {
             if ( c.id.equals( "Terrain" ) ) continue;
             Category exported = new Category( c.id, c.name, c.fields );
             exportCategories.add( exported );
-            exported.entries.addAll( c.entries );
-            switch ( c.id ) {
-               case "Item" :
-                  synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
-                     transferItem( exported, armour, implement, weapon, map );
-                  } } }
-                  break;
-
-               case "Glossary" :
-                  for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
-                     Entry entry = i.next();
-                     // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
-                     if ( entry.id.equals( "glossary.aspx?id=679" ) || entry.content.contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
-                        i.remove();
-                        corrected( entry, "blacklist" );
+            synchronized( exported ) {
+               exported.entries.addAll( c.entries );
+               switch ( c.id ) {
+                  case "Glossary" :
+                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+                        Entry entry = i.next();
+                        // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
+                        if ( entry.id.equals( "glossary.aspx?id=679" ) || entry.content.contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
+                           i.remove();
+                           corrected( entry, "blacklist" );
+                        }
                      }
-                  }
-                  break;
+                     break;
 
-               case "Trap" :
-                  exported.entries.addAll( map.get( "Terrain" ).entries );
+                  case "Item" :
+                     synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
+                        transferItem( exported, armour, implement, weapon, map );
+                     } } }
+                     break;
+
+                  case "Trap" :
+                     exported.entries.addAll( map.get( "Terrain" ).entries );
+                     break;
+
+                  case "Background" :
+                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+                        Entry entry = i.next();
+                        // Nine background from Dra376 are hooks only, not actual character resources.
+                        if ( entry.fields[3].endsWith( "376" ) ) {
+                           switch ( entry.id ) {
+                              case "background.aspx?id=283" :
+                              case "background.aspx?id=284" :
+                              case "background.aspx?id=285" :
+                              case "background.aspx?id=286" :
+                              case "background.aspx?id=287" :
+                              case "background.aspx?id=288" :
+                              case "background.aspx?id=289" :
+                              case "background.aspx?id=290" :
+                              case "background.aspx?id=291" :
+                                 i.remove();
+                                 corrected( entry, "blacklist" );
+                           }
+                        }
+                     }
+               }
             }
          }
       }
    }
 
-   private static void transferItem( Category exported, Category armour, Category implement, Category weapon, Map<String, Category> map ) {
+   private static void transferItem ( Category exported, Category armour, Category implement, Category weapon, Map<String, Category> map ) {
       // May convert to parallel stream if this part grows too much...
       for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
          Entry entry = i.next();
@@ -308,41 +334,42 @@ public abstract class Convert {
       return new String[]{ regxNote.reset( entry.name ).replaceAll( "" ).trim() };
    }
 
-   public static Converter getConverter ( Category category, boolean debug ) {
+   public static Converter getConverter ( Category category ) {
       switch ( category.id ) {
          case "Background":
-            return new BackgroundConverter( category, debug );
+            return new BackgroundConverter( category );
          case "Class":
-            return new ClassConverter( category, debug );
+            return new ClassConverter( category );
          case "Deity":
-            return new DeityConverter( category, debug );
+            return new DeityConverter( category );
          case "Companion":
-         case "Glossary":
-            return new FieldSortConverter( category, 0, debug ); // Sort by first field
+            return new FieldSortConverter( category, 0 ); // Sort by first field
          case "Feat":
-            return new FeatConverter( category, debug );
+            return new FeatConverter( category );
+         case "Glossary":
+            return new GlossaryConverter( category );
          case "Item":
          case "Armor":
          case "Implement":
          case "Weapon":
-            return new ItemConverter( category, debug );
+            return new ItemConverter( category );
          case "Ritual":
          case "Monster":
          case "Poison":
          case "Disease":
-            return new LeveledConverter( category, debug );
+            return new LeveledConverter( category );
          case "Power":
-            return new PowerConverter( category, debug );
+            return new PowerConverter( category );
          case "Race":
-            return new RaceConverter( category, debug );
+            return new RaceConverter( category );
          case "Theme":
-            return new ThemeConverter( category, debug );
+            return new ThemeConverter( category );
          case "Trap":
-            return new TrapConverter( category, debug );
+            return new TrapConverter( category );
          case "Terrain":
             return null;
          default:
-            return new Converter( category, debug );
+            return new Converter( category );
       }
    }
 
@@ -358,8 +385,11 @@ public abstract class Convert {
       final List<Entry> entries = category.entries;
       for ( Entry entry : entries ) {
          if ( entry.fulltext == null ) try {
-            convertEntry( entry );
+            this.entry = entry;
+            convertEntry();
             if ( ! corrections.isEmpty() ) {
+               if ( entry.shortid.equals( "weapon147" ) ) // Duplicate of Arrow of Fate
+                  corrections.clear();
                for ( String fix : corrections )
                   corrected( entry, fix );
                if ( corrections.size() > 1 )
@@ -404,7 +434,7 @@ public abstract class Convert {
     *
     * @param entry Entry to be converted
     */
-   protected void convertEntry ( Entry entry ) {
+   protected void convertEntry () {
       entry.display_name = entry.name.replace( "’", "'" );
       entry.shortid = entry.id.replace( ".aspx?id=", "" ).toLowerCase();
       if ( entry.meta == null ) {
@@ -413,8 +443,8 @@ public abstract class Convert {
          System.arraycopy( entry.fields, 0, entry.meta, 0, length );
       }
       entry.data = normaliseData( entry.content );
-      correctEntry( entry );
-      parseSourceBook( entry );
+      correctEntry();
+      parseSourceBook();
       entry.fulltext = textData( entry.data );
       // Converter will do some checking if debug is on.
    }
@@ -425,8 +455,8 @@ public abstract class Convert {
     * @param fix Type of fix.
     */
    private static void corrected ( Entry entry, String fix ) {
+      log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.name, fix });
       synchronized ( fixCount ) {
-         log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.name, fix });
          if ( fixCount.containsKey( fix ) ) fixCount.get( fix ).incrementAndGet();
          else fixCount.put( fix, new AtomicInteger( 1 ) );
          fixedEntry.add( entry.id );
@@ -437,7 +467,7 @@ public abstract class Convert {
     * Entry specific data fixes. No need to call super when overriden.
     * @param entry Entry to be corrected.
     */
-   protected abstract void correctEntry ( Entry entry );
+   protected abstract void correctEntry ();
 
    /**
     * Remove / convert images, unicode, and redundent whitespace
@@ -450,7 +480,7 @@ public abstract class Convert {
     * Read the sourcebook meta data and convert to abbreviated form.
     * @param entry
     */
-   protected abstract void parseSourceBook ( Entry entry );
+   protected abstract void parseSourceBook ();
 
    /**
     * Convert HTML data into full text data for full text search.

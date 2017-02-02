@@ -41,7 +41,7 @@ od.search = {
       if ( cat ) {
          // Search in a single category
          cat.load_listing( function search_search_cat () {
-            cols = od.config.display_columns( cat.columns );
+            cols = cat.columns;
             if ( ! pattern ) return _.call( options.ondone, null, cols );
             if ( type === 'full' ) {
                cat.load_index( do_search );
@@ -72,15 +72,15 @@ od.search = {
          if ( cat ) {
             result = cache[ cat.name ];
             if ( ! result ) {
-               _.time( 'Search ' + cat.name + ': ' + options.term );
+               _.time( '[Search] Search ' + cat.name + ': ' + options.term );
                cache[ cat.name ] = result = search( cat.list );
                count[ cat.name ] = result.length;
-               _.time( 'Search done, ' + result.length + ' result(s).' );
+               _.time( '[Search] Search done, ' + result.length + ' result(s).' );
             }
          } else {
             result = cache[ '' ];
             if ( ! result ) {
-               _.time( 'Searching all categories: ' + options.term  );
+               _.time( '[Search] Searching all categories: ' + options.term  );
                result = [];
                count[''] = 0;
                od.data.get().forEach( function search_search_each ( cat ) {
@@ -93,7 +93,7 @@ od.search = {
                   count[ '' ] += data.length;
                } );
                cache[ '' ] = result;
-               _.time( 'Search done, ' + result.length + ' result(s).' );
+               _.time( '[Search] Search done, ' + result.length + ' result(s).' );
             }
          }
          done( result, count );
@@ -105,7 +105,7 @@ od.search = {
                   // Name search. Just try to match name.
                   return regx.test( row.Name );
                } else {
-                  // Full body search.  If does not have exclude term, try name first. If fail or otherwise do full body.
+                  // Full body search.  If does not have exclude term, try name first. If fail or has exclude then do full body.
                   if ( ( ! pattern.hasExclude ) && regx.test( row.Name ) ) return true;
                   return regx.test( row._category.index[ row.ID ] );
                }
@@ -119,18 +119,18 @@ od.search = {
       _.time();
       var list = { "columns":[], "data":[] };
       if ( cat ) {
-         _.time( 'List ' + cat.name );
+         _.time( '[Search] List ' + cat.name );
          cat.load_listing( function data_search_list_category_load_cat() {
-            _.call( onload, null, od.config.display_columns( cat.columns ), cat.list.concat(), null, null );
+            _.call( onload, null, cat.columns, cat.list.concat(), null, null );
          } );
       } else {
-         _.time( 'List all categories' );
+         _.time( '[Search] List all categories' );
          od.data.load_all_listing( function data_search_list_category_load_all(){
             var data = [];
             od.data.get().forEach( function data_search_list_category_each( c ) {
                data = data.concat( c.list );
             } );
-            _.call( onload, null, ["ID","Name","Category","Type","Level","SourceBook"], data, null, null );
+            _.call( onload, null, ["ID","Name","_CatName","_TypeName","Level","SourceBook"], data, null, null );
          } );
       }
    },
@@ -149,7 +149,7 @@ od.search = {
       } else if ( search === '0' ) {
          return function act_list_filter_data_zero_filter( data ) {
             var str = data[ col_name ];
-            return ! str || str === '0' || str === '0 gp' || str === '0+ gp'; // The last is Shivli Frost Spear
+            return ! str || str === '0' || str === '0 gp';
          };
       } else {
          // Number based search.
@@ -183,11 +183,18 @@ od.search = {
             }
          }
          return function act_list_filter_data_num_filter ( data ) {
-            var val = ~~data[ col_name ].replace( /[^\d.]/g, '' );
-            if ( val === 0 ) return false; // Don't show heroic/paragon/epic as level;
-            if ( max !== undefined && val > max ) return false;
-            if ( min !== undefined && val < min ) return false;
-            return true;
+            var val = data[ col_name ];
+            if ( val instanceof Object ) {
+               val = val.set;
+            } else {
+               val = [ ~~val.replace( /[^\d.]/g, '' ) ];
+            }
+            return val.find( function( v ) {
+               if ( v === 0 ) return false; // Don't show heroic/paragon/epic as level;
+               if ( max !== undefined && v > max ) return false;
+               if ( min !== undefined && v < min ) return false;
+               return true;
+            } ) ? true : false;
          };
       }
    },
@@ -195,7 +202,7 @@ od.search = {
    /** Sort given data and returns a copy. */
    'sort_data' : function data_search_sort_data ( data, sort_field, direction ) {
       var sorter, ab = direction === 'asc' ? 1 : -1, ba = ab * -1;
-      _.time( 'Sorting ' + data.length + ' results by ' + sort_field );
+      _.time( '[Search] Sorting ' + data.length + ' results by ' + sort_field );
       switch( sort_field ) {
          case 'Cost' :
          case 'Level' :
@@ -237,8 +244,9 @@ od.search = {
       var hl = [], hasExclude = false;
       var regx = "^";
       // Break down search input into tokens
-      var parts = terms.match( /[+-]?(?:"[^"]+"|\S+)/g );
+      var parts = terms.trim().match( /(^| )\/.+\/(?= |$)|[+-]?(?:"[^"]+"|\S+)/g );
       if ( ! parts ) return null;
+      _.info( "[Search] Tokens: " + JSON.stringify( parts ) );
 
       // Remove leading / trailing OR which is invalid
       while ( parts.length > 0 && parts[0] === 'OR' ) parts.splice(0,1);
@@ -249,7 +257,7 @@ od.search = {
          // Contains all parts joined by OR, e.g. a OR b OR c >>> ['(?=.*a.*)','(?=.*b.*)','(?=.*c.*)']
          var addPart = [];
          do {
-            var term = parts[i];
+            var term = parts[i].trim();
             var part = "";
             var is_whole_word = false;
             // Detect whether to include or exclude term
@@ -272,12 +280,14 @@ od.search = {
                // Quoted terms need to be unquoted first
                } else if ( /^"[^"]*"$/.test( term ) ) {
                   term = term.length > 2 ? _.escRegx( term.substr( 1, term.length-2 ) ) : '';
+                  term = term.replace( /\\\*/g, '\\S+' );
 
                // Otherwise is normal word, just need to unescape
                } else {
                   // Remove leading double quote for incomplete terms
                   if ( term.charAt(0) === '"' ) term = term.substr( 1 );
                   if ( term ) term = _.escRegx( term );
+                  term = term.replace( /\\\*/g, '[^\\s<>]+' );
                }
                if ( term ) {
                   if ( is_whole_word ) term = '\\b' + term + '\\b';
@@ -286,7 +296,7 @@ od.search = {
 
                // If not exclude, add term to highlight
                if ( part ) {
-                  if ( part.indexOf( '(?=' ) === 0 && term && term.length > 2 )
+                  if ( part.indexOf( '(?=' ) === 0 && term && term.length > 2 ) // Highlight if not exclude and is 3 chars or above
                      hl.push( term );
                   part += '.*)';
                   addPart.push( part );
@@ -306,6 +316,7 @@ od.search = {
          }
       }
       if ( regx === '^' ) return null;
+      _.info( "[Search] Regx: " + regx );
       return { 'regexp': RegExp( regx, 'i' ), 'highlight': hl.length ? hl : null, 'hasExclude': hasExclude };
    }
 

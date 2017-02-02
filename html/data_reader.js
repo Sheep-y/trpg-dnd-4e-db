@@ -63,7 +63,7 @@ od.reader = {
       var path = od.config.url.listing( category );
       this._read(
          path,
-         function(){ return od.data.get(category).raw_list.length > 0; },
+         function(){ return od.data.get(category).list.length > 0; },
          onload,
          onerror ? onerror : 'Cannot read ' + category + ' listing from ' + path );
       // TODO: Make error handler use thrown error message (e.g. need reindex) instead of default
@@ -80,7 +80,8 @@ od.reader = {
       if ( version < 20130703 )
          return _.alert( _.l( 'error.old_format' ) );
       cat.columns = columns;
-      cat.raw_list = data;
+      cat.list = data;
+      cat.build_listing();
    },
 
    jsonp_data_extended: function reader_jsonp_data_extended( version, category, columns, data ) {

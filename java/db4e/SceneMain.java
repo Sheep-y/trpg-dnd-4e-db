@@ -98,8 +98,8 @@ public class SceneMain extends Scene {
            "Show app log and console.  Will slow down download & export and use more memory." );
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
-   final Button btnExportData = JavaFX.tooltip( new Button( "Export Downloaded Data" ), // Export RAW data
-           "Export raw data as simple HTML." );
+   final Button btnExportData = JavaFX.tooltip( new Button( "Dump Data" ),
+           "Dump raw downloaded data in different formats." );
    final Button btnCheckUpdate = JavaFX.tooltip( new Button( "Check update" ),
            "Check for availability of new releases." );
    private final Pane pnlOptionTab = new VBox( 8,
@@ -326,7 +326,7 @@ public class SceneMain extends Scene {
                popupHandler.getLoadWorker().cancel();
             } catch ( Exception err ) {
                // Should not happen because invalid url won't trigger popup
-               log.log( Level.WARNING, "Malformed URL: {0}", err );
+               log.log( Level.WARNING, "Malformed URL: {0}", Utils.stacktrace( err ) );
                //new Alert( Alert.AlertType.ERROR, "Cannot open " + now, ButtonType.OK ).show();
             } } );
          }
@@ -338,8 +338,8 @@ public class SceneMain extends Scene {
             runFX( () -> {
                   web.getEngine().loadContent( txt );
             } );
-         } catch ( IOException ex ) {
-            log.log( Level.WARNING, "Error when loading help: {0}", Utils.stacktrace(ex) );
+         } catch ( IOException err ) {
+            log.log( Level.WARNING, "Error when loading help: {0}", Utils.stacktrace( err ) );
             runFX( () -> {
                web.getEngine().loadContent( "<h1>Cannot load help.</h1>"
                      + "<h2><a href='https://github.com/Sheep-y/trpg-dnd-4e-db'>Project Home</a.></h2>" );
@@ -416,6 +416,7 @@ public class SceneMain extends Scene {
          dlgCreateView = createExportDialog( "4e Offline Compendium", "4e_database.html" );
       File target = dlgCreateView.showSaveDialog( getWindow() );
       if ( target == null || ! target.getName().toLowerCase().endsWith( ".html" ) ) return;
+      dlgCreateView.setInitialFileName( target.getName() );
 
       CompletableFuture<Void> ready = CompletableFuture.completedFuture( null );
       String data_dir = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
@@ -429,7 +430,7 @@ public class SceneMain extends Scene {
 
       ready.thenRun( () -> {
          prefs.remove( "export.last_file" );
-         loader.startExport( target, data_dir ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );
+         loader.startExport( target ).thenRun( () -> prefs.put( "export.last_file", target.toString() ) );
          prefs.put( "export.dir", target.getParent() );
       } );
    }
@@ -437,14 +438,27 @@ public class SceneMain extends Scene {
    private FileChooser dlgExportRaw;
 
    private void action_export_raw ( ActionEvent evt ) {
-      if ( dlgExportRaw == null )
-         dlgExportRaw = createExportDialog( "Raw Compendium Dump", "index.html" );
+      if ( dlgExportRaw == null ) {
+         dlgExportRaw = createExportDialog( "dummy", "*.*" );
+         dlgExportRaw.getExtensionFilters().clear();
+         dlgExportRaw.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter( "Excel", "*.xlsx" ),
+            new FileChooser.ExtensionFilter( "CSV (fixed filenames)", "race.csv" ),
+            new FileChooser.ExtensionFilter( "TSV (fixed filenames)", "race.tsv" ),
+            new FileChooser.ExtensionFilter( "JSON", "*.json" ),
+            new FileChooser.ExtensionFilter( "SQL", "*.sql" ),
+            new FileChooser.ExtensionFilter( "HTML", "*.html", "*.htm" ) );
+         dlgExportRaw.setInitialFileName( "raw_compendium.xlsx" );
+      }
       File target = dlgExportRaw.showSaveDialog( getWindow() );
-      if ( target == null || ! target.getName().toLowerCase().endsWith( ".html" ) ) return;
-
-      String data_dir = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
-      pnlC.getSelectionModel().select( tabData );
-      loader.startExportRaw( target, data_dir );
+      if ( target == null ) return;
+      dlgExportRaw.setInitialFileName( target.getName() );
+      try {
+         loader.startExportRaw( target );
+         pnlC.getSelectionModel().select( tabData );
+      } catch ( RuntimeException err ) {
+         log.log( Level.INFO, "Cannot initiate dump: {0}", Utils.stacktrace( err ) );
+      }
    }
 
    private FileChooser createExportDialog ( String display, String filename ) {
@@ -513,6 +527,7 @@ public class SceneMain extends Scene {
 
    private void chkDebug_change ( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
       prefs.putBoolean("gui.debug", newValue );
+      Main.debug.set( newValue );
       ObservableList<Tab> tabs = pnlC.getTabs();
       if ( newValue ) {
          log.setLevel( Level.FINE );
@@ -575,8 +590,6 @@ public class SceneMain extends Scene {
          return null;
       } );
    }
-
-   public boolean isDebugging () { return chkDebug.isSelected(); };
 
    /////////////////////////////////////////////////////////////////////////////
    // Worker Screen

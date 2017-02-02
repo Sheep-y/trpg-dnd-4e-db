@@ -11,8 +11,8 @@ class LeveledConverter extends Converter {
 
    protected int LEVEL = -1;
 
-   protected LeveledConverter ( Category category, boolean debug ) {
-      super( category, debug );
+   protected LeveledConverter ( Category category ) {
+      super( category );
    }
 
    @Override protected void initialise () {
@@ -21,22 +21,21 @@ class LeveledConverter extends Converter {
       // if ( LEVEL < 0 ) throw new IllegalStateException( "Level field not in " + category.name );
    }
 
-   static Map<String, String> levelText = new HashMap<>(); // Cache level text
-   static Map<Object, Float> levelNumber = new HashMap<>();
+   static final Map<Object, Float> levelMap = new HashMap<>();
 
    @Override protected void beforeSort () {
       super.beforeSort();
-      synchronized ( levelText ) { // Make sure that sortEntity has all the numbers in this category
-         if ( LEVEL < 0 ) return;
+      if ( LEVEL < 0 ) return;
+      synchronized ( levelMap ) { // Make sure that sortEntity has all the numbers in this category
          for ( Entry entry : category.entries ) {
-            String level = entry.meta[ LEVEL ].toString();
-            if ( levelText.containsKey( level ) ) {
-               entry.meta[ LEVEL ] = levelText.get( level ); // Share string to save some memory
-            } else {
+            Object levelText = entry.meta[ LEVEL ];
+            if ( levelText.getClass().isArray() )
+               levelText = ( (Object[]) levelText )[1];
+            String level = levelText.toString();
+            if ( ! levelMap.containsKey( level ) ) {
                float lv = parseLevel( level );
-               levelText.put( level, level );
-               levelNumber.put( level, lv );
-               if ( lv < -10 ) log.log( Level.WARNING, "Unknown level \"{0}\": {1} {2}", new Object[]{level, entry.shortid, entry.name} );
+               levelMap.put( level, lv );
+               if ( lv < -10 ) log.log( Level.WARNING, "Unknown level \"{0}\": {1} {2}", new Object[]{ levelText, entry.shortid, entry.name } );
             }
          }
       }
@@ -88,7 +87,11 @@ class LeveledConverter extends Converter {
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
       if ( LEVEL >= 0 ) {
-         float level = levelNumber.get( a.meta[ LEVEL ] ) - levelNumber.get( b.meta[ LEVEL ] );
+         Object aLv = a.meta[ LEVEL ];
+         Object bLv = b.meta[ LEVEL ];
+         if ( aLv.getClass().isArray() ) aLv = ( ( Object[] ) aLv )[1];
+         if ( bLv.getClass().isArray() ) bLv = ( ( Object[] ) bLv )[1];
+         float level = levelMap.get( aLv ) - levelMap.get( bLv );
          if ( level < 0 )
             return -1;
          else if ( level > 0 )
@@ -97,18 +100,18 @@ class LeveledConverter extends Converter {
       return super.sortEntity( a, b );
    }
 
-   @Override protected void correctEntry ( Entry entry ) {
+   @Override protected void correctEntry () {
       switch ( category.id ) {
       case  "Poison":
-         if ( entry.data.contains( "<p>Published in" ) ) {
-            entry.data = entry.data.replace( "<p>Published in", "<p class=publishedIn>Published in" );
-            corrections.add( "formatting" );
+         if ( find( "<p>Published in" ) ) {
+            swap( "<p>Published in", "<p class=publishedIn>Published in" );
+            fix( "formatting" );
          }
 
          switch ( entry.shortid ) {
          case "poison19": // Granny's Grief
-            entry.data = entry.data.replace( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
-            corrections.add( "missing published" );
+            swap( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
+            fix( "missing published" );
             break;
          case "item3561": // Aboleth Slime Concentrate
          case "item3562": // Gibbering Grind
@@ -116,17 +119,18 @@ class LeveledConverter extends Converter {
          case "item3564": // Umber Dust
          case "item3565": // Heart of Mimic Powder
          case "item3566": // Mind Flayer Tentacle Extract
-            entry.data = entry.data.replace( " (Consumable)", "" ).replace( "(Consumable, ", "(" );
-            entry.data = entry.data.replace( " ✦ (", " ✦ Consumable (" );
-            corrections.add( "missing power frequency" );
+            swap( " (Consumable)", "" );
+            swap( "(Consumable, ", "(" );
+            swap( " ✦ (", " ✦ Consumable (" );
+            fix( "missing power frequency" );
          }
 
          // Convert from item to poison
          if ( entry.meta.length == 5 ) {
-            entry.meta = new Object[]{ entry.meta[1], "", entry.meta[4] };
+            meta( meta( 1 ), "", meta( 4 ) );
             entry.shortid = entry.shortid.replace( "item", "poison0" );
-            entry.data = entry.data.replace( "<h1 class=mihead>", "<h1 class=poison>" );
-            corrections.add( "recategorise" );
+            swap( "<h1 class=mihead>", "<h1 class=poison>" );
+            fix( "recategorise" );
          }
          break;
 
@@ -134,28 +138,28 @@ class LeveledConverter extends Converter {
          switch ( entry.shortid ) {
 
          case "monster2248": // Cambion Stalwart
-            entry.data = entry.data.replace( "bit points", "hit points" );
-            corrections.add( "typo" );
+            swap( "bit points", "hit points" );
+            fix( "typo" );
             break;
 
          case "monster3222": // Veln
          case "monster3931": // Demon Furor
-            entry.data = entry.data.replace( "basic melee or basic ranged attack", "melee or ranged basic attack" );
-            corrections.add( "fix basic attack" );
+            swap( "basic melee or basic ranged attack", "melee or ranged basic attack" );
+            fix( "fix basic attack" );
             break;
 
          default:
-            if ( entry.data.contains( "basic melee attack") ) {
-               entry.data = entry.data.replace( "basic melee attack", "melee basic attack" );
-               corrections.add( "fix basic attack" );
+            if ( find( "basic melee attack") ) {
+               swap( "basic melee attack", "melee basic attack" );
+               fix( "fix basic attack" );
             }
          }
       case "Ritual":
          switch ( entry.shortid ) {
 
          case "ritual288": // Primal Grove
-            entry.data = entry.data.replace( " grp to ", " gp to " );
-            corrections.add( "typo" );
+            swap( " grp to ", " gp to " );
+            fix( "typo" );
             break;
          }
       }

@@ -61,6 +61,11 @@
          text-align: right;
          }
 
+   .detail a.cat {
+      color: #888;
+      font-size: smaller;
+      float: left;
+      }
    .detail .publishedIn {
       font-size: smaller;
       color: #888;
