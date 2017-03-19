@@ -50,19 +50,19 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 1300 entries during export:
+This downloader fixes over 1350 entries during export:
 
 * 150 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
+* 94 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
-* 60 entries moved to correct category. (Superior implements, Assassin's poisons, and Consumable wondrous)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 23 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 20 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
-* 80 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
+* 98 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 94 entries with missing listing data not caused by above issues. (Subrace abilities, Heroic feat tier etc.)
-* 733 entries with wrong/inconsistent listing data not caused by above issues. (Multi-source classes, theme powers etc.)
+* 715 entries with wrong/inconsistent listing data not caused by above issues. (Multi-source classes, theme powers etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).

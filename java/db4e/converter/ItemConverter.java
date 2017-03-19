@@ -57,7 +57,7 @@ public class ItemConverter extends LeveledConverter {
          entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
       if ( meta( RARITY ).equals( "Artifact" ) ) {
          find( regxTier );
-         meta( isGeneric ? 2 : 1, regxTier.group() );
+         meta( LEVEL, regxTier.group() );
          return; // Artifacts already have its type set
       }
       // Group Items
@@ -120,7 +120,7 @@ public class ItemConverter extends LeveledConverter {
 
       if ( meta( COST ).contains( ".00 gp" ) ) {
          meta( COST, meta( COST ).replace( ".00 ", " " ) );
-         fix( "wrong meta" );
+         fix( "consistency" );
       }
       if ( meta( LEVEL ).isEmpty() ) {
          meta( LEVEL, "Mundane" );
@@ -427,13 +427,6 @@ public class ItemConverter extends LeveledConverter {
             fix( "missing content" );
             break;
 
-         case "item1864": // Mirror of Deception
-            swap( " ✦ (Standard", " ✦ At-Will (Standard" );
-            swap( "alter</p><p class='mistat indent'>sound", "alter sound" );
-            fix( "missing power frequency" );
-            fix( "formatting" );
-            break;
-
          case "item1895": // Mrtok, Ogre Chief (Gauntlets of Ogre Power)
             swap( " 0 gp", " 1,000 gp" );
             meta( COST, "1,000 gp" );
@@ -495,6 +488,50 @@ public class ItemConverter extends LeveledConverter {
             swap( "Power (Teleportation) ✦ Daily", "Power (Weapon) ✦ Daily" );
             fix( "typo" );
             break;
+
+         case "item1864": // Mirror of Deception
+            swap( " ✦ (Standard", " ✦ At-Will (Standard" );
+            swap( "alter</p><p class='mistat indent'>sound", "alter sound" );
+            fix( "missing power frequency" );
+            fix( "formatting" );
+            // fallthrough
+
+         case "item475": // Alchemist's Workshop
+         case "item479": // All-Seeing Eye
+         case "item524": // Arcane Laboratory
+         case "item568": // Austere Dojo
+         case "item635": // Bed of Rapid Rest
+         case "item815": // Brilliant Scrying Basin
+         case "item837": // Cask of Liquid Gold
+         case "item856": // Chandelier of Revelation
+         case "item1047": // Deceptive Scrying Basin
+         case "item1087": // Dimensional Anchor
+         case "item1092": // Diplomat's Table
+         case "item1106": // Door of Alarmr
+         case "item1105": // Door Warden
+         case "item1256": // Feast Table
+         case "item1458": // Gorgonblood Mortar
+         case "item1563": // Holy Shrine
+         case "item1748": // Loadstone Statue
+         case "item1773": // Magic Drawbridge
+         case "item1783": // Magic Weapon Rack
+         // case "item1864": // Mirror of Deception (fall through from above)
+         case "item2271": // Ritualist's Lectern
+         case "item2371": // Sacred Glade
+         case "item2490": // ShiftstoneLevel
+         case "item2493": // Shining Sundial
+         case "item2507": // Silence-Warded Room
+         case "item2593": // Spying Mirrors (pair)
+         case "item2720": // Sun Globe
+         case "item2840": // Teleportation Disk
+         case "item2873": // Throne of Dominion
+         case "item2874": // Throne of Grandeur
+         case "item2991": // Vigilant Gargoyle
+         case "item3047": // Watchful Eye
+         case "item3078": // Window of Deception
+         case "item3079": // Window of Escape
+            meta( 0, "Lair" );
+            fix( "recategorise" );
 
          default:
             // Add "At-Will" to the ~150 items missing a power frequency.
