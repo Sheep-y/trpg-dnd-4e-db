@@ -101,7 +101,7 @@ _.l.set( 'action.about', {
    'link_text' : "說明",
 
    'h_language' : "語言",
-   'lbl_select_lang' : "請選擇語言 :", // please translate as "Please select language:"
+   'lbl_select_lang' : " 請選擇語言 :", // please translate as " Please select language:" with a leading space
    'opt_auto' : "(自動偵察)",
    'lbl_toggle_highlight' : "搜尋結果高亮：",
    'opt_highlight_on' : "顯示",

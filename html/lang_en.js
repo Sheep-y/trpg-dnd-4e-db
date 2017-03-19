@@ -68,7 +68,7 @@ _.l.set( 'action.about', {
    'link_text' : "Help",
 
    'h_language' : "Language",
-   'lbl_select_lang' : ":", // Please translate as "Please select language:"
+   'lbl_select_lang' : ":", // Please translate as " Please select language:" with a leading space
    'opt_auto'    : "(Auto detect)",
    'lbl_toggle_highlight' : "Search term highlight:",
    'opt_highlight_on' : "On",
