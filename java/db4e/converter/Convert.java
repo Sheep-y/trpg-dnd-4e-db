@@ -212,7 +212,7 @@ public abstract class Convert {
 
                   // Implements
                   case "item.aspx?id=145": // The Deluvian Hourglass
-                     moveArtifact( i, implement, entry, null ); break;
+                     moveArtifact( i, implement, entry, "Any" ); break;
                   case "item.aspx?id=140": // Crystal of Ebon Flame
                      moveArtifact( i, implement, entry, "Any" ); break;
                   case "item.aspx?id=123": // Orb of Light
@@ -250,7 +250,7 @@ public abstract class Convert {
                   case "item.aspx?id=110": // Figurine of Tantron
                   case "item.aspx?id=130": // Adamantine Horse of Xarn
                      markArtifact( entry, "Wondrous" );
-                     entry.meta[1] = "Artifact: Mount";
+                     entry.meta[1] = "Mount";
                      break;
                   case "item.aspx?id=134": // Rash and Reckless
                      markArtifact( entry, "Feet" ); break;
@@ -293,13 +293,12 @@ public abstract class Convert {
       if ( i != null ) i.remove();
       target.entries.add( entry );
       String[] fields = entry.fields;
-      type = type == null ? "" : ": " + type;
-      entry.meta = new Object[]{ "Artifact" + type, fields[1], fields[2], fields[3], fields[4] };
+      entry.meta = new Object[]{ type, fields[1], fields[2], "Artifact", fields[4] };
    }
 
-   private static void markArtifact ( Entry entry, String type ) {
+   private static void markArtifact ( Entry entry, String category ) {
       String[] fields = entry.fields;
-      entry.meta = new Object[]{ type, "Artifact", fields[1], fields[2], fields[3], fields[4] };
+      entry.meta = new Object[]{ category, "", fields[1], fields[2], "Artifact", fields[4] };
    }
 
    public static void afterConvert () {

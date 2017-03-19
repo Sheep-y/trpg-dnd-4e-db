@@ -14,6 +14,7 @@ public class ItemConverter extends LeveledConverter {
    private static final int CATEGORY = 0;
    private static int TYPE;
    private static int COST;
+   private static int RARITY;
    private final boolean isGeneric;
 
    public ItemConverter ( Category category ) {
@@ -27,6 +28,7 @@ public class ItemConverter extends LeveledConverter {
       super.initialise();
       TYPE = LEVEL - 1;
       COST = LEVEL + 1;
+      RARITY = COST + 1;
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
@@ -53,8 +55,7 @@ public class ItemConverter extends LeveledConverter {
       super.convertEntry();
       if ( ! isGeneric )
          entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
-      if ( ( ! isGeneric && meta( 0 ).startsWith( "Artifact" ) ) ||
-             ( isGeneric && meta( 1 ).startsWith( "Artifact" ) ) ) {
+      if ( meta( RARITY ).equals( "Artifact" ) ) {
          find( regxTier );
          meta( isGeneric ? 2 : 1, regxTier.group() );
          return; // Artifacts already have its type set
@@ -330,7 +331,7 @@ public class ItemConverter extends LeveledConverter {
          multi_cost.add( regxPriceTable.group( 2 ).replaceAll( "\\D", "" ) );
          multi_level.add( regxPriceTable.group( 1 ) );
       } while ( regxPriceTable.find() );
-      entry.meta[ COST  ] = multi_cost.toArray();
+      entry.meta[ COST ] = multi_cost.toArray();
       meta( LEVEL, multi_level.toArray() );
    }
 
@@ -485,7 +486,7 @@ public class ItemConverter extends LeveledConverter {
          case "item3331": // Sun's Sliver
             swap( ">Level <", ">Epic Tier<" );
             swap( "<b>Wondrous Item</b>", "<b>Minor Artifact:</b> Wondrous Item" );
-            meta( TYPE, "Artifact" );
+            meta( RARITY, "Artifact" );
             meta( COST, "" );
             fix( "missing content" );
             break;
