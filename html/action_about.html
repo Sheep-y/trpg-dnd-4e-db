@@ -244,6 +244,7 @@ od.action.about = {
 
    "change_language" : function act_about_change_language ( lang ) {
       _.l.saveLocale( lang );
+      _.l.detectLocale( 'en' );
       od.gui.l10n();
    },
 };
