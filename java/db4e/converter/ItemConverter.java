@@ -15,6 +15,7 @@ public class ItemConverter extends LeveledConverter {
    private static int TYPE;
    private static int COST;
    private static int RARITY;
+   private static int SOURCE;
    private final boolean isGeneric;
 
    public ItemConverter ( Category category ) {
@@ -29,6 +30,7 @@ public class ItemConverter extends LeveledConverter {
       TYPE = LEVEL - 1;
       COST = LEVEL + 1;
       RARITY = COST + 1;
+      SOURCE = RARITY + 1;
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
@@ -342,7 +344,7 @@ public class ItemConverter extends LeveledConverter {
 
    @Override protected void correctEntry () {
       if ( ! find( regxPublished ) ) {
-         entry.data += "<p class=publishedIn>Published in " + meta( 4 )  + ".</p>";
+         entry.data += "<p class=publishedIn>Published in " + meta( SOURCE )  + ".</p>";
          fix( "missing published" );
       }
 
