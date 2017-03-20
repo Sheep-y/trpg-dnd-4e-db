@@ -89,8 +89,8 @@ public class Converter extends Convert {
       books.put( "Dark Sun Creature Catalog", "DSCC" );
       books.put( "Divine Power", "DP" );
       books.put( "Dragons of Eberron", "DoE" );
-      books.put( "Draconomicon: Chromatic Dragons", "Draconomicon: Chromatic" );
-      books.put( "Draconomicon: Metallic Dragons", "Draconomicon: Metallic" );
+      books.put( "Draconomicon: Chromatic Dragons", "Draco: Chromatic" );
+      books.put( "Draconomicon: Metallic Dragons", "Draco: Metallic" );
       books.put( "Dungeon Delve", "DD" );
       books.put( "Dungeon Master's Guide", "DMG" );
       books.put( "Dungeon Master's Guide 2", "DMG2" );
@@ -142,6 +142,29 @@ public class Converter extends Convert {
       books.put( "The Plane Below", "TPB" );
       books.put( "The Shadowfell", "TS" );
       books.put( "Vor Rukoth: An Ancient Ruins Adventure Site", "Vor Rukoth" );
+      // Books without abbreviations
+      books.put( "Beyond the Crystal Cave", "Beyond the Crystal Cave" );
+      books.put( "City of Stormreach", "City of Stormreach" );
+      books.put( "Council of Spiders", "Council of Spiders" );
+      books.put( "Dangerous Delves", "Dangerous Delves" );
+      books.put( "Demonomicon", "Demonomicon" );
+      books.put( "Elder Evils", "Elder Evils" );
+      books.put( "Exemplars of Evil", "Exemplars of Evil" );
+      books.put( "Fortress of the Yuan-ti", "Fortress of the Yuan-ti" );
+      books.put( "Halls of Undermountain", "Halls of Undermountain" );
+      books.put( "Hammerfast", "Hammerfast" );
+      books.put( "Legendary Evils", "Legendary Evils" );
+      books.put( "Madness at Gardmore Abbey", "Madness at Gardmore Abbey" );
+      books.put( "Marauders of the Dune Sea", "Marauders of the Dune Sea" );
+      books.put( "Open Grave", "Open Grave" );
+      books.put( "Revenge of the Giants", "Revenge of the Giants" );
+      books.put( "Savage Encounters", "Savage Encounters" );
+      books.put( "Seekers of the Ashen Crown", "Seekers of the Ashen Crown" );
+      books.put( "The Book of Vile Darkness", "The Book of Vile Darkness" );
+      books.put( "Tomb of Horrors", "Tomb of Horrors" );
+      books.put( "Underdark", "Underdark" );
+      books.put( "Vor Rukoth", "Vor Rukoth" );
+      books.put( "Web of the Spider Queen", "Web of the Spider Queen" );
    }
 
    protected final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]+)</p>" ).matcher( "" );
@@ -158,16 +181,12 @@ public class Converter extends Convert {
             String book = regxBook.group( 1 ).trim();
             String abbr = books.get( book );
             if ( abbr == null ) {
-               if ( book.equals( "Class Compendium" ) ) continue; // Never published
+               if ( book.equals( "Class Compendium" ) ) continue; // Never published, do not show in source column
                if ( book.contains( " Magazine " ) )
                   abbr = book.replace( "gon Magazine ", "" ).replace( "geon Magazine ", "" );
-               else synchronized ( book ) {
-                  abbr = books.get( book );
-                  if ( abbr == null ) {
-                     books.put( book, book );
-                     log.log( Level.FINE, "Source without abbrivation: {0} ({1})", new Object[]{ book, entry.shortid } );
-                     abbr = book;
-                  }
+               else {
+                  abbr = book;
+                  warn( "Unknown sourcebook: " + book );
                }
             }
             if ( sourceBook.length() > 0 ) sourceBook.append( ", " );
