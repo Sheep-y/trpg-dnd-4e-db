@@ -18,6 +18,7 @@
    max-width: 800px;
    margin: 50px auto 10px;
    padding: 0 10px;
+   position: relative;
    }
 
    .detail * { /* Reset all margins and paddings */
@@ -62,9 +63,12 @@
          }
 
    .detail a.cat {
+      bottom: 2px;
       color: #888;
+      display: block;
       font-size: smaller;
-      float: left;
+      position: absolute;
+      left: 10px;
       }
    .detail .publishedIn {
       font-size: smaller;
