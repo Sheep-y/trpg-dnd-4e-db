@@ -33,7 +33,7 @@ public class ItemConverter extends LeveledConverter {
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
       if ( isGeneric ) {
-         int diff = a.meta[ CATEGORY ].toString().compareTo( b.meta[ 0 ].toString() );
+         int diff = a.meta[ CATEGORY ].toString().compareTo( b.meta[ CATEGORY ].toString() );
          if ( diff != 0 ) return diff;
       }
       return super.sortEntity( a, b );
@@ -72,7 +72,7 @@ public class ItemConverter extends LeveledConverter {
             setWeaponType( entry ); // Weapon's original category  may be "Weapon" or "Equipment"
             break;
          default:
-            switch ( meta( 0 ) ) {
+            switch ( meta( CATEGORY ) ) {
             case "Alternative Reward" :
                find( regxFirstStatBold );
                meta( TYPE, regxFirstStatBold.group( 1 ) );
@@ -81,8 +81,13 @@ public class ItemConverter extends LeveledConverter {
                setArmorType( entry );
                break;
             case "Equipment" :
-               if ( find( regxType ) )
+               if ( find( regxType ) ) {
                   meta( TYPE, regxType.group( 1 ) );
+                  if ( meta( TYPE ).equals( "Building" ) ) {
+                     meta( CATEGORY, "Lair" );
+                     fix( "recategorise" );
+                  }
+               }
                break;
             case "Item Set" :
                setItemSetType( entry );
@@ -174,7 +179,7 @@ public class ItemConverter extends LeveledConverter {
             meta( LEVEL, regxWeaponDifficulty.group() );
          }
          if ( meta( LEVEL ).isEmpty() )
-            meta( LEVEL, meta( 0 ).equals( "Unarmed" ) ? "Improvised" : "(Level)" );
+            meta( LEVEL, meta( TYPE ).equals( "Unarmed" ) ? "Improvised" : "(Level)" );
          return;
       }
       // Magical weapons
@@ -344,6 +349,12 @@ public class ItemConverter extends LeveledConverter {
       if ( find( ", which is reproduced below." ) ) {
          entry.data = regxWhichIsReproduced.reset( entry.data ).replaceFirst( "" );
          fix( "consistency" );
+      }
+
+      if ( meta( CATEGORY ).equals( "Alchemical Item" ) ) {
+         meta( CATEGORY, "Consumable" );
+         meta( TYPE, "Alchemical Item" );
+         fix( "recategorise" );
       }
 
       switch ( entry.shortid ) {
@@ -530,7 +541,7 @@ public class ItemConverter extends LeveledConverter {
          case "item3047": // Watchful Eye
          case "item3078": // Window of Deception
          case "item3079": // Window of Escape
-            meta( 0, "Lair" );
+            meta( CATEGORY, "Lair" );
             fix( "recategorise" );
 
          default:

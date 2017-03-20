@@ -50,10 +50,10 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 1350 entries during export:
+This downloader fixes over 1440 entries during export:
 
+* 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous)
 * 150 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
-* 94 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)

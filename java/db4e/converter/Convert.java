@@ -275,7 +275,9 @@ public abstract class Convert {
                      markArtifact( entry, "Neck" ); break;
                   case "item.aspx?id=120": // Unconquered Standard of Arkhosia
                   case "item.aspx?id=136": // Standard of Eternal Battle
-                     markArtifact( entry, "Standard" ); break;
+                     markArtifact( entry, "Wondrous" );
+                     entry.meta[ 1 ] = "Standard";
+                     break;
                   case "item.aspx?id=101": // Codex of Infinite Planes
                   case "item.aspx?id=109": // The Immortal Game
                   case "item.aspx?id=112": // Wayfinder Badge
