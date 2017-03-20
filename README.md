@@ -4,7 +4,7 @@
 
 [![3 min. intro video](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/development/res/img/Frontpage.jpg)](https://youtu.be/aNDze9Ok5fE)
 
-This app can fetches, stores, and exports D&D 4th edition resources from [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx). <br/>
+This program can fetches, stores, and exports D&D 4th edition resources from [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx). <br/>
 Exported entries can be browsed and searched offline with exact phase search, wildcast, exclusion, join ("OR"), and more.
 
 本應用能從四代龍與地下城的[官方資料庫](http://www.wizards.com/dndinsider/compendium/database.aspx)提取、儲存、及匯出資料，以便進行離線的威力搜尋。<br/>
@@ -15,14 +15,14 @@ This is a fan project and does not come with copyrighted data.
 ## How To Download Data ##
 
 1. You need an active [Dungeons & Dragons Insider subscription](http://ddi.wizards.com/) to fetch data.
-   1. This may be impossible since registration is closed. See [in-app help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/development/res/downloader_about.html#faq) for links.
+   1. This may be impossible since registration is closed. See [in-program help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/development/res/downloader_about.html#faq) for links.
 2. [Download](http://www.java.com/) and install Java (version 8 or above).
 3. [Download](https://github.com/Sheep-y/trpg-dnd-4e-db/releases/) the downloader exe (Windows) or downloader jar (Linux/Mac).
 4. Open a folder for the downloader, put it in, and run it.
-   1. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar". This should launch the app.
+   1. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar". This should launch the program.
 5. In the downloader, fill in DDI username and password, then click "Download".
    1. Download can be stopped and resumed any time.
-   2. See [in-app help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/development/res/downloader_about.html) for steps and troubleshoots.
+   2. See [in-program help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/development/res/downloader_about.html) for steps and troubleshoots.
 6. Once all data is downloaded, you can export the data to an HTML file, which can be opened in browsers.
 7. There is a [video guide](https://youtu.be/aNDze9Ok5fE) for the above steps.
 
@@ -69,7 +69,7 @@ If you find similar mistakes that aren't fixed, please [file an issue](https://g
 
 ## Developer's Guide ##
 
-This app has two parts: a downloader that fetch and export data, and a viewer that browse exported data.
+This program has two parts: a downloader that fetch and export data, and a viewer that browse exported data.
 The downloader will embed the viewer on build, so that there is only one deployable file.
 
 * The [development branch](https://github.com/Sheep-y/trpg-dnd-4e-db/tree/development) is less vigorously tested but usually have more features and/or fixes.

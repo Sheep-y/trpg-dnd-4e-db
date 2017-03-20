@@ -95,7 +95,7 @@ public class SceneMain extends Scene {
    final TextField txtRetry  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "download.retry", DEF_RETRY_COUNT ) ) ) ),
            "Number of timeout retry.  Only apply to timeout errors." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
-           "Show app log and console.  Will slow down download & export and use more memory." );
+           "Show program log and console.  Will slow down download & export and use more memory." );
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
    final Button btnExportData = JavaFX.tooltip( new Button( "Dump Data" ),

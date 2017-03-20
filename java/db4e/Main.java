@@ -51,7 +51,7 @@ public class Main {
          Class.forName( "javafx.stage.Stage" ); // OpenJDK does not come with JavaFX by default
          MainApp.run( args );
       } catch  ( ClassNotFoundException ex ) {
-         final String ERR = "This app requires JavaFX (or OpenJFX with WebKit) to run.";
+         final String ERR = "This program requires JavaFX (or OpenJFX with WebKit) to run.";
          System.out.println( ERR );
          JOptionPane.showMessageDialog( null, ERR, TITLE + " " + VERSION, JOptionPane.ERROR_MESSAGE );
       }

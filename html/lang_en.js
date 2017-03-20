@@ -75,7 +75,7 @@ _.l.set( 'action.about', {
    'opt_highlight_off' : "Off",
 
    'h_license' : "License",
-   'p_license' : "This app is free software and is licensed under GNU AGPL v3.<br/>This app does not collect any personal information.",
+   'p_license' : "This program is free software and is licensed under GNU AGPL v3.<br/>This program does not collect any personal information.",
    'a_github'  : "Homepage",
    'a_email'  : "Email",
 
