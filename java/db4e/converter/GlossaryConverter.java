@@ -46,7 +46,7 @@ public class GlossaryConverter extends FieldSortConverter {
          case "glossary623": // Languages
             return new String[]{ "Language", "Script" };
          case "glossary670": // Magic Item Level and Rarity
-            return new String[]{ "Magic Item Level and Rarity", "Common", "Uncommon", "Rare", "" };
+            return new String[]{ "Magic Item Level and Rarity", "Common", "Uncommon", "Rare" };
       }
       if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) )
          return new String[]{ name.substring( 0, name.length() - 6 ) };
