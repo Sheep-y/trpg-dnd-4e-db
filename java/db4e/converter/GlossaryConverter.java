@@ -63,8 +63,11 @@ public class GlossaryConverter extends FieldSortConverter {
             if ( name.endsWith( "ies" ) )
                result.add( name.substring( 0, name.length() - 3 ) + 'y' );
          }
-      } else if ( name.endsWith( "ing" ) )
-         result.add( name.substring( 0, name.length() - 3 ) );
+      } else if ( name.endsWith( "ing" ) && ! name.equals( "Sling" ) )
+         if ( name.equals( "Dying" ) )
+            result.add( "Die" );
+         else
+            result.add( name.substring( 0, name.length() - 3 ) );
       return result.toArray( new String[ result.size() ] );
    }
 }

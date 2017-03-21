@@ -408,8 +408,13 @@ public abstract class Convert {
          category.sorted = entries.toArray( new Entry[ entries.size() ] );
          Arrays.sort( category.sorted, this::sortEntity );
       }
-      if ( category.index == null )
+      if ( category.index == null ) {
          category.index = mapIndex();
+         if ( Main.debug.get() )
+            category.index.keySet().stream().filter( key -> key.length() <= 2 && ! key.equals( "hp" ) && ! key.equals( "og" ) ) // monster1132 = Og, Orog Hero
+               .forEach( key -> category.index.get( key ).forEach( id ->
+                  log.log( Level.WARNING, "Short index \"{2}\": {0} {1}", new Object[]{ id, "", key } ) ) );
+      }
    }
 
    /**
