@@ -431,17 +431,22 @@ od.action.list = {
     */
    'table_click' : function act_list_table_click ( evt ) {
       var action = od.action.list;
-      if ( evt.pageX &&
-           ( Math.abs( action.last_downX - evt.pageX ) > 10 ||
-             Math.abs( action.last_downY - evt.pageY ) > 10 ||
-             new Date().getTime() - action.last_downTime > 1000 ) )
+      if ( evt.pageX && ( evt.button ||
+            Math.abs( action.last_downX - evt.pageX ) > 10 ||
+            Math.abs( action.last_downY - evt.pageY ) > 10 ||
+            new Date().getTime() - action.last_downTime > 1000 ) )
          return;
-      _.noDef( evt );
+
       var tr = _.parent( evt.target, '#act_list_pnl_list tr' );
       if ( ! tr ) return;
-
       var id = tr.getAttribute( 'data-id' );
-      if ( id ) od.gui.go( "view=" + encodeURIComponent( id ) );
+      if ( ! id ) return;
+
+      _.noDef( evt );
+      if ( evt.ctrlKey )
+         window.open( "?view=" + encodeURIComponent( id ) );
+      else
+         od.gui.go( "view=" + encodeURIComponent( id ) );
    },
 
    'table_mousedown' : function act_list_table_mousedown ( evt ) {
