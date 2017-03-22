@@ -331,6 +331,9 @@ od.action.list = {
    'last_url' : null,
    'last_cat' : null,
    'last_scrollY' : 0,
+   'last_downX': 0,
+   'last_downY': 0,
+   'last_downTime': 0,
 
    'initialize' : function act_list_init () {
       // Set initial search state (e.g. button pressed status)
@@ -427,12 +430,25 @@ od.action.list = {
     * @param {Event} evt Event object.
     */
    'table_click' : function act_list_table_click ( evt ) {
+      var action = od.action.list;
+      if ( evt.pageX &&
+           ( Math.abs( action.last_downX - evt.pageX ) > 10 ||
+             Math.abs( action.last_downY - evt.pageY ) > 10 ||
+             new Date().getTime() - action.last_downTime > 1000 ) )
+         return;
       _.noDef( evt );
       var tr = _.parent( evt.target, '#act_list_pnl_list tr' );
       if ( ! tr ) return;
 
       var id = tr.getAttribute( 'data-id' );
       if ( id ) od.gui.go( "view=" + encodeURIComponent( id ) );
+   },
+
+   'table_mousedown' : function act_list_table_mousedown ( evt ) {
+      var action = od.action.list;
+      action.last_downX = evt.pageX;
+      action.last_downY = evt.pageY;
+      action.last_downTime = new Date().getTime();
    },
 
    'set_search_category' : function act_list_set_search_category ( cat ) {
@@ -693,6 +709,7 @@ od.action.list = {
 
       action.show_list( table );
       table.addEventListener( 'click', action.table_click );
+      table.addEventListener( 'mousedown', action.table_mousedown );
       table.addEventListener( 'keypress', function act_list_table_keypressed ( evt ) {
          if ( evt.keyCode === 13 ) action.table_click( evt ); // Trigger a click when pressing Enter
       });
