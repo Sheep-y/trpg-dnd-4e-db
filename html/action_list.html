@@ -515,7 +515,7 @@ od.action.list = {
       try {
          var id = od.gui.act_id, action = od.action.list;
          if ( action.last_url === location.search ) return;
-         var parts = id.match( /^list(?:\.(name|full)?\.([^.=]+)?)?(=[^&]+)?(?:&sort=([^&]+)(&reverse=1)?)?(.*)$/ );
+         var parts = id.match( /^list(?:\.(name|full)?\.([^=&]+)?)?(=[^&]+)?(?:&sort=([^&]+)(&reverse=1)?)?(.*)$/ );
          if ( parts ) {
             if ( parts[2] ) {
                action.set_search_category( parts[2] === 'All' ? "" : od.data.get( parts[2] ) );
