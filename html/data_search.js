@@ -73,7 +73,10 @@ od.search = {
             result = cache[ cat.name ];
             if ( ! result ) {
                _.time( '[Search] Search ' + cat.name + ': ' + options.term );
-               cache[ cat.name ] = result = search( cat.list );
+               if ( cat.map[ term ] )
+                  cache[ cat.name ] = result = [ cat.map[ term ] ];
+               else
+                  cache[ cat.name ] = result = search( cat.list );
                count[ cat.name ] = result.length;
                _.time( '[Search] Search done, ' + result.length + ' result(s).' );
             }
@@ -86,9 +89,13 @@ od.search = {
                od.data.get().forEach( function search_search_each ( cat ) {
                   var data = cache[ cat.name ];
                   if ( ! data ) {
-                     cache[ cat.name ] = data = search( cat.list );
+                     if ( cat.map[ term ] )
+                        cache[ cat.name ] = data = [ cat.map[ term ] ];
+                     else
+                        cache[ cat.name ] = data = search( cat.list );
                      count[ cat.name ] = data.length;
                   }
+                  if ( data.length <= 0 ) return;
                   result = result.concat( data );
                   count[ '' ] += data.length;
                } );
