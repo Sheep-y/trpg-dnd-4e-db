@@ -52,6 +52,10 @@ od.reader = {
    },
 
    jsonp_name_index: function reader_jsonp_index( version, data ) {
+      if ( version === 20170324 ) {
+         data = LZMA.decompress( Base85.decode( data ) );
+         data = JSON.parse( data );
+      }
       od.data.index = data;
    },
 

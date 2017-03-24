@@ -5,16 +5,20 @@
  */
 package db4e.exporter;
 
+import SevenZip.Compression.LZMA.Encoder;
 import db4e.controller.ProgressState;
 import db4e.converter.Convert;
 import db4e.converter.Converter;
 import db4e.data.Category;
 import db4e.data.Entry;
 import static db4e.exporter.Exporter.stop;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -26,6 +30,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import sheepy.util.Ascii85;
 import sheepy.util.ResourceUtils;
 
 /**
@@ -34,6 +39,7 @@ import sheepy.util.ResourceUtils;
 public class ExporterMain extends Exporter {
 
    private String root;
+   private static final boolean compress = true; // Set to false to get plain text json data files.  For development only.
 
    @Override public synchronized void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
       super.setState( target, stopChecker, state );
@@ -183,23 +189,50 @@ public class ExporterMain extends Exporter {
          return a.compareTo( b );
       });
 
-      StringBuilder buffer = new StringBuilder( 810_000 );
-      buffer.append( "od.reader.jsonp_name_index(20160808,{" );
+
+      StringBuilder index_buffer = new StringBuilder( 810_000 );
+      index_buffer.append( '{' );
       for ( String name : names ) {
-         str( buffer, name ).append( ':' );
+         str( index_buffer, name ).append( ':' );
          List<String> ids = index.get( name );
          if ( ids.size() == 1 )
-            str( buffer, ids.get(0) ).append( ',' );
+            str( index_buffer, ids.get(0) ).append( ',' );
          else {
-            buffer.append( '[' );
-            for ( String id : ids ) str( buffer, id ).append( ',' );
-            backspace( buffer ).append( "]," );
+            index_buffer.append( '[' );
+            for ( String id : ids ) str( index_buffer, id ).append( ',' );
+            backspace( index_buffer ).append( "]," );
          }
       }
+      backspace( index_buffer ).append( '}' );
 
       try ( OutputStreamWriter writer = openStream( target + "/index.js" ) ) {
-         write( "})", writer, buffer );
+         if ( compress ) {
+            writer.write( "od.reader.jsonp_name_index(20170324,\"" );
+            Ascii85.encode( new ByteArrayInputStream( lzma( index_buffer ) ), writer );
+            writer.write( "\")");
+         } else {
+            writer.write( "od.reader.jsonp_name_index(20160808," );
+            writer.write( index_buffer.toString() );
+            writer.write( ")");
+         }
       }
+   }
+
+   private byte[] lzma ( CharSequence txt ) throws IOException {
+      byte[] data = txt.toString().getBytes( StandardCharsets.UTF_8 );
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream( data.length / 2 );
+      try ( ByteArrayInputStream inStream = new ByteArrayInputStream( data ) ) {
+         Encoder encoder = new Encoder();
+         encoder.SetEndMarkerMode( true );
+         encoder.SetNumFastBytes( 256 );
+         //encoder.SetDictionarySize( 28 ); // Default 23 = 8M. Max = 28 = 256M.
+         int fileSize = data.length;
+         encoder.WriteCoderProperties( buffer );
+         for (int i = 0; i < 8; i++)
+            buffer.write( ( fileSize >>> (8 * i) ) & 0xFF );
+         encoder.Code( inStream, buffer, -1, -1, null );
+      }
+      return buffer.toByteArray();
    }
 
    private void testViewerExists () throws IOException {

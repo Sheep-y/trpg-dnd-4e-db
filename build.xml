@@ -86,6 +86,7 @@
          <fileset dir="org"/>
          <fileset dir="db4e"/>
          <fileset dir="sheepy"/>
+         <fileset dir="SevenZip"/>
          <fileset dir="META-INF"/>
          <fileset file="sqljet.build.properties"/>
       </delete>

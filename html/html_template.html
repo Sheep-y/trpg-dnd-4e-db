@@ -45,8 +45,9 @@
    </noscript>
    <script>
       'use strict';
+      <?coco file( "lzma-d.js" ) ?>
       var od = { action : {} };
-      <?coco file( "config.js", "sparrow.js", "lang_en.js", "lang_zh.js",
+      <?coco file( "base85.js", "config.js", "sparrow.js", "lang_en.js", "lang_zh.js",
                    "code_gui.js", "data_model.js", "data_search.js", "data_reader.js" ) coco js(minify) ?>
    </script>
    <menu type='context' id='menu_view'>
