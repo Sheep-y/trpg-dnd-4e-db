@@ -65,7 +65,6 @@ _.l.set( 'data', {
 
 _.l.set( 'error', {
    'old_format' : "數據版本過舊。請重新匯出此數據庫。",
-   'inconsistent_category' : "分類'%1'數據有錯誤(%2)。請重新匯出此數據庫。"
 });
 
 _.l.set( 'gui', {

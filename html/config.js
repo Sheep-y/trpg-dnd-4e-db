@@ -20,7 +20,7 @@ od.config = {
                                                                : 'index.js' ); },
       "data" :
          function config_url ( category, id ) {
-            var matches = id.match( /(\d{1,2})$/ ) || [];
+            var matches = id.match( /(\d)$/ ) || [];
             matches[1] = ~~matches[1]; // Removes leading 0
             return od.config.data_read_path + '/' + category.toLowerCase() + '/data' + matches[1] + '.js';
          }

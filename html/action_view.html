@@ -120,6 +120,7 @@ od.action.view = {
    "pnl_content_click" : function act_view_pnl_content_click ( evt ) {
       if ( evt.button && evt.button !== 2 ) return; // Only handle left click and right click
       var action = od.action.view;
+      _.time();
       od.data.load_name_index( function(){ action.popup_links( evt ); });
    },
 
@@ -219,8 +220,6 @@ od.action.view = {
       var entry = evt.target.closest( 'div.detail[id]' );
       if ( ! entry ) // Not within entry body, abort.
          return [];
-
-      _.time();
 
       function findPre ( node, len, offset ) {
          var text = node.textContent, part = '';
