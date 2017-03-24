@@ -23,12 +23,15 @@ od.reader = {
     *  Internal routine: decompress compressed data.
     */
    _inflate: function reader_inflate ( version, name, data ) {
-      if ( version === 20170324 ) {
+      if ( version === 20170324 ) try {
          _.time( '[Reader] Decompressing ' + name );
          data = Base85.decode( data );
          data = LZMA.decompress( data ); // Heaviest step
          data = JSON.parse( data );
          _.time( '[Reader] Decompressed ' + name );
+      } catch ( err ) {
+         /* if ( err instanceof SyntaxError ) document.body.textContent = data; */
+         throw err;
       }
       return data;
    },

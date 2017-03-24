@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -39,8 +40,9 @@ import sheepy.util.ResourceUtils;
  */
 public class ExporterMain extends Exporter {
 
+   public static final AtomicBoolean compress = new AtomicBoolean( true ); // Set to false to get plain text json data files.
+
    private String root;
-   private static final boolean compress = true; // Set to false to get plain text json data files.  For development only.
 
    @Override public synchronized void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
       super.setState( target, stopChecker, state );
@@ -95,72 +97,63 @@ public class ExporterMain extends Exporter {
       OutputStreamWriter[] writers = new OutputStreamWriter[ 100 ];
       Matcher regxIdGroup = Pattern.compile( "^([a-z]+).*?(\\d)$" ).matcher( "" );
 
-      StringBuilder listingBuffer = new StringBuilder();
-      StringBuilder textIndexBuffer = new StringBuilder();
-
       // List header
-      listingBuffer.append( "od.reader.jsonp_data_listing(20130703," );
-      str( listingBuffer, cat_id ).append( ",[\"ID\",\"Name\"," );
+      str( buffer, cat_id ).append( ",[\"ID\",\"Name\"," );
       for ( String header : category.meta )
-         str( listingBuffer, header ).append( ',' );
-      backspace( listingBuffer ).append( "],[" );
+         str( buffer, header ).append( ',' );
+      String listCol = backspace( buffer ).append( "]," ).toString();
+      buffer.setLength( 0 );
 
       // Index header
-      textIndexBuffer.append( "od.reader.jsonp_data_index(20130616," );
-      str( textIndexBuffer, cat_id );
-      textIndexBuffer.append( ",{" );
+      str( buffer, cat_id ).append( ',' );
+      String textCat = buffer.toString();
+      buffer.setLength( 0 );
 
-      for ( Entry entry : category.sorted ) {
-         // Add to listing
-         str( listingBuffer.append( '[' ), entry.shortid ).append( ',' );
-         str( listingBuffer, entry.display_name ).append( ',' );
-         for ( Object field : entry.meta ) {
-            if ( field.getClass().isArray() ) {
-               Object[] ary = (Object[]) field;
-               listingBuffer.append( "[\"" ).append( ary[0] ).append( "\"," );
-               for ( int i = 1, len = ary.length ; i < len ; i++ )
-                  listingBuffer.append( ary[i] ).append( ',' );
-               backspace( listingBuffer ).append( "]," );
-            } else
-               str( listingBuffer, field.toString() ).append( ',' );
+      StringBuilder listingBuffer = new StringBuilder( "[" );
+      StringBuilder textIndexBuffer = new StringBuilder( "{" );
+
+      try{
+         for ( Entry entry : category.sorted ) {
+            // Add to listing
+            str( listingBuffer.append( '[' ), entry.shortid ).append( ',' );
+            str( listingBuffer, entry.display_name ).append( ',' );
+            for ( Object field : entry.meta ) {
+               if ( field.getClass().isArray() ) {
+                  Object[] ary = (Object[]) field;
+                  listingBuffer.append( "[\"" ).append( ary[0] ).append( "\"," );
+                  for ( int i = 1, len = ary.length ; i < len ; i++ )
+                     listingBuffer.append( ary[i] ).append( ',' );
+                  backspace( listingBuffer ).append( "]," );
+               } else
+                  str( listingBuffer, field.toString() ).append( ',' );
+            }
+            backspace( listingBuffer ).append( "]," );
+
+            // Add to full text
+            str( textIndexBuffer, entry.shortid ).append( ':' );
+            str( textIndexBuffer, entry.fulltext );
+            textIndexBuffer.append( ',' );
+
+            // Group content
+            if ( ! regxIdGroup.reset( entry.shortid ).find() )
+               throw new IllegalStateException( "Invalid id " + entry.shortid );
+            int grp = Integer.parseUnsignedInt( regxIdGroup.group( 2 ) );
+
+            // Write content
+            if ( writers[ grp ] == null ) {
+               writers[ grp ] = openStream( catPath + "/data" + grp + ".js" );
+               buffer.append( "od.reader.jsonp_batch_data(20160803," );
+               str( buffer, cat_id );
+               write( ",{", writers[grp], buffer );
+            }
+            str( buffer, entry.shortid ).append( ':' );
+            str( buffer, entry.data );
+            write( ",", writers[grp], buffer );
+            ++exported;
+
+            if ( stop.get() ) throw new InterruptedException();
+            state.addOne();
          }
-         backspace( listingBuffer ).append( "]," );
-
-         // Add to full text
-         str( textIndexBuffer, entry.shortid ).append( ':' );
-         str( textIndexBuffer, entry.fulltext );
-         textIndexBuffer.append( ',' );
-
-         // Group content
-         if ( ! regxIdGroup.reset( entry.shortid ).find() )
-            throw new IllegalStateException( "Invalid id " + entry.shortid );
-         int grp = Integer.parseUnsignedInt( regxIdGroup.group( 2 ) );
-
-         // Write content
-         if ( writers[ grp ] == null ) {
-            writers[ grp ] = openStream( catPath + "/data" + grp + ".js" );
-            buffer.append( "od.reader.jsonp_batch_data(20160803," );
-            str( buffer, cat_id );
-            write( ",{", writers[grp], buffer );
-         }
-         str( buffer, entry.shortid ).append( ':' );
-         str( buffer, entry.data );
-         write( ",", writers[grp], buffer );
-         ++exported;
-
-         if ( stop.get() ) throw new InterruptedException();
-         state.addOne();
-      }
-
-      try ( OutputStreamWriter listing = openStream( catPath + "/_listing.js" );
-            OutputStreamWriter   index = openStream( catPath + "/_index.js" );
-               ) {
-
-         listing.write( listingBuffer.toString() );
-         listing.write( "])" );
-         index.write( textIndexBuffer.toString() );
-         index.write( "})" );
-
       } finally {
          // Close content
          for ( OutputStreamWriter writer : writers )
@@ -169,6 +162,16 @@ public class ExporterMain extends Exporter {
                writer.close();
             }
       }
+
+      try ( OutputStreamWriter listing = openStream( catPath + "/_listing.js" );
+            OutputStreamWriter   index = openStream( catPath + "/_index.js" );
+               ) {
+         writeData( listing, "od.reader.jsonp_data_listing(20130703," + listCol,
+                             "od.reader.jsonp_data_listing(20170324," + listCol, backspace( listingBuffer ).append( ']' ), ")" );
+         writeData(   index, "od.reader.jsonp_data_index(20130616," + textCat,
+                             "od.reader.jsonp_data_index(20170324," + textCat, backspace( textIndexBuffer ).append( '}' ), ")" );
+      }
+
       if ( exported != category.getExportCount() )
          throw new IllegalStateException( category.id + " entry exported " + category.sorted.length + " mismatch with total " + category.getExportCount() );
    }
@@ -212,8 +215,8 @@ public class ExporterMain extends Exporter {
       backspace( index_buffer ).append( '}' );
 
       try ( OutputStreamWriter writer = openStream( target + "/index.js" ) ) {
-         writeData( writer, "od.reader.jsonp_name_index(20170324,",
-                            "od.reader.jsonp_name_index(20160808,", index_buffer, ")" );
+         writeData( writer, "od.reader.jsonp_name_index(20160808,",
+                            "od.reader.jsonp_name_index(20170324,", index_buffer, ")" );
       }
    }
 
@@ -234,8 +237,8 @@ public class ExporterMain extends Exporter {
       return buffer.toByteArray();
    }
 
-   private void writeData ( Writer writer,  String prefixComp, String prefixNoComp, CharSequence data, String postfix ) throws IOException {
-      if ( compress ) {
+   private void writeData ( Writer writer,  String prefixNoComp, String prefixComp, CharSequence data, String postfix ) throws IOException {
+      if ( compress.get() ) {
          writer.write( prefixComp + "\"" );
          Ascii85.encode( new ByteArrayInputStream( lzma( data ) ), writer );
          writer.write( '"' );
