@@ -418,10 +418,18 @@ public class Controller {
    // Export
    /////////////////////////////////////////////////////////////////////////////
 
-   public CompletableFuture<Void> deleteOld ( String data_dir ) {
+   public boolean hasOldExport ( String data_dir ) {
+      return new File( data_dir + "Glossary/glossary1.js" ).exists() ||  // 3.5.1
+             new File( data_dir + "Glossary/data10.js" ).exists(); // 3.5.2 and 3.5.3
+   }
+
+   public CompletableFuture<Void> deleteOldExport ( String data_dir ) {
       gui.setTitle( "Exporting" );
       gui.setStatus( "Deleting old export" );
-      state.total = 25960; // Exact file count by ver 3.5.1. But just to show progress, no need to be perfect.
+      if ( new File( data_dir + "Glossary/glossary1.js" ).exists() )
+         state.total = 25960; // Exact file count by ver 3.5.1. But just to show progress, no need to be perfect.
+      else
+         state.total = 1817; // File count ot ver 3.5.2 to 3.5.3.
       state.reset();
       return runTask( () -> {
          for ( File folder : new File( data_dir ).listFiles() )

@@ -92,7 +92,7 @@ public class ExporterMain extends Exporter {
       catPath.mkdir();
       int exported = 0;
       OutputStreamWriter[] writers = new OutputStreamWriter[ 100 ];
-      Matcher regxIdGroup = Pattern.compile( "^([a-z]+).*?(\\d{1,2})$" ).matcher( "" );
+      Matcher regxIdGroup = Pattern.compile( "^([a-z]+).*?(\\d)$" ).matcher( "" );
 
       try ( OutputStreamWriter listing = openStream( catPath + "/_listing.js" );
             OutputStreamWriter   index = openStream( catPath + "/_index.js" );

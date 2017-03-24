@@ -420,12 +420,12 @@ public class SceneMain extends Scene {
 
       CompletableFuture<Void> ready = CompletableFuture.completedFuture( null );
       String data_dir = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
-      if ( new File( data_dir + "Glossary/glossary1.js" ).exists() ) {
+      if ( loader.hasOldExport( data_dir ) ) {
          Alert dlgRemoveOld = new Alert( Alert.AlertType.CONFIRMATION, "Delete old version export data?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
          ButtonType remove = dlgRemoveOld.showAndWait().orElse( null );
          if ( remove == null || ButtonType.CANCEL.equals( remove ) ) return;
          if ( ButtonType.YES.equals( remove ) )
-            ready = loader.deleteOld( data_dir );
+            ready = loader.deleteOldExport( data_dir );
       }
 
       ready.thenRun( () -> {

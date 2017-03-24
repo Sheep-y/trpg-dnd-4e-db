@@ -1,12 +1,13 @@
-(function Base85( root ) {
+(function Base85 ( root ) {
 
+   /* Base85 (RFC 1924) decoder */
 
    var ENCODABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~';
    var DECODABET = [];
-   for( var i= 0, len = ENCODABET.length ; i < len ; ++i )
+   for ( var i= 0, len = ENCODABET.length ; i < len ; ++i )
       DECODABET[ ENCODABET.charCodeAt( i ) ] = i;
 
-   var FACTORS= [
+   var FACTORS = [
       1,
       85,
       7225,     // 85^2
@@ -16,26 +17,23 @@
 
    root.Base85 = {
       decode: function base85_decode ( input ) {
-         var b, factor = 5, sum = 0, out_count = 0;
+         var factor = 5, sum = 0, out_count = 0;
          var out = new Uint8Array( Math.ceil( input.length * 0.8 ) + 4 );
          for( var i= 0, len = input.length ; i < len ; ++i ) {
-            sum += DECODABET[ input.charCodeAt( i )] * FACTORS[--factor];
+            sum += DECODABET[ input.charCodeAt( i ) ] * FACTORS[--factor];
             if ( factor === 0 ) {
-               for ( var e= 24; e >= 0; e-= 8)
+               for ( var e = 24 ; e >= 0 ; e -= 8 )
                   out[ out_count++ ] = (sum >>> e) & 0xFF;
-               sum= 0;
-               factor= 5;
+               sum = 0;
+               factor = 5;
             }
          }
-         // process rest (if present)
          if ( factor < 5 ) {
-            sum/= FACTORS[factor];
-            for( var e= (3 - factor) * 8; e >= 0; e-= 8 )
+            sum /= FACTORS[factor];
+            for ( var e = (3 - factor) * 8 ; e >= 0 ; e -= 8 )
                out[ out_count++ ] = (sum >>> e) & 0xFF;
          }
-         if ( out_count !== out.length )
-            return new Uint8Array( out, 0, out_count );
-         return out;
+         return new Uint8Array( out, 0, out_count );
       }
    };
 
