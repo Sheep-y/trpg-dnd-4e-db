@@ -33,6 +33,7 @@ od.gui = {
 
    "init" : function gui_init () {
       var gui = od.gui;
+      _( 'link[rel="manifest"]' )[0].href = od.config.data_read_path + "/res/manifest.json";
       _( 'link[rel="icon"]' )[0].href = od.config.data_read_path + "/res/icon.png";
       _.l.detectLocale( 'en' );
       gui.l10n();
