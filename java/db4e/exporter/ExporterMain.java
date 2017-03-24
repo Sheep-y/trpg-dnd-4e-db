@@ -40,7 +40,7 @@ import sheepy.util.ResourceUtils;
  */
 public class ExporterMain extends Exporter {
 
-   public static final AtomicBoolean compress = new AtomicBoolean( true ); // Set to false to get plain text json data files.
+   public static final AtomicBoolean compress = new AtomicBoolean( false ); // False for plain text json data files, true for LZMA + Base85.
 
    private String root;
 
@@ -237,15 +237,19 @@ public class ExporterMain extends Exporter {
       return buffer.toByteArray();
    }
 
-   private void writeData ( Writer writer,  String prefixNoComp, String prefixComp, CharSequence data, String postfix ) throws IOException {
+   private void writeData ( Writer writer,  String prefixNoComp, String prefixComp, StringBuilder data, String postfix ) throws IOException {
       if ( compress.get() ) {
          writer.write( prefixComp + "\"" );
-         Ascii85.encode( new ByteArrayInputStream( lzma( data ) ), writer );
+         String compressed = Ascii85.encode( lzma( data ) );
+         writer.write( compressed );
          writer.write( '"' );
+         log.log( Level.FINE, "Written {0} bytes compressed ({1})", new Object[]{ prefixComp.length() + compressed.length() + 2 + postfix.length(), prefixComp } );
       } else {
          writer.write( prefixNoComp );
          writer.write( data.toString() );
+         log.log( Level.FINE, "Written {0} bytes uncompressed ({1})", new Object[]{ prefixComp.length() + data.length() + postfix.length(), prefixNoComp } );
       }
+      data.setLength( 0 );
       writer.write( postfix );
    }
 

@@ -7,6 +7,7 @@ import static db4e.controller.Controller.DEF_TIMEOUT_MS;
 import static db4e.controller.Controller.MIN_INTERVAL_MS;
 import static db4e.controller.Controller.MIN_TIMEOUT_MS;
 import db4e.data.Category;
+import db4e.exporter.ExporterMain;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -94,6 +95,8 @@ public class SceneMain extends Scene {
            "Minimal interval, in millisecond, between each download action.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
    final TextField txtRetry  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "download.retry", DEF_RETRY_COUNT ) ) ) ),
            "Number of timeout retry.  Only apply to timeout errors." );
+   private final CheckBox chkCompress = JavaFX.tooltip( new CheckBox( "Compress exported data" ),
+           "Compress exported data (LZMA) to reduce size, but takes time to decompress on load.  Suitable for slow or metered network." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
            "Show program log and console.  Will slow down download & export and use more memory." );
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
@@ -106,6 +109,7 @@ public class SceneMain extends Scene {
            new HBox( 8, new Label( "Timeout in" ), txtTimeout, new Label( "seconds.") ),
            new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (minimal) per request.") ),
            new HBox( 8, new Label( "Retry" ), txtRetry, new Label( "times on timeout.") ),
+           chkCompress,
            chkDebug,
            new HBox( 8, btnClearData, btnExportData ),
            btnCheckUpdate );
@@ -178,6 +182,10 @@ public class SceneMain extends Scene {
          Controller.RETRY_COUNT = i;
          log.log( Level.CONFIG, "Retry count changed to {0}", i );
       } catch ( NumberFormatException ignored ) { } } );
+
+      chkCompress.selectedProperty().addListener( this::chkCompress_change );
+      if ( prefs.getBoolean( "export.compress", false ) )
+         chkCompress.selectedProperty().set( true );
 
       chkDebug.selectedProperty().addListener( this::chkDebug_change );
       if ( prefs.getBoolean( "gui.debug", false ) )
@@ -525,8 +533,13 @@ public class SceneMain extends Scene {
    // Option Tab
    /////////////////////////////////////////////////////////////////////////////
 
+   private void chkCompress_change ( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+      prefs.putBoolean( "export.compress", newValue );
+      ExporterMain.compress.set( newValue );
+   }
+
    private void chkDebug_change ( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-      prefs.putBoolean("gui.debug", newValue );
+      prefs.putBoolean( "gui.debug", newValue );
       Main.debug.set( newValue );
       ObservableList<Tab> tabs = pnlC.getTabs();
       if ( newValue ) {
