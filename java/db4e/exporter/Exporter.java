@@ -40,7 +40,7 @@ public abstract class Exporter implements Closeable {
 
    public abstract void preExport ( List<Category> categories ) throws IOException, InterruptedException;
    public abstract void export ( Category category ) throws IOException, InterruptedException;
-   public void postExport ( List<Category> categories ) throws IOException {};
+   public void postExport ( List<Category> categories ) throws IOException, InterruptedException {};
    @Override public void close() throws IOException { }
 
    protected void checkStop ( String status ) {

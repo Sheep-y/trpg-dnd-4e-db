@@ -68,7 +68,7 @@ public class ExporterMain extends Exporter {
       writeCategory( category );
    }
 
-   @Override public void postExport ( List<Category> categories ) throws IOException {
+   @Override public void postExport ( List<Category> categories ) throws IOException, InterruptedException {
       checkStop( "Writing viewer" );
       writeIndex( root, categories );
       writeViewer( root, target );
@@ -139,7 +139,7 @@ public class ExporterMain extends Exporter {
             throw new IllegalStateException( "Invalid id " + entry.shortid );
          int grp = Integer.parseUnsignedInt( regxIdGroup.group( 2 ) ) % 20;
 
-         // Write content
+         // Main content
          if ( data[ grp ] == null )
             data[ grp ] = new StringBuilder( 4096 ).append( "{" );
          str( data[ grp ], entry.shortid ).append( ':' );
@@ -169,7 +169,7 @@ public class ExporterMain extends Exporter {
          throw new IllegalStateException( category.id + " entry exported " + category.sorted.length + " mismatch with total " + category.getExportCount() );
    }
 
-   private void writeIndex ( String target, List<Category> categories ) throws IOException {
+   private void writeIndex ( String target, List<Category> categories ) throws IOException, InterruptedException {
       Map<String, List<String>> index = new HashMap<>();
       for ( Category category : categories ) synchronized ( index ) {
          if ( index.isEmpty() )
@@ -229,7 +229,7 @@ public class ExporterMain extends Exporter {
       return buffer.toByteArray();
    }
 
-   private void writeData ( Writer writer, String prefix, StringBuilder data, String postfix ) throws IOException {
+   private void writeData ( Writer writer, String prefix, StringBuilder data, String postfix ) throws IOException, InterruptedException {
       final int total_size = prefix.length() + data.length() + postfix.length();
       if ( data.length() <= 0 ) log.log( Level.WARNING, "Zero bytes data {0}", prefix );
       if ( compress.get() ) {
@@ -248,6 +248,7 @@ public class ExporterMain extends Exporter {
       }
       data.setLength( 0 );
       writer.write( postfix );
+      if ( stop.get() ) throw new InterruptedException();
    }
 
    private void testViewerExists () throws IOException {
