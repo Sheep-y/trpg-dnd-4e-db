@@ -22,8 +22,8 @@ od.reader = {
    /**
     *  Internal routine: decompress compressed data.
     */
-   _inflate: function reader_inflate ( version, name, data ) {
-      if ( version === 20170324 ) try {
+   _inflate: function reader_inflate ( name, data ) {
+      if ( typeof( data ) === 'string' && data.startsWith( 'T>t<;' ) ) try { /* LZMA + Base85 */
          _.time( '[Reader] Decompressing ' + name );
          var from_len = data.length;
          data = Base85.decode( data );
@@ -71,7 +71,7 @@ od.reader = {
    },
 
    jsonp_name_index: function reader_jsonp_index( version, data ) {
-      od.data.index = od.reader._inflate( version, "name index", data );
+      od.data.index = od.reader._inflate( "name index", data );
    },
 
    /////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ od.reader = {
          return _.alert( _.l( 'error.old_format' ) );
       var cat = od.data.get( category );
       cat.columns = columns;
-      cat.list = od.reader._inflate( version, "listing", data );
+      cat.list = od.reader._inflate( "listing", data );
       cat.build_listing();
    },
 
@@ -118,7 +118,7 @@ od.reader = {
       if ( version < 20130616 )
          return _.alert( _.l( 'error.old_format' ) );
       var cat = od.data.get( category );
-      cat.index = od.reader._inflate( version, "text index", data );
+      cat.index = od.reader._inflate( "text index", data );
    },
 
    /////////////////////////////////////////////////////////
@@ -142,7 +142,7 @@ od.reader = {
       if ( version < 20160803 )
          return _.alert( _.l( 'error.old_format' ) );
       var cat = od.data.get(category);
-      data = od.reader._inflate( version, "data", data );
+      data = od.reader._inflate( "data", data );
       for ( var id in data )
          cat.data[id] = data[id];
    }

@@ -153,8 +153,7 @@ public class ExporterMain extends Exporter {
       for ( int i = 0 ; i < data.length ; i++ ) {
          if ( data[ i ] == null ) continue;
          try ( OutputStreamWriter writer = openStream( catPath + "/data" + i + ".js" ) ) {
-            writeData( writer, "od.reader.jsonp_batch_data(20160803," + textCat,
-                               "od.reader.jsonp_batch_data(20170324," + textCat, backspace( data[ i ] ).append( '}' ), ")" );
+            writeData( writer, "od.reader.jsonp_batch_data(20160803," + textCat, backspace( data[ i ] ).append( '}' ), ")" );
          }
          data[ i ] = null;
       }
@@ -162,10 +161,8 @@ public class ExporterMain extends Exporter {
       try ( OutputStreamWriter listing = openStream( catPath + "/_listing.js" );
             OutputStreamWriter   index = openStream( catPath + "/_index.js" );
                ) {
-         writeData( listing, "od.reader.jsonp_data_listing(20130703," + listCol,
-                             "od.reader.jsonp_data_listing(20170324," + listCol, backspace( listingBuffer ).append( ']' ), ")" );
-         writeData(   index, "od.reader.jsonp_data_index(20130616," + textCat,
-                             "od.reader.jsonp_data_index(20170324," + textCat, backspace( textIndexBuffer ).append( '}' ), ")" );
+         writeData( listing, "od.reader.jsonp_data_listing(20130703," + listCol, backspace( listingBuffer ).append( ']' ), ")" );
+         writeData(   index, "od.reader.jsonp_data_index(20130616," + textCat, backspace( textIndexBuffer ).append( '}' ), ")" );
       }
 
       if ( exported != category.getExportCount() )
@@ -211,8 +208,7 @@ public class ExporterMain extends Exporter {
       backspace( index_buffer ).append( '}' );
 
       try ( OutputStreamWriter writer = openStream( target + "/index.js" ) ) {
-         writeData( writer, "od.reader.jsonp_name_index(20160808,",
-                            "od.reader.jsonp_name_index(20170324,", index_buffer, ")" );
+         writeData( writer, "od.reader.jsonp_name_index(20160808,", index_buffer, ")" );
       }
    }
 
@@ -233,26 +229,22 @@ public class ExporterMain extends Exporter {
       return buffer.toByteArray();
    }
 
-   private void writeData ( Writer writer,  String prefixNoComp, String prefixComp, StringBuilder data, String postfix ) throws IOException {
-      final int total_size = prefixComp.length() + data.length() + postfix.length();
-      if ( data.length() <= 0 ) log.log( Level.WARNING, "Zero bytes data {0}", prefixNoComp );
+   private void writeData ( Writer writer, String prefix, StringBuilder data, String postfix ) throws IOException {
+      final int total_size = prefix.length() + data.length() + postfix.length();
+      if ( data.length() <= 0 ) log.log( Level.WARNING, "Zero bytes data {0}", prefix );
       if ( compress.get() ) {
-         writer.write( prefixComp + "\"" );
          byte[] zipped = lzma( data );
-         if ( zipped.length <= 0 ) log.log( Level.WARNING, "Zero bytes compressed {0}", prefixNoComp );
          String compressed = Ascii85.encode( zipped );
-         if ( compressed.length() <= 0 ) {
-            log.log( Level.WARNING, "Zero bytes encoded {0}", prefixNoComp );
-            compressed = Ascii85.encode( zipped );
-         }
+         if ( compressed.length() <= 0 ) log.log( Level.WARNING, "Zero bytes encoded {0}", prefix );
+         final int zipped_size = prefix.length() + compressed.length() + 2 + postfix.length();
+         writer.write( prefix + "\"" );
          writer.write( compressed );
          writer.write( '"' );
-         final int zipped_size = prefixComp.length() + compressed.length() + 2 + postfix.length();
-         log.log( Level.FINE, "Written {0} bytes ({1,number,percent}) compressed ({2})", new Object[]{ zipped_size, (float) zipped_size / total_size, prefixComp } );
+         log.log( Level.FINE, "Written {0} bytes ({1,number,percent}) compressed ({2})", new Object[]{ zipped_size, (float) zipped_size / total_size, prefix } );
       } else {
-         writer.write( prefixNoComp );
+         writer.write( prefix );
          writer.write( data.toString() );
-         log.log( Level.FINE, "Written {0} bytes uncompressed ({1})", new Object[]{ total_size, prefixNoComp } );
+         log.log( Level.FINE, "Written {0} bytes uncompressed ({1})", new Object[]{ total_size, prefix } );
       }
       data.setLength( 0 );
       writer.write( postfix );
