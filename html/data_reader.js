@@ -25,10 +25,12 @@ od.reader = {
    _inflate: function reader_inflate ( version, name, data ) {
       if ( version === 20170324 ) try {
          _.time( '[Reader] Decompressing ' + name );
+         var from_len = data.length;
          data = Base85.decode( data );
          data = LZMA.decompress( data ); // Heaviest step
+         var to_len = data.length;
          data = JSON.parse( data );
-         _.time( '[Reader] Decompressed ' + name );
+         _.time( '[Reader] Decompressed ' + name + '(' + from_len + ' -> ' + to_len + ')' );
       } catch ( err ) {
          /* if ( err instanceof SyntaxError ) document.body.textContent = data; */
          throw err;
@@ -140,6 +142,7 @@ od.reader = {
       if ( version < 20160803 )
          return _.alert( _.l( 'error.old_format' ) );
       var cat = od.data.get(category);
+      data = od.reader._inflate( version, "data", data );
       for ( var id in data )
          cat.data[id] = data[id];
    }

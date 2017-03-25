@@ -420,7 +420,7 @@ public class Controller {
 
    public boolean hasOldExport ( String data_dir ) {
       return new File( data_dir + "Glossary/glossary1.js" ).exists() ||  // 3.5.1
-             new File( data_dir + "Glossary/data10.js" ).exists(); // 3.5.2 and 3.5.3
+             new File( data_dir + "Glossary/data99.js" ).exists(); // 3.5.2 and 3.5.3
    }
 
    public CompletableFuture<Void> deleteOldExport ( String data_dir ) {

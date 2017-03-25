@@ -90,77 +90,73 @@ public class ExporterMain extends Exporter {
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
       String cat_id = category.id.toLowerCase();
 
-      StringBuilder buffer = new StringBuilder( 1024 );
       File catPath = new File( root + "/" + cat_id + "/" );
       catPath.mkdir();
       int exported = 0;
-      OutputStreamWriter[] writers = new OutputStreamWriter[ 100 ];
-      Matcher regxIdGroup = Pattern.compile( "^([a-z]+).*?(\\d)$" ).matcher( "" );
+      Matcher regxIdGroup = Pattern.compile( "^([a-z]+).*?(\\d{1,2})$" ).matcher( "" );
+
+      StringBuilder buffer = new StringBuilder( 1024 );
 
       // List header
       str( buffer, cat_id ).append( ",[\"ID\",\"Name\"," );
       for ( String header : category.meta )
          str( buffer, header ).append( ',' );
-      String listCol = backspace( buffer ).append( "]," ).toString();
+      final String listCol = backspace( buffer ).append( "]," ).toString();
       buffer.setLength( 0 );
 
       // Index header
       str( buffer, cat_id ).append( ',' );
-      String textCat = buffer.toString();
-      buffer.setLength( 0 );
+      final String textCat = buffer.toString();
+      buffer = null;
 
-      StringBuilder listingBuffer = new StringBuilder( "[" );
-      StringBuilder textIndexBuffer = new StringBuilder( "{" );
+      StringBuilder listingBuffer = new StringBuilder( 2048 ).append( '[' );
+      StringBuilder textIndexBuffer = new StringBuilder( 4096 ).append( '{' );
+      StringBuilder[] data = new StringBuilder[ 20 ];
 
-      try{
-         for ( Entry entry : category.sorted ) {
-            // Add to listing
-            str( listingBuffer.append( '[' ), entry.shortid ).append( ',' );
-            str( listingBuffer, entry.display_name ).append( ',' );
-            for ( Object field : entry.meta ) {
-               if ( field.getClass().isArray() ) {
-                  Object[] ary = (Object[]) field;
-                  listingBuffer.append( "[\"" ).append( ary[0] ).append( "\"," );
-                  for ( int i = 1, len = ary.length ; i < len ; i++ )
-                     listingBuffer.append( ary[i] ).append( ',' );
-                  backspace( listingBuffer ).append( "]," );
-               } else
-                  str( listingBuffer, field.toString() ).append( ',' );
-            }
-            backspace( listingBuffer ).append( "]," );
-
-            // Add to full text
-            str( textIndexBuffer, entry.shortid ).append( ':' );
-            str( textIndexBuffer, entry.fulltext );
-            textIndexBuffer.append( ',' );
-
-            // Group content
-            if ( ! regxIdGroup.reset( entry.shortid ).find() )
-               throw new IllegalStateException( "Invalid id " + entry.shortid );
-            int grp = Integer.parseUnsignedInt( regxIdGroup.group( 2 ) );
-
-            // Write content
-            if ( writers[ grp ] == null ) {
-               writers[ grp ] = openStream( catPath + "/data" + grp + ".js" );
-               buffer.append( "od.reader.jsonp_batch_data(20160803," );
-               str( buffer, cat_id );
-               write( ",{", writers[grp], buffer );
-            }
-            str( buffer, entry.shortid ).append( ':' );
-            str( buffer, entry.data );
-            write( ",", writers[grp], buffer );
-            ++exported;
-
-            if ( stop.get() ) throw new InterruptedException();
-            state.addOne();
+      for ( Entry entry : category.sorted ) {
+         // Add to listing
+         str( listingBuffer.append( '[' ), entry.shortid ).append( ',' );
+         str( listingBuffer, entry.display_name ).append( ',' );
+         for ( Object field : entry.meta ) {
+            if ( field.getClass().isArray() ) {
+               Object[] ary = (Object[]) field;
+               listingBuffer.append( "[\"" ).append( ary[0] ).append( "\"," );
+               for ( int i = 1, len = ary.length ; i < len ; i++ )
+                  listingBuffer.append( ary[i] ).append( ',' );
+               backspace( listingBuffer ).append( "]," );
+            } else
+               str( listingBuffer, field.toString() ).append( ',' );
          }
-      } finally {
-         // Close content
-         for ( OutputStreamWriter writer : writers )
-            if ( writer != null ) {
-               writer.write( "})" );
-               writer.close();
-            }
+         backspace( listingBuffer ).append( "]," );
+
+         // Add to full text
+         str( textIndexBuffer, entry.shortid ).append( ':' );
+         str( textIndexBuffer, entry.fulltext );
+         textIndexBuffer.append( ',' );
+
+         // Group content
+         if ( ! regxIdGroup.reset( entry.shortid ).find() )
+            throw new IllegalStateException( "Invalid id " + entry.shortid );
+         int grp = Integer.parseUnsignedInt( regxIdGroup.group( 2 ) ) % 20;
+
+         // Write content
+         if ( data[ grp ] == null )
+            data[ grp ] = new StringBuilder( 4096 ).append( "{" );
+         str( data[ grp ], entry.shortid ).append( ':' );
+         str( data[ grp ], entry.data ).append( ',' );
+         ++exported;
+
+         if ( stop.get() ) throw new InterruptedException();
+         state.addOne();
+      }
+
+      for ( int i = 0 ; i < data.length ; i++ ) {
+         if ( data[ i ] == null ) continue;
+         try ( OutputStreamWriter writer = openStream( catPath + "/data" + i + ".js" ) ) {
+            writeData( writer, "od.reader.jsonp_batch_data(20160803," + textCat,
+                               "od.reader.jsonp_batch_data(20170324," + textCat, backspace( data[ i ] ).append( '}' ), ")" );
+         }
+         data[ i ] = null;
       }
 
       try ( OutputStreamWriter listing = openStream( catPath + "/_listing.js" );
@@ -238,16 +234,25 @@ public class ExporterMain extends Exporter {
    }
 
    private void writeData ( Writer writer,  String prefixNoComp, String prefixComp, StringBuilder data, String postfix ) throws IOException {
+      final int total_size = prefixComp.length() + data.length() + postfix.length();
+      if ( data.length() <= 0 ) log.log( Level.WARNING, "Zero bytes data {0}", prefixNoComp );
       if ( compress.get() ) {
          writer.write( prefixComp + "\"" );
-         String compressed = Ascii85.encode( lzma( data ) );
+         byte[] zipped = lzma( data );
+         if ( zipped.length <= 0 ) log.log( Level.WARNING, "Zero bytes compressed {0}", prefixNoComp );
+         String compressed = Ascii85.encode( zipped );
+         if ( compressed.length() <= 0 ) {
+            log.log( Level.WARNING, "Zero bytes encoded {0}", prefixNoComp );
+            compressed = Ascii85.encode( zipped );
+         }
          writer.write( compressed );
          writer.write( '"' );
-         log.log( Level.FINE, "Written {0} bytes compressed ({1})", new Object[]{ prefixComp.length() + compressed.length() + 2 + postfix.length(), prefixComp } );
+         final int zipped_size = prefixComp.length() + compressed.length() + 2 + postfix.length();
+         log.log( Level.FINE, "Written {0} bytes ({1,number,percent}) compressed ({2})", new Object[]{ zipped_size, (float) zipped_size / total_size, prefixComp } );
       } else {
          writer.write( prefixNoComp );
          writer.write( data.toString() );
-         log.log( Level.FINE, "Written {0} bytes uncompressed ({1})", new Object[]{ prefixComp.length() + data.length() + postfix.length(), prefixNoComp } );
+         log.log( Level.FINE, "Written {0} bytes uncompressed ({1})", new Object[]{ total_size, prefixNoComp } );
       }
       data.setLength( 0 );
       writer.write( postfix );

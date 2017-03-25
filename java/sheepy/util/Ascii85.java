@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
@@ -71,9 +72,9 @@ public class Ascii85 {
     }
 
     static public String encode( byte[] data ) throws IOException  {
-       ByteArrayOutputStream out = new ByteArrayOutputStream( (int) Math.ceil( data.length * 1.2 ) );
+       StringWriter out = new StringWriter( (int) Math.ceil( data.length * 1.2 ) + 5 );
        encode( new ByteArrayInputStream( data ), out );
-       return new String( out.toByteArray(), StandardCharsets.UTF_8 );
+       return out.toString();
     }
 
     static public void encode( InputStream in, OutputStream out ) throws IOException {
@@ -81,15 +82,15 @@ public class Ascii85 {
     }
 
     static public void encode( InputStream in, Writer out ) throws IOException {
-        int b, bytes= 0;
-        long sum= 0;
-        while((b= in.read()) >= 0) {
-            sum= (sum << 8) | b;
+        int b, bytes = 0;
+        long sum = 0;
+        while( ( b = in.read() ) >= 0) {
+            sum = (sum << 8) | b;
             bytes++;
-            if(bytes == 4) {
-                for(int e= 4; e >= 0; e--) {
-                    out.write(ENCODABET[(int) (sum / FACTORS[e])]);
-                    sum%= FACTORS[e];
+            if ( bytes == 4 ) {
+                for ( int e = 4 ; e >= 0 ; e-- ) {
+                    out.write( ENCODABET[ (int) ( sum / FACTORS[e] ) ] );
+                    sum %= FACTORS[e];
                 }
                 sum= 0;
                 bytes= 0;
@@ -97,10 +98,10 @@ public class Ascii85 {
         }
 
         // process rest (if present)
-        if(bytes > 0) {
-            for(int e= bytes; e >= 0; e--) {
-                out.write(ENCODABET[(int) (sum / FACTORS[e])]);
-                sum%= FACTORS[e];
+        if ( bytes > 0 ) {
+            for ( int e = bytes ; e >= 0 ; e-- ) {
+                out.write( ENCODABET[ (int) (sum / FACTORS[e]) ] );
+                sum %= FACTORS[e];
             }
         }
     }
