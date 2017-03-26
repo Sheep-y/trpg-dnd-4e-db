@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -216,17 +217,23 @@ public class ExporterMain extends Exporter {
       }
    }
 
+   private Map<Thread, Encoder> encoders = new WeakHashMap<>( 8, 1.0f );
+
    private byte[] lzma ( CharSequence txt ) throws IOException {
       byte[] data = txt.toString().getBytes( StandardCharsets.UTF_8 );
-      ByteArrayOutputStream buffer = new ByteArrayOutputStream( data.length / 2 );
-      try ( ByteArrayInputStream inStream = new ByteArrayInputStream( data ) ) {
-         Encoder encoder = new Encoder();
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream( data.length / 2 ); // Only a few poisons data has a lower compression rate
+      Encoder encoder = encoders.get( Thread.currentThread() );
+      if ( encoder == null ) {
+         encoder = new Encoder();
          encoder.SetEndMarkerMode( true );
          encoder.SetNumFastBytes( 256 );
          //encoder.SetDictionarySize( 28 ); // Default 23 = 8M. Max = 28 = 256M.
+         encoders.put( Thread.currentThread(), encoder );
+      }
+      try ( ByteArrayInputStream inStream = new ByteArrayInputStream( data ) ) {
          int fileSize = data.length;
          encoder.WriteCoderProperties( buffer );
-         for (int i = 0; i < 8; i++)
+         for ( int i = 0; i < 8; i++ )
             buffer.write( ( fileSize >>> (8 * i) ) & 0xFF );
          encoder.Code( inStream, buffer, -1, -1, null );
       }
