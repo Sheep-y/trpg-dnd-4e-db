@@ -85,17 +85,14 @@ public class Controller {
    public final ObservableList<Category> exportCategories = new ObservableArrayList<>();
 
    private final SceneMain gui;
-   private final ConsoleWebView browser;
-   private final WebEngine engine;
-   private final Crawler crawler;
+   private ConsoleWebView browser;
+   private WebEngine engine;
+   private Crawler crawler;
    private final Timer scheduler = new Timer();
    private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor( 2, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
    public Controller ( SceneMain main ) {
       gui = main;
-      browser = main.getWorker();
-      engine = browser.getWebEngine();
-      crawler = new Crawler( engine );
       state = new ProgressState( ( progress ) -> {
          checkStop( null );
          main.setProgress( progress );
@@ -116,8 +113,9 @@ public class Controller {
    }
 
    public void stop () {
-      engine.getLoadWorker().cancel();
       synchronized ( this ) {
+         if ( engine != null )
+            engine.getLoadWorker().cancel();
          if ( currentThread != null )
             currentThread.interrupt();
       }
@@ -344,11 +342,20 @@ public class Controller {
    // Download
    /////////////////////////////////////////////////////////////////////////////
 
+   private synchronized void initCrawler () {
+      if ( browser != null ) return;
+      log.log( Level.INFO, "Initialise web crawler" );
+      browser = gui.getWorker();
+      engine = browser.getWebEngine();
+      crawler = new Crawler( engine );
+   }
+
    // Open compendium
    public CompletableFuture<Void> startDownload () {
       gui.setTitle( "Downloading" );
       gui.stateRunning();
       gui.setProgress( -1.0 );
+      initCrawler();
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
       log.log( Level.CONFIG, "Timeout {0} ms / Interval {1} ms ", new Object[]{ TIMEOUT_MS, INTERVAL_MS } );
       return runTask( () -> {
@@ -662,6 +669,7 @@ public class Controller {
    /**
     * Same as Runnable, but throws Exception.
     */
+
    public static interface RunExcept {
       void run ( ) throws Exception;
    }

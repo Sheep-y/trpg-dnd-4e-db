@@ -123,8 +123,8 @@ public class SceneMain extends Scene {
    private final Tab tabLog = new Tab( "Log", new BorderPane( txtLog ) );
 
    // Worker Screen
-   private final ConsoleWebView pnlWorker = new ConsoleWebView();
-   private final Tab tabWorker = new Tab( "Worker", new BorderPane( pnlWorker ) );
+   private ConsoleWebView pnlWorker;
+   private final Tab tabWorker = new Tab( "Worker" );
    private final Controller loader = new Controller( this );
 
    // Layout regions
@@ -236,10 +236,11 @@ public class SceneMain extends Scene {
       pnlC.getSelectionModel().select( tabData );
       // Load help doc dynamically
       pnlC.getSelectionModel().selectedItemProperty().addListener( (prop,old,now) -> {
-         if ( now == tabHelp )
-            initWebViewTab( pnlHelpTab, "res/downloader_about.html" );
-         else if ( now == tabWorker )
+         if ( now == tabWorker ) {
+            initWorkerTab();
             Platform.runLater( () -> pnlWorker.getConsoleInput().requestFocus() );
+         } else if ( now == tabHelp )
+            initWebViewTab( pnlHelpTab, "res/downloader_about.html" );
       } );
    }
 
@@ -619,5 +620,15 @@ public class SceneMain extends Scene {
    // Worker Screen
    /////////////////////////////////////////////////////////////////////////////
 
-   public ConsoleWebView getWorker () { return pnlWorker; }
+   private synchronized void initWorkerTab() {
+      if ( pnlWorker != null ) return;
+      log.log( Level.INFO, "Initialise download browser" );
+      pnlWorker = new ConsoleWebView();
+      tabWorker.setContent( new BorderPane( pnlWorker ) );
+   }
+
+   public ConsoleWebView getWorker () {
+      initWorkerTab();
+      return pnlWorker;
+   }
 }
