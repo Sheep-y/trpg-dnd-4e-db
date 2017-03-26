@@ -332,6 +332,7 @@ public class SceneMain extends Scene {
    private void initWebViewTab ( BorderPane pane, String doc ) {
       if ( pane.getCenter() != null ) return;
 
+      log.log( Level.INFO, "Initialise help browser" );
       WebView web = new WebView();
       WebEngine engine = web.getEngine();
       pane.setCenter( web );
@@ -572,8 +573,6 @@ public class SceneMain extends Scene {
 
    Alert confirmClear;
    private void btnClearData_click ( ActionEvent evt ) {
-      assert( Platform.isFxApplicationThread() );
-
       if ( confirmClear == null ) {
          confirmClear = JavaFX.dialogDefault( new Alert( Alert.AlertType.CONFIRMATION, "Clear all downloaded data?", ButtonType.YES, ButtonType.NO ), ButtonType.NO );
       }
