@@ -129,7 +129,7 @@ public class Crawler {
    }
 
    void openEntry ( Entry entry ) {
-      openEntry( entry.id );
+      openEntry( entry.getId() );
    }
 
    private void openEntry ( String url ) {
@@ -138,14 +138,14 @@ public class Crawler {
 
    void getEntry ( Entry entry ) throws InterruptedException, TimeoutException {
       if ( Main.simulate.get() ) {
-         entry.content = "Simulated";
+         entry.setContent( "Simulated" );
          return;
       }
       Object verify = eval( " document.querySelector( 'body > form#form1 + script' ) " ); // Make sure form finished loading
       Object content = eval( " document.querySelector( '#detail' ).innerHTML.trim() " );
       if ( content == null || verify == null ) throw new IllegalStateException( "Incomplete or empty entry" );
       if ( ! ( content instanceof CharSequence ) ) throw new IllegalStateException( "Invalid entry" );
-      entry.content = content.toString();
+      entry.setContent( content.toString() );
    }
 
    /////////////////////////////////////////////////////////////////////////////

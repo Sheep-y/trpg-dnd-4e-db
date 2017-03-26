@@ -79,7 +79,7 @@ public abstract class Convert {
                      for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
                         Entry entry = i.next();
                         // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
-                        if ( entry.id.equals( "glossary.aspx?id=679" ) || entry.content.contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
+                        if ( entry.getId().equals( "glossary.aspx?id=679" ) || entry.getContent().contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
                            i.remove();
                            corrected( entry, "blacklist" );
                         }
@@ -100,8 +100,8 @@ public abstract class Convert {
                      for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
                         Entry entry = i.next();
                         // Nine background from Dra376 are hooks only, not actual character resources.
-                        if ( entry.fields[3].endsWith( "376" ) ) {
-                           switch ( entry.id ) {
+                        if ( entry.getField( 3 ).endsWith( "376" ) ) {
+                           switch ( entry.getId() ) {
                               case "background.aspx?id=283" :
                               case "background.aspx?id=284" :
                               case "background.aspx?id=285" :
@@ -126,23 +126,23 @@ public abstract class Convert {
       // May convert to parallel stream if this part grows too much...
       for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
          Entry entry = i.next();
-         switch ( entry.fields[0] ) {
+         switch ( entry.getField( 0 ) ) {
             case "Arms":
-               if ( ! entry.content.contains( ">Arms Slot: <" ) || ! entry.content.contains( " shield" ) ) break;
+               if ( ! entry.getContent().contains( ">Arms Slot: <" ) || ! entry.getContent().contains( " shield" ) ) break;
                // falls through
             case "Armor":
                i.remove();
                armour.entries.add( entry );
                break;
             case "Consumable":
-               if ( entry.content.contains( "<b>Consumable: </b>Assassin poison" ) ) {
+               if ( entry.getContent().contains( "<b>Consumable: </b>Assassin poison" ) ) {
                   i.remove();
                   map.get( "Poison" ).entries.add( entry );
                   // Correction handled by correctEntry
                }
                break;
             case "Equipment":
-               switch ( entry.name ) {
+               switch ( entry.getName() ) {
                   case "Arrow": case "Arrows":
                   case "Crossbow Bolt": case "Crossbow Bolts":
                   case "Sling Bullet": case "Sling Bullets":
@@ -156,7 +156,7 @@ public abstract class Convert {
                      implement.entries.add( entry );
                      break;
                   default:
-                     if ( entry.name.endsWith( "Implement" ) ) {
+                     if ( entry.getName().endsWith( "Implement" ) ) {
                         i.remove();
                         implement.entries.add( entry );
                      }
@@ -169,13 +169,13 @@ public abstract class Convert {
             case "Ammunition":
             case "Weapon":
                i.remove();
-               if ( entry.content.contains( "<br>Superior <br>" ) )
+               if ( entry.getContent().contains( "<br>Superior <br>" ) )
                   implement.entries.add( entry );
                else
                   weapon.entries.add( entry );
                break;
             case "Artifact":
-               switch ( entry.id ) {
+               switch ( entry.getId() ) {
                   // Armours
                   case "item.aspx?id=105": // Shield of Prator
                      moveArtifact( i, armour, entry, "Heavy shield" ); break;
@@ -294,12 +294,12 @@ public abstract class Convert {
    private static void moveArtifact ( Iterator<Entry> i, Category target, Entry entry, String type ) {
       if ( i != null ) i.remove();
       target.entries.add( entry );
-      String[] fields = entry.fields;
+      String[] fields = entry.getFields();
       entry.meta = new Object[]{ type, fields[1], fields[2], "Artifact", fields[4] };
    }
 
    private static void markArtifact ( Entry entry, String category ) {
-      String[] fields = entry.fields;
+      String[] fields = entry.getFields();
       entry.meta = new Object[]{ category, "", fields[1], fields[2], "Artifact", fields[4] };
    }
 
@@ -332,7 +332,7 @@ public abstract class Convert {
    protected final Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]|,.*| -.*", Pattern.CASE_INSENSITIVE ).matcher( "" );
 
    protected String[] getLookupName ( Entry entry ) {
-      return new String[]{ regxNote.reset( entry.name ).replaceAll( "" ).trim() };
+      return new String[]{ regxNote.reset( entry.getName() ).replaceAll( "" ).trim() };
    }
 
    public static Converter getConverter ( Category category ) {
@@ -431,7 +431,7 @@ public abstract class Convert {
    protected void beforeSort()  { }
 
    protected int sortEntity ( Entry a, Entry b ) {
-      return a.name.compareTo( b.name );
+      return a.getName().compareTo( b.getName() );
    }
 
    /**
@@ -441,14 +441,14 @@ public abstract class Convert {
     * @param entry Entry to be converted
     */
    protected void convertEntry () {
-      entry.display_name = entry.name.replace( "’", "'" );
-      entry.shortid = entry.id.replace( ".aspx?id=", "" ).toLowerCase();
+      entry.display_name = entry.getName().replace( "’", "'" );
+      entry.shortid = entry.getId().replace( ".aspx?id=", "" ).toLowerCase();
       if ( entry.meta == null ) {
-         final int length = entry.fields.length;
+         final int length = entry.getFields().length;
          entry.meta = new Object[ length ];
-         System.arraycopy( entry.fields, 0, entry.meta, 0, length );
+         System.arraycopy( entry.getFields(), 0, entry.meta, 0, length );
       }
-      entry.data = normaliseData( entry.content );
+      entry.data = normaliseData( entry.getContent() );
       correctEntry();
       parseSourceBook();
       entry.fulltext = textData( entry.data );
@@ -461,11 +461,11 @@ public abstract class Convert {
     * @param fix Type of fix.
     */
    private static void corrected ( Entry entry, String fix ) {
-      log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.name, fix });
+      log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.getName(), fix });
       synchronized ( fixCount ) {
          if ( fixCount.containsKey( fix ) ) fixCount.get( fix ).incrementAndGet();
          else fixCount.put( fix, new AtomicInteger( 1 ) );
-         fixedEntry.add( entry.id );
+         fixedEntry.add( entry.getId() );
       }
    }
 

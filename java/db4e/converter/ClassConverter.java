@@ -37,7 +37,7 @@ public class ClassConverter extends Converter {
                features.add( name );
             }
          }
-         if ( entry.name.toLowerCase().contains( "monk" ) )
+         if ( entry.getName().toLowerCase().contains( "monk" ) )
             features.add( "Flurry of Blows" ); // Guess what? Flurry of Blows is not listed as a Monk feature, and there is no such power
          if ( features.isEmpty() )
             warn( "Class features not found" );
@@ -76,7 +76,7 @@ public class ClassConverter extends Converter {
    }
 
    @Override protected String[] getLookupName ( Entry entry ) {
-      String name = entry.name, altName = null;
+      String name = entry.getName(), altName = null;
       boolean isHybrid = name.startsWith( "Hybrid " );
       if ( isHybrid ) name = name.substring( 7 );
       if ( name.indexOf( '(' ) > 0 ) {

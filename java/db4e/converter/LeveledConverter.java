@@ -35,7 +35,7 @@ class LeveledConverter extends Converter {
             if ( ! levelMap.containsKey( level ) ) {
                float lv = parseLevel( level );
                levelMap.put( level, lv );
-               if ( lv < -10 ) log.log( Level.WARNING, "Unknown level \"{0}\": {1} {2}", new Object[]{ levelText, entry.shortid, entry.name } );
+               if ( lv < -10 ) log.log( Level.WARNING, "Unknown level \"{0}\": {1} {2}", new Object[]{ levelText, entry.shortid, entry.getName() } );
             }
          }
       }

@@ -18,7 +18,7 @@ public class ThemeConverter extends Converter {
    private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite: </b>([^<(]+)" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( "", entry.fields[0] );
+      meta( "", entry.getField( 0 ) );
       super.convertEntry();
       if ( find( regxPrerequisite ) ) {
          String prerequisite = regxPrerequisite.group( 1 );

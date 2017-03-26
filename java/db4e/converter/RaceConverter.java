@@ -22,7 +22,7 @@ public class RaceConverter extends Converter {
    private final Matcher regxAbility  = Pattern.compile( "<b>Ability scores</b>: ([^<]+)" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( null, null, entry.fields[1], entry.fields[2] );
+      meta( null, null, entry.getField( 1 ), entry.getField( 2 ) );
       super.convertEntry();
       // Origin column
       switch ( entry.shortid ) {
@@ -80,18 +80,18 @@ public class RaceConverter extends Converter {
             meta( ABILITY, shortenAbility( ability ) );
 
       } else {
-         if ( entry.name.endsWith( " Draconian" ) )
+         if ( entry.getName().endsWith( " Draconian" ) )
             meta( ABILITY, "Cha, Con or Str" );
-         else if ( entry.name.endsWith( " Dwarf" ) )
+         else if ( entry.getName().endsWith( " Dwarf" ) )
             meta( ABILITY, "Con, Str or Wis" );
-         else if ( entry.name.endsWith( " Elf" ) )
+         else if ( entry.getName().endsWith( " Elf" ) )
             meta( ABILITY, "Dex, Int or Wis" );
          else // Eladrin
             meta( ABILITY, "Int, Cha or Dex" );
          fix( "missing meta" );
       }
       // Size column
-      if ( entry.fields[ 1 ].isEmpty() ) {
+      if ( entry.getField( 1 ).isEmpty() ) {
          meta( SIZE, "Medium" );
          fix( "missing meta" );
       }

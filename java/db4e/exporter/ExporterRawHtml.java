@@ -58,9 +58,9 @@ public class ExporterRawHtml extends Exporter {
          final StringBuilder body = new StringBuilder();
          final String cat_id = category.id.toLowerCase() + "/";
          for ( Entry entry : category.entries ) {
-            body.append( "<tr><td><a href='" ).append( cat_id ).append( entry.id.replace( ".aspx?id=", "-" ) ).append( ".html'>" );
-            body.append( Utils.escapeHTML( entry.name ) ).append( "</a></td>" );
-            for ( String field : entry.fields )
+            body.append( "<tr><td><a href='" ).append( cat_id ).append( entry.getId().replace( ".aspx?id=", "-" ) ).append( ".html'>" );
+            body.append( Utils.escapeHTML( entry.getName() ) ).append( "</a></td>" );
+            for ( String field : entry.getFields() )
                body.append( "<td>" ).append( Utils.escapeHTML( field ) ).append( "</td>" );
             body.append( "</tr>" );
          }
@@ -97,9 +97,9 @@ public class ExporterRawHtml extends Exporter {
 
          if ( stop.get() ) throw new InterruptedException();
          String buffer = template;
-         buffer = buffer.replace( "[title]", Utils.escapeHTML( entry.name ) );
-         buffer = buffer.replace( "[body]", entry.content );
-         try ( Writer writer = openStream( root + cat_id + "/" + entry.id.replace( ".aspx?id=", "-" ) + ".html" ) ) {
+         buffer = buffer.replace( "[title]", Utils.escapeHTML( entry.getName() ) );
+         buffer = buffer.replace( "[body]", entry.getContent() );
+         try ( Writer writer = openStream( root + cat_id + "/" + entry.getId().replace( ".aspx?id=", "-" ) + ".html" ) ) {
             writer.write( buffer );
          }
          state.addOne();

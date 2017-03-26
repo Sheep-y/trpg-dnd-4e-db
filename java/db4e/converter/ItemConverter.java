@@ -50,7 +50,7 @@ public class ItemConverter extends LeveledConverter {
 
    @Override protected void convertEntry () {
       if ( isGeneric ) {
-         String[] fields = entry.fields;
+         String[] fields = entry.getFields();
          if ( entry.meta == null ) // Fix level field position before sorting
             meta( fields[0], "", fields[1], fields[2], fields[3], fields[4] );
       }
@@ -144,13 +144,13 @@ public class ItemConverter extends LeveledConverter {
 
       // Superior implements
       } else if ( meta( TYPE ).equals( "Weapon" ) ) {
-         meta( TYPE, Utils.ucfirst( entry.name.replaceFirst( "^\\w+ ", "" ) ) );
+         meta( TYPE, Utils.ucfirst( entry.getName().replaceFirst( "^\\w+ ", "" ) ) );
          if ( meta( TYPE ).equals( "Symbol" ) ) meta( TYPE, "Holy Symbol" );
          meta( LEVEL, "Superior" );
          fix( "recategorise" );
 
       } else if ( meta( TYPE ).equals( "Equipment" ) ) {
-         meta( TYPE, entry.name.replaceFirst( " Implement$", "" ) );
+         meta( TYPE, entry.getName().replaceFirst( " Implement$", "" ) );
          meta( LEVEL, "Mundane" );
          if ( meta( COST ).isEmpty() ) { // Ki Focus
             meta( COST, "0 gp" );
@@ -176,7 +176,7 @@ public class ItemConverter extends LeveledConverter {
             warn( "Weapon group not found" );
          else
             meta( TYPE, String.join( ", ", grp ) );
-         if ( ! meta( 2 ).isEmpty() || entry.name.endsWith( "secondary end" ) || entry.name.equals( "Shuriken" ) ) {
+         if ( ! meta( 2 ).isEmpty() || entry.getName().endsWith( "secondary end" ) || entry.getName().equals( "Shuriken" ) ) {
             find( regxWeaponDifficulty );
             meta( LEVEL, regxWeaponDifficulty.group() );
          }
@@ -296,7 +296,7 @@ public class ItemConverter extends LeveledConverter {
    }
 
    private void setWondrousType ( Entry entry ) {
-      if ( entry.name.contains( "Tattoo" ) )
+      if ( entry.getName().contains( "Tattoo" ) )
          meta( TYPE, "Tattoo" );
       else if ( find( "primordial shard" ) )
          meta( TYPE, "Primordial Shard" );
@@ -304,7 +304,7 @@ public class ItemConverter extends LeveledConverter {
          meta( TYPE, "Figurine" );
       else if ( find( "standard" ) && find( "plant th" ) )
          meta( TYPE, "Standard" );
-      if ( find( "Conjuration" ) && find( "mount" ) && ! entry.name.startsWith( "Bag " ) )
+      if ( find( "Conjuration" ) && find( "mount" ) && ! entry.getName().startsWith( "Bag " ) )
          if ( meta( 1 ).isEmpty() )
             meta( TYPE, "Mount" );
          else
@@ -565,7 +565,7 @@ public class ItemConverter extends LeveledConverter {
    @Override protected String[] getLookupName ( Entry entry ) {
       switch ( category.id ) {
          case "Implement" :
-            String name = entry.name;
+            String name = entry.getName();
             if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 ); // Basic implements
             return new String[]{ regxNote.reset( name ).replaceAll( "" ).trim() };
          case "" :
@@ -579,13 +579,13 @@ public class ItemConverter extends LeveledConverter {
                case "armor1": // Cloth
                   return new String[]{ "Cloth Armor", "Cloth", "Clothing" };
                case "armor2": case "armor3": case "armor5": case "armor6": // Leather to Plate
-                  return new String[]{ entry.name, entry.name.replace( " Armor", "" ) };
+                  return new String[]{ entry.getName(), entry.getName().replace( " Armor", "" ) };
                case "armor4": // Chainmail
-                  return new String[]{ entry.name, "Chain" };
+                  return new String[]{ entry.getName(), "Chain" };
                case "armor7": case "armor8": // Light/Heavy shield
-                  return new String[]{ entry.name, "Shields", "Shield" };
+                  return new String[]{ entry.getName(), "Shields", "Shield" };
                case "armor49": case "armor51": // Barding (Normal)
-                  return new String[]{ entry.name, "Barding", "Bardings" };
+                  return new String[]{ entry.getName(), "Barding", "Bardings" };
             }
             break;
       }

@@ -96,10 +96,10 @@ public class ExporterRawXlsx extends Exporter {
          if ( ! entry.contentDownloaded ) continue;
          buffer.append( "<row>" );
          cell( buffer, entry.getUrl() );
-         cell( buffer, entry.name );
-         for ( String field : entry.fields )
+         cell( buffer, entry.getName() );
+         for ( String field : entry.getFields() )
             cell( buffer, field );
-         longCell( buffer, entry.content );
+         longCell( buffer, entry.getContent() );
          buffer.append( "</row>" );
       }
       buffer.append( "</sheetData></worksheet>" );

@@ -409,8 +409,8 @@ public class Controller {
       for ( Category category : categories ) {
          for ( Entry entry : category.entries ) {
             if ( ! entry.contentDownloaded ) {
-               String name = entry.name + " (" + category.name + ")";
-               runAndCheckLogin( name, () -> crawler.openEntry( entry ) );
+               String jobName = entry.getName() + " (" + category.name + ")";
+               runAndCheckLogin( jobName, () -> crawler.openEntry( entry ) );
                crawler.getEntry( entry );
                dal.saveEntry( entry );
 

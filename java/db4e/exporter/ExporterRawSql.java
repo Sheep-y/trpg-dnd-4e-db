@@ -72,10 +72,10 @@ public class ExporterRawSql extends Exporter {
       int[] maxLen = new int[ category.fields.length + 2 ];
       for ( Entry entry : category.entries ) {
          if ( entry.getUrl().length() > maxLen[0] ) maxLen[0] = entry.getUrl().length();
-         if ( entry.name.length() > maxLen[1] ) maxLen[1] = entry.name.length();
+         if ( entry.getName().length() > maxLen[1] ) maxLen[1] = entry.getName().length();
          for ( int i = 0 ; i <= maxField ; i++ )
-            if ( entry.fields[i].length() > maxLen[i+2] )
-               maxLen[i+2] = entry.fields[i].length();
+            if ( entry.getField( i ).length() > maxLen[i+2] )
+               maxLen[i+2] = entry.getField( i ).length();
       }
 
       StringBuilder buffer = new StringBuilder( 3 * 1024 * 1024 );
@@ -95,10 +95,10 @@ public class ExporterRawSql extends Exporter {
             id( backspace( buffer ).append( ";\nINSERT INTO "), category.id ).append( " VALUES " );
          buffer.append( "\n(" );
          txt( buffer, entry.getUrl() ).append( ',' );
-         txt( buffer, entry.name ).append( ',' );
-         for ( String field : entry.fields )
+         txt( buffer, entry.getName() ).append( ',' );
+         for ( String field : entry.getFields() )
             txt( buffer, field ).append( ',' );
-         txt( buffer, entry.content );
+         txt( buffer, entry.getContent() );
          buffer.append( ")," );
       }
 

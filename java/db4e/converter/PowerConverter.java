@@ -27,7 +27,8 @@ public class PowerConverter extends LeveledConverter {
    private final Matcher regxLevel = Pattern.compile( "<span class=level>([^<]+) (Racial )?(Attack|Utility|Feature|Pact Boon|Cantrip)( \\d+)?" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( entry.fields[0], entry.fields[1], "", entry.fields[2], "", entry.fields[3] );
+      String[] fields = entry.getFields();
+      meta( fields[0], fields[1], "", fields[2], "", fields[3] );
       super.convertEntry();
 
       if ( ! find( regxLevel ) )

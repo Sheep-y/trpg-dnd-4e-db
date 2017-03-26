@@ -18,14 +18,13 @@ public class GlossaryConverter extends FieldSortConverter {
    @Override protected void correctEntry () {
       if ( entry.shortid.startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
          if ( ! find( "IMPROVISING WITH" ) ) {
-            entry.data = regxFlavor.reset( entry.data ).replaceFirst( "<h3>IMPROVISING WITH "+entry.name.toUpperCase()+"</h3><p class=flavor>" );
+            entry.data = regxFlavor.reset( entry.data ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" );
             fix( "missing content" );
          }
       }
    }
 
    @Override protected String[] getLookupName ( Entry entry ) {
-      String name = entry.name;
       switch ( entry.shortid ) {
          case "skill27": // Athletics
             return new String[]{ "Athletics", "Escape", "Climb", "Climbing", "Swim", "Swimming", "Jump", "Jumping", "Long Jump", "Long Jump" };
@@ -48,6 +47,7 @@ public class GlossaryConverter extends FieldSortConverter {
          case "glossary670": // Magic Item Level and Rarity
             return new String[]{ "Magic Item Level and Rarity", "Common", "Uncommon", "Rare" };
       }
+      String name = entry.getName();
       if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) )
          return new String[]{ name.substring( 0, name.length() - 6 ) };
       List<String> result = new ArrayList<>( 3 );

@@ -39,10 +39,10 @@ public class ExporterRawJson extends Exporter {
          if ( ! entry.contentDownloaded ) continue;
          buffer.append( '{' );
          prop( buffer, "Url", entry.getUrl() ).append( ',' );
-         prop( buffer, "Name", entry.name ).append( ',' );
+         prop( buffer, "Name", entry.getName() ).append( ',' );
          for ( int i = category.fields.length - 1 ; i >= 0 ; i-- )
-            prop( buffer, category.fields[ i ], entry.fields[ i ] ).append( ',' );
-         prop( buffer, "Content", entry.content );
+            prop( buffer, category.fields[ i ], entry.getField( i ) ).append( ',' );
+         prop( buffer, "Content", entry.getContent() );
          buffer.append( "}," );
       }
       backspace( buffer ).append( "]," );

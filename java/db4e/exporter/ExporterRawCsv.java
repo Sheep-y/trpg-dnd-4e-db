@@ -33,10 +33,10 @@ public class ExporterRawCsv extends Exporter {
 
       for ( Entry entry : category.entries ) {
          if ( ! entry.contentDownloaded ) continue;
-         cell( buffer.append( entry.getUrl() ).append( ',' ), entry.name ).append( ',' );
-         for ( String field : entry.fields )
+         cell( buffer.append( entry.getUrl() ).append( ',' ), entry.getName() ).append( ',' );
+         for ( String field : entry.getFields() )
             cell( buffer, field ).append( ',' );
-         cell( buffer, entry.content ).append( '\n' );
+         cell( buffer, entry.getContent() ).append( '\n' );
       }
       backspace( buffer );
 

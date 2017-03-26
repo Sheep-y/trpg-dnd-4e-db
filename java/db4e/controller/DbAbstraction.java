@@ -190,11 +190,11 @@ class DbAbstraction {
          for ( Category category : categories ) synchronized( category ) {
             log.log( Level.FINE, "Loading {0} content", category.id );
             for ( Entry entry : category.entries ) {
-               if ( entry.fields == null || entry.content == null ) {
-                  ISqlJetCursor cursor = tblEntry.lookup( null, entry.id );
-                  if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.name + "' not in database" );
-                  if ( entry.fields  == null ) entry.fields  = parseCsvLine( cursor.getString( "fields" ) );
-                  if ( entry.content == null ) entry.content = cursor.getString( "data" );
+               if ( entry.getFields() == null || entry.getContent() == null ) {
+                  ISqlJetCursor cursor = tblEntry.lookup( null, entry.getId() );
+                  if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.getName() + "' not in database" );
+                  if ( entry.getFields()  == null ) entry.setFields( parseCsvLine( cursor.getString( "fields" ) ) );
+                  if ( entry.getContent() == null ) entry.setContent( cursor.getString( "data" ) );
                   cursor.close();
                }
                state.addOne();
@@ -213,12 +213,12 @@ class DbAbstraction {
          ISqlJetTable tblEntry = db.getTable( "entry" );
          int i = 0;
          for ( Entry entry : entries ) {
-            log.log( Level.FINER, "Saving {0} - {1}", new Object[]{ entry.id, entry.name } );
-            ISqlJetCursor lookup = tblEntry.lookup( null, entry.id );
+            log.log( Level.FINER, "Saving {0} - {1}", new Object[]{ entry.getId(), entry.getName() } );
+            ISqlJetCursor lookup = tblEntry.lookup( null, entry.getId() );
             // Table fields: id, name, category, fields, hasData, data
-            String fields = buildCsvLine( entry.fields ).toString();
+            String fields = buildCsvLine( entry.getFields() ).toString();
             if ( lookup.eof() ) {
-               tblEntry.insert( entry.id, entry.name, category.id, fields, 0, null );
+               tblEntry.insert( entry.getId(), entry.getName(), category.id, fields, 0, null );
 //            } else { // Shouldn't need to update.
 //               lookup.update( entry.id, entry.name, category.id, fields );
             }
@@ -252,9 +252,9 @@ class DbAbstraction {
       db.beginTransaction( SqlJetTransactionMode.WRITE );
       try {
          ISqlJetTable tblEntry = db.getTable( "entry" );
-         ISqlJetCursor cursor = tblEntry.lookup( null, entry.id );
-         if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.name + "' not in database" );
-         entryUpdateMap.put( "data", entry.content );
+         ISqlJetCursor cursor = tblEntry.lookup( null, entry.getId() );
+         if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.getName() + "' not in database" );
+         entryUpdateMap.put( "data", entry.getContent() );
          cursor.updateByFieldNames( entryUpdateMap );
          db.commit();
          entry.contentDownloaded = true;

@@ -24,7 +24,7 @@ public class FeatConverter extends Converter {
    private final Matcher regxLevel = Pattern.compile( "(?:, )?([12]?\\d)(?:st|nd|th) level(?:, )?" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( "Heroic","", entry.fields[1] );
+      meta( "Heroic","", entry.getField( 1 ) );
       super.convertEntry();
 
       if ( find( regxPrerequisite ) ) {
@@ -43,9 +43,9 @@ public class FeatConverter extends Converter {
                warn( "Feat with multiple level" );
             if ( level == 11 || level == 21 )
                text = regxLevel.reset( text ).replaceFirst( "" );
-            if ( ! entry.fields[0].isEmpty() && ! entry.fields[0].equals( meta( TIER ) ) )
+            if ( ! entry.getField( 0 ).isEmpty() && ! entry.getField( 0 ).equals( meta( TIER ) ) )
                fix( "wrong meta" );
-            else if  ( entry.fields[0].isEmpty() && ! meta( TIER ).equals( "Heroic" ) )
+            else if  ( entry.getField( 0 ).isEmpty() && ! meta( TIER ).equals( "Heroic" ) )
                fix( "missing meta" );
          } else if ( text.contains( "level" ) && ! text.contains( "has a level" ) )
             warn( "Feat with unparsed level" );
