@@ -89,8 +89,7 @@ public class Controller {
    private final WebEngine engine;
    private final Crawler crawler;
    private final Timer scheduler = new Timer();
-   private final int threads = Math.max( 2, Math.min( Runtime.getRuntime().availableProcessors(), 22 ) );
-   private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor( threads, threads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+   private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor( 2, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
    public Controller ( SceneMain main ) {
       gui = main;
@@ -106,6 +105,14 @@ public class Controller {
    /////////////////////////////////////////////////////////////////////////////
    // Stop task
    /////////////////////////////////////////////////////////////////////////////
+
+   public void setThreadCount( int thread ) {
+      if ( thread <= 0 )
+         thread = Math.max( 2, Math.min( Runtime.getRuntime().availableProcessors(), 32 ) );
+      else
+         ++thread;
+      log.log( Level.CONFIG, "Thread count set to {0} plus one controll thread", thread - 1 );
+   }
 
    public void stop () {
       engine.getLoadWorker().cancel();
@@ -610,7 +617,7 @@ public class Controller {
    private void exportEachCategory ( List<Category> categories, Exporter exporter ) throws Exception {
       state.reset();
       state.update();
-      log.log( Level.CONFIG, "Running category task in {0}-1 threads.", threadPool.getMaximumPoolSize() );
+      log.log( Level.CONFIG, "Running category task in {0}-1 threads.", threadPool.getCorePoolSize() );
       try {
          Converter.stop.set( false );
          Exporter.stop.set( false );

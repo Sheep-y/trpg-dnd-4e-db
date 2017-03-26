@@ -95,6 +95,8 @@ public class SceneMain extends Scene {
            "Minimal interval, in millisecond, between each download action.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
    final TextField txtRetry  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "download.retry", DEF_RETRY_COUNT ) ) ) ),
            "Number of timeout retry.  Only apply to timeout errors." );
+   final TextField txtThread  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "export.thread", 0 ) ) ) ),
+           "More thread exports faster but use more memory. Auto = core count-1." );
    private final CheckBox chkCompress = JavaFX.tooltip( new CheckBox( "Compress exported data" ),
            "Compress exported data (LZMA) to reduce size, but takes time to decompress on load.  Suitable for slow or metered network." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
@@ -109,6 +111,7 @@ public class SceneMain extends Scene {
            new HBox( 8, new Label( "Timeout in" ), txtTimeout, new Label( "seconds.") ),
            new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (minimal) per request.") ),
            new HBox( 8, new Label( "Retry" ), txtRetry, new Label( "times on timeout.") ),
+           new HBox( 8, new Label( "Export in" ), txtThread, new Label( "threads (0 = Auto)") ),
            chkCompress,
            chkDebug,
            new HBox( 8, btnClearData, btnExportData ),
@@ -137,6 +140,7 @@ public class SceneMain extends Scene {
          Controller.TIMEOUT_MS = Integer.parseUnsignedInt( txtTimeout.getText() ) * 1000;
          Controller.INTERVAL_MS = Integer.parseUnsignedInt( txtInterval.getText() );
          Controller.RETRY_COUNT = Integer.parseUnsignedInt( txtRetry.getText() );
+         loader.setThreadCount( Integer.parseUnsignedInt( txtThread.getText() ) );
       } catch ( NumberFormatException ignored ) {}
       setRoot( pnlC );
    }
@@ -181,6 +185,13 @@ public class SceneMain extends Scene {
          prefs.putInt( "download.retry", i );
          Controller.RETRY_COUNT = i;
          log.log( Level.CONFIG, "Retry count changed to {0}", i );
+      } catch ( NumberFormatException ignored ) { } } );
+
+      txtThread.textProperty().addListener( (prop, old, now ) -> { try {
+         int i = Integer.parseUnsignedInt( now );
+         if ( i < 0 ) return;
+         prefs.putInt( "export.thread", i );
+         loader.setThreadCount( i );
       } catch ( NumberFormatException ignored ) { } } );
 
       chkCompress.selectedProperty().addListener( this::chkCompress_change );

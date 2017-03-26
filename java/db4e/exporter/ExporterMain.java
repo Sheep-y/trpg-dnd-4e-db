@@ -127,13 +127,16 @@ public class ExporterMain extends Exporter {
       // Text Index
       str( buffer, cat_id ).append( ',' );
       final String textCat = buffer.toString();
+      int cap = Arrays.stream( category.sorted ).mapToInt( entry -> entry.shortid.length() + entry.fulltext.length() + 8 ).sum();
       buffer.setLength( 0 );
-      buffer.ensureCapacity( Arrays.stream( category.sorted ).mapToInt( entry -> entry.shortid.length() + entry.fulltext.length() + 7 ).sum() );
+      buffer.ensureCapacity( cap );
       buffer.append( '{' );
       for ( Entry entry : category.sorted ) {
          str( buffer, entry.shortid ).append( ':' );
          str( buffer, entry.fulltext ).append( ',' );
       }
+      if ( cap < buffer.length() )
+         log.log( Level.WARNING, "{0} buffer expansion: {1} allocated, need {2}", new Object[]{ category.id, cap, buffer.length() });
       try ( OutputStreamWriter writer = openStream( catPath + "/_index.js" ) ) {
          writeData( writer, "od.reader.jsonp_data_index(20130616," + textCat, backspace( buffer ).append( '}' ), ")" );
       }
