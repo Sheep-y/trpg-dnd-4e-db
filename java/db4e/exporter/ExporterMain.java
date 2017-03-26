@@ -41,6 +41,7 @@ import sheepy.util.ResourceUtils;
 public class ExporterMain extends Exporter {
 
    public static final AtomicBoolean compress = new AtomicBoolean( false ); // False for plain text json data files, true for LZMA + Base85.
+   private static final int FILE_PER_CATEGORY = 20;
 
    private String root;
 
@@ -58,7 +59,7 @@ public class ExporterMain extends Exporter {
       }
       new File( root ).mkdirs();
       writeCatalog( categories );
-      state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
+      state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 3;
    }
 
    @Override public void export ( Category category ) throws IOException, InterruptedException {
@@ -93,53 +94,58 @@ public class ExporterMain extends Exporter {
       File catPath = new File( root + "/" + cat_id + "/" );
       catPath.mkdir();
       int exported = 0;
-      Matcher regxIdGroup = Pattern.compile( "^([a-z]+).*?(\\d{1,2})$" ).matcher( "" );
+      Matcher regxIdGroup = Pattern.compile( "\\d+$" ).matcher( "" );
 
-      StringBuilder buffer = new StringBuilder( 1024 );
+      StringBuilder buffer = new StringBuilder( 8192 );
 
-      // List header
+      // Listing
       str( buffer, cat_id ).append( ",[\"ID\",\"Name\"," );
       for ( String header : category.meta )
          str( buffer, header ).append( ',' );
       final String listCol = backspace( buffer ).append( "]," ).toString();
       buffer.setLength( 0 );
-
-      // Index header
-      str( buffer, cat_id ).append( ',' );
-      final String textCat = buffer.toString();
-      buffer = null;
-
-      StringBuilder listingBuffer = new StringBuilder( 2048 ).append( '[' );
-      StringBuilder textIndexBuffer = new StringBuilder( 4096 ).append( '{' );
-      StringBuilder[] data = new StringBuilder[ 20 ];
-
+      buffer.append( '[' );
       for ( Entry entry : category.sorted ) {
-         // Add to listing
-         str( listingBuffer.append( '[' ), entry.shortid ).append( ',' );
-         str( listingBuffer, entry.display_name ).append( ',' );
+         str( buffer.append( '[' ), entry.shortid ).append( ',' );
+         str( buffer, entry.display_name ).append( ',' );
          for ( Object field : entry.meta ) {
             if ( field.getClass().isArray() ) {
                Object[] ary = (Object[]) field;
-               listingBuffer.append( "[\"" ).append( ary[0] ).append( "\"," );
+               buffer.append( "[\"" ).append( ary[0] ).append( "\"," );
                for ( int i = 1, len = ary.length ; i < len ; i++ )
-                  listingBuffer.append( ary[i] ).append( ',' );
-               backspace( listingBuffer ).append( "]," );
+                  buffer.append( ary[i] ).append( ',' );
+               backspace( buffer ).append( "]," );
             } else
-               str( listingBuffer, field.toString() ).append( ',' );
+               str( buffer, field.toString() ).append( ',' );
          }
-         backspace( listingBuffer ).append( "]," );
+         backspace( buffer ).append( "]," );
+      }
+      try ( OutputStreamWriter writer = openStream( catPath + "/_listing.js" ) ) {
+         writeData( writer, "od.reader.jsonp_data_listing(20130703," + listCol, backspace( buffer ).append( ']' ), ")" );
+      }
 
-         // Add to full text
-         str( textIndexBuffer, entry.shortid ).append( ':' );
-         str( textIndexBuffer, entry.fulltext );
-         textIndexBuffer.append( ',' );
+      // Text Index
+      str( buffer, cat_id ).append( ',' );
+      final String textCat = buffer.toString();
+      buffer.setLength( 0 );
+      buffer.append( '{' );
+      for ( Entry entry : category.sorted ) {
+         str( buffer, entry.shortid ).append( ':' );
+         str( buffer, entry.fulltext ).append( ',' );
+      }
+      try ( OutputStreamWriter writer = openStream( catPath + "/_index.js" ) ) {
+         writeData( writer, "od.reader.jsonp_data_index(20130616," + textCat, backspace( buffer ).append( '}' ), ")" );
+      }
+      buffer = null;
+      state.add( category.sorted.length );
 
-         // Group content
+      StringBuilder[] data = new StringBuilder[ FILE_PER_CATEGORY ];
+      int[] dataCount = new int[ FILE_PER_CATEGORY ];
+      for ( Entry entry : category.sorted ) {
          if ( ! regxIdGroup.reset( entry.shortid ).find() )
             throw new IllegalStateException( "Invalid id " + entry.shortid );
-         int grp = Integer.parseUnsignedInt( regxIdGroup.group( 2 ) ) % 20;
+         int grp = Integer.parseUnsignedInt( regxIdGroup.group() ) % FILE_PER_CATEGORY;
 
-         // Main content
          if ( data[ grp ] == null )
             data[ grp ] = new StringBuilder( 4096 ).append( "{" );
          str( data[ grp ], entry.shortid ).append( ':' );
@@ -147,7 +153,7 @@ public class ExporterMain extends Exporter {
          ++exported;
 
          if ( stop.get() ) throw new InterruptedException();
-         state.addOne();
+         ++dataCount[ grp ];
       }
 
       for ( int i = 0 ; i < data.length ; i++ ) {
@@ -156,13 +162,7 @@ public class ExporterMain extends Exporter {
             writeData( writer, "od.reader.jsonp_batch_data(20160803," + textCat, backspace( data[ i ] ).append( '}' ), ")" );
          }
          data[ i ] = null;
-      }
-
-      try ( OutputStreamWriter listing = openStream( catPath + "/_listing.js" );
-            OutputStreamWriter   index = openStream( catPath + "/_index.js" );
-               ) {
-         writeData( listing, "od.reader.jsonp_data_listing(20130703," + listCol, backspace( listingBuffer ).append( ']' ), ")" );
-         writeData(   index, "od.reader.jsonp_data_index(20130616," + textCat, backspace( textIndexBuffer ).append( '}' ), ")" );
+         state.add( dataCount[ i ] );
       }
 
       if ( exported != category.getExportCount() )
