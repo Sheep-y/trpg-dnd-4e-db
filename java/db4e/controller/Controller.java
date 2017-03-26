@@ -111,6 +111,7 @@ public class Controller {
          thread = Math.max( 2, Math.min( Runtime.getRuntime().availableProcessors(), 32 ) );
       else
          ++thread;
+      threadPool.setCorePoolSize( thread );
       log.log( Level.CONFIG, "Thread count set to {0} plus one controll thread", thread - 1 );
    }
 
@@ -155,6 +156,20 @@ public class Controller {
             } else if ( err instanceof JSException ) {
                enabler.accept( action + " failed (script error)" );
                gui.setTitle( "Error" );
+            } else if ( err instanceof OutOfMemoryError ) {
+               // Don't allow further actions
+               gui.stateBusy( "Failed: Out of Memory" );
+               gui.setTitle( "Error" );
+               // Try free up memory to stabilse program for log
+               synchronized ( categories ) {
+                  exportCategories.clear();
+               }
+               for ( Category category : categories ) synchronized ( category ) {
+                  category.meta = null;
+                  category.sorted = null;
+                  category.index = null;
+                  category.entries.clear();
+               }
             } else {
                gui.setTitle( "Error" );
                log.log( Level.WARNING, action + " failed: {0}", Utils.stacktrace( err ) );
@@ -617,7 +632,7 @@ public class Controller {
    private void exportEachCategory ( List<Category> categories, Exporter exporter ) throws Exception {
       state.reset();
       state.update();
-      log.log( Level.CONFIG, "Running category task in {0}-1 threads.", threadPool.getCorePoolSize() );
+      log.log( Level.CONFIG, "Running category task in {0} threads: 1 control and {1} worker(s).", new Object[]{ threadPool.getCorePoolSize(), threadPool.getCorePoolSize()-1 } );
       try {
          Converter.stop.set( false );
          Exporter.stop.set( false );
@@ -626,12 +641,13 @@ public class Controller {
             CompletableFuture<Void> future = new CompletableFuture<>();
             tasks.add( future );
             threadPool.execute( () -> { try {
+               log.log( Level.INFO, "Exporting category {0} in thread {1}.", new Object[]{ category.name, Thread.currentThread().getName() } );
                synchronized ( exporter ) { /* sync with exporter.setState */ }
                synchronized ( category ) {
                   exporter.export( category );
                }
                future.complete( null );
-            } catch ( Exception e ) {
+            } catch ( Throwable e ) {
                future.completeExceptionally( e );
             } } );
          }
