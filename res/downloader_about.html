@@ -174,6 +174,17 @@ iframe {
                New version use a more efficient format that dramatically reduce waste space and speedup file copy.
             </li>
             <li>
+               <b>Export stuck at a certain point and never finishes</b>
+               Enable the debug log and export again.
+               If there is no error message when it get stuck, or if the program becomes unresponsive, it should be an Out of Memory error.
+               (Which is hard to handle because well the program runs out of memory.)
+               <br/>
+               The windows exe should not see this happens, at least not with a fresh start.
+               If you must run the jar version, search online for how to increase Java's "maximum heap memory".
+               <br/>
+               Disabling debug log, not visiting help, and disable data compression will use less memory.
+            </li>
+            <li>
                <b>Data is wrong / different from official compendium</b> <br/>
                Known errors of the official compendium will be fixed during export, in addition to other enhancements.
                See <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/#user-content-fixed-errors'>project homepage</a> for a summary,

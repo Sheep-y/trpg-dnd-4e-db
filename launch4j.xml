@@ -5,7 +5,7 @@
   <jar>4e_compendium_downloader.jar</jar>
   <outfile>4e_compendium_downloader.exe</outfile>
   <errTitle></errTitle>
-  <cmdLine></cmdLine>
+  <cmdLine>-Xmx2g</cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
@@ -34,5 +34,7 @@
     <companyName></companyName>
     <internalName>oddi</internalName>
     <originalFilename>4e_compendium_downloader.exe</originalFilename>
+    <trademarks></trademarks>
+    <language>ENGLISH_UK</language>
   </versionInfo>
 </launch4jConfig>

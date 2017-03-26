@@ -128,6 +128,7 @@ public class ExporterMain extends Exporter {
       str( buffer, cat_id ).append( ',' );
       final String textCat = buffer.toString();
       buffer.setLength( 0 );
+      buffer.ensureCapacity( Arrays.stream( category.sorted ).mapToInt( entry -> entry.shortid.length() + entry.fulltext.length() + 7 ).sum() );
       buffer.append( '{' );
       for ( Entry entry : category.sorted ) {
          str( buffer, entry.shortid ).append( ':' );
