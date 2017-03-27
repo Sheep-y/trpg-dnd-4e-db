@@ -34,7 +34,7 @@ public class ExporterRawCsv extends Exporter {
       for ( Entry entry : category.entries ) {
          if ( ! entry.downloaded().isContentDownloaded() ) continue;
          cell( buffer.append( entry.getUrl() ).append( ',' ), entry.getName() ).append( ',' );
-         for ( String field : entry.getFields() )
+         for ( String field : entry.getSimpleFields() )
             cell( buffer, field ).append( ',' );
          cell( buffer, entry.getContent() ).append( '\n' );
       }

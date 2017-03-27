@@ -97,7 +97,7 @@ public class ExporterRawXlsx extends Exporter {
          buffer.append( "<row>" );
          cell( buffer, entry.getUrl() );
          cell( buffer, entry.getName() );
-         for ( String field : entry.getFields() )
+         for ( String field : entry.getSimpleFields() )
             cell( buffer, field );
          longCell( buffer, entry.getContent() );
          buffer.append( "</row>" );

@@ -60,7 +60,7 @@ public class ExporterRawHtml extends Exporter {
          for ( Entry entry : category.entries ) {
             body.append( "<tr><td><a href='" ).append( cat_id ).append( entry.getId().replace( ".aspx?id=", "-" ) ).append( ".html'>" );
             body.append( Utils.escapeHTML( entry.getName() ) ).append( "</a></td>" );
-            for ( String field : entry.getFields() )
+            for ( String field : entry.getSimpleFields() )
                body.append( "<td>" ).append( Utils.escapeHTML( field ) ).append( "</td>" );
             body.append( "</tr>" );
          }

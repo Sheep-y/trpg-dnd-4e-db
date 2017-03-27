@@ -100,7 +100,7 @@ public abstract class Convert {
                      for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
                         Entry entry = i.next();
                         // Nine background from Dra376 are hooks only, not actual character resources.
-                        if ( entry.getField( 3 ).endsWith( "376" ) ) {
+                        if ( entry.getField( 3 ).toString().endsWith( "376" ) ) {
                            switch ( entry.getId() ) {
                               case "background.aspx?id=283" :
                               case "background.aspx?id=284" :
@@ -126,7 +126,7 @@ public abstract class Convert {
       // May convert to parallel stream if this part grows too much...
       for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
          Entry entry = i.next();
-         switch ( entry.getField( 0 ) ) {
+         switch ( entry.getField( 0 ).toString() ) {
             case "Arms":
                if ( ! entry.getContent().contains( ">Arms Slot: <" ) || ! entry.getContent().contains( " shield" ) ) break;
                // falls through
@@ -294,12 +294,12 @@ public abstract class Convert {
    private static void moveArtifact ( Iterator<Entry> i, Category target, Entry entry, String type ) {
       if ( i != null ) i.remove();
       target.entries.add( entry );
-      String[] fields = entry.getFields();
+      Object[] fields = entry.getFields();
       entry.meta = new Object[]{ type, fields[1], fields[2], "Artifact", fields[4] };
    }
 
    private static void markArtifact ( Entry entry, String category ) {
-      String[] fields = entry.getFields();
+      Object[] fields = entry.getFields();
       entry.meta = new Object[]{ category, "", fields[1], fields[2], "Artifact", fields[4] };
    }
 

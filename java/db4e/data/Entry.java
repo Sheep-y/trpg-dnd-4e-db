@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class Entry {
    private String id; // Compendium url of this entry
    private String name; // Display name
-   private String[] fields; // Field data loaded from compendium. Not loaded until export.
+   private Object[] fields; // Field data loaded from compendium. Not loaded until export.
    private String content; // Actual content. Not loaded until export.
 
    // Transformed data for export
@@ -36,16 +36,46 @@ public class Entry {
       this.name = name;
    }
 
-   public String[] getFields() {
+   public int getFieldCount() {
+      return fields.length;
+   }
+
+   public Object[] getFields() {
       return fields;
    }
 
-   public String getField( int i ) {
-      return fields[ i ];
+   public String[] getSimpleFields() {
+      return Arrays.copyOf( fields, fields.length, String[].class );
+      /*
+      try {
+         return Arrays.copyOf( fields, fields.length, String[].class );
+      } catch ( ArrayStoreException ex ) {
+         String[] result = new String[ fields.length ];
+         for ( int i = 0, len = fields.length ; i < len ; i++ )
+            result[ i ] = getField( i );
+         return result;
+      }
+*/
    }
 
-   public void setFields( String[] fields ) {
+   public Object getField( int i ) {
+      return fields [ i ];
+   }
+
+   public String getSimpleField( int i ) {
+      Object result = fields[ i ];
+      if ( result instanceof Object[] )
+         result = ( (Object[]) result )[0];
+      return result.toString();
+   }
+
+   public void setFields( Object[] fields ) {
+      assert( fields instanceof Object[] );
       this.fields = fields;
+   }
+
+   public void setField( int i, Object field ) {
+      this.fields[ i ] = field;
    }
 
    public String getContent() {
@@ -63,7 +93,7 @@ public class Entry {
    public <T extends Entry> T cloneTo( T copy ) {
       copy.setId( getId() );
       copy.setName( getName() );
-      copy.setFields( Arrays.copyOf( getFields(), getFields().length ) );
+      copy.setFields( Arrays.copyOf( getFields(), getFieldCount() ) );
       copy.setContent( getContent() );
       return copy;
    }

@@ -74,8 +74,8 @@ public class ExporterRawSql extends Exporter {
          if ( entry.getUrl().length() > maxLen[0] ) maxLen[0] = entry.getUrl().length();
          if ( entry.getName().length() > maxLen[1] ) maxLen[1] = entry.getName().length();
          for ( int i = 0 ; i <= maxField ; i++ )
-            if ( entry.getField( i ).length() > maxLen[i+2] )
-               maxLen[i+2] = entry.getField( i ).length();
+            if ( entry.getSimpleField( i ).length() > maxLen[i+2] )
+               maxLen[i+2] = entry.getSimpleField( i ).length();
       }
 
       StringBuilder buffer = new StringBuilder( 3 * 1024 * 1024 );
@@ -96,7 +96,7 @@ public class ExporterRawSql extends Exporter {
          buffer.append( "\n(" );
          txt( buffer, entry.getUrl() ).append( ',' );
          txt( buffer, entry.getName() ).append( ',' );
-         for ( String field : entry.getFields() )
+         for ( String field : entry.getSimpleFields() )
             txt( buffer, field ).append( ',' );
          txt( buffer, entry.getContent() );
          buffer.append( ")," );

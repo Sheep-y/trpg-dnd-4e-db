@@ -293,9 +293,10 @@ class DbAbstraction {
 
    private final Matcher csvQuotable = Pattern.compile( "[\r\n,\"]" ).matcher( "" );
 
-   private synchronized StringBuilder buildCsvLine ( String[] line ) {
+   private synchronized StringBuilder buildCsvLine ( Object[] line ) {
       StringBuilder result = new StringBuilder(32);
-      for ( String token : line ) {
+      for ( Object field : line ) {
+         String token = field.toString();
          if ( csvQuotable.reset( token ).find() )
             result.append( '"' ).append( token.replaceAll( "\"", "\"\"" ) ).append( "\"," );
          else

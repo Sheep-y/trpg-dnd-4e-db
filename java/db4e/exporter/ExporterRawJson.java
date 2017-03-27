@@ -41,7 +41,7 @@ public class ExporterRawJson extends Exporter {
          prop( buffer, "Url", entry.getUrl() ).append( ',' );
          prop( buffer, "Name", entry.getName() ).append( ',' );
          for ( int i = category.fields.length - 1 ; i >= 0 ; i-- )
-            prop( buffer, category.fields[ i ], entry.getField( i ) ).append( ',' );
+            prop( buffer, category.fields[ i ], entry.getSimpleField( i ) ).append( ',' );
          prop( buffer, "Content", entry.getContent() );
          buffer.append( "}," );
       }

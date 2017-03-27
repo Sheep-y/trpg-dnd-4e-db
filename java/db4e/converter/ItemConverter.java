@@ -50,7 +50,7 @@ public class ItemConverter extends LeveledConverter {
 
    @Override protected void convertEntry () {
       if ( isGeneric ) {
-         String[] fields = entry.getFields();
+         Object[] fields = entry.getFields();
          if ( entry.meta == null ) // Fix level field position before sorting
             meta( fields[0], "", fields[1], fields[2], fields[3], fields[4] );
       }
