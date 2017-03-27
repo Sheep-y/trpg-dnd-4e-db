@@ -4,9 +4,6 @@ public class EntryDownloaded extends Entry {
 
    private boolean contentDownloaded; // Indicate whether this entry has content in database.
 
-   public EntryDownloaded() {
-   }
-
    public EntryDownloaded ( String id, String name ) {
       setId( id );
       setName( name );

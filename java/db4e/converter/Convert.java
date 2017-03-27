@@ -55,9 +55,6 @@ public abstract class Convert {
    public static void beforeConvert ( List<Category> categories, List<Category> exportCategories ) {
       synchronized ( categories ) {
          if ( exportCategories.size() > 0 ) return;
-         Map<String,Category> map = new HashMap<>( 18, 1f );
-         for ( Category c : categories )
-            map.put( c.id, c );
 
          String[] itemMeta  = new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
          Category armour    = new Category( "Armor"    , "Armor"    , itemMeta );
@@ -66,12 +63,18 @@ public abstract class Convert {
          exportCategories.add( armour );
          exportCategories.add( implement );
          exportCategories.add( weapon );
+         for ( Category c : categories )
+            if ( ! c.id.equals( "Terrain" ) ) // Terrain is merged into Traps
+               exportCategories.add( new Category( c.id, c.name, c.fields ) );
+
+         Map<String,Category> map = new HashMap<>( 20, 1f );
+         for ( Category c : exportCategories )
+            map.put( c.id, c );
 
          // Move entries around before export
          for ( Category c : categories ) synchronized( c ) {
-            if ( c.id.equals( "Terrain" ) ) continue;
-            Category exported = new Category( c.id, c.name, c.fields );
-            exportCategories.add( exported );
+            String exportTarget = c.id.equals( "Terrain" ) ? "Trap" : c.id; // Moves terrain into trap.
+            Category exported = map.get( exportTarget );
             synchronized( exported ) {
                c.entries.stream().forEach( e -> exported.entries.add( e.cloneTo( new Entry() ) ) );
                switch ( c.id ) {
@@ -88,12 +91,8 @@ public abstract class Convert {
 
                   case "Item" :
                      synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
-                        transferItem( exported, armour, implement, weapon, map );
+                        transferItem( exported, map );
                      } } }
-                     break;
-
-                  case "Trap" :
-                     exported.entries.addAll( map.get( "Terrain" ).entries );
                      break;
 
                   case "Background" :
@@ -122,8 +121,11 @@ public abstract class Convert {
       }
    }
 
-   private static void transferItem ( Category exported, Category armour, Category implement, Category weapon, Map<String, Category> map ) {
+   private static void transferItem ( Category exported, Map<String, Category> map ) {
       // May convert to parallel stream if this part grows too much...
+      Category armour = map.get( "Armor" );
+      Category implement = map.get( "Implement" );
+      Category weapon = map.get( "Weapon" );
       for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
          Entry entry = i.next();
          switch ( entry.getField( 0 ).toString() ) {
@@ -137,8 +139,9 @@ public abstract class Convert {
             case "Consumable":
                if ( entry.getContent().contains( "<b>Consumable: </b>Assassin poison" ) ) {
                   i.remove();
-                  map.get( "Poison" ).entries.add( entry );
-                  // Correction handled by correctEntry
+                  synchronized ( map.get( "Poison" ) ) {
+                     map.get( "Poison" ).entries.add( entry ); // Meta correction and fix registration handled by correctEntry
+                  }
                }
                break;
             case "Equipment":
