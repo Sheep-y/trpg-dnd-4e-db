@@ -46,8 +46,8 @@ public class BackgroundConverter extends Converter {
    }
 
    @Override protected void correctEntry () {
-      if ( meta( TYPE ).isEmpty() && entry.display_name.contains( " - " ) ) {
-         meta( TYPE, entry.display_name.split( " - " )[0] );
+      if ( meta( TYPE ).isEmpty() && entry.getName().contains( " - " ) ) {
+         meta( TYPE, entry.getName().split( " - " )[0] );
          fix( "missing meta" );
       }
 

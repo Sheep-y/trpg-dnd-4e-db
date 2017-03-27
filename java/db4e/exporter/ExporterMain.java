@@ -108,7 +108,7 @@ public class ExporterMain extends Exporter {
       buffer.append( '[' );
       for ( Entry entry : category.sorted ) {
          str( buffer.append( '[' ), entry.shortid ).append( ',' );
-         str( buffer, entry.display_name ).append( ',' );
+         str( buffer, entry.getName() ).append( ',' );
          for ( Object field : entry.meta ) {
             if ( field.getClass().isArray() ) {
                Object[] ary = (Object[]) field;

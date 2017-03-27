@@ -441,7 +441,8 @@ public abstract class Convert {
     * @param entry Entry to be converted
     */
    protected void convertEntry () {
-      entry.display_name = entry.getName().replace( "’", "'" );
+      if ( entry.getName().contains( "’" ) )
+         entry.setName( entry.getName().replace( "’", "'" ) );
       entry.shortid = entry.getId().replace( ".aspx?id=", "" ).toLowerCase();
       if ( entry.meta == null ) {
          final int length = entry.getFields().length;

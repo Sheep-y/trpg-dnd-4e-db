@@ -88,8 +88,8 @@ public class PowerConverter extends LeveledConverter {
    }
 
    @Override protected void correctEntry () {
-      if ( entry.display_name.endsWith( " [Attack Technique]" ) ) {
-         entry.display_name = entry.display_name.substring( 0, entry.display_name.length() - 19 );
+      if ( entry.getName().endsWith( " [Attack Technique]" ) ) {
+         entry.setName( entry.getName().substring( 0, entry.getName().length() - 19 ) );
          fix( "wrong meta" );
       }
 
