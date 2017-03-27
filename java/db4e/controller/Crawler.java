@@ -3,6 +3,7 @@ package db4e.controller;
 import db4e.Main;
 import db4e.data.Category;
 import db4e.data.Entry;
+import db4e.data.EntryDownloaded;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -122,7 +123,7 @@ public class Crawler {
             log.log( Level.FINER, "Copying row {0}", name );
             Object[] props = toArray( row[ 2 ] );
             String[] fields = Arrays.copyOf( props, props.length, String[].class );
-            result.add( new Entry( row[0].toString(), name, fields ) );
+            result.add( new EntryDownloaded( row[0].toString(), name, fields ) );
          }
       } );
       return result;

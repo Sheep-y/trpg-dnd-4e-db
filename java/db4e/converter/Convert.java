@@ -73,7 +73,7 @@ public abstract class Convert {
             Category exported = new Category( c.id, c.name, c.fields );
             exportCategories.add( exported );
             synchronized( exported ) {
-               exported.entries.addAll( c.entries );
+               c.entries.stream().forEach( e -> exported.entries.add( e.cloneTo( new Entry() ) ) );
                switch ( c.id ) {
                   case "Glossary" :
                      for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
@@ -237,7 +237,7 @@ public abstract class Convert {
                   case "item.aspx?id=156": // Audaviator
                      moveArtifact( i, implement, entry, "Staff" ); break;
                   case "item.aspx?id=147": // Arrow of Fate - make a copy for implement and then move to weapon
-                     Entry copy = entry.clone();
+                     Entry copy = entry.cloneTo( new Entry() );
                      moveArtifact( null, weapon, entry, "Spear or arrow" );
                      entry = copy;
                      // fall through

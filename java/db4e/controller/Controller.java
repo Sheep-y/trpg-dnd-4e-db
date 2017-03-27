@@ -408,7 +408,7 @@ public class Controller {
       int remainingCount = state.total - state.get(), second;
       for ( Category category : categories ) {
          for ( Entry entry : category.entries ) {
-            if ( ! entry.contentDownloaded ) {
+            if ( ! entry.downloaded().isContentDownloaded() ) {
                String jobName = entry.getName() + " (" + category.name + ")";
                runAndCheckLogin( jobName, () -> crawler.openEntry( entry ) );
                crawler.getEntry( entry );

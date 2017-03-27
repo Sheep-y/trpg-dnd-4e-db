@@ -90,7 +90,7 @@ public class ExporterRawSql extends Exporter {
 
       int rowCount = 0;
       for ( Entry entry : category.entries ) {
-         if ( ! entry.contentDownloaded ) continue;
+         if ( ! entry.downloaded().isContentDownloaded() ) continue;
          if ( rowCount++ % 20 == 0 )
             id( backspace( buffer ).append( ";\nINSERT INTO "), category.id ).append( " VALUES " );
          buffer.append( "\n(" );

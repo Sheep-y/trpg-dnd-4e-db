@@ -3,6 +3,7 @@ package db4e.controller;
 import db4e.Main;
 import db4e.data.Category;
 import db4e.data.Entry;
+import db4e.data.EntryDownloaded;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -159,10 +160,10 @@ class DbAbstraction {
             if ( category.total_entry.get() > 0 ) {
                cursor = tblEntry.lookup( "entry_category_index", category.id );
                if ( ! cursor.eof() ) do {
-                  final Entry entry = new Entry( cursor.getString( "id" ), cursor.getString( "name" ) );
+                  final EntryDownloaded entry = new EntryDownloaded( cursor.getString( "id" ), cursor.getString( "name" ) );
                   list.add( entry );
                   if ( cursor.getInteger( "hasData" ) != 0 ) {
-                     entry.contentDownloaded = true;
+                     entry.setContentDownloaded(true);
                      ++countWithData;
                   }
                   state.addOne();
@@ -257,7 +258,7 @@ class DbAbstraction {
          entryUpdateMap.put( "data", entry.getContent() );
          cursor.updateByFieldNames( entryUpdateMap );
          db.commit();
-         entry.contentDownloaded = true;
+         entry.downloaded().setContentDownloaded(true);
 
       } finally {
          db.rollback();

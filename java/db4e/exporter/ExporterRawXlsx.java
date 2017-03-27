@@ -93,7 +93,7 @@ public class ExporterRawXlsx extends Exporter {
       buffer.append( "</row>" );
 
       for ( Entry entry : category.entries ) {
-         if ( ! entry.contentDownloaded ) continue;
+         if ( ! entry.downloaded().isContentDownloaded() ) continue;
          buffer.append( "<row>" );
          cell( buffer, entry.getUrl() );
          cell( buffer, entry.getName() );

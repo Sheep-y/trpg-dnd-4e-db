@@ -33,7 +33,7 @@ public class ExporterRawTsv extends Exporter {
       buffer.append( "Content\n" );
 
       for ( Entry entry : category.entries ) {
-         if ( ! entry.contentDownloaded ) continue;
+         if ( ! entry.downloaded().isContentDownloaded() ) continue;
          cell( buffer.append( entry.getUrl() ).append( '\t' ), entry.getName() ).append( '\t' );
          for ( String field : entry.getFields() )
             cell( buffer, field ).append( '\t' );
