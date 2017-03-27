@@ -74,6 +74,7 @@ public class ExporterMain extends Exporter {
       checkStop( "Writing viewer" );
       writeIndex( root, categories );
       writeViewer( root, target );
+      categories.clear();
    }
 
    private void writeCatalog ( List<Category> categories ) throws IOException {
@@ -171,6 +172,10 @@ public class ExporterMain extends Exporter {
 
       if ( exported != category.getExportCount() )
          throw new IllegalStateException( category.id + " entry exported " + category.sorted.length + " mismatch with total " + category.getExportCount() );
+
+      // The data is no longer required.  Kill them to save memory/
+      category.entries.clear();
+      category.sorted = null;
    }
 
    private void writeIndex ( String target, List<Category> categories ) throws IOException, InterruptedException {

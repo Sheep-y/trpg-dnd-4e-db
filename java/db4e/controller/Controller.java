@@ -493,6 +493,7 @@ public class Controller {
             exporter.postExport( exportCategories );
             Convert.afterConvert();
          }
+         System.gc();
 
          gui.stateCanExport( "Export complete, may view data" );
       } ).whenComplete( terminate( "Export", gui::stateCanExport ) );

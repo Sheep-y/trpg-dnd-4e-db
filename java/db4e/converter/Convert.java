@@ -54,8 +54,7 @@ public abstract class Convert {
     */
    public static void beforeConvert ( List<Category> categories, List<Category> exportCategories ) {
       synchronized ( categories ) {
-         if ( exportCategories.size() > 0 ) return;
-
+         exportCategories.clear();
          String[] itemMeta  = new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
          Category armour    = new Category( "Armor"    , "Armor"    , itemMeta );
          Category implement = new Category( "Implement", "implement", itemMeta );
