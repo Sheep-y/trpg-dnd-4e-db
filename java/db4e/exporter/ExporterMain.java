@@ -67,7 +67,7 @@ public class ExporterMain extends Exporter {
       Converter converter = Convert.getConverter( category );
       if ( converter == null ) return;
       converter.convert( state );
-      writeCategory( category );
+      writeCategory( category, converter );
    }
 
    @Override public void postExport ( List<Category> categories ) throws IOException, InterruptedException {
@@ -87,7 +87,7 @@ public class ExporterMain extends Exporter {
       }
    }
 
-   private void writeCategory ( Category category ) throws IOException, InterruptedException {
+   private void writeCategory ( Category category, Convert converter ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
       String cat_id = category.id.toLowerCase();
@@ -128,16 +128,14 @@ public class ExporterMain extends Exporter {
       // Text Index
       str( buffer, cat_id ).append( ',' );
       final String textCat = buffer.toString();
-      int cap = Arrays.stream( category.sorted ).mapToInt( entry -> entry.getId().length() + entry.fulltext.length() + 8 ).sum();
       buffer.setLength( 0 );
-      buffer.ensureCapacity( cap );
       buffer.append( '{' );
       for ( Entry entry : category.sorted ) {
+         String fulltext = converter.textData( entry.getContent() );
+         buffer.ensureCapacity( buffer.length() + entry.getId().length() + fulltext.length() + 12 );
          str( buffer, entry.getId() ).append( ':' );
-         str( buffer, entry.fulltext ).append( ',' );
+         str( buffer, fulltext ).append( ',' );
       }
-      if ( cap < buffer.length() )
-         log.log( Level.WARNING, "{0} buffer expansion: {1} allocated, need {2}", new Object[]{ category.id, cap, buffer.length() });
       try ( OutputStreamWriter writer = openStream( catPath + "/_index.js" ) ) {
          writeData( writer, "od.reader.jsonp_data_index(20130616," + textCat, backspace( buffer ).append( '}' ), ")" );
       }
@@ -153,6 +151,7 @@ public class ExporterMain extends Exporter {
 
          if ( data[ grp ] == null )
             data[ grp ] = new StringBuilder( 4096 ).append( "{" );
+         data[grp].ensureCapacity( data[grp].length() + entry.getId().length() + entry.getContent().length() + 12 );
          str( data[ grp ], entry.getId() ).append( ':' );
          str( data[ grp ], entry.getContent() ).append( ',' );
          ++exported;

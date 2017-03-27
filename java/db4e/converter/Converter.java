@@ -68,14 +68,6 @@ public class Converter extends Convert {
          if ( ! unbalanced.isEmpty() )
             warn( "Unbalanced open and closing element (" + unbalanced + ")" );
          openCloseCount.clear();
-
-         // Validate fulltext
-         if ( regxCheckFulltext.reset( entry.fulltext ).find() )
-            warn( "Unremoved html tag in fulltext" );
-         if ( regxCheckDate.reset( entry.fulltext ).find() )
-            warn( "Unremoved errata date in fulltext" );
-         if ( ! entry.fulltext.endsWith( "." ) )
-            warn( "Not ending in full stop" );
       }
    }
 
@@ -296,7 +288,7 @@ public class Converter extends Convert {
     * @param data Data to strip
     * @return Text data
     */
-   @Override protected String textData ( String data ) {
+   @Override public String textData ( String data ) {
       // Removes excluded text
       if ( data.indexOf( "power>" ) > 0 ) // Power flavour
          data = regxPowerFlav.reset( data ).replaceAll( "$1" );
@@ -311,12 +303,23 @@ public class Converter extends Convert {
       data = data.replace( '\u00A0', ' ' );
       data = regxHtmlTag.reset( data ).replaceAll( " " );
       data = regxSpaces.reset( data ).replaceAll( " " );
+      data = data.trim();
 
       // HTML unescape. Compendium has relatively few escapes.
       data = data.replace( "&amp;", "&" )
                  .replace( "&gt;", ">" ); // glossary.433/"Weapons and Size"
 
-      return data.trim();
+      // Validate
+      if ( Main.debug.get() ) {
+         if ( regxCheckFulltext.reset( data ).find() )
+            warn( "Unremoved html tag in fulltext" );
+         if ( regxCheckDate.reset( data ).find() )
+            warn( "Unremoved errata date in fulltext" );
+         if ( ! data.endsWith( "." ) )
+            warn( "Not ending in full stop" );
+      }
+
+      return data;
    }
 
    protected final void fix ( String correction ) {

@@ -382,7 +382,7 @@ public abstract class Convert {
          initialise();
       final List<Entry> entries = category.entries;
       for ( Entry entry : entries ) {
-         if ( entry.fulltext == null ) try {
+         try {
             this.entry = entry;
             convertEntry();
             if ( ! corrections.isEmpty() ) {
@@ -445,7 +445,6 @@ public abstract class Convert {
       entry.setContent( normaliseData( entry.getContent() ) );
       correctEntry();
       parseSourceBook();
-      entry.fulltext = textData( entry.getContent() );
       // Converter will do some checking if debug is on.
    }
 
@@ -488,5 +487,5 @@ public abstract class Convert {
     * @param data Data to strip
     * @return Text data
     */
-   protected abstract String textData ( String data );
+   public abstract String textData ( String data );
 }

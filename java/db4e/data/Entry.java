@@ -11,9 +11,6 @@ public class Entry {
    private Object[] fields; // Field data loaded from compendium. Not loaded until export.
    private String content; // Actual content. Not loaded until export.
 
-   // Transformed data for export
-   public String fulltext;   // Full text index text - without name and flavour
-
    public Entry() {}
 
    public EntryDownloaded downloaded () { throw new UnsupportedOperationException(); }

@@ -556,7 +556,7 @@ public class ItemConverter extends LeveledConverter {
       }
    }
 
-   @Override protected String textData( String data ) {
+   @Override public String textData( String data ) {
       if ( data.startsWith( "<h1 class=miset>" ) )
          data = data.replaceFirst( "<h1 class=mihead>.*(?=<p class=publishedIn>)", "" );
       return super.textData( data );
