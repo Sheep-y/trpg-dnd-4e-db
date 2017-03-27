@@ -25,7 +25,7 @@ public class RaceConverter extends Converter {
       meta( null, null, entry.getField( 1 ), entry.getField( 2 ) );
       super.convertEntry();
       // Origin column
-      switch ( entry.shortid ) {
+      switch ( entry.getId() ) {
          case "race3":  // Eladrin
          case "race4":  // Elf
          case "race16": // Drow

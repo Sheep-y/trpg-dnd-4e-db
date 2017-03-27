@@ -5,7 +5,6 @@ import db4e.data.Entry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 class LeveledConverter extends Converter {
 
@@ -35,7 +34,7 @@ class LeveledConverter extends Converter {
             if ( ! levelMap.containsKey( level ) ) {
                float lv = parseLevel( level );
                levelMap.put( level, lv );
-               if ( lv < -10 ) log.log( Level.WARNING, "Unknown level \"{0}\": {1} {2}", new Object[]{ levelText, entry.shortid, entry.getName() } );
+               if ( lv < -10 ) warn( "Unknown level \"" + levelText + "\"" );
             }
          }
       }
@@ -108,7 +107,7 @@ class LeveledConverter extends Converter {
             fix( "formatting" );
          }
 
-         switch ( entry.shortid ) {
+         switch ( entry.getId() ) {
          case "poison19": // Granny's Grief
             swap( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
             fix( "missing published" );
@@ -128,14 +127,14 @@ class LeveledConverter extends Converter {
          // Convert from item to poison
          if ( entry.meta.length == 5 ) {
             meta( meta( 1 ), "", meta( 4 ) );
-            entry.shortid = entry.shortid.replace( "item", "poison0" );
+            entry.setId( entry.getId().replace( "item", "poison0" ) );
             swap( "<h1 class=mihead>", "<h1 class=poison>" );
             fix( "recategorise" );
          }
          break;
 
       case "Monster":
-         switch ( entry.shortid ) {
+         switch ( entry.getId() ) {
 
          case "monster2248": // Cambion Stalwart
             swap( "bit points", "hit points" );
@@ -155,7 +154,7 @@ class LeveledConverter extends Converter {
             }
          }
       case "Ritual":
-         switch ( entry.shortid ) {
+         switch ( entry.getId() ) {
 
          case "ritual288": // Primal Grove
             swap( " grp to ", " gp to " );

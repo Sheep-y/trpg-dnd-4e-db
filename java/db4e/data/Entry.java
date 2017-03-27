@@ -12,7 +12,6 @@ public class Entry {
    private String content; // Actual content. Not loaded until export.
 
    // Transformed data for export
-   public String shortid;     // Simplified id for export
    public String fulltext;   // Full text index text - without name and flavour
    public Object[] meta;    // Transform field data
    public String data;     // Processed data text
@@ -58,7 +57,7 @@ public class Entry {
    }
 
    public String getUrl() {
-      return "http://www.wizards.com/dndinsider/compendium/" + id;
+      return getId();
    }
 
    public <T extends Entry> T cloneTo( T copy ) {

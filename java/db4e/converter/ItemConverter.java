@@ -56,7 +56,7 @@ public class ItemConverter extends LeveledConverter {
       }
       super.convertEntry();
       if ( ! isGeneric )
-         entry.shortid = entry.shortid.replace( "item", category.id.toLowerCase() );
+         entry.setId( entry.getId().replace( "item", category.id.toLowerCase() ) );
       if ( meta( RARITY ).equals( "Artifact" ) ) {
          find( regxTier );
          meta( LEVEL, regxTier.group() );
@@ -117,7 +117,7 @@ public class ItemConverter extends LeveledConverter {
          }
 
       } else
-         switch ( entry.shortid ) {
+         switch ( entry.getId() ) {
             case "armor49": case "armor50": case "armor51": case "armor52":
                meta( TYPE, "Barding" );
                break;
@@ -193,7 +193,7 @@ public class ItemConverter extends LeveledConverter {
          return;
       }
       // Manual assign
-      switch ( entry.shortid ) {
+      switch ( entry.getId() ) {
          case "weapon3677": // Double scimitar - secondary end
             meta( TYPE, "Heavy blade" );
             meta( LEVEL, "Superior" );
@@ -213,7 +213,7 @@ public class ItemConverter extends LeveledConverter {
 
    private void setItemSetType ( Entry entry ) {
       String type = "";
-      switch ( entry.shortid ) {
+      switch ( entry.getId() ) {
          case "item425": // Mirror of Nessecar
             type = "Arcane"; break;
          case "item429": // Tinkerer's Inventions
@@ -359,7 +359,7 @@ public class ItemConverter extends LeveledConverter {
          fix( "recategorise" );
       }
 
-      switch ( entry.shortid ) {
+      switch ( entry.getId() ) {
          case "item1": // Cloth Armor
             meta( COST, "1 gp" );
             fix( "wrong meta" );
@@ -569,13 +569,13 @@ public class ItemConverter extends LeveledConverter {
             if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 ); // Basic implements
             return new String[]{ regxNote.reset( name ).replaceAll( "" ).trim() };
          case "" :
-            switch ( entry.shortid ) {
+            switch ( entry.getId() ) {
                case "item171": // Belt Pouch (empty)
                   return new String[]{ "Belt Pouch", "Pouch" };
             }
             break;
          case "Armor" :
-            switch ( entry.shortid ) {
+            switch ( entry.getId() ) {
                case "armor1": // Cloth
                   return new String[]{ "Cloth Armor", "Cloth", "Clothing" };
                case "armor2": case "armor3": case "armor5": case "armor6": // Leather to Plate

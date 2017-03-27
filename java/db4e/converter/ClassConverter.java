@@ -27,8 +27,8 @@ public class ClassConverter extends Converter {
 
       regxClassFeatures.reset( entry.data );
       synchronized ( featureMap ) {
-         Set<String> features = featureMap.get( entry.shortid );
-         if ( features == null ) featureMap.put( entry.shortid, features = new HashSet<>() );
+         Set<String> features = featureMap.get( entry.getId() );
+         if ( features == null ) featureMap.put( entry.getId(), features = new HashSet<>() );
          while ( regxClassFeatures.find() ) {
             String[] names = regxClassFeatures.group( 1 ).trim().split( ",| or " );
             for ( String name : names ) {
@@ -45,7 +45,7 @@ public class ClassConverter extends Converter {
    }
 
    @Override protected void correctEntry() {
-      switch ( entry.shortid ) {
+      switch ( entry.getId() ) {
          case "class811": // Assassin (Executioner)
          case "class891": // Hybrid Assassin (Executioner)
             meta( POWER, "Martial and Shadow" );
@@ -84,7 +84,7 @@ public class ClassConverter extends Converter {
          name = name.substring( 0, name.indexOf( '(' ) - 1 );
       }
       synchronized ( featureMap ) {
-         Set<String> result = new HashSet<>( ClassConverter.featureMap.get( entry.shortid ) );
+         Set<String> result = new HashSet<>( ClassConverter.featureMap.get( entry.getId() ) );
          result.add( name );
          if ( altName != null ) result.add( altName );
          if ( isHybrid ) result.add( "Hybrid " + name );

@@ -107,7 +107,7 @@ public class ExporterMain extends Exporter {
       buffer.setLength( 0 );
       buffer.append( '[' );
       for ( Entry entry : category.sorted ) {
-         str( buffer.append( '[' ), entry.shortid ).append( ',' );
+         str( buffer.append( '[' ), entry.getId() ).append( ',' );
          str( buffer, entry.getName() ).append( ',' );
          for ( Object field : entry.meta ) {
             if ( field.getClass().isArray() ) {
@@ -128,12 +128,12 @@ public class ExporterMain extends Exporter {
       // Text Index
       str( buffer, cat_id ).append( ',' );
       final String textCat = buffer.toString();
-      int cap = Arrays.stream( category.sorted ).mapToInt( entry -> entry.shortid.length() + entry.fulltext.length() + 8 ).sum();
+      int cap = Arrays.stream( category.sorted ).mapToInt( entry -> entry.getId().length() + entry.fulltext.length() + 8 ).sum();
       buffer.setLength( 0 );
       buffer.ensureCapacity( cap );
       buffer.append( '{' );
       for ( Entry entry : category.sorted ) {
-         str( buffer, entry.shortid ).append( ':' );
+         str( buffer, entry.getId() ).append( ':' );
          str( buffer, entry.fulltext ).append( ',' );
       }
       if ( cap < buffer.length() )
@@ -147,13 +147,13 @@ public class ExporterMain extends Exporter {
       StringBuilder[] data = new StringBuilder[ FILE_PER_CATEGORY ];
       int[] dataCount = new int[ FILE_PER_CATEGORY ];
       for ( Entry entry : category.sorted ) {
-         if ( ! regxIdGroup.reset( entry.shortid ).find() )
-            throw new IllegalStateException( "Invalid id " + entry.shortid );
+         if ( ! regxIdGroup.reset( entry.getId() ).find() )
+            throw new IllegalStateException( "Invalid id " + entry.getId() );
          int grp = Integer.parseUnsignedInt( regxIdGroup.group() ) % FILE_PER_CATEGORY;
 
          if ( data[ grp ] == null )
             data[ grp ] = new StringBuilder( 4096 ).append( "{" );
-         str( data[ grp ], entry.shortid ).append( ':' );
+         str( data[ grp ], entry.getId() ).append( ':' );
          str( data[ grp ], entry.data ).append( ',' );
          ++exported;
 

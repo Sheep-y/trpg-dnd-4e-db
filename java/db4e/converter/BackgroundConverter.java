@@ -65,7 +65,7 @@ public class BackgroundConverter extends Converter {
       } else if ( ! meta( BENEFIT ).isEmpty() )
          meta( BENEFIT, "Associated: " + meta( BENEFIT ).replace( "you can", "" ) );
 
-      switch ( entry.shortid ) {
+      switch ( entry.getId() ) {
          case "background34": // Warsmith
             meta( BENEFIT, "Can construct weapons and armor. Can cast Creation rituals as if you have Ritual Caster." );
             break;

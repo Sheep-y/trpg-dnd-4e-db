@@ -75,7 +75,7 @@ public class PowerConverter extends LeveledConverter {
             meta( KEYWORDS, String.join( ", ", keywords.toArray( new String[ keywords.size() ] ) ) );
          } else {
             // Deathly Glare, Hamadryad Aspects, and Flock Tactics have bullet star in body but not keywords.
-            if ( ! entry.shortid.equals( "power12521" ) && ! entry.shortid.equals( "power15829" ) && ! entry.shortid.equals( "power16541" ) )
+            if ( ! entry.getId().equals( "power12521" ) && ! entry.getId().equals( "power15829" ) && ! entry.getId().equals( "power16541" ) )
                warn( "Power without keywords" );
          }
       }
@@ -93,7 +93,7 @@ public class PowerConverter extends LeveledConverter {
          fix( "wrong meta" );
       }
 
-      switch ( entry.shortid ) {
+      switch ( entry.getId() ) {
          case "power3660": // Indomitable Resolve
             swapFirst( "<br>", "" ); // <br> in flavor text
             fix( "formatting" );

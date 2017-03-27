@@ -320,10 +320,10 @@ public abstract class Convert {
             name = name.replaceAll( "\\W+", " " ).trim().toLowerCase();
             if ( ! map.containsKey( name ) ) {
                List<String> idList = new ArrayList<>( 2 ); // Most entries do not duplicate
-               idList.add( entry.shortid );
+               idList.add( entry.getId() );
                map.put( name, idList );
             } else
-               map.get( name ).add( entry.shortid );
+               map.get( name ).add( entry.getId() );
          }
       }
       return map;
@@ -389,7 +389,7 @@ public abstract class Convert {
             this.entry = entry;
             convertEntry();
             if ( ! corrections.isEmpty() ) {
-               if ( entry.shortid.equals( "weapon147" ) ) // Duplicate of Arrow of Fate
+               if ( entry.getId().equals( "weapon147" ) ) // Duplicate of Arrow of Fate
                   corrections.clear();
                for ( String fix : corrections )
                   corrected( entry, fix );
@@ -398,7 +398,7 @@ public abstract class Convert {
                corrections.clear();
             }
          } catch ( Exception e ) {
-            throw new UnsupportedOperationException( "Error converting " + entry.shortid, e );
+            throw new UnsupportedOperationException( "Error converting " + entry.getId(), e );
          }
          if ( stop.get() ) throw new InterruptedException();
          state.addOne();
@@ -443,7 +443,8 @@ public abstract class Convert {
    protected void convertEntry () {
       if ( entry.getName().contains( "’" ) )
          entry.setName( entry.getName().replace( "’", "'" ) );
-      entry.shortid = entry.getId().replace( ".aspx?id=", "" ).toLowerCase();
+      if ( entry.getId().contains( ".aspx" ) )
+         entry.setId( entry.getId().replace( ".aspx?id=", "" ).toLowerCase() );
       if ( entry.meta == null ) {
          final int length = entry.getFields().length;
          entry.meta = new Object[ length ];
@@ -462,7 +463,7 @@ public abstract class Convert {
     * @param fix Type of fix.
     */
    private static void corrected ( Entry entry, String fix ) {
-      log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.getName(), fix });
+      log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.getId(), entry.getName(), fix });
       synchronized ( fixCount ) {
          if ( fixCount.containsKey( fix ) ) fixCount.get( fix ).incrementAndGet();
          else fixCount.put( fix, new AtomicInteger( 1 ) );

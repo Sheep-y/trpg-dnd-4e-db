@@ -76,7 +76,7 @@ public class FeatConverter extends Converter {
    }
 
    @Override protected void correctEntry () {
-      switch ( entry.shortid ) {
+      switch ( entry.getId() ) {
          case "feat1111": // Bane's Tactics
             swap( "basic melee attack", "melee basic attack" );
             fix( "fix basic attack" );

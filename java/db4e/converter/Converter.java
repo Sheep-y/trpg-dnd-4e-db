@@ -39,10 +39,10 @@ public class Converter extends Convert {
       super.convertEntry();
       // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
       if ( Main.debug.get() ) {
-         if ( shortId.containsKey( entry.shortid ) )
-            log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.getId(), entry.getName(), entry.shortid, shortId.get( entry.shortid ).getName() } );
+         if ( shortId.containsKey( entry.getId() ) )
+            log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.getId(), entry.getName(), entry.getId(), shortId.get( entry.getId() ).getName() } );
          else
-            shortId.put( entry.shortid, entry );
+            shortId.put( entry.getId(), entry );
 
          // Validate content tags
          if ( find( "<img " ) || find( "<a " ) )
@@ -344,7 +344,7 @@ public class Converter extends Convert {
    }
 
    protected final void warn ( String issue ) {
-      log.log( Level.WARNING, issue + ": {0} {1}", new Object[]{ entry.shortid, entry.getName() } );
+      log.log( Level.WARNING, issue + ": {0} {1}", new Object[]{ entry.getId(), entry.getName() } );
    }
 
    protected final boolean find ( CharSequence substr ) {

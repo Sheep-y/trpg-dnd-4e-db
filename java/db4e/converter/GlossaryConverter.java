@@ -16,7 +16,7 @@ public class GlossaryConverter extends FieldSortConverter {
    private final Matcher regxFlavor = Pattern.compile( "<p class=flavor>(?!.*<p class=flavor>)" ).matcher( "" );
 
    @Override protected void correctEntry () {
-      if ( entry.shortid.startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
+      if ( entry.getId().startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
          if ( ! find( "IMPROVISING WITH" ) ) {
             entry.data = regxFlavor.reset( entry.data ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" );
             fix( "missing content" );
@@ -25,7 +25,7 @@ public class GlossaryConverter extends FieldSortConverter {
    }
 
    @Override protected String[] getLookupName ( Entry entry ) {
-      switch ( entry.shortid ) {
+      switch ( entry.getId() ) {
          case "skill27": // Athletics
             return new String[]{ "Athletics", "Escape", "Climb", "Climbing", "Swim", "Swimming", "Jump", "Jumping", "Long Jump", "Long Jump" };
          case "glossary86": // Teleportation
