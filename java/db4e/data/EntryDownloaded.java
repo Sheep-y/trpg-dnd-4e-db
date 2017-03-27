@@ -9,7 +9,7 @@ public class EntryDownloaded extends Entry {
       setName( name );
    }
 
-   public EntryDownloaded ( String id, String name, String[] fields ) {
+   public EntryDownloaded ( String id, String name, Object[] fields ) {
       this( id, name );
       setFields( fields );
    }

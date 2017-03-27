@@ -194,7 +194,7 @@ class DbAbstraction {
                if ( entry.getFields() == null || entry.getContent() == null ) {
                   ISqlJetCursor cursor = tblEntry.lookup( null, entry.getId() );
                   if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.getName() + "' not in database" );
-                  if ( entry.getFields()  == null ) entry.setFields( parseCsvLine( cursor.getString( "fields" ) ) );
+                  if ( entry.getFields()  == null ) entry.setFields( (Object[]) parseCsvLine( cursor.getString( "fields" ) ) );
                   if ( entry.getContent() == null ) entry.setContent( cursor.getString( "data" ) );
                   cursor.close();
                }

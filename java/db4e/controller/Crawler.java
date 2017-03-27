@@ -5,7 +5,6 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import db4e.data.EntryDownloaded;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
@@ -122,8 +121,7 @@ public class Crawler {
             String name = row[1].toString();
             log.log( Level.FINER, "Copying row {0}", name );
             Object[] props = toArray( row[ 2 ] );
-            String[] fields = Arrays.copyOf( props, props.length, String[].class );
-            result.add( new EntryDownloaded( row[0].toString(), name, fields ) );
+            result.add( new EntryDownloaded( row[0].toString(), name, props ) );
          }
       } );
       return result;

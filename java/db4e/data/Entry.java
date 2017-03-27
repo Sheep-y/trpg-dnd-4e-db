@@ -69,7 +69,7 @@ public class Entry {
       return result.toString();
    }
 
-   public void setFields( Object[] fields ) {
+   public void setFields( Object ... fields ) {
       assert( fields instanceof Object[] );
       this.fields = fields;
    }
