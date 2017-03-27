@@ -36,7 +36,7 @@ public class PowerConverter extends LeveledConverter {
 
       // Add skill name to skill power type
       if ( meta( CLASS ).equals( "Skill Power" ) )
-         entry.meta[ CLASS ] += ", " + regxLevel.group( 1 );
+         entry.setField( CLASS, entry.getField( CLASS ) + ", " + regxLevel.group( 1 ) );
       else if ( meta( CLASS ).equals( "Theme Power" ) ) {
          meta( CLASS, regxLevel.group( 1 ) );
          fix( "wrong meta" );
@@ -55,14 +55,14 @@ public class PowerConverter extends LeveledConverter {
       // Set type part of power type column
       switch ( regxLevel.group( 3 ) ) {
          case "Attack":
-            entry.meta[ TYPE ] += " Attack";
+            entry.setField( TYPE, entry.getField( TYPE ) + " Attack" );
             break;
          case "Cantrip":
          case "Utility":
-            entry.meta[ TYPE ] += " Utility";
+            entry.setField( TYPE, entry.getField( TYPE ) +" Utility" );
             break;
          default:
-            entry.meta[ TYPE ] += " Feature";
+            entry.setField( TYPE, entry.getField( TYPE ) +" Feature" );
       }
 
       // Set keyword, a new column
@@ -82,7 +82,7 @@ public class PowerConverter extends LeveledConverter {
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
-      int diff = a.meta[ CLASS ].toString().compareTo( b.meta[ CLASS ].toString() );
+      int diff = a.getSimpleField( CLASS ).compareTo( b.getSimpleField( CLASS ) );
       if ( diff != 0 ) return diff;
       return super.sortEntity( a, b );
    }

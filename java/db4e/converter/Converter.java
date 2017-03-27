@@ -198,7 +198,7 @@ public class Converter extends Convert {
                lastSource = "CC"; // 11 feats and 2 powers does not list any other source book, only class compendium.
             else
                warn( "Entry with unparsed book" );
-         meta( entry.meta.length-1, sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource );
+         meta( entry.getFieldCount()-1, sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource );
 
          if ( regxPublished.find() )
             warn( "Entry with multiple publish" );
@@ -332,15 +332,15 @@ public class Converter extends Convert {
    }
 
    protected final String meta ( int index ) {
-      return entry.meta[ index ].toString();
+      return entry.getSimpleField( index );
    }
 
    protected final void meta ( int index, Object setTo ) {
-      entry.meta[ index ] = setTo;
+      entry.setField( index, setTo );
    }
 
    protected final void meta ( Object... setTo ) {
-      entry.meta = setTo;
+      entry.setFields( setTo );
    }
 
    protected final void warn ( String issue ) {

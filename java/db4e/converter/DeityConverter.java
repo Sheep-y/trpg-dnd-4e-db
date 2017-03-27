@@ -26,7 +26,7 @@ public class DeityConverter extends Converter {
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
-      int diff = a.meta[ 2 ].toString().compareTo( b.meta[ 2 ].toString() );
+      int diff = a.getSimpleField( 2 ).compareTo( b.getSimpleField( 2 ) );
       if ( diff != 0 ) return -diff;
       return super.sortEntity( a, b );
    }

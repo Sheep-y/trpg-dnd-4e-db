@@ -13,14 +13,13 @@ public class Entry {
 
    // Transformed data for export
    public String fulltext;   // Full text index text - without name and flavour
-   public Object[] meta;    // Transform field data
    public String data;     // Processed data text
 
    public Entry() {}
 
-   public EntryDownloaded downloaded() { throw new UnsupportedOperationException(); }
+   public EntryDownloaded downloaded () { throw new UnsupportedOperationException(); }
 
-   public String getId() {
+   public String getId () {
       return id;
    }
 
@@ -28,7 +27,7 @@ public class Entry {
       this.id = id;
    }
 
-   public String getName() {
+   public String getName () {
       return name;
    }
 
@@ -36,61 +35,58 @@ public class Entry {
       this.name = name;
    }
 
-   public int getFieldCount() {
+   public int getFieldCount () {
       return fields.length;
    }
 
-   public Object[] getFields() {
+   public Object[] getFields () {
       return fields;
    }
 
-   public String[] getSimpleFields() {
-      return Arrays.copyOf( fields, fields.length, String[].class );
-      /*
+   public String[] getSimpleFields () {
+      int len = fields.length;
       try {
-         return Arrays.copyOf( fields, fields.length, String[].class );
+         return Arrays.copyOf( fields, len, String[].class );
       } catch ( ArrayStoreException ex ) {
-         String[] result = new String[ fields.length ];
-         for ( int i = 0, len = fields.length ; i < len ; i++ )
-            result[ i ] = getField( i );
+         String[] result = new String[ len ];
+         for ( int i = 0 ; i < len ; i++ )
+            result[ i ] = getSimpleField( i );
          return result;
       }
-*/
    }
 
-   public Object getField( int i ) {
-      return fields [ i ];
+   public Object getField ( int i ) {
+      return fields[ i ];
    }
 
-   public String getSimpleField( int i ) {
+   public String getSimpleField ( int i ) {
       Object result = fields[ i ];
       if ( result instanceof Object[] )
          result = ( (Object[]) result )[0];
       return result.toString();
    }
 
-   public void setFields( Object ... fields ) {
-      assert( fields instanceof Object[] );
+   public void setFields ( Object ... fields ) {
       this.fields = fields;
    }
 
-   public void setField( int i, Object field ) {
+   public void setField ( int i, Object field ) {
       this.fields[ i ] = field;
    }
 
-   public String getContent() {
+   public String getContent () {
       return content;
    }
 
-   public void setContent( String content ) {
+   public void setContent ( String content ) {
       this.content = content;
    }
 
-   public String getUrl() {
+   public String getUrl () {
       return getId();
    }
 
-   public <T extends Entry> T cloneTo( T copy ) {
+   public <T extends Entry> T cloneTo ( T copy ) {
       copy.setId( getId() );
       copy.setName( getName() );
       copy.setFields( Arrays.copyOf( getFields(), getFieldCount() ) );
@@ -98,7 +94,7 @@ public class Entry {
       return copy;
    }
 
-   @Override public String toString() {
+   @Override public String toString () {
       return id + " " + name;
    }
 }

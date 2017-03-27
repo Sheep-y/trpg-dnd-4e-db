@@ -253,7 +253,7 @@ public abstract class Convert {
                   case "item.aspx?id=110": // Figurine of Tantron
                   case "item.aspx?id=130": // Adamantine Horse of Xarn
                      markArtifact( entry, "Wondrous" );
-                     entry.meta[1] = "Mount";
+                     entry.setField( 1, "Mount" );
                      break;
                   case "item.aspx?id=134": // Rash and Reckless
                      markArtifact( entry, "Feet" ); break;
@@ -279,7 +279,7 @@ public abstract class Convert {
                   case "item.aspx?id=120": // Unconquered Standard of Arkhosia
                   case "item.aspx?id=136": // Standard of Eternal Battle
                      markArtifact( entry, "Wondrous" );
-                     entry.meta[ 1 ] = "Standard";
+                     entry.setField( 1, "Standard" );
                      break;
                   case "item.aspx?id=101": // Codex of Infinite Planes
                   case "item.aspx?id=109": // The Immortal Game
@@ -298,12 +298,12 @@ public abstract class Convert {
       if ( i != null ) i.remove();
       target.entries.add( entry );
       Object[] fields = entry.getFields();
-      entry.meta = new Object[]{ type, fields[1], fields[2], "Artifact", fields[4] };
+      entry.setFields( type, fields[1], fields[2], "Artifact", fields[4] );
    }
 
    private static void markArtifact ( Entry entry, String category ) {
       Object[] fields = entry.getFields();
-      entry.meta = new Object[]{ category, "", fields[1], fields[2], "Artifact", fields[4] };
+      entry.setFields( category, "", fields[1], fields[2], "Artifact", fields[4] );
    }
 
    public static void afterConvert () {
@@ -448,11 +448,6 @@ public abstract class Convert {
          entry.setName( entry.getName().replace( "’", "'" ) );
       if ( entry.getId().contains( ".aspx" ) )
          entry.setId( entry.getId().replace( ".aspx?id=", "" ).toLowerCase() );
-      if ( entry.meta == null ) {
-         final int length = entry.getFields().length;
-         entry.meta = new Object[ length ];
-         System.arraycopy( entry.getFields(), 0, entry.meta, 0, length );
-      }
       entry.data = normaliseData( entry.getContent() );
       correctEntry();
       parseSourceBook();

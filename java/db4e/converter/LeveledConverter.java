@@ -27,7 +27,7 @@ class LeveledConverter extends Converter {
       if ( LEVEL < 0 ) return;
       synchronized ( levelMap ) { // Make sure that sortEntity has all the numbers in this category
          for ( Entry entry : category.entries ) {
-            Object levelText = entry.meta[ LEVEL ];
+            Object levelText = entry.getField( LEVEL );
             if ( levelText.getClass().isArray() )
                levelText = ( (Object[]) levelText )[1];
             String level = levelText.toString();
@@ -86,8 +86,8 @@ class LeveledConverter extends Converter {
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
       if ( LEVEL >= 0 ) {
-         Object aLv = a.meta[ LEVEL ];
-         Object bLv = b.meta[ LEVEL ];
+         Object aLv = a.getField( LEVEL );
+         Object bLv = b.getField( LEVEL );
          if ( aLv.getClass().isArray() ) aLv = ( ( Object[] ) aLv )[1];
          if ( bLv.getClass().isArray() ) bLv = ( ( Object[] ) bLv )[1];
          float level = levelMap.get( aLv ) - levelMap.get( bLv );
@@ -125,7 +125,7 @@ class LeveledConverter extends Converter {
          }
 
          // Convert from item to poison
-         if ( entry.meta.length == 5 ) {
+         if ( entry.getFieldCount() == 5 ) {
             meta( meta( 1 ), "", meta( 4 ) );
             entry.setId( entry.getId().replace( "item", "poison0" ) );
             swap( "<h1 class=mihead>", "<h1 class=poison>" );

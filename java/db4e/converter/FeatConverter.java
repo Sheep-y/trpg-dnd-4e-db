@@ -66,10 +66,10 @@ public class FeatConverter extends Converter {
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
       int aTier = 0, bTier = 0;
-      if ( a.meta[TIER].equals( "Paragon" ) ) aTier = 1;
-      else if ( a.meta[TIER].equals( "Epic" ) ) aTier = 2;
-      if ( b.meta[TIER].equals( "Paragon" ) ) bTier = 1;
-      else if ( b.meta[TIER].equals( "Epic" ) ) bTier = 2;
+      if ( a.getSimpleField( TIER ).equals( "Paragon" ) ) aTier = 1;
+      else if ( a.getSimpleField( TIER ).equals( "Epic" ) ) aTier = 2;
+      if ( b.getSimpleField( TIER ).equals( "Paragon" ) ) bTier = 1;
+      else if ( b.getSimpleField( TIER ).equals( "Epic" ) ) bTier = 2;
 
       if ( aTier != bTier ) return aTier - bTier;
       return super.sortEntity( a, b );

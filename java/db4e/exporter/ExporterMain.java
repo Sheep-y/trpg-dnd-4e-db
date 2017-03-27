@@ -109,7 +109,7 @@ public class ExporterMain extends Exporter {
       for ( Entry entry : category.sorted ) {
          str( buffer.append( '[' ), entry.getId() ).append( ',' );
          str( buffer, entry.getName() ).append( ',' );
-         for ( Object field : entry.meta ) {
+         for ( Object field : entry.getFields() ) {
             if ( field.getClass().isArray() ) {
                Object[] ary = (Object[]) field;
                buffer.append( "[\"" ).append( ary[0] ).append( "\"," );

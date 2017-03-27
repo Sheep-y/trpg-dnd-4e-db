@@ -10,7 +10,7 @@ public class TrapConverter extends LeveledConverter {
    }
 
    @Override protected void correctEntry () {
-      if ( entry.meta.length == 4 ) { // Trap
+      if ( entry.getFieldCount() == 4 ) { // Trap
          if ( entry.getId().equals( "trap1019" ) ) { // Rubble Topple
             swap( "Singe-Use", "Single-Use" );
             meta( 0, "Single-Use Terrain" );
@@ -39,7 +39,7 @@ public class TrapConverter extends LeveledConverter {
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
-      int diff = a.meta[ 0 ].toString().compareTo( b.meta[ 0 ].toString() );
+      int diff = a.getSimpleField( 0 ).compareTo( b.getSimpleField( 0 ) );
       if ( diff != 0 ) return diff;
       return super.sortEntity( a, b );
    }

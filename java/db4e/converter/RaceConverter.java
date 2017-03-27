@@ -91,7 +91,7 @@ public class RaceConverter extends Converter {
          fix( "missing meta" );
       }
       // Size column
-      if ( entry.getField( 1 ).toString().isEmpty() ) {
+      if ( entry.getSimpleField( SIZE ).isEmpty() ) {
          meta( SIZE, "Medium" );
          fix( "missing meta" );
       }

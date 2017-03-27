@@ -35,7 +35,7 @@ public class ItemConverter extends LeveledConverter {
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
       if ( isGeneric ) {
-         int diff = a.meta[ CATEGORY ].toString().compareTo( b.meta[ CATEGORY ].toString() );
+         int diff = a.getSimpleField( CATEGORY ).compareTo( b.getSimpleField( CATEGORY ) );
          if ( diff != 0 ) return diff;
       }
       return super.sortEntity( a, b );
@@ -49,10 +49,10 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d+)(?:<td class=mic2>(?:\\+\\d)?)?<td class=mic3>([\\d,]+) gp" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      if ( isGeneric ) {
+      if ( isGeneric && ! entry.getSimpleField( RARITY ).equals( "Artifact" ) ) {
+         // Artifact fields are already set by Convert.moveArtifact and makeArtifact
          Object[] fields = entry.getFields();
-         if ( entry.meta == null ) // Fix level field position before sorting
-            meta( fields[0], "", fields[1], fields[2], fields[3], fields[4] );
+         meta( fields[0], "", fields[1], fields[2], fields[3], fields[4] );
       }
       super.convertEntry();
       if ( ! isGeneric )
@@ -338,7 +338,7 @@ public class ItemConverter extends LeveledConverter {
          multi_cost.add( regxPriceTable.group( 2 ).replaceAll( "\\D", "" ) );
          multi_level.add( regxPriceTable.group( 1 ) );
       } while ( regxPriceTable.find() );
-      entry.meta[ COST ] = multi_cost.toArray();
+      entry.setField( COST, multi_cost.toArray() );
       meta( LEVEL, multi_level.toArray() );
    }
 

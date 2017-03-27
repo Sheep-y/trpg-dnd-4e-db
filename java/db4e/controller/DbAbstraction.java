@@ -5,6 +5,7 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import db4e.data.EntryDownloaded;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -194,7 +195,8 @@ class DbAbstraction {
                if ( entry.getFields() == null || entry.getContent() == null ) {
                   ISqlJetCursor cursor = tblEntry.lookup( null, entry.getId() );
                   if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.getName() + "' not in database" );
-                  if ( entry.getFields()  == null ) entry.setFields( (Object[]) parseCsvLine( cursor.getString( "fields" ) ) );
+                  String[] fields = parseCsvLine( cursor.getString( "fields" ) );
+                  if ( entry.getFields()  == null ) entry.setFields( Arrays.copyOf( fields, fields.length, Object[].class ) );
                   if ( entry.getContent() == null ) entry.setContent( cursor.getString( "data" ) );
                   cursor.close();
                }

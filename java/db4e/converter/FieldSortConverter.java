@@ -16,7 +16,7 @@ public class FieldSortConverter extends Converter {
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
-      int diff = a.meta[ SORT_FIELD ].toString().compareTo( b.meta[ SORT_FIELD ].toString() );
+      int diff = a.getSimpleField( SORT_FIELD ).compareTo( b.getSimpleField( SORT_FIELD ) );
       if ( diff != 0 ) return diff;
       return super.sortEntity( a, b );
    }
