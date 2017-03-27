@@ -214,7 +214,7 @@ class DbAbstraction {
          ISqlJetTable tblEntry = db.getTable( "entry" );
          int i = 0;
          for ( Entry entry : entries ) {
-            log.log( Level.FINER, "Saving {0} - {1}", new Object[]{ entry.getId(), entry.getName() } );
+            log.log( Level.FINER, "Saving {0}", entry );
             ISqlJetCursor lookup = tblEntry.lookup( null, entry.getId() );
             // Table fields: id, name, category, fields, hasData, data
             String fields = buildCsvLine( entry.getFields() ).toString();

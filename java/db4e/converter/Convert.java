@@ -463,7 +463,7 @@ public abstract class Convert {
     * @param fix Type of fix.
     */
    private static void corrected ( Entry entry, String fix ) {
-      log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.getId(), entry.getName(), fix });
+      log.log( Level.FINE, "Corrected {0} ({1})", new Object[]{ entry, fix });
       synchronized ( fixCount ) {
          if ( fixCount.containsKey( fix ) ) fixCount.get( fix ).incrementAndGet();
          else fixCount.put( fix, new AtomicInteger( 1 ) );

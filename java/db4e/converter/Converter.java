@@ -344,7 +344,7 @@ public class Converter extends Convert {
    }
 
    protected final void warn ( String issue ) {
-      log.log( Level.WARNING, issue + ": {0} {1}", new Object[]{ entry.getId(), entry.getName() } );
+      log.log( Level.WARNING, issue + ": {0}", entry );
    }
 
    protected final boolean find ( CharSequence substr ) {
