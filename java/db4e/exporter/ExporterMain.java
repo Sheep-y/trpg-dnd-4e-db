@@ -154,7 +154,7 @@ public class ExporterMain extends Exporter {
          if ( data[ grp ] == null )
             data[ grp ] = new StringBuilder( 4096 ).append( "{" );
          str( data[ grp ], entry.getId() ).append( ':' );
-         str( data[ grp ], entry.data ).append( ',' );
+         str( data[ grp ], entry.getContent() ).append( ',' );
          ++exported;
 
          if ( stop.get() ) throw new InterruptedException();

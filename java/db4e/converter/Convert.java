@@ -101,15 +101,9 @@ public abstract class Convert {
                         // Nine background from Dra376 are hooks only, not actual character resources.
                         if ( entry.getField( 3 ).toString().endsWith( "376" ) ) {
                            switch ( entry.getId() ) {
-                              case "background.aspx?id=283" :
-                              case "background.aspx?id=284" :
-                              case "background.aspx?id=285" :
-                              case "background.aspx?id=286" :
-                              case "background.aspx?id=287" :
-                              case "background.aspx?id=288" :
-                              case "background.aspx?id=289" :
-                              case "background.aspx?id=290" :
-                              case "background.aspx?id=291" :
+                              case "background.aspx?id=283" : case "background.aspx?id=284" : case "background.aspx?id=285" :
+                              case "background.aspx?id=286" : case "background.aspx?id=287" : case "background.aspx?id=288" :
+                              case "background.aspx?id=289" : case "background.aspx?id=290" : case "background.aspx?id=291" :
                                  i.remove();
                                  corrected( entry, "blacklist" );
                            }
@@ -448,10 +442,10 @@ public abstract class Convert {
          entry.setName( entry.getName().replace( "’", "'" ) );
       if ( entry.getId().contains( ".aspx" ) )
          entry.setId( entry.getId().replace( ".aspx?id=", "" ).toLowerCase() );
-      entry.data = normaliseData( entry.getContent() );
+      entry.setContent( normaliseData( entry.getContent() ) );
       correctEntry();
       parseSourceBook();
-      entry.fulltext = textData( entry.data );
+      entry.fulltext = textData( entry.getContent() );
       // Converter will do some checking if debug is on.
    }
 

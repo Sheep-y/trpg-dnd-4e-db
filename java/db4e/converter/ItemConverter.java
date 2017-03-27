@@ -106,14 +106,14 @@ public class ItemConverter extends LeveledConverter {
          meta( TYPE, regxType.group( 1 ).trim() );
          // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
          if ( meta( TYPE ).split( ", " ).length >= 5 ) {
-            entry.data = regxType.replaceFirst( "<b>$1</b>: Any" );
+            entry.setContent( regxType.replaceFirst( "<b>$1</b>: Any" ) );
             meta( TYPE, "Any" );
             fix( "consistency" );
          }
-         int minEnhancement = entry.data.indexOf( "<b>Minimum Enhancement Value</b>: " );
+         int minEnhancement = entry.getContent().indexOf( "<b>Minimum Enhancement Value</b>: " );
          if ( minEnhancement > 0 ) {
             minEnhancement += "<b>Minimum Enhancement Value</b>: ".length();
-            meta( LEVEL, "Min " + entry.data.substring( minEnhancement, minEnhancement + 2 ) );
+            meta( LEVEL, "Min " + entry.getContent().substring( minEnhancement, minEnhancement + 2 ) );
          }
 
       } else
@@ -170,7 +170,7 @@ public class ItemConverter extends LeveledConverter {
       if ( meta( TYPE ).equals( "Ammunition" ) ) return;
       // Mundane weapons with groups
       if ( find( "<b>Group</b>: " ) ) {
-         String region = entry.data.substring( entry.data.indexOf( "<b>Group</b>: " ) );
+         String region = entry.getContent().substring( entry.getContent().indexOf( "<b>Group</b>: " ) );
          List<String> grp = Utils.matchAll( regxWeaponGroup, region, 1 );
          if ( grp.isEmpty() )
             warn( "Weapon group not found" );
@@ -344,12 +344,12 @@ public class ItemConverter extends LeveledConverter {
 
    @Override protected void correctEntry () {
       if ( ! find( regxPublished ) ) {
-         entry.data += "<p class=publishedIn>Published in " + meta( SOURCE )  + ".</p>";
+         entry.setContent( entry.getContent() + "<p class=publishedIn>Published in " + meta( SOURCE )  + ".</p>" );
          fix( "missing published" );
       }
 
       if ( find( ", which is reproduced below." ) ) {
-         entry.data = regxWhichIsReproduced.reset( entry.data ).replaceFirst( "" );
+         entry.setContent( regxWhichIsReproduced.reset( entry.getContent() ).replaceFirst( "" ) );
          fix( "consistency" );
       }
 
@@ -550,7 +550,7 @@ public class ItemConverter extends LeveledConverter {
             // Add "At-Will" to the ~150 items missing a power frequency.
             // I checked each one and the exceptions are above.
             if ( find( regxPowerFrequency ) ) {
-               entry.data = regxPowerFrequency.replaceAll( "✦ At-Will (" );
+               entry.setContent( regxPowerFrequency.replaceAll( "✦ At-Will (" ) );
                fix( "missing power frequency" );
             }
       }

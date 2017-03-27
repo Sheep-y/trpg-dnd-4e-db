@@ -25,7 +25,7 @@ public class ClassConverter extends Converter {
       super.convertEntry();
       meta( ABILITY, shortenAbility( meta( ABILITY ) ) );
 
-      regxClassFeatures.reset( entry.data );
+      regxClassFeatures.reset( entry.getContent() );
       synchronized ( featureMap ) {
          Set<String> features = featureMap.get( entry.getId() );
          if ( features == null ) featureMap.put( entry.getId(), features = new HashSet<>() );

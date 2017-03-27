@@ -49,10 +49,10 @@ public class Converter extends Convert {
             warn( "Unremoved image or link" );
 
          // Check that we have content
-         if ( Main.debug.get() && entry.data.isEmpty() )
+         if ( Main.debug.get() && entry.getContent().isEmpty() )
             warn( "Empty data" );
 
-         regxCheckOpenClose.reset( entry.data );
+         regxCheckOpenClose.reset( entry.getContent() );
          while ( regxCheckOpenClose.find() ) {
             String tag = regxCheckOpenClose.group( 2 );
             boolean isOpen = regxCheckOpenClose.group( 1 ).isEmpty();
@@ -74,7 +74,7 @@ public class Converter extends Convert {
             warn( "Unremoved html tag in fulltext" );
          if ( regxCheckDate.reset( entry.fulltext ).find() )
             warn( "Unremoved errata date in fulltext" );
-         if ( ! entry.fulltext.endsWith( "." ) ) // Item144 & Item152 fails this check
+         if ( ! entry.fulltext.endsWith( "." ) )
             warn( "Not ending in full stop" );
       }
    }
@@ -324,11 +324,11 @@ public class Converter extends Convert {
    }
 
    protected final void swap ( CharSequence from, CharSequence to ) {
-      entry.data = entry.data.replace( from, to );
+      entry.setContent( entry.getContent().replace( from, to ) );
    }
 
    protected final void swapFirst ( String from, String to ) {
-      entry.data = entry.data.replaceFirst( from, to );
+      entry.setContent( entry.getContent().replaceFirst( from, to ) );
    }
 
    protected final String meta ( int index ) {
@@ -348,11 +348,11 @@ public class Converter extends Convert {
    }
 
    protected final boolean find ( CharSequence substr ) {
-      return entry.data.contains( substr );
+      return entry.getContent().contains( substr );
    }
 
    protected final boolean find ( Matcher regx ) {
-      return regx.reset( entry.data ).find();
+      return regx.reset( entry.getContent() ).find();
    }
 
    protected final String shortenAbility ( Object txt ) {

@@ -43,11 +43,11 @@ public class PowerConverter extends LeveledConverter {
       }
 
       // Set frequency part of power type, a new column
-      if ( entry.data.startsWith( "<h1 class=dailypower>" ) )
+      if ( entry.getContent().startsWith( "<h1 class=dailypower>" ) )
          meta( TYPE, "Daily" );
-      else if ( entry.data.startsWith( "<h1 class=encounterpower>" ) )
+      else if ( entry.getContent().startsWith( "<h1 class=encounterpower>" ) )
          meta( TYPE, "Encounter" );
-      else if ( entry.data.startsWith( "<h1 class=atwillpower>" ) )
+      else if ( entry.getContent().startsWith( "<h1 class=atwillpower>" ) )
          meta( TYPE, "At-Will" );
       else
          warn( "Power with unknown frequency" );

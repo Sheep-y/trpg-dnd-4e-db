@@ -13,7 +13,6 @@ public class Entry {
 
    // Transformed data for export
    public String fulltext;   // Full text index text - without name and flavour
-   public String data;     // Processed data text
 
    public Entry() {}
 

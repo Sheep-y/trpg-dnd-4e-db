@@ -18,7 +18,7 @@ public class GlossaryConverter extends FieldSortConverter {
    @Override protected void correctEntry () {
       if ( entry.getId().startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
          if ( ! find( "IMPROVISING WITH" ) ) {
-            entry.data = regxFlavor.reset( entry.data ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" );
+            entry.setContent( regxFlavor.reset( entry.getContent() ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" ) );
             fix( "missing content" );
          }
       }
