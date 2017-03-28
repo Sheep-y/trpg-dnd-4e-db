@@ -36,7 +36,7 @@ public class PowerConverter extends LeveledConverter {
 
       // Add skill name to skill power type
       if ( meta( CLASS ).equals( "Skill Power" ) )
-         entry.setField( CLASS, entry.getField( CLASS ) + ", " + regxLevel.group( 1 ) );
+         entry.setField( CLASS, meta( CLASS ) + ", " + regxLevel.group( 1 ) );
       else if ( meta( CLASS ).equals( "Theme Power" ) ) {
          meta( CLASS, regxLevel.group( 1 ) );
          fix( "wrong meta" );
@@ -55,14 +55,14 @@ public class PowerConverter extends LeveledConverter {
       // Set type part of power type column
       switch ( regxLevel.group( 3 ) ) {
          case "Attack":
-            entry.setField( TYPE, entry.getField( TYPE ) + " Attack" );
+            meta( TYPE, meta( TYPE ) + " Attack" );
             break;
          case "Cantrip":
          case "Utility":
-            entry.setField( TYPE, entry.getField( TYPE ) +" Utility" );
+            meta( TYPE, meta( TYPE ) +" Utility" );
             break;
          default:
-            entry.setField( TYPE, entry.getField( TYPE ) +" Feature" );
+            meta( TYPE, meta( TYPE ) +" Feature" );
       }
 
       // Set keyword, a new column

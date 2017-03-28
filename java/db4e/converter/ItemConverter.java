@@ -49,7 +49,7 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d+)(?:<td class=mic2>(?:\\+\\d)?)?<td class=mic3>([\\d,]+) gp" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      if ( isGeneric && ! entry.getSimpleField( RARITY ).equals( "Artifact" ) ) {
+      if ( isGeneric && ! meta( RARITY ).equals( "Artifact" ) ) {
          // Artifact fields are already set by Convert.moveArtifact and makeArtifact
          Object[] fields = entry.getFields();
          meta( fields[0], "", fields[1], fields[2], fields[3], fields[4] );

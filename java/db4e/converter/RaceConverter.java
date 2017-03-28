@@ -22,7 +22,7 @@ public class RaceConverter extends Converter {
    private final Matcher regxAbility  = Pattern.compile( "<b>Ability scores</b>: ([^<]+)" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( null, null, entry.getField( 1 ), entry.getField( 2 ) );
+      meta( null, null, meta( 1 ), meta( 2 ) );
       super.convertEntry();
       // Origin column
       switch ( entry.getId() ) {
@@ -91,7 +91,7 @@ public class RaceConverter extends Converter {
          fix( "missing meta" );
       }
       // Size column
-      if ( entry.getSimpleField( SIZE ).isEmpty() ) {
+      if ( meta( SIZE ).isEmpty() ) {
          meta( SIZE, "Medium" );
          fix( "missing meta" );
       }

@@ -34,7 +34,7 @@ public class TrapConverter extends LeveledConverter {
          }
       } else {
          // Terrain; change meta to fit into Trap
-         meta( "Terrain", entry.getField( 0 ), "", entry.getField( 1 ) );
+         meta( "Terrain", meta( 0 ), "", meta( 1 ) );
       }
    }
 

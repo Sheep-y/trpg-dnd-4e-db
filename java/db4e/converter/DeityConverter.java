@@ -19,7 +19,7 @@ public class DeityConverter extends Converter {
    private final Matcher regxDomain  = Pattern.compile( "<b>Domain: </b>([^<]+)" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( "", entry.getField( 0 ), entry.getField( 1 ) );
+      meta( "", meta( 0 ), meta( 1 ) );
       super.convertEntry();
       if ( find( regxDomain ) )
          meta( 0, regxDomain.group( 1 ) );
