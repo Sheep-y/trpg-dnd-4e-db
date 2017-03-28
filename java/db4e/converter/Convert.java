@@ -111,6 +111,9 @@ public abstract class Convert {
                }
             }
          }
+
+         // Export big categories first to better balance CPU threads and to die early on out of memory
+         exportCategories.sort( ( a, b ) -> b.getExportCount() - a.getExportCount() );
       }
    }
 
