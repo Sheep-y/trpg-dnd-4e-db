@@ -44,7 +44,7 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxPowerFrequency = Pattern.compile( "✦\\s*\\(" ).matcher( "" );
    private final Matcher regxWhichIsReproduced = Pattern.compile( " \\([^)]+\\), which is reproduced below(?=.)" ).matcher( "" );
    private final Matcher regxTier = Pattern.compile( "\\b(?:Heroic|Paragon|Epic)\\b" ).matcher( "" );
-   private final Matcher regxType = Pattern.compile( "<b>(?:Type|Armor|Arms Slot|Category)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
+   private final Matcher regxType = Pattern.compile( "<b>(Type|Armor|Arms Slot|Category)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
    private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]+)</b>" ).matcher( "" );
    private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d+)(?:<td class=mic2>(?:\\+\\d)?)?<td class=mic3>([\\d,]+) gp" ).matcher( "" );
 
@@ -84,7 +84,7 @@ public class ItemConverter extends LeveledConverter {
                break;
             case "Equipment" :
                if ( find( regxType ) ) {
-                  meta( TYPE, regxType.group( 1 ) );
+                  meta( TYPE, regxType.group( 2 ) );
                   if ( meta( TYPE ).equals( "Building" ) ) {
                      meta( CATEGORY, "Lair" );
                      fix( "recategorise" );
@@ -103,11 +103,15 @@ public class ItemConverter extends LeveledConverter {
 
    private void setArmorType ( Entry entry ) {
       if ( find( regxType ) ) {
-         meta( TYPE, regxType.group( 1 ).trim() );
+         meta( TYPE, regxType.group( 2 ).trim() );
          // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
          if ( meta( TYPE ).split( ", " ).length >= 5 ) {
             entry.setContent( regxType.replaceFirst( "<b>$1</b>: Any" ) );
             meta( TYPE, "Any" );
+            fix( "consistency" );
+
+         } else if ( meta( TYPE ).endsWith( "Shields" ) ) {
+            meta( TYPE, meta( TYPE ).replace( "Shields", "Shield" ) );
             fix( "consistency" );
          }
          int minEnhancement = entry.getContent().indexOf( "<b>Minimum Enhancement Value</b>: " );
