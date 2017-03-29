@@ -63,8 +63,7 @@ public class BackgroundConverter extends Converter {
          if ( regxAssociate.find() ) // Language
             associate += ", " + regxAssociate.group( 1 ); // Tested on background450
          meta( BENEFIT, "Associated: " + associate );
-      } else if ( ! meta( BENEFIT ).isEmpty() )
-         meta( BENEFIT, "Associated: " + meta( BENEFIT ).replace( "you can", "" ) );
+      }
 
       switch ( entry.getId() ) {
          case "background30": // Scorned Noble
@@ -75,6 +74,30 @@ public class BackgroundConverter extends Converter {
             break;
          case "background77": // Imbuer
             meta( BENEFIT, "Can construct implements and wondrous items. Can cast Creation rituals as if you have Ritual Caster." );
+            break;
+         case "background163": // Accursed Lineage
+            metaAdd( BENEFIT, ". +2 Diplomacy and Intimidate against undead." );
+            break;
+         case "background164": // Adventurer's Scion
+            metaAdd( BENEFIT, ". Can reroll any monster knowledge checks." );
+            break;
+         case "background165": // Curious Archeologist
+            metaAdd( BENEFIT, ". first successful Thievery check to disable trap in a skill challenge grants an extra success." );
+            break;
+         case "background166": // Lost Kin
+            metaAdd( BENEFIT, ". +3 bonus to Natural checks made to recall geography." );
+            break;
+         case "background167": // Necromancer's Chattel
+            metaAdd( BENEFIT, ". +2 to save against fear effects." );
+            break;
+         case "background168": // Restless Dead
+            metaAdd( BENEFIT, ". +1 to damage rolls against undead." );
+            break;
+         case "background169": // Touched by Darkness
+            metaAdd( BENEFIT, ". +1 to saves against necrotic effects." );
+            break;
+         case "background232": // Child of Two Worlds
+            meta( BENEFIT, "Associated: choose from either region of your origin. ");
             break;
          case "background276": // Windrise Ports
             meta( BENEFIT, "Add one skill to your class skill list, and gain one additional language." );

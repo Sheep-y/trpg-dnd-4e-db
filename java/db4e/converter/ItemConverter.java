@@ -572,7 +572,7 @@ public class ItemConverter extends LeveledConverter {
             String name = entry.getName();
             if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 ); // Basic implements
             return new String[]{ regxNote.reset( name ).replaceAll( "" ).trim() };
-         case "" :
+         case "Item" :
             switch ( entry.getId() ) {
                case "item171": // Belt Pouch (empty)
                   return new String[]{ "Belt Pouch", "Pouch" };

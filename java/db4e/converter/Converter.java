@@ -343,6 +343,10 @@ public class Converter extends Convert {
       entry.setField( index, setTo );
    }
 
+   protected final void metaAdd ( int index, Object append ) {
+      entry.setField( index, entry.getSimpleField( index ) + append );
+   }
+
    protected final void meta ( Object... setTo ) {
       entry.setFields( setTo );
    }
