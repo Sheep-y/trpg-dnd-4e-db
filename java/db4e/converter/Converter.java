@@ -4,6 +4,7 @@ import db4e.Main;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -366,5 +367,16 @@ public class Converter extends Convert {
          .replace( "Intelligence", "Int" )
          .replace( "Wisdom", "Wis" )
          .replace( "Charisma", "Cha" );
+   }
+
+   protected void testMeta ( Entry entry, int field, String simpleText ) {
+      if ( ! simpleText.equals( entry.getSimpleField( field ) ) )
+         log.log( Level.WARNING, "Failed conversion of {0}: field {1} mismatch, expected {2}", new Object[]{ entry, field, simpleText });
+   }
+
+   protected void testLookup ( String name, String entry ) {
+      List<String> lookup = category.index.get( name.toLowerCase() );
+      if ( lookup == null || ! lookup.contains( entry ) )
+         log.log( Level.WARNING, "Failed lookup index of {0}: expected {1}", new Object[]{ entry, name });
    }
 }

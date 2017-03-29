@@ -180,7 +180,7 @@ public class ExporterMain extends Exporter {
 
    private void writeIndex ( String target, List<Category> categories ) throws IOException, InterruptedException {
       Map<String, List<String>> index = new HashMap<>();
-      for ( Category category : categories ) synchronized ( index ) {
+      for ( Category category : categories ) synchronized ( category ) {
          if ( index.isEmpty() )
             index.putAll( category.index );
          else
@@ -199,7 +199,6 @@ public class ExporterMain extends Exporter {
          if ( diff != 0 ) return diff;
          return a.compareTo( b );
       });
-
 
       StringBuilder index_buffer = new StringBuilder( 810_000 );
       index_buffer.append( '{' );

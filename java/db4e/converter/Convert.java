@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import sheepy.util.Utils;
 
 /**
  * Convert category and entry data for export.
@@ -405,17 +406,22 @@ public abstract class Convert {
          if ( stop.get() ) throw new InterruptedException();
          state.addOne();
       }
-      if ( category.sorted == null ) {
-         beforeSort();
-         category.sorted = entries.toArray( new Entry[ entries.size() ] );
-         Arrays.sort( category.sorted, this::sortEntity );
-      }
-      if ( category.index == null ) {
-         category.index = mapIndex();
-         if ( Main.debug.get() )
-            category.index.keySet().stream().filter( key -> key.length() <= 2 && ! key.equals( "hp" ) && ! key.equals( "og" ) ) // monster1132 = Og, Orog Hero
-               .forEach( key -> category.index.get( key ).forEach( id ->
-                  log.log( Level.WARNING, "Short index \"{2}\": {0} {1}", new Object[]{ id, "", key } ) ) );
+
+      beforeSort();
+      category.sorted = entries.toArray( new Entry[ entries.size() ] );
+      Arrays.sort( category.sorted, this::sortEntity );
+      if ( stop.get() ) throw new InterruptedException();
+      category.index = mapIndex();
+
+      if ( Main.debug.get() ) try {
+         // Check short index
+         category.index.keySet().stream().filter( key -> key.length() <= 2 && ! key.equals( "hp" ) && ! key.equals( "og" ) ) // monster1132 = Og, Orog Hero
+            .forEach( key -> category.index.get( key ).forEach( id ->
+               log.log( Level.WARNING, "Short index \"{2}\": {0} {1}", new Object[]{ id, "", key } ) ) );
+         // Test entry conversion
+         testConversion();
+      } catch ( Exception ex ) {
+         log.log( Level.WARNING, "Error when testing conversion of {0}: {1}", new Object[]{ category.id, Utils.stacktrace( ex ) });
       }
    }
 
@@ -454,6 +460,13 @@ public abstract class Convert {
    }
 
    /**
+    * A chance to double check result of converts, fixes, sorts, etc.
+    * Log a warning if any exception is thrown here, would not stop the export process.
+    */
+   protected void testConversion() {
+   }
+
+   /**
     * Log correction and keep track of correction count.
     * @param entry Fixed entry.
     * @param fix Type of fix.
@@ -488,6 +501,7 @@ public abstract class Convert {
 
    /**
     * Convert HTML data into full text data for full text search.
+    * To conserve memory, this is called by exporter on demand, instead of mass convert before export.
     *
     * @param data Data to strip
     * @return Text data

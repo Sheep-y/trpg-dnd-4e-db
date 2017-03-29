@@ -1,7 +1,9 @@
 package db4e.converter;
 
+import db4e.Main;
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.Utils;
@@ -39,15 +41,15 @@ public class BackgroundConverter extends Converter {
          meta( BENEFIT, Utils.ucfirst( associate ) );
       }
 
-      if ( meta( 1 ).equals( "Scales of War Adventure Path" ) )
+      if ( meta( CAMPAIGN ).equals( "Scales of War Adventure Path" ) )
          meta( CAMPAIGN, "Scales of War" );
-      else if ( meta( 1 ).equals( "Forgotten Realms" ) )
+      else if ( meta( CAMPAIGN ).equals( "Forgotten Realms" ) )
          meta( CAMPAIGN, "Faerûn" );
    }
 
    @Override protected void correctEntry () {
       if ( meta( TYPE ).isEmpty() && entry.getName().contains( " - " ) ) {
-         meta( TYPE, entry.getName().split( " - " )[0] );
+         meta( TYPE, entry.getName().split( " - " )[0] ); // Tested on background450
          fix( "missing meta" );
       }
 
@@ -57,10 +59,9 @@ public class BackgroundConverter extends Converter {
       }
 
       if ( find( regxAssociate ) ) { // Skill or language
-         String associate = regxAssociate.group( 1 );
+         String associate = regxAssociate.group( 1 ); // Tested on background450
          if ( regxAssociate.find() ) // Language
-            associate += ", " + regxAssociate.group( 1 );
-         //if ( ! assoc.equals( meta( BENEFIT ) ) ) fix( "wrong meta" ); // The skill column always miss language, but can't blame them
+            associate += ", " + regxAssociate.group( 1 ); // Tested on background450
          meta( BENEFIT, "Associated: " + associate );
       } else if ( ! meta( BENEFIT ).isEmpty() )
          meta( BENEFIT, "Associated: " + meta( BENEFIT ).replace( "you can", "" ) );
@@ -103,11 +104,28 @@ public class BackgroundConverter extends Converter {
          case "background757": // Tethyr (Shifter)
             meta( BENEFIT, "Add Stealth to class skill. +2 bonus to Stealth. Add Chondathan or Draconic to known languages." );
             break;
+
+         default:
+            if ( Main.debug.get() && meta( BENEFIT ).startsWith( "Associated:" ) && find( regxBenefit ) )
+               log.log( Level.WARNING, "Benefits in additoin to associated skills: {0}", entry );
       }
    }
 
    @Override protected String[] getLookupName ( Entry entry ) {
-      return new String[]{ entry.getName() };
+      return new String[]{ entry.getName().contains( " - " )
+            ?  entry.getName().split( " - " )[1]
+            : entry.getName()
+         };
    }
 
+   @Override protected void testConversion() {
+      testLookup( "Lost in the Feywild", "background450" );
+      for ( Entry entry : category.entries )
+         switch ( entry.getId() ) {
+            case "background450":
+               testMeta( entry, TYPE, "Recent Life" );
+               testMeta( entry, BENEFIT, "Associated: Nature, Elven" );
+               break;
+         }
+   }
 }
