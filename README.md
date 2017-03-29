@@ -50,7 +50,7 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 1440 entries during export:
+This downloader fixes over 1550 entries during export:
 
 * 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous)
 * 150 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
@@ -60,7 +60,7 @@ This downloader fixes over 1440 entries during export:
 * 23 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 20 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
-* 98 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
+* 204 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 94 entries with missing listing data not caused by above issues. (Subrace abilities, Heroic feat tier etc.)
 * 715 entries with wrong/inconsistent listing data not caused by above issues. (Multi-source classes, theme powers etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.

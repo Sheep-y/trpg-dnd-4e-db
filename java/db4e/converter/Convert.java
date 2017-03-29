@@ -340,10 +340,13 @@ public abstract class Convert {
             return new BackgroundConverter( category );
          case "Class":
             return new ClassConverter( category );
-         case "Deity":
-            return new DeityConverter( category );
          case "Companion":
             return new FieldSortConverter( category, 0 ); // Sort by first field
+         case "Deity":
+            return new DeityConverter( category );
+         case "EpicDestiny":
+         case "ParagonPath":
+            return new PPEDConverter( category );
          case "Feat":
             return new FeatConverter( category );
          case "Glossary":
