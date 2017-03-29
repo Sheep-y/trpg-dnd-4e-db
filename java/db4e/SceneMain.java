@@ -194,9 +194,15 @@ public class SceneMain extends Scene {
          loader.setThreadCount( i );
       } catch ( NumberFormatException ignored ) { } } );
 
-      chkCompress.selectedProperty().addListener( this::chkCompress_change );
-      if ( prefs.getBoolean( "export.compress", false ) )
-         chkCompress.selectedProperty().set( true );
+      if ( loader.canCompressData() ) {
+         chkCompress.selectedProperty().addListener( this::chkCompress_change );
+         if ( prefs.getBoolean( "export.compress", false ) )
+            chkCompress.selectedProperty().set( true );
+      } else {
+         log.log( Level.CONFIG, "Data compression disabled because of lack of configurated java memory." );
+         chkCompress.setText( chkCompress.getText() + " (Disabled; insufficient java memory)" );
+         chkCompress.setDisable( true );
+      }
 
       chkDebug.selectedProperty().addListener( this::chkDebug_change );
       if ( prefs.getBoolean( "gui.debug", false ) )

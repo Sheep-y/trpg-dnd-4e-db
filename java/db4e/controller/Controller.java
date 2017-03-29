@@ -72,6 +72,8 @@ public class Controller {
    public static volatile int INTERVAL_MS = DEF_INTERVAL_MS;
    public static volatile int RETRY_COUNT = DEF_RETRY_COUNT;
 
+   public static final int MIN_LZMA_MEMORY = 494*1024*1024; // Actual heap memory when max heap is set to 512mb
+
    public static final String DB_NAME = "dnd4_compendium.database";
 
    // Database variables are set on open().
@@ -471,6 +473,10 @@ public class Controller {
             }
          state.set( state.total );
       } );
+   }
+
+   public boolean canCompressData () {
+      return Runtime.getRuntime().maxMemory() >= MIN_LZMA_MEMORY;
    }
 
    public CompletableFuture<Void> startExport ( File target ) {
