@@ -276,7 +276,7 @@ public class Converter extends Convert {
 
    private final Matcher regxPowerFlav = Pattern.compile( "(<h1 class=\\w{5,9}power>.*?</h1>)<p class=flavor>.*?</p>" ).matcher( "" );
    private final Matcher regxItemFlav  = Pattern.compile( "(<h1 class=mihead>.*?</h1>)<p class=miflavor>.*?</p>" ).matcher( "" );
-   private final Matcher regxRitualFlav = Pattern.compile( "(<h1 class=player>.*?</h1>)<i>.*?</i><br>" ).matcher( "" );
+   private final Matcher regxRitualFlav = Pattern.compile( "(<h1 class=player>.*?</h1>)(?:<p>)?<i>.*?</i>(?:</p>|<br>)" ).matcher( "" );
    // Errata removal. monster217 has empty change, and many have empty action (Update/Added/Removed).
    private final Matcher regxErrata  = Pattern.compile( "<br>\\w* \\([123]?\\d/[123]?\\d/20[01]\\d\\)<br>[^<]*" ).matcher( "" );
    private final Matcher regxHtmlTag = Pattern.compile( "</?\\w+[^>]*>" ).matcher( "" );
@@ -294,7 +294,7 @@ public class Converter extends Convert {
          data = regxPowerFlav.reset( data ).replaceAll( "$1" );
       if ( data.indexOf( "=mihead>" ) > 0 ) // Magic item flavour
          data = regxItemFlav.reset( data ).replaceAll( "$1" );
-      if ( data.indexOf( "=player>" ) > 0 ) // Ritual flavour
+      if ( ! category.id.equals( "Glossary" ) && data.indexOf( "=player>" ) > 0 ) // Ritual flavour
          data = regxRitualFlav.reset( data ).replaceAll( "$1" );
       data = data.replace( "<p class=publishedIn>Published in", "" ); // Source book
       data = regxErrata.reset( data ).replaceAll( " " ); // Errata
