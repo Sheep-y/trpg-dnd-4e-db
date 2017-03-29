@@ -5,7 +5,6 @@
   <jar>4e_compendium_downloader.jar</jar>
   <outfile>4e_compendium_downloader.exe</outfile>
   <errTitle></errTitle>
-  <cmdLine>-Xmx2g</cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
@@ -22,6 +21,7 @@
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
+    <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
     <fileVersion>3.5.3.99</fileVersion>

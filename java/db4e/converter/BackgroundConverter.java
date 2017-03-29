@@ -66,6 +66,9 @@ public class BackgroundConverter extends Converter {
          meta( BENEFIT, "Associated: " + meta( BENEFIT ).replace( "you can", "" ) );
 
       switch ( entry.getId() ) {
+         case "background30": // Scorned Noble
+            meta( BENEFIT, "Gain +2 to saves when no allies are within 5 squares." );
+            break;
          case "background34": // Warsmith
             meta( BENEFIT, "Can construct weapons and armor. Can cast Creation rituals as if you have Ritual Caster." );
             break;

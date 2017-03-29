@@ -45,7 +45,7 @@ od.gui = {
          },
          'onkeydown' : function window_keydown ( evt ) {
             if ( evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey ) return;
-            if ( document.activeElement && document.activeElement.tagName === 'INPUT' ) return;
+            if ( document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.value ) return;
             switch ( evt.key ) {
                case "ArrowLeft":
                   var left = _( 'section[id^=action_][style*=block] > nav > .btn_prev:not([style*=none])' )[0];
