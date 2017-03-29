@@ -2,7 +2,7 @@
 
 ## Version 3.6 development branch ##
 
-[![3 min. intro video](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/development/res/img/Frontpage.jpg)](https://youtu.be/aNDze9Ok5fE)
+[![3 min. intro video](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/Frontpage.jpg)](https://youtu.be/aNDze9Ok5fE)
 
 This program can fetches, stores, and exports D&D 4th edition resources from [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx). <br/>
 Exported entries can be browsed and searched offline with exact phase search, wildcast, exclusion, join ("OR"), and more.
