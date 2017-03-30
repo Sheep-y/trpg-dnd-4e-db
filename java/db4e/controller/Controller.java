@@ -71,6 +71,7 @@ public class Controller {
    public static volatile int TIMEOUT_MS = DEF_TIMEOUT_MS;
    public static volatile int INTERVAL_MS = DEF_INTERVAL_MS;
    public static volatile int RETRY_COUNT = DEF_RETRY_COUNT;
+   public static volatile boolean fixData = true;
 
    public static final int MIN_LZMA_MEMORY = 494*1024*1024; // Actual heap memory when max heap is set to 512mb
 
@@ -492,12 +493,7 @@ public class Controller {
          checkStop( "Writing catlog" );
          try ( Exporter exporter = new ExporterMain() ) {
             exporter.setState( target, this::checkStop, state );
-            Convert.beforeConvert( categories, exportCategories );
-            exporter.preExport( exportCategories );
-            checkStop( "Writing data" );
-            exportEachCategory( exportCategories, exporter );
-            exporter.postExport( exportCategories );
-            Convert.afterConvert();
+            doExport( exporter, "Writing data" );
          }
          System.gc();
 
@@ -533,16 +529,29 @@ public class Controller {
          checkStop( "Loading data" );
          dal.loadEntityContent( categories, state );
 
+         checkStop( "Dumping catalog" );
          try ( Exporter exp = exporter ) {
-            checkStop( "Writing catlog" );
-            exp.preExport( categories );
-            checkStop( "Writing data" );
-            exportEachCategory( categories, exp );
-            exp.postExport( categories );
+            doExport( exp, "Dumping data" );
          }
 
          gui.stateCanExport( "Raw data dumped" );
       } ).whenComplete( terminate( "Dump", gui::stateCanExport ) );
+   }
+
+   private void doExport( Exporter exporter, String dataMessage ) throws Exception {
+      List<Category> data;
+      if ( fixData ) {
+         log.log( Level.CONFIG, "Fix enabled. Converting data." );
+         Convert.beforeConvert( categories, exportCategories );
+         data = exportCategories;
+      } else
+         data = categories;
+      exporter.preExport( data );
+      checkStop( dataMessage );
+      exportEachCategory( data, exporter );
+      exporter.postExport( data );
+      if ( fixData )
+         Convert.afterConvert();
    }
 
    /////////////////////////////////////////////////////////////////////////////

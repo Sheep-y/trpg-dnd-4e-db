@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -96,11 +97,13 @@ public class SceneMain extends Scene {
    final TextField txtRetry  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "download.retry", DEF_RETRY_COUNT ) ) ) ),
            "Number of timeout retry.  Only apply to timeout errors." );
    final TextField txtThread  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "export.thread", 0 ) ) ) ),
-           "More thread exports faster but use more memory. Auto = core count-1." );
+           "More thread exports faster but use more memory.  Auto = core count-1.  Take effects immediately." );
+   private final CheckBox chkFixAndEnhance = JavaFX.tooltip( new CheckBox( "Fix and enhance data" ),
+           "Fix known issues in the data, make them consistent, and add or enhance filterable columns.  Quick lookup will be unavailable if disabled.  Must be set before export / dump." );
    private final CheckBox chkCompress = JavaFX.tooltip( new CheckBox( "Compress exported data" ),
-           "Compress exported data (LZMA) to reduce size, but takes time to decompress on load.  Suitable for slow or metered network." );
+           "Compress exported data (LZMA) to reduce size, but takes time to decompress on load.  Suitable for slow or metered network.  Take effects immediately." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
-           "Show program log and console.  Will slow down download & export and use more memory." );
+           "Show program log and console, and enable internal data assertions.  Will slow down download & export and use more memory." );
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
    final Button btnExportData = JavaFX.tooltip( new Button( "Dump Data" ),
@@ -112,6 +115,7 @@ public class SceneMain extends Scene {
            new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (minimal) per request.") ),
            new HBox( 8, new Label( "Retry" ), txtRetry, new Label( "times on timeout.") ),
            new HBox( 8, new Label( "Export in" ), txtThread, new Label( "threads (0 = Auto)") ),
+           chkFixAndEnhance,
            chkCompress,
            chkDebug,
            new HBox( 8, btnClearData, btnExportData ),
@@ -194,19 +198,15 @@ public class SceneMain extends Scene {
          loader.setThreadCount( i );
       } catch ( NumberFormatException ignored ) { } } );
 
+      setupCheckbox( chkFixAndEnhance, "export.fix", true, this::chkFix_change );
+      setupCheckbox( chkDebug, "gui.debug", false, this::chkDebug_change );
       if ( loader.canCompressData() ) {
-         chkCompress.selectedProperty().addListener( this::chkCompress_change );
-         if ( prefs.getBoolean( "export.compress", false ) )
-            chkCompress.selectedProperty().set( true );
+         setupCheckbox( chkCompress, "export.compress", false, this::chkCompress_change );
       } else {
          log.log( Level.CONFIG, "Data compression disabled because of lack of configurated java memory." );
          chkCompress.setText( chkCompress.getText() + " (Disabled; insufficient java memory)" );
          chkCompress.setDisable( true );
       }
-
-      chkDebug.selectedProperty().addListener( this::chkDebug_change );
-      if ( prefs.getBoolean( "gui.debug", false ) )
-         chkDebug.selectedProperty().set( true );
 
       btnClearData.addEventHandler( ActionEvent.ACTION, this::btnClearData_click );
       btnExportData.addEventHandler( ActionEvent.ACTION, this::action_export_raw );
@@ -216,6 +216,13 @@ public class SceneMain extends Scene {
       txtLog.setEditable( false );
 
       stateBusy( "Initialising" );
+   }
+
+   private void setupCheckbox ( CheckBox checkbox, String preference, boolean defaultValue, ChangeListener<Boolean> listener ) {
+      boolean state = prefs.getBoolean( preference, defaultValue );
+      checkbox.selectedProperty().set( state );
+      checkbox.selectedProperty().addListener( listener );
+      listener.changed( checkbox.selectedProperty(), ! state, state );
    }
 
    private void initLayout () {
@@ -294,6 +301,7 @@ public class SceneMain extends Scene {
    private void allowAction () {
       txtUser.setDisable( false );
       txtPass.setDisable( false );
+      chkFixAndEnhance.setDisable( false );
       btnLeft.setDisable( false );
       btnClearData.setDisable( false );
       btnExportData.setDisable( false );
@@ -302,6 +310,7 @@ public class SceneMain extends Scene {
    private void disallowAction () {
       txtUser.setDisable( true );
       txtPass.setDisable( true );
+      chkFixAndEnhance.setDisable( true );
       btnLeft.setDisable( true );
       btnClearData.setDisable( true );
       btnExportData.setDisable( true );
@@ -539,6 +548,7 @@ public class SceneMain extends Scene {
       log.log( Level.FINE, "State: Running" );
       txtUser.setDisable( true );
       txtPass.setDisable( true );
+      chkFixAndEnhance.setDisable( true );
       btnClearData.setDisable( true );
       btnExportData.setDisable( true );
       setLeft( "Stop", this::action_stop );
@@ -551,6 +561,11 @@ public class SceneMain extends Scene {
    /////////////////////////////////////////////////////////////////////////////
    // Option Tab
    /////////////////////////////////////////////////////////////////////////////
+
+   private void chkFix_change ( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+      prefs.putBoolean( "export.fix", newValue );
+      Controller.fixData = newValue;
+   }
 
    private void chkCompress_change ( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
       prefs.putBoolean( "export.compress", newValue );

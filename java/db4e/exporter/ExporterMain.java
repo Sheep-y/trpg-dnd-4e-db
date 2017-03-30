@@ -183,7 +183,7 @@ public class ExporterMain extends Exporter {
       for ( Category category : categories ) synchronized ( category ) {
          if ( index.isEmpty() )
             index.putAll( category.index );
-         else
+         else if ( category.index != null )
             category.index.entrySet().forEach( ( entry ) -> {
                List<String> list = index.get( entry.getKey() );
                if ( list == null )
