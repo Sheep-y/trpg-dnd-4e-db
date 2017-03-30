@@ -84,7 +84,28 @@ public class PowerConverter extends LeveledConverter {
    @Override protected int sortEntity ( Entry a, Entry b ) {
       int diff = a.getSimpleField( CLASS ).compareTo( b.getSimpleField( CLASS ) );
       if ( diff != 0 ) return diff;
-      return super.sortEntity( a, b );
+      diff = sortLevel( a, b );
+      if ( diff != 0 ) return diff;
+      if ( ! a.getSimpleField( CLASS ).contains( "Power" ) ) { // Feat Power. Skill Power, Wild Talent Power
+         int aFreq = sortType( a.getSimpleField( TYPE ) ), bFreq = sortType( b.getSimpleField( TYPE ) );
+         if ( aFreq != bFreq ) return aFreq - bFreq;
+      }
+      return a.getName().compareTo( b.getName() );
+   }
+
+   private int sortType ( String type ) {
+      int result;
+      if ( type.startsWith( "Daily" ) )
+         result = 16;
+      else if ( type.startsWith( "Encounter" ) )
+         result = 8;
+      else
+         result = 0;
+      if ( type.endsWith( "Attack" ) )
+         result += 2;
+      else if ( type.endsWith( "Utility" ) )
+         result += 4;
+      return result;
    }
 
    @Override protected void correctEntry () {

@@ -92,4 +92,11 @@ public class ClassConverter extends Converter {
          return result.toArray( new String[ result.size() ] );
       }
    }
+
+   @Override protected int sortEntity(Entry a, Entry b) {
+      boolean HybridA = a.getName().startsWith( "Hybrid" );
+      boolean HybridB = b.getName().startsWith( "Hybrid" );
+      if ( HybridA == HybridB ) return a.getName().compareTo( b.getName() );
+      return HybridA ? 1 : -1;
+   }
 }

@@ -84,7 +84,7 @@ class LeveledConverter extends Converter {
       }
    }
 
-   @Override protected int sortEntity ( Entry a, Entry b ) {
+   protected int sortLevel ( Entry a, Entry b ) {
       if ( LEVEL >= 0 ) {
          Object aLv = a.getField( LEVEL );
          Object bLv = b.getField( LEVEL );
@@ -96,7 +96,12 @@ class LeveledConverter extends Converter {
          else if ( level > 0 )
             return 1;
       }
-      return super.sortEntity( a, b );
+      return 0;
+   }
+
+   @Override protected int sortEntity ( Entry a, Entry b ) {
+      int lv = sortLevel( a, b );
+      return lv != 0 ? lv : super.sortEntity( a, b );
    }
 
    @Override protected void correctEntry () {
