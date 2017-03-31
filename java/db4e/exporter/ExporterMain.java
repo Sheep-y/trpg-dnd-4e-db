@@ -8,7 +8,6 @@ package db4e.exporter;
 import SevenZip.Compression.LZMA.Encoder;
 import db4e.controller.ProgressState;
 import db4e.converter.Convert;
-import db4e.converter.Converter;
 import db4e.data.Category;
 import db4e.data.Entry;
 import static db4e.exporter.Exporter.stop;
@@ -64,10 +63,7 @@ public class ExporterMain extends Exporter {
    }
 
    @Override public void export ( Category category ) throws IOException, InterruptedException {
-      Converter converter = Convert.getConverter( category );
-      if ( converter == null ) return;
-      converter.convert( state );
-      writeCategory( category, converter );
+      writeCategory( category, Convert.getConverter( category ) );
    }
 
    @Override public void postExport ( List<Category> categories ) throws IOException, InterruptedException {
@@ -107,7 +103,7 @@ public class ExporterMain extends Exporter {
       final String listCol = backspace( buffer ).append( "]," ).toString();
       buffer.setLength( 0 );
       buffer.append( '[' );
-      for ( Entry entry : category.sorted ) {
+      for ( Entry entry : category.entries ) {
          str( buffer.append( '[' ), entry.getId() ).append( ',' );
          str( buffer, entry.getName() ).append( ',' );
          for ( Object field : entry.getFields() ) {
@@ -131,7 +127,7 @@ public class ExporterMain extends Exporter {
       final String textCat = buffer.toString();
       buffer.setLength( 0 );
       buffer.append( '{' );
-      for ( Entry entry : category.sorted ) {
+      for ( Entry entry : category.entries ) {
          String fulltext = converter.textData( entry.getContent() );
          buffer.ensureCapacity( buffer.length() + entry.getId().length() + fulltext.length() + 12 );
          str( buffer, entry.getId() ).append( ':' );
@@ -141,11 +137,11 @@ public class ExporterMain extends Exporter {
          writeData( writer, "od.reader.jsonp_data_index(20130616," + textCat, backspace( buffer ).append( '}' ), ")" );
       }
       buffer = null;
-      state.add( category.sorted.length );
+      state.add( category.entries.size() );
 
       StringBuilder[] data = new StringBuilder[ FILE_PER_CATEGORY ];
       int[] dataCount = new int[ FILE_PER_CATEGORY ];
-      for ( Entry entry : category.sorted ) {
+      for ( Entry entry : category.entries ) {
          if ( ! regxIdGroup.reset( entry.getId() ).find() )
             throw new IllegalStateException( "Invalid id " + entry.getId() );
          int grp = Integer.parseUnsignedInt( regxIdGroup.group() ) % FILE_PER_CATEGORY;
@@ -171,11 +167,7 @@ public class ExporterMain extends Exporter {
       }
 
       if ( exported != category.getExportCount() )
-         throw new IllegalStateException( category.id + " entry exported " + category.sorted.length + " mismatch with total " + category.getExportCount() );
-
-      // The data is no longer required.  Kill them to save memory/
-      category.entries.clear();
-      category.sorted = null;
+         throw new IllegalStateException( category.id + " entry exported " + category.entries.size() + " mismatch with total " + category.getExportCount() );
    }
 
    private void writeIndex ( String target, List<Category> categories ) throws IOException, InterruptedException {

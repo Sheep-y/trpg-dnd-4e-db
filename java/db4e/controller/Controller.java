@@ -167,7 +167,6 @@ public class Controller {
                }
                for ( Category category : categories ) synchronized ( category ) {
                   category.meta = null;
-                  category.sorted = null;
                   category.index = null;
                   category.entries.clear();
                }
@@ -667,7 +666,13 @@ public class Controller {
                log.log( Level.INFO, "Exporting category {0} in thread {1}.", new Object[]{ category.name, Thread.currentThread().getName() } );
                synchronized ( exporter ) { /* sync with exporter.setState */ }
                synchronized ( category ) {
+                  if ( fixData ) { // The converted data is no longer required.  Kill them to save memory/
+                     Converter converter = Convert.getConverter( category );
+                     converter.convert( state );
+                  }
                   exporter.export( category );
+                  if ( fixData ) // The converted data is no longer required.  Kill them to save memory/
+                     category.entries.clear();
                }
                future.complete( null );
             } catch ( Throwable e ) {

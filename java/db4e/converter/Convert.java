@@ -5,7 +5,6 @@ import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -315,7 +314,7 @@ public abstract class Convert {
 
    protected Map<String, List<String>> mapIndex () {
       Map<String, List<String>> map = new HashMap<>( 25000, 1f );
-      for ( Entry entry : category.sorted ) {
+      for ( Entry entry : category.entries ) {
          for ( String name : getLookupName( entry ) ) {
             name = name.replaceAll( "\\W+", " " ).trim().toLowerCase();
             if ( ! map.containsKey( name ) ) {
@@ -408,8 +407,7 @@ public abstract class Convert {
       }
 
       beforeSort();
-      category.sorted = entries.toArray( new Entry[ entries.size() ] );
-      Arrays.sort( category.sorted, this::sortEntity );
+      category.entries.sort( this::sortEntity );
       if ( stop.get() ) throw new InterruptedException();
       category.index = mapIndex();
 

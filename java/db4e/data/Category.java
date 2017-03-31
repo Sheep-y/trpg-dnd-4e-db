@@ -21,7 +21,6 @@ public class Category {
    public final List<Entry> entries = new ArrayList<>(); // Entry list
 
    public String[] meta; // Transform field list for export.
-   public Entry[] sorted; // Sorted entry list for export.
    public Map<String, List<String>> index; // Lookup name to entry id
 
    public Category( String id, String name, String[] fields ) {
