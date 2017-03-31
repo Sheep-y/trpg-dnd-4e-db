@@ -1,6 +1,7 @@
 package db4e.converter;
 
 import db4e.Main;
+import db4e.controller.Controller;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.HashMap;
@@ -291,14 +292,16 @@ public class Converter extends Convert {
     */
    @Override public String textData ( String data ) {
       // Removes excluded text
-      if ( data.indexOf( "power>" ) > 0 ) // Power flavour
-         data = regxPowerFlav.reset( data ).replaceAll( "$1" );
-      if ( data.indexOf( "=mihead>" ) > 0 ) // Magic item flavour
-         data = regxItemFlav.reset( data ).replaceAll( "$1" );
-      if ( ! category.id.equals( "Glossary" ) && data.indexOf( "=player>" ) > 0 ) // Ritual flavour
-         data = regxRitualFlav.reset( data ).replaceAll( "$1" );
-      data = data.replace( "<p class=publishedIn>Published in", "" ); // Source book
-      data = regxErrata.reset( data ).replaceAll( " " ); // Errata
+      if ( Controller.fixData ) {
+         if ( data.indexOf( "power>" ) > 0 ) // Power flavour
+            data = regxPowerFlav.reset( data ).replaceAll( "$1" );
+         if ( data.indexOf( "=mihead>" ) > 0 ) // Magic item flavour
+            data = regxItemFlav.reset( data ).replaceAll( "$1" );
+         if ( ! category.id.equals( "Glossary" ) && data.indexOf( "=player>" ) > 0 ) // Ritual flavour
+            data = regxRitualFlav.reset( data ).replaceAll( "$1" );
+         data = data.replace( "<p class=publishedIn>Published in", "" ); // Source book
+         data = regxErrata.reset( data ).replaceAll( " " ); // Errata
+      }
 
       // Strip HTML tags then redundent spaces
       data = data.replace( '\u00A0', ' ' );
@@ -311,7 +314,7 @@ public class Converter extends Convert {
                  .replace( "&gt;", ">" ); // glossary.433/"Weapons and Size"
 
       // Validate
-      if ( Main.debug.get() ) {
+      if ( Main.debug.get() && Controller.fixData ) {
          if ( regxCheckFulltext.reset( data ).find() )
             warn( "Unremoved html tag in fulltext" );
          if ( regxCheckDate.reset( data ).find() )

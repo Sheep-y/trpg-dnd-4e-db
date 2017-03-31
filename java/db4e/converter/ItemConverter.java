@@ -1,6 +1,7 @@
 package db4e.converter;
 
 import db4e.Main;
+import db4e.controller.Controller;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
@@ -561,7 +562,7 @@ public class ItemConverter extends LeveledConverter {
    }
 
    @Override public String textData( String data ) {
-      if ( data.startsWith( "<h1 class=miset>" ) )
+      if ( data.startsWith( "<h1 class=miset>" ) && Controller.fixData )
          data = data.replaceFirst( "<h1 class=mihead>.*(?=<p class=publishedIn>)", "" );
       return super.textData( data );
    }

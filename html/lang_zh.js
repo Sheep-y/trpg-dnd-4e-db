@@ -26,6 +26,7 @@ _.l.set( 'data', {
       'race' : '種族',
       'ritual' : '法式',
       'theme' : '主題',
+      'terrain' : ' 地型',
       'trap' : '陷阱 / 地型',
       'weapon' : '武器'
    },
@@ -33,6 +34,7 @@ _.l.set( 'data', {
       '_CatName' : '類別',
       '_TypeName' : '類型',
       'Action': '動作',
+      "ActionType" : '動作',
       'Alignment' : '陣營',
       'Benefit' : '得益',
       'Campaign' : '戰役',
@@ -56,6 +58,7 @@ _.l.set( 'data', {
       'Rarity' : '稀有度',
       'RoleName' : '岡位',
       'Size' : '體型',
+      'Skills' : '技能',
       'SourceBook': '書目',
       'Tier' : '層級',
       'TierName' : '層級',

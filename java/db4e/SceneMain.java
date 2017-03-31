@@ -99,7 +99,7 @@ public class SceneMain extends Scene {
    final TextField txtThread  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "export.thread", 0 ) ) ) ),
            "More thread exports faster but use more memory.  Auto = core count-1.  Take effects immediately." );
    private final CheckBox chkFixAndEnhance = JavaFX.tooltip( new CheckBox( "Fix and enhance data" ),
-           "Fix known issues in the data, make them consistent, and add or enhance filterable columns.  Quick lookup will be unavailable if disabled.  Must be set before export / dump." );
+           "Fix known issues in the data, make them consistent, add or enhance data properties, and ignore flavor text in full search.  Must be set before export / dump." );
    private final CheckBox chkCompress = JavaFX.tooltip( new CheckBox( "Compress exported data" ),
            "Compress exported data (LZMA) to reduce size, but takes time to decompress on load.  Suitable for slow or metered network.  Take effects immediately." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),

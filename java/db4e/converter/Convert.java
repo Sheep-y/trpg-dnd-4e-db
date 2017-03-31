@@ -1,7 +1,6 @@
 package db4e.converter;
 
 import db4e.Main;
-import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
@@ -310,9 +309,11 @@ public abstract class Convert {
       }
    }
 
-   protected Map<String, List<String>> mapIndex () {
-      Map<String, List<String>> map = new HashMap<>( 25000, 1f );
+   public void mapIndex () {
+      Map<String, List<String>> map = category.index = new HashMap<>( 25000, 1f );
       for ( Entry entry : category.entries ) {
+         this.entry = entry;
+         indexEntry();
          for ( String name : getLookupName( entry ) ) {
             name = name.replaceAll( "\\W+", " " ).trim().toLowerCase();
             if ( ! map.containsKey( name ) ) {
@@ -323,7 +324,17 @@ public abstract class Convert {
                map.get( name ).add( entry.getId() );
          }
       }
-      return map;
+
+      if ( Main.debug.get() ) try {
+         // Check short index
+         category.index.keySet().stream().filter( key -> key.length() <= 2 && ! key.equals( "hp" ) && ! key.equals( "og" ) ) // monster1132 = Og, Orog Hero
+            .forEach( key -> category.index.get( key ).forEach( id ->
+               log.log( Level.WARNING, "Short index \"{2}\": {0} {1}", new Object[]{ id, "", key } ) ) );
+         // Test entry conversion
+         testConversion();
+      } catch ( Exception ex ) {
+         log.log( Level.WARNING, "Error when testing conversion of {0}: {1}", new Object[]{ category.id, Utils.stacktrace( ex ) });
+      }
    }
 
    protected final Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]|,.*| -.*", Pattern.CASE_INSENSITIVE ).matcher( "" );
@@ -367,8 +378,6 @@ public abstract class Convert {
             return new ThemeConverter( category );
          case "Trap":
             return new TrapConverter( category );
-         case "Terrain":
-            return null;
          default:
             return new Converter( category );
       }
@@ -378,7 +387,7 @@ public abstract class Convert {
       this.category = category;
    }
 
-   public void convert ( ProgressState state ) throws InterruptedException {
+   public void convert () throws InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Converting {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
       initialise();
@@ -400,24 +409,11 @@ public abstract class Convert {
             throw new UnsupportedOperationException( "Error converting " + entry.getId(), e );
          }
          if ( stop.get() ) throw new InterruptedException();
-         state.addOne();
       }
 
       beforeSort();
       category.entries.sort( this::sortEntity );
       if ( stop.get() ) throw new InterruptedException();
-      category.index = mapIndex();
-
-      if ( Main.debug.get() ) try {
-         // Check short index
-         category.index.keySet().stream().filter( key -> key.length() <= 2 && ! key.equals( "hp" ) && ! key.equals( "og" ) ) // monster1132 = Og, Orog Hero
-            .forEach( key -> category.index.get( key ).forEach( id ->
-               log.log( Level.WARNING, "Short index \"{2}\": {0} {1}", new Object[]{ id, "", key } ) ) );
-         // Test entry conversion
-         testConversion();
-      } catch ( Exception ex ) {
-         log.log( Level.WARNING, "Error when testing conversion of {0}: {1}", new Object[]{ category.id, Utils.stacktrace( ex ) });
-      }
    }
 
    /**
@@ -436,9 +432,6 @@ public abstract class Convert {
 
    /**
     * Apply common conversions to entry data.
-    * entry.meta may be set, but other prorerties will be overwritten.
-    *
-    * @param entry Entry to be converted
     */
    protected void convertEntry () {
       if ( entry.getName().contains( "’" ) )
@@ -450,6 +443,11 @@ public abstract class Convert {
       parseSourceBook();
       // Converter will do some checking if debug is on.
    }
+
+   /**
+    * Apply index operations on entry data.
+    */
+   protected void indexEntry () {}
 
    /**
     * A chance to double check result of converts, fixes, sorts, etc.

@@ -59,14 +59,13 @@ public class ExporterMain extends Exporter {
       }
       new File( root ).mkdirs();
       writeCatalog( categories );
-      state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 3;
+      state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
    }
 
    @Override public void postExport ( List<Category> categories ) throws IOException, InterruptedException {
       checkStop( "Writing viewer" );
       writeIndex( root, categories );
       writeViewer( root, target );
-      categories.clear();
    }
 
    private void writeCatalog ( List<Category> categories ) throws IOException {
@@ -81,7 +80,6 @@ public class ExporterMain extends Exporter {
    }
 
    @Override public void export ( Category category ) throws IOException, InterruptedException {
-      Convert converter = Convert.getConverter( category );
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
       String cat_id = category.id.toLowerCase();
@@ -120,6 +118,7 @@ public class ExporterMain extends Exporter {
       }
 
       // Text Index
+      Convert converter = Convert.getConverter( category );
       str( buffer, cat_id ).append( ',' );
       final String textCat = buffer.toString();
       buffer.setLength( 0 );
