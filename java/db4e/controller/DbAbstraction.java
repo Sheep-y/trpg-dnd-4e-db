@@ -164,7 +164,7 @@ class DbAbstraction {
                   final EntryDownloaded entry = new EntryDownloaded( cursor.getString( "id" ), cursor.getString( "name" ) );
                   list.add( entry );
                   if ( cursor.getInteger( "hasData" ) != 0 ) {
-                     entry.setContentDownloaded(true);
+                     entry.setHasContent( true );
                      ++countWithData;
                   }
                   state.addOne();
@@ -260,7 +260,7 @@ class DbAbstraction {
          entryUpdateMap.put( "data", entry.getContent() );
          cursor.updateByFieldNames( entryUpdateMap );
          db.commit();
-         entry.downloaded().setContentDownloaded(true);
+         entry.setHasContent( true );
 
       } finally {
          db.rollback();

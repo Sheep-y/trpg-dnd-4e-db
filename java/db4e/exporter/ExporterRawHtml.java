@@ -49,7 +49,7 @@ public class ExporterRawHtml extends Exporter {
          if ( category.entries.isEmpty() ) continue;
 
          index_body.append( "<tr><td><a href='" ).append( folder ).append( category.id ).append( ".html'>" ).append( Utils.escapeHTML( category.getName() ) ).append( "</a></td>" );
-         index_body.append( "<td>" ).append( category.entries.stream().filter( e -> e.downloaded().isContentDownloaded() ).count() ).append( "</td></tr>" );
+         index_body.append( "<td>" ).append( category.entries.stream().filter( e -> e.hasContent() ).count() ).append( "</td></tr>" );
 
          final StringBuilder head = new StringBuilder( "<th>Name</th>");
          for ( String field : category.fields )
@@ -93,7 +93,7 @@ public class ExporterRawHtml extends Exporter {
       new File( root + cat_id ).mkdirs();
 
       for ( Entry entry : category.entries ) {
-         if ( ! entry.downloaded().isContentDownloaded() ) continue;
+         if ( ! entry.hasContent() ) continue;
 
          if ( stop.get() ) throw new InterruptedException();
          String buffer = template;

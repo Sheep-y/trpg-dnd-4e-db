@@ -32,7 +32,7 @@ public class ExporterRawCsv extends Exporter {
       buffer.append( "Content\n" );
 
       for ( Entry entry : category.entries ) {
-         if ( ! entry.downloaded().isContentDownloaded() ) continue;
+         if ( ! entry.hasContent() ) continue;
          cell( buffer.append( entry.getUrl() ).append( ',' ), entry.getName() ).append( ',' );
          for ( String field : entry.getSimpleFields() )
             cell( buffer, field ).append( ',' );

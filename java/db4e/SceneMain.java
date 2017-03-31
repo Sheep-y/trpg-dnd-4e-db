@@ -107,7 +107,7 @@ public class SceneMain extends Scene {
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
    final Button btnExportData = JavaFX.tooltip( new Button( "Dump Data" ),
-           "Dump raw downloaded data in different formats." );
+           "Dump data in plain formats, such as Excel or CSV.  Uncheck \"Fix and enhance data\" above to export raw data." );
    final Button btnCheckUpdate = JavaFX.tooltip( new Button( "Check update" ),
            "Check for availability of new releases." );
    private final Pane pnlOptionTab = new VBox( 8,

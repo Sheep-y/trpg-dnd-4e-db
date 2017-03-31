@@ -36,7 +36,7 @@ public class ExporterRawJson extends Exporter {
 
 
       for ( Entry entry : category.entries ) {
-         if ( ! entry.downloaded().isContentDownloaded() ) continue;
+         if ( ! entry.hasContent() ) continue;
          buffer.append( '{' );
          prop( buffer, "Url", entry.getUrl() ).append( ',' );
          prop( buffer, "Name", entry.getName() ).append( ',' );

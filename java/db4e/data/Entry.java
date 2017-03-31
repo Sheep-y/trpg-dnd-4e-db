@@ -13,8 +13,6 @@ public class Entry {
 
    public Entry() {}
 
-   public EntryDownloaded downloaded () { throw new UnsupportedOperationException(); }
-
    public String getId () {
       return id;
    }
@@ -80,6 +78,15 @@ public class Entry {
 
    public String getUrl () {
       return getId();
+   }
+
+   // Return false if entry listing is in database, but content has not yet been downloaded.
+   public boolean hasContent() {
+      return true;
+   }
+
+   public void setHasContent( boolean hasContent ) {
+      throw new UnsupportedOperationException();
    }
 
    public <T extends Entry> T cloneTo ( T copy ) {
