@@ -12,7 +12,7 @@ public class DeityConverter extends Converter {
    }
 
    @Override protected void initialise() {
-      category.meta = new String[]{ "Domains", "Alignment", "SourceBook" };
+      category.fields = new String[]{ "Domains", "Alignment", "SourceBook" };
       super.initialise();
    }
 

@@ -17,10 +17,8 @@ public class Category {
    // Number of entry with downloaded content. Will increase during the download process.
    public final IntegerProperty downloaded_entry = new SimpleIntegerProperty();
 
-   public final String[] fields; // Name (id) of compendium fields
+   public String[] fields; // Name (id) of compendium fields
    public final List<Entry> entries = new ArrayList<>(); // Entry list
-
-   public String[] meta; // Transform field list for export.
    public Map<String, List<String>> index; // Lookup name to entry id
 
    public Category( String id, String name, String[] fields ) {

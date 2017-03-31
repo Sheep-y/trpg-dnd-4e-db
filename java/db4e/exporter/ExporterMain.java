@@ -62,10 +62,6 @@ public class ExporterMain extends Exporter {
       state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 3;
    }
 
-   @Override public void export ( Category category ) throws IOException, InterruptedException {
-      writeCategory( category, Convert.getConverter( category ) );
-   }
-
    @Override public void postExport ( List<Category> categories ) throws IOException, InterruptedException {
       checkStop( "Writing viewer" );
       writeIndex( root, categories );
@@ -84,7 +80,8 @@ public class ExporterMain extends Exporter {
       }
    }
 
-   private void writeCategory ( Category category, Convert converter ) throws IOException, InterruptedException {
+   @Override public void export ( Category category ) throws IOException, InterruptedException {
+      Convert converter = Convert.getConverter( category );
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
       String cat_id = category.id.toLowerCase();
@@ -98,7 +95,7 @@ public class ExporterMain extends Exporter {
 
       // Listing
       str( buffer, cat_id ).append( ",[\"ID\",\"Name\"," );
-      for ( String header : category.meta )
+      for ( String header : category.fields )
          str( buffer, header ).append( ',' );
       final String listCol = backspace( buffer ).append( "]," ).toString();
       buffer.setLength( 0 );

@@ -37,13 +37,6 @@ public abstract class Convert {
    protected Entry entry; // Current convert subject
 
    public static void reset () {
-      synchronized ( fixCount ) {
-         fixCount.clear();
-         fixedEntry.clear();
-      }
-      synchronized ( ClassConverter.featureMap ) {
-         ClassConverter.featureMap.clear();
-      }
    }
 
    /**
@@ -309,6 +302,11 @@ public abstract class Convert {
             fixCount.entrySet().stream()
                .sorted( (a,b) -> b.getValue().get() - a.getValue().get() )
                .map( e -> e.getKey() + " = " + e.getValue().get() ).collect( Collectors.joining( "\n" ) ) } );
+         fixCount.clear();
+         fixedEntry.clear();
+      }
+      synchronized ( ClassConverter.featureMap ) {
+         ClassConverter.featureMap.clear();
       }
    }
 
@@ -383,8 +381,7 @@ public abstract class Convert {
    public void convert ( ProgressState state ) throws InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Converting {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
-      if ( category.meta == null )
-         initialise();
+      initialise();
       final List<Entry> entries = category.entries;
       for ( Entry entry : entries ) {
          try {
@@ -426,10 +423,7 @@ public abstract class Convert {
    /**
     * Called at the beginning of entity conversion.  Will be called in every export.
     */
-   protected void initialise()  {
-      if ( category.meta == null )
-         category.meta = category.fields;
-   }
+   protected void initialise()  {}
 
    /**
     * Called at the end of entity conversion but before sort.  Will be called in every export.

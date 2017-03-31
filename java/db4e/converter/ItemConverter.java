@@ -25,7 +25,7 @@ public class ItemConverter extends LeveledConverter {
 
    @Override public void initialise () {
       if ( isGeneric )
-         category.meta = new String[]{ "Category", "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
+         category.fields = new String[]{ "Category", "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
       super.initialise();
       TYPE = LEVEL - 1;
       COST = LEVEL + 1;

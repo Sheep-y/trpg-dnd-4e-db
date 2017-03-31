@@ -19,7 +19,7 @@ public class BackgroundConverter extends Converter {
    }
 
    @Override protected void initialise() {
-      category.meta = new String[]{ "Type", "Campaign", "Benefit", "SourceBook" };
+      category.fields = new String[]{ "Type", "Campaign", "Benefit", "SourceBook" };
       super.initialise();
    }
 

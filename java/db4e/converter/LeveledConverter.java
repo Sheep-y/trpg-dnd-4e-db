@@ -16,7 +16,7 @@ class LeveledConverter extends Converter {
 
    @Override protected void initialise () {
       super.initialise();
-      LEVEL = Arrays.asList( category.meta ).indexOf( "Level" );
+      LEVEL = Arrays.asList( category.fields ).indexOf( "Level" );
       // if ( LEVEL < 0 ) throw new IllegalStateException( "Level field not in " + category.name );
    }
 

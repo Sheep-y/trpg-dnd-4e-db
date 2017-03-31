@@ -15,7 +15,7 @@ public class RaceConverter extends Converter {
    }
 
    @Override protected void initialise() {
-      category.meta = new String[]{ "Origin", "DescriptionAttribute", "Size", "SourceBook" };
+      category.fields = new String[]{ "Origin", "DescriptionAttribute", "Size", "SourceBook" };
       super.initialise();
    }
 

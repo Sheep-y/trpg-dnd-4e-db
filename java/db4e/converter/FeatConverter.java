@@ -16,7 +16,7 @@ public class FeatConverter extends Converter {
    }
 
    @Override protected void initialise () {
-      category.meta = new String[]{ "Tier", "Prerequisite", "SourceBook" };
+      category.fields = new String[]{ "Tier", "Prerequisite", "SourceBook" };
       super.initialise();
    }
 

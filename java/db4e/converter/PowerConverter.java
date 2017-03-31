@@ -19,7 +19,7 @@ public class PowerConverter extends LeveledConverter {
    }
 
    @Override protected void initialise () {
-      category.meta = new String[]{ "ClassName", "Level", "Type", "Action", "Keywords", "SourceBook" };
+      category.fields = new String[]{ "ClassName", "Level", "Type", "Action", "Keywords", "SourceBook" };
       super.initialise();
    }
 

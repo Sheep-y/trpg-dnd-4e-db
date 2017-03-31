@@ -11,7 +11,7 @@ public class ThemeConverter extends Converter {
    }
 
    @Override protected void initialise() {
-      category.meta = new String[]{ "Prerequisite", "SourceBook" };
+      category.fields = new String[]{ "Prerequisite", "SourceBook" };
       super.initialise();
    }
 

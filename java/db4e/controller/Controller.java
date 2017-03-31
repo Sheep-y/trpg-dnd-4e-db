@@ -166,7 +166,7 @@ public class Controller {
                   exportCategories.clear();
                }
                for ( Category category : categories ) synchronized ( category ) {
-                  category.meta = null;
+                  category.fields = null;
                   category.index = null;
                   category.entries.clear();
                }
@@ -200,7 +200,6 @@ public class Controller {
          categories.clear();
          exportCategories.clear();
       }
-      Convert.reset();
       state.reset();
       state.total = 0;
       hasReset = true;
