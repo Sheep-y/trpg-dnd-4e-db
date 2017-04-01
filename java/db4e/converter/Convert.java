@@ -366,8 +366,9 @@ public abstract class Convert {
          case "Implement":
          case "Weapon":
             return new ItemConverter( category );
-         case "Ritual":
          case "Monster":
+            return new MonsterConverter( category );
+         case "Ritual":
          case "Poison":
          case "Disease":
             return new LeveledConverter( category );

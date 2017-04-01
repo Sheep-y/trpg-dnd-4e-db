@@ -20,6 +20,7 @@ _.l.set( 'data', {
       'ClassName': 'Class',
       "CombatRole" : 'Role',
       "ComponentCost" : 'Component',
+      'CreatureType' : 'Type',
       "DescriptionAttribute" : 'Attribute',
       "GroupRole" : 'Group',
       "KeyAbilities" : 'Abilities',

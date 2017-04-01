@@ -43,6 +43,7 @@ _.l.set( 'data', {
       'CombatRole' : '岡位',
       'ComponentCost' : '材料費',
       'Cost' : '價錢',
+      'CreatureType' : '類型',
       'DescriptionAttribute' : '能力值',
       'Domains' : '領域',
       'GroupRole' : '地位',

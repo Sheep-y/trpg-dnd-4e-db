@@ -1,6 +1,7 @@
 package db4e.converter;
 
 import db4e.data.Category;
+import sheepy.util.Utils;
 
 /**
  */
@@ -21,7 +22,7 @@ public class PPEDConverter extends Converter {
                prereq = prereq.substring( 2 );
             prereq = prereq.trim();
             if ( prereq.length() > 0 )
-               prereq = Character.toUpperCase( prereq.charAt( 0 ) ) + prereq.substring( 1 );
+               prereq = Utils.ucfirst( prereq );
 
             meta( PREREQUISITE, prereq );
             fix( "consistency" );

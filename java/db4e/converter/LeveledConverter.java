@@ -138,26 +138,6 @@ class LeveledConverter extends Converter {
          }
          break;
 
-      case "Monster":
-         switch ( entry.getId() ) {
-
-         case "monster2248": // Cambion Stalwart
-            swap( "bit points", "hit points" );
-            fix( "typo" );
-            break;
-
-         case "monster3222": // Veln
-         case "monster3931": // Demon Furor
-            swap( "basic melee or basic ranged attack", "melee or ranged basic attack" );
-            fix( "fix basic attack" );
-            break;
-
-         default:
-            if ( find( "basic melee attack") ) {
-               swap( "basic melee attack", "melee basic attack" );
-               fix( "fix basic attack" );
-            }
-         }
       case "Ritual":
          switch ( entry.getId() ) {
 

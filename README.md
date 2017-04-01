@@ -43,6 +43,7 @@ This downloader will create new data columns for easier data filter:
 * Power: Type (Frequency + Type) and Keyword.
 * Feat: Prerequisite.
 * Item: Split into 4 categories (Item, Weapon, Implement, and Armor). Add Type column.
+* Monster: Size and Type.
 * Terrain: Group and Level.  Combine with Trap for better mobile layout.
 
 Many existing columns are also enhanced or corrected, such as multi-source classes.
