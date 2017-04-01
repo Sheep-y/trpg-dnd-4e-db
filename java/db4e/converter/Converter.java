@@ -166,7 +166,6 @@ public class Converter extends Convert {
 
    @Override protected void parseSourceBook () {
       if ( find( regxPublished ) ) {
-
          String published = regxPublished.group( 1 );
          StringBuilder sourceBook = new StringBuilder();
          String lastSource = "";

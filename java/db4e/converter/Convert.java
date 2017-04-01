@@ -78,25 +78,7 @@ public abstract class Convert {
                            corrected( entry, "blacklist" );
                         }
                      }
-                     exported.entries.add( new Entry().setId( "glossary0453" ).setName( "Item Set" ).setFields( new Object[]{ "Rules", "Rules Other", "Adventurer's Vault 2" } ).setContent(
-                             "<h1 class=player>Item Set</h1>"
-                              + "<p class=flavor>A magic item set contains four or more items that a character or a party can collect.\n" +
-"Each set has at least one set benefit that is revealed when a minimum number of the set's items are used together.\n" +
-"Some set items also have individual properties or effects that depend on the number of other set items being used.</p>"
-                              + "<p class=flavor>A character can benefit from only one individual item set and one group item set at a time.\n" +
-"If a character possesses items from multiple item sets, that character must choose which individual item set and which group item set benefits him or her at the end of each extended rest.</p>"
-                              + "<p class=flavor>To qualify for an item set's benefits, a character must be wielding or wearing one or more items from the set.\n" +
-"A character that has a weapon or an implement that is part of an item set must be proficient with that weapon or implement to have it qualify as part of an item set.\n" +
-"A stowed item (for example, a magic cloak stuffed in a pack) doesn't count toward a set's benefits (though a sheathed weapon is considered to be worn).\n" +
-"Wondrous items are an exception and need only be carried in order for a character to gain an item set's benefits.</p>"
-                              + "<p class=flavor>Each magic item in a set can stand alone.\n" +
-"No item needs to be used with another of its set to function.</p>"
-                              + "<br><br>GROUP ITEM SET<br><br>"
-                              + "<p class=flavor>Some item sets are designed to be borne not by a single character, but by the members of an entire party.\n" +
-"When a party collects the items of a group item set, the set benefits are determined by the number of allies who possess items from the set.\n" +
-"Each character wearing or wielding an item from the set qualifies for the set benefits.</p>"
-                              + "<br><br>Update<br>Updated in Errata.<br><br>"
-                              + "<p class=publishedIn>Published in Adventurer's Vault 2, pages 92, 130.</p>" ) );
+                     exported.entries.add( new Entry().setId( "glossary0453" ).setName( "Item Set" ) );
                      break;
 
                   case "Item" :
@@ -425,7 +407,7 @@ public abstract class Convert {
                corrections.clear();
             }
          } catch ( Exception e ) {
-            throw new UnsupportedOperationException( "Error converting " + entry.getId(), e );
+            throw new UnsupportedOperationException( "Error converting " + entry, e );
          }
          if ( stop.get() ) throw new InterruptedException();
       }
@@ -457,7 +439,8 @@ public abstract class Convert {
          entry.setName( entry.getName().replace( "’", "'" ) );
       if ( entry.getId().contains( ".aspx" ) )
          entry.setId( entry.getId().replace( ".aspx?id=", "" ).toLowerCase() );
-      entry.setContent( normaliseData( entry.getContent() ) );
+      if ( entry.getContent() != null )
+         entry.setContent( normaliseData( entry.getContent() ) );
       correctEntry();
       parseSourceBook();
       // Converter will do some checking if debug is on.
