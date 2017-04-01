@@ -5,8 +5,7 @@ public class EntryDownloaded extends Entry {
    private boolean hasContent; // Indicate whether this entry has content in database.
 
    public EntryDownloaded ( String id, String name ) {
-      setId( id );
-      setName( name );
+      setId( id ).setName( name );
    }
 
    public EntryDownloaded ( String id, String name, Object[] fields ) {
@@ -14,15 +13,15 @@ public class EntryDownloaded extends Entry {
       setFields( fields );
    }
 
-   public boolean hasContent() {
-      return hasContent;
+   @Override public boolean hasContent() { return hasContent;
    }
 
-   public void setHasContent( boolean hasContent ) {
+   @Override public EntryDownloaded setHasContent( boolean hasContent ) {
       this.hasContent = hasContent;
+      return this;
    }
 
-   public String getUrl() {
+   @Override public String getUrl() {
       return "http://www.wizards.com/dndinsider/compendium/" + getId();
    }
 

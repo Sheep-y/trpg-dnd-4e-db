@@ -13,27 +13,29 @@ public class Entry {
 
    public Entry() {}
 
-   public String getId () {
+   public final String getId () {
       return id;
    }
 
-   public void setId( String id ) {
+   public final Entry setId( String id ) {
       this.id = id;
+      return this;
    }
 
-   public String getName () {
+   public final String getName () {
       return name;
    }
 
-   public void setName( String name ) {
+   public final Entry setName( String name ) {
       this.name = name;
+      return this;
    }
 
-   public int getFieldCount () {
+   public final int getFieldCount () {
       return fields.length;
    }
 
-   public Object[] getFields () {
+   public final Object[] getFields () {
       return fields;
    }
 
@@ -49,7 +51,7 @@ public class Entry {
       }
    }
 
-   public Object getField ( int i ) {
+   public final Object getField ( int i ) {
       return fields[ i ];
    }
 
@@ -60,20 +62,23 @@ public class Entry {
       return result.toString();
    }
 
-   public void setFields ( Object ... fields ) {
+   public final Entry setFields ( Object ... fields ) {
       this.fields = fields;
+      return this;
    }
 
-   public void setField ( int i, Object field ) {
+   public final Entry setField ( int i, Object field ) {
       this.fields[ i ] = field;
+      return this;
    }
 
-   public String getContent () {
+   public final String getContent () {
       return content;
    }
 
-   public void setContent ( String content ) {
+   public final Entry setContent ( String content ) {
       this.content = content;
+      return this;
    }
 
    public String getUrl () {
@@ -85,7 +90,7 @@ public class Entry {
       return true;
    }
 
-   public void setHasContent( boolean hasContent ) {
+   public Entry setHasContent( boolean hasContent ) {
       throw new UnsupportedOperationException();
    }
 
@@ -97,7 +102,7 @@ public class Entry {
       return copy;
    }
 
-   @Override public String toString () {
+   @Override public final String toString () {
       return id + " " + name;
    }
 }
