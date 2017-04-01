@@ -358,6 +358,11 @@ public class ItemConverter extends LeveledConverter {
          fix( "consistency" );
       }
 
+      if ( find( "this item cannot be purchased or created with the Enchant Magic Item ritual." ) ) {
+         meta( RARITY, "Unique" );
+         fix( "wrong meta" );
+      }
+
       if ( meta( CATEGORY ).equals( "Alchemical Item" ) ) {
          meta( CATEGORY, "Consumable" );
          meta( TYPE, "Alchemical Item" );

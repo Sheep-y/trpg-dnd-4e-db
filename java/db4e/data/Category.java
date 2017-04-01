@@ -12,7 +12,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 public class Category {
    public final String id; // Compendium id
    public final String name; // Display name
-   // Number of entry on the compendium. Either 0 (no listing) or the final count (listing done).
+   // Number of entry on the compendium. Either 0 (no listing) or the final count (listing done), no middle ground.
    public final IntegerProperty total_entry = new SimpleIntegerProperty();
    // Number of entry with downloaded content. Will increase during the download process.
    public final IntegerProperty downloaded_entry = new SimpleIntegerProperty();

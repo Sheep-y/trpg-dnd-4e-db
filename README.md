@@ -62,7 +62,7 @@ This downloader fixes over 1550 entries during export:
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 204 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 94 entries with missing listing data not caused by above issues. (Subrace abilities, Heroic feat tier etc.)
-* 715 entries with wrong/inconsistent listing data not caused by above issues. (Multi-source classes, theme powers etc.)
+* 725 entries with wrong/inconsistent listing data not caused by above issues. (Multi-source classes, theme powers etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
