@@ -53,8 +53,7 @@
    <menu type='context' id='menu_view'>
       <menuitem class='i18n' label='gui.menu_view_highlight' onclick='od.gui.toggle_highlight()' />
    </menu>
-   <?coco file( "action_list.html", "action_view.html", "action_about.html" ) coco ?>
-   <?coco file( "images.html" ) ?>
+   <?coco file( "action_list.html", "action_view.html", "action_about.html", "images.html" ) coco trim(xml) ?>
    <script>
       _.time( '[Compendium] All code loaded.' );
       od.gui.init();

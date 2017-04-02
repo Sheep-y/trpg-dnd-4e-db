@@ -35,6 +35,10 @@ od.gui = {
       var gui = od.gui;
       _( 'link[rel="manifest"]' )[0].href = od.config.data_read_path + "/res/manifest.json";
       _( 'link[rel="icon"]' )[0].href = od.config.data_read_path + "/res/icon.png";
+      try {
+         var lastCSS = document.styleSheets.length-1;
+         document.styleSheets[lastCSS].cssRules[0].style.backgroundImage = 'url("' + od.config.data_read_path + '/res/viewer_category_icon.png")';
+      } catch ( err ) { _.error( err ); }
       _.l.detectLocale( 'en' );
       gui.l10n();
       gui.go();
