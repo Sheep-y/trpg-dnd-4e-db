@@ -9,7 +9,7 @@
 
 od.data = {
    /* Please do NOT access directly. */
-   "category" : _.map(),
+   "category" : Object.create( null ),
    /* Read only, don't modify. */
    "index" : null,
 

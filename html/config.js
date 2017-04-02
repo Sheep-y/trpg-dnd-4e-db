@@ -5,7 +5,7 @@
  */
 
 od.config = {
-   "data_read_path" : location.pathname.match( /\w+(?=\.htm)/ ) + '_files',
+   "data_read_path" : location.pathname.match( /[^/]+(?=\.htm)/ ) + '_files',
 
    //"url_monitor_interval" : 500, // Duration between checking url change, in ms.
 
