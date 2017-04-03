@@ -203,6 +203,7 @@ class DbAbstraction {
                state.addOne();
             }
          }
+         state.update();
       } } finally {
          db.commit();
       }

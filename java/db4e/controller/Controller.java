@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -46,6 +47,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import netscape.javascript.JSException;
+import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import org.w3c.dom.Document;
 import sheepy.util.Utils;
@@ -82,10 +84,13 @@ public class Controller {
    private volatile DbAbstraction dal;
    private Thread currentThread;
    private final ProgressState state;
-   private boolean hasReset = false;
+   private boolean hasReset = false; // true if empty data is caused by reset, to prevent jumping to help tab.
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
    public final ObservableList<Category> exportCategories = new ObservableArrayList<>();
+   // Will be completed when entities are loaded.  Will be replaced with a new future on reset, so please sync on controller before access.
+   private CompletableFuture<Void> entityLoadedFuture = new CompletableFuture<Void>();
+   public CompletionStage<Void> entityLoaded = entityLoadedFuture;
 
    private final SceneMain gui;
    private ConsoleWebView browser;
@@ -194,36 +199,42 @@ public class Controller {
    /////////////////////////////////////////////////////////////////////////////
 
    public void resetDb () {
-      gui.setStatus( "Clearing data" );
-      gui.setProgress( -1.0 );
-      synchronized ( categories ) {
-         categories.clear();
-         exportCategories.clear();
-      }
-      state.reset();
-      state.total = 0;
-      hasReset = true;
-
-      threadPool.execute( () -> { try {
-         synchronized ( this ) { // Lock database for the whole duration
-            closeDb();
-            Thread.sleep( 1000 ); // Give it some time to save and close
-            final File file = new File( DB_NAME );
-            if ( file.exists() ) {
-               log.log( Level.INFO, "Deleting database {0}", new File( DB_NAME ).getAbsolutePath() );
-               file.delete();
-            } else {
-               log.log( Level.WARNING, "Database file not found: {0}", new File( DB_NAME ).getAbsolutePath() );
+      gui.setStatus( "Loading data" );
+      synchronized ( this ) {
+         entityLoaded.thenRun(  () -> {
+            gui.setStatus( "Clearing data" );
+            gui.setProgress( -1.0 );
+            synchronized ( categories ) {
+               categories.clear();
+               exportCategories.clear();
             }
-            Thread.sleep( 500 ); // Give OS some time to delete the file
-            open( null );
-         }
+            state.reset();
+            state.total = 0;
+            hasReset = true;
 
-      } catch ( Exception ex ) {
-         log.log( Level.WARNING, "Error when deleting database: {0}", Utils.stacktrace( ex ) );
-         open( null ).whenComplete( ( a, b ) -> gui.setStatus( "Cannot clear data" ) );
+            threadPool.execute( () -> { try {
+               synchronized ( this ) { // Lock database for the whole duration
+                  closeDb();
+                  Thread.sleep( 1000 ); // Give it some time to save and close
+                  final File file = new File( DB_NAME );
+                  if ( file.exists() ) {
+                     log.log( Level.INFO, "Deleting database {0}", new File( DB_NAME ).getAbsolutePath() );
+                     file.delete();
+                  } else {
+                     log.log( Level.WARNING, "Database file not found: {0}", new File( DB_NAME ).getAbsolutePath() );
+                  }
+                  synchronized ( this ) { entityLoaded = new CompletableFuture<>(); }
+                  Thread.sleep( 500 ); // Give OS some time to delete the file
+                  open( null );
+               }
 
-      } } );
+            } catch ( Exception ex ) {
+               log.log( Level.WARNING, "Error when deleting database: {0}", Utils.stacktrace( ex ) );
+               open( null ).whenComplete( ( a, b ) -> gui.setStatus( "Cannot clear data" ) );
+
+            } } );
+         } );
+      }
    }
 
    public CompletableFuture<Void> open ( TableView categoryTable ) {
@@ -313,8 +324,19 @@ public class Controller {
          gui.stateCanDownload( "Ready to download" );
          if ( state.get() <= 0 && ! hasReset && gui.getUsername().isEmpty() && gui.getPassword().isEmpty() )
             gui.selectTab( "help" );
-      } else
+         synchronized ( this ) { entityLoadedFuture.complete( null ); }
+      } else {
          gui.stateCanExport( "Ready to export" );
+         threadPool.execute( () -> {
+            try {
+               state.reset();
+               dal.loadEntityContent( categories, state );
+               synchronized ( this ) { entityLoadedFuture.complete( null ); }
+            } catch (SqlJetException ex) {
+               synchronized ( this ) { entityLoadedFuture.completeExceptionally( ex ); }
+            }
+         });
+      }
       state.update();
    }
 
@@ -478,25 +500,22 @@ public class Controller {
       return Runtime.getRuntime().maxMemory() >= MIN_LZMA_MEMORY;
    }
 
-   public CompletableFuture<Void> startExport ( File target ) {
+   public CompletionStage<Void> startExport ( File target ) {
       gui.setTitle( "Exporting" );
-      gui.setStatus( "Starting export" );
+      gui.setStatus( "Loading data" );
       gui.stateRunning();
-      state.set( -1 );
-      return runTask( () -> {
-         setPriority( Thread.MIN_PRIORITY );
-         checkStop( "Loading data" );
-         dal.loadEntityContent( categories, state );
-
-         checkStop( "Writing catlog" );
-         try ( Exporter exporter = new ExporterMain() ) {
-            exporter.setState( target, this::checkStop, state );
-            doExport( exporter, "Writing data" );
-         }
-         System.gc();
-
-         gui.stateCanExport( "Export complete, may view data" );
-      } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
+      synchronized ( this ) {
+         return entityLoaded.thenCompose( stage -> runTask( () -> {
+            setPriority( Thread.MIN_PRIORITY );
+            checkStop( "Writing catlog" );
+            try ( Exporter exporter = new ExporterMain() ) {
+               exporter.setState( target, this::checkStop, state );
+               doExport( exporter, "Writing data" );
+            }
+            System.gc();
+            gui.stateCanExport( "Export complete, may view data" );
+         } ) ).whenComplete( terminate( "Export", gui::stateCanExport ) );
+      }
    }
 
    public void startExportRaw ( File target ) {
@@ -519,21 +538,18 @@ public class Controller {
       }
       exporter.setState( target, this::checkStop, state );
       gui.setTitle( "Dumping" );
-      gui.setStatus( "Starting dump" );
+      gui.setStatus( "Loading data" );
       gui.stateRunning();
-      state.set( -1 );
-      runTask( () -> {
-         setPriority( Thread.MIN_PRIORITY );
-         checkStop( "Loading data" );
-         dal.loadEntityContent( categories, state );
-
-         checkStop( "Dumping catalog" );
-         try ( Exporter exp = exporter ) {
-            doExport( exp, "Dumping data" );
-         }
-
-         gui.stateCanExport( "Raw data dumped" );
-      } ).whenComplete( terminate( "Dump", gui::stateCanExport ) );
+      synchronized ( this ) {
+         entityLoaded.thenCompose( stage -> runTask( () -> {
+            setPriority( Thread.MIN_PRIORITY );
+            checkStop( "Dumping catalog" );
+            try ( Exporter exp = exporter ) {
+               doExport( exp, "Dumping data" );
+            }
+            gui.stateCanExport( "Raw data dumped" );
+         } ) ).whenComplete( terminate( "Dump", gui::stateCanExport ) );
+      }
    }
 
    private void doExport( Exporter exporter, String dataMessage ) throws Exception {
