@@ -144,7 +144,7 @@ od.search = {
 
    "filter_column": function data_search_filter_column ( search, col_name ) {
       if ( ! search ) return;
-      var num = search.match( /^(\d+[kmg]?)\s*-\s*(\d+[kmg]?)|([<>]=?)\s*(\d+[kmg]?)?|(\d+[kmg]?)([+-]?)$/i );
+      var num = search.trim().match( /^(?:(\d+[kmg]?)\s*-\s*(\d+[kmg]?)|([<>]=?)\s*(\d+[kmg]?)?|(\d+[kmg]?)([+-]?))$/i );
       if ( ! num ) {
          // Text based search; parse pattern.
          var pattern = search ? od.search.gen_search( search ) : null;
