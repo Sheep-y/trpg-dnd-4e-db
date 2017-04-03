@@ -27,34 +27,34 @@ public class CreatureConverter extends LeveledConverter {
 
    private final Matcher regxType = Pattern.compile( "<span class=type>(.*?)(,\\s*[^<()]+)?</span>" ).matcher( "" );
 
-   @Override protected void correctEntry () {
-      if ( find( regxType ) ) {
-         do {
-            String termText = regxType.group( 1 ).trim().toLowerCase().replaceAll( "[/,()]+", " " );
-            if ( ! termText.isEmpty() ) // type and keywords
-               keywords.addAll( Arrays.asList( termText.split( "\\s+" ) ) );
-            String race = regxType.group( 2 ); // race, e.g. drow, human,
-            if ( race != null ) {
-               race = race.substring( 1 ).trim();
-               if ( ! race.trim().contains( " " ) ) // Exclude rare races like "red dragon", "fang titan drake", "dark one", "mind flayer" etc.
-                  keywords.add( race );
-            }
-         } while ( regxType.find() );
-         sizes.addAll( keywords );
-         sizes.retainAll( AllSizes );
-         keywords.removeAll( AllSizes );
-         keywords.removeAll( KeywordBlackList );
-         if ( sizes.isEmpty() ) {
-            sizes.add( "medium" );
-            swap( "<span class=type>", "<span class=type>Medium " );
-            fix( "missing content" );
+   protected boolean findSizeAndTypes () {
+      if ( ! find( regxType ) ) return false;
+
+      do {
+         String termText = regxType.group( 1 ).trim().toLowerCase().replaceAll( "[/,()]+", " " );
+         if ( ! termText.isEmpty() ) // type and keywords
+            keywords.addAll( Arrays.asList( termText.split( "\\s+" ) ) );
+         String race = regxType.group( 2 ); // race, e.g. drow, human,
+         if ( race != null ) {
+            race = race.substring( 1 ).trim();
+            if ( ! race.trim().contains( " " ) ) // Exclude rare races like "red dragon", "fang titan drake", "dark one", "mind flayer" etc.
+               keywords.add( race );
          }
-         meta( SIZE, String.join( ", ", sizes.stream().map( Utils::ucfirst ).toArray( String[]::new ) ) );
-         meta( TYPE, String.join( ", ", keywords.stream().map( Utils::ucfirst ).toArray( String[]::new ) ) );
-         sizes.clear();
-         keywords.clear();
-      } else
-         warn( "Creature type not found" );
+      } while ( regxType.find() );
+      sizes.addAll( keywords );
+      sizes.retainAll( AllSizes );
+      keywords.removeAll( AllSizes );
+      keywords.removeAll( KeywordBlackList );
+      if ( sizes.isEmpty() ) {
+         sizes.add( "medium" );
+         swap( "<span class=type>", "<span class=type>Medium " );
+         fix( "missing content" );
+      }
+      meta( SIZE, String.join( ", ", sizes.stream().map( Utils::ucfirst ).toArray( String[]::new ) ) );
+      meta( TYPE, String.join( ", ", keywords.stream().map( Utils::ucfirst ).toArray( String[]::new ) ) );
+      sizes.clear();
+      keywords.clear();
+      return true;
    }
 
    private static final int sizeIndex ( String size ) {

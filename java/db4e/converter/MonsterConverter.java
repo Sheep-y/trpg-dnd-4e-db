@@ -47,6 +47,8 @@ public class MonsterConverter extends CreatureConverter {
                fix( "fix basic attack" );
             }
       }
+      if ( ! findSizeAndTypes() )
+         warn( "Creature type not found" );
       super.correctEntry();
    }
 }
