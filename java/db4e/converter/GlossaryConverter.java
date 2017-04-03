@@ -44,7 +44,7 @@ public class GlossaryConverter extends FieldSortConverter {
 "What's more, an artifact's powers change depending on its attitude or connection to its current owner.<br><br>" +
 "When its wielder performs actions in concert with its goals, an artifact becomes more powerful, but when " +
 "the wielder acts against the artifact's wishes, its power diminishes. The artifact's mindset is measured by a " +
-"concordance score." + entry.getContent() );
+"concordance score.</p>" + entry.getContent() );
             fix( "new entry" );
             break;
          case "glossary0453": // Item Set
@@ -60,12 +60,12 @@ public class GlossaryConverter extends FieldSortConverter {
 "A stowed item (for example, a magic cloak stuffed in a pack) doesn't count toward a set's benefits (though a sheathed weapon is considered to be worn). " +
 "Wondrous items are an exception and need only be carried in order for a character to gain an item set's benefits.<br><br>"
                + "Each magic item in a set can stand alone. " +
-"No item needs to be used with another of its set to function."
+"No item needs to be used with another of its set to function.</p>"
                + "<h3>GROUP ITEM SET</h3>"
                + "<p>Some item sets are designed to be borne not by a single character, but by the members of an entire party. " +
 "When a party collects the items of a group item set, the set benefits are determined by the number of allies who possess items from the set. " +
 "Each character wearing or wielding an item from the set qualifies for the set benefits."
-               + "<br><br>Update (08/2012)<br>Insert a paragraph for multiple set and a sentence for proficiency requiremente.<br><br>"
+               + "<br><br>Update (08/2012)<br>Insert a paragraph for multiple set and a sentence for proficiency requiremente.<br><br></p>"
                + "<p class=publishedIn>Published in Adventurer's Vault 2, pages 92, 130.</p>" );
             fix( "new entry" );
             break;

@@ -102,6 +102,9 @@ public class BackgroundConverter extends Converter {
          case "background276": // Windrise Ports
             meta( BENEFIT, "Add one skill to your class skill list, and gain one additional language." );
             break;
+         case "background570": // Urban Shaman
+            metaAdd( BENEFIT, ". Substitude Streetwise for Nature on rituals when in urban." );
+            break;
 
          case "background747": // Baldur's Gate (Shifter)
             meta( BENEFIT, "Add History to class skill. +2 bonus to History. Add Elven to known languages. Pass as Elf when not shifting." );
