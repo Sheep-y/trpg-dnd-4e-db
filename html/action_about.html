@@ -20,7 +20,6 @@
          <p>
             Language<span class='i18n'> action.about.lbl_select_lang </span>
             <select id='action_about_lst_lang' onchange='od.action.about.change_language(this.value)'>
-               <option value='' class='i18n'> action.about.opt_auto
                <option value='zh'> Chinese 中文
                <option value='en'> English
             </select> <br/>
@@ -230,11 +229,13 @@
    </header>
 </section>
 
-<script><?coco-start js(minify) ?>   'use strict';(function action_about_init(){
+<script><?coco-start js(minify) ?>(function action_about_init(){ 'use strict';
 
 od.action.about = {
 
-   "initialize" : function act_about_init () {},
+   "initialize" : function act_about_init () {
+      _('#action_about_lst_lang')[0].value = _.l.currentLocale;
+   },
 
    "setup": function act_about_setup () {
       od.action.about.change_language( _('#action_about_lst_lang')[0].value );

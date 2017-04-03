@@ -39,6 +39,7 @@ od.gui = {
          var lastCSS = document.styleSheets.length-1;
          document.styleSheets[lastCSS].cssRules[0].style.backgroundImage = 'url("' + od.config.data_read_path + '/res/viewer_category_icon.png")';
       } catch ( err ) { _.error( err ); }
+      if ( ! _.pref( _.l.saveKey ) ) _.l.setLocale( 'en' ); // Default to English
       _.l.detectLocale( 'en' );
       gui.l10n();
       gui.go();
