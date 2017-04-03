@@ -16,7 +16,7 @@ public class DeityConverter extends Converter {
       super.initialise();
    }
 
-   private final Matcher regxDomain  = Pattern.compile( "<b>Domain: </b>([^<]+)" ).matcher( "" );
+   private final Matcher regxDomain = Pattern.compile( "<b>Domain: </b>([^<]+)" ).matcher( "" );
 
    @Override protected void convertEntry () {
       meta( "", meta( 0 ), meta( 1 ) );
@@ -27,7 +27,6 @@ public class DeityConverter extends Converter {
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
       int diff = a.getSimpleField( 2 ).compareTo( b.getSimpleField( 2 ) );
-      if ( diff != 0 ) return -diff;
-      return super.sortEntity( a, b );
+      return diff == 0 ? super.sortEntity( a, b ) : -diff;
    }
 }

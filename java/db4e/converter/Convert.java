@@ -351,7 +351,7 @@ public abstract class Convert {
          case "Class":
             return new ClassConverter( category );
          case "Companion":
-            return new FieldSortConverter( category ); // Sort by first field
+            return new CompanionConverter( category ); // Sort by first field
          case "Deity":
             return new DeityConverter( category );
          case "EpicDestiny":

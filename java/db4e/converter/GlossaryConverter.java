@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GlossaryConverter extends FieldSortConverter {
+public class GlossaryConverter extends Converter {
 
    public GlossaryConverter ( Category category ) {
-      super( category, 0 );
+      super( category );
    }
 
    private final Matcher regxFlavor = Pattern.compile( "<p class=flavor>(?!.*<p class=flavor>)" ).matcher( "" );
@@ -117,5 +117,10 @@ public class GlossaryConverter extends FieldSortConverter {
          else
             result.add( name.substring( 0, name.length() - 3 ) );
       return result.toArray( new String[ result.size() ] );
+   }
+
+   @Override protected int sortEntity ( Entry a, Entry b ) {
+      int diff = a.getSimpleField( 0 ).compareTo( b.getSimpleField( 0 ) );
+      return diff == 0 ? super.sortEntity( a, b ) : diff;
    }
 }
