@@ -4,6 +4,7 @@ import db4e.Main;
 import db4e.controller.Controller;
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,11 @@ public class Converter extends Convert {
    private final Matcher regxCheckDate  = Pattern.compile( "\\(\\d+/\\d+/\\d+\\)" ).matcher( "" );
    private final Map<String, Entry> shortId = new HashMap<>();
    private final Map<String, AtomicInteger> openCloseCount = new HashMap<>();
+
+   protected final int NAME = -123;
+   protected final int TEXT = -456;
+   protected final int LOOKUP = -789;
+   private List<Runnable> tests;
 
    /**
     * Apply common conversions to entry data.
@@ -329,6 +335,44 @@ public class Converter extends Convert {
       corrections.add( correction );
    }
 
+   protected final void fix ( String correction, int field, String pattern ) {
+      fix( correction );
+      test( field, pattern );
+   }
+
+   protected final void test ( int field, String pattern ) {
+      if ( ! Main.debug.get() ) return;
+      if ( tests == null ) tests = new ArrayList<>( 1024 );
+      final String entryId = entry.getId();
+      tests.add( () -> {
+         Entry entry = shortId.get( entryId );
+         switch ( field ) {
+            case NAME:
+               if ( ! Pattern.compile( pattern ).matcher( entry.getName() ).find() )
+                  log.log( Level.WARNING, "Conversion test failed on name of {0}: {1}", new Object[]{ entry, pattern } );
+               break;
+            case TEXT:
+               if ( ! Pattern.compile( pattern ).matcher( entry.getContent() ).find() )
+                  log.log( Level.WARNING, "Conversion test failed on text of {0}: {1}", new Object[]{ entry, pattern } );
+               break;
+            case LOOKUP:
+               List<String> lookup = category.index.get( pattern );
+               if ( lookup == null || ! lookup.contains( entry ) )
+                  log.log( Level.WARNING, "Conversion test failed on lookup index of {0}: expected {1}", new Object[]{ entry, pattern } );
+               break;
+            default:
+               if ( ! Pattern.compile( pattern ).matcher( entry.getSimpleField( field ) ).find() )
+                  log.log( Level.WARNING, "Conversion test failed on field {1} of {0}: {2}", new Object[]{ entry, field, pattern } );
+               break;
+         }
+      } );
+   }
+
+   protected void testConversion() {
+      if ( ! Main.debug.get() || tests == null ) return;
+      for ( Runnable test : tests ) test.run();
+   }
+
    protected final void swap ( CharSequence from, CharSequence to ) {
       entry.setContent( entry.getContent().replace( from, to ) );
    }
@@ -373,16 +417,5 @@ public class Converter extends Convert {
          .replace( "Intelligence", "Int" )
          .replace( "Wisdom", "Wis" )
          .replace( "Charisma", "Cha" );
-   }
-
-   protected void testMeta ( Entry entry, int field, String simpleText ) {
-      if ( ! simpleText.equals( entry.getSimpleField( field ) ) )
-         log.log( Level.WARNING, "Failed conversion of {0}: field {1} mismatch, expected {2}", new Object[]{ entry, field, simpleText });
-   }
-
-   protected void testLookup ( String name, String entry ) {
-      List<String> lookup = category.index.get( name.toLowerCase() );
-      if ( lookup == null || ! lookup.contains( entry ) )
-         log.log( Level.WARNING, "Failed lookup index of {0}: expected {1}", new Object[]{ entry, name });
    }
 }

@@ -49,8 +49,9 @@ public class BackgroundConverter extends Converter {
 
    @Override protected void correctEntry () {
       if ( meta( TYPE ).isEmpty() && entry.getName().contains( " - " ) ) {
-         meta( TYPE, entry.getName().split( " - " )[0] ); // Tested on background450
-         fix( "missing meta" );
+         String typeText = entry.getName().split( " - " )[0];
+         meta( TYPE, typeText);
+         fix( "missing meta", TYPE, typeText );
       }
 
       if ( find( regxAnyLang ) ) {
@@ -59,9 +60,11 @@ public class BackgroundConverter extends Converter {
       }
 
       if ( find( regxAssociate ) ) { // Skill or language
-         String associate = regxAssociate.group( 1 ); // Tested on background450
-         if ( regxAssociate.find() ) // Language
-            associate += ", " + regxAssociate.group( 1 ); // Tested on background450
+         String associate = regxAssociate.group( 1 );
+         if ( regxAssociate.find() ) { // Language
+            associate += ", " + regxAssociate.group( 1 );
+            test( BENEFIT, ", " + regxAssociate.group( 1 ) );
+         }
          meta( BENEFIT, "Associated: " + associate );
       }
 
@@ -142,16 +145,5 @@ public class BackgroundConverter extends Converter {
             ?  entry.getName().split( " - " )[1]
             : entry.getName()
          };
-   }
-
-   @Override protected void testConversion() {
-      testLookup( "Lost in the Feywild", "background450" );
-      for ( Entry entry : category.entries )
-         switch ( entry.getId() ) {
-            case "background450":
-               testMeta( entry, TYPE, "Recent Life" );
-               testMeta( entry, BENEFIT, "Associated: Nature, Elven" );
-               break;
-         }
    }
 }
