@@ -45,7 +45,7 @@ This downloader will create new data columns for easier data filter:
 * Item: Split into 4 categories (Item, Weapon, Implement, and Armor). Add Type column.
 * Companion: Size and Type.
 * Monster: Size and Type.
-* Terrain: Group and Level.  Combine with Trap for better mobile layout.
+* Terrain: Group and Level.  Combine with Trap to control category count.
 
 Many existing columns are also enhanced or corrected, such as multi-source classes.
 
@@ -59,8 +59,8 @@ This downloader fixes over 1560 entries during export:
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
-* 23 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 24 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
+* 23 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 2 new entries (Artifact and Item Set.)
 * 204 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)

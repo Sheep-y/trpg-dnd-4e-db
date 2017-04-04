@@ -39,7 +39,7 @@ public class MonsterConverter extends CreatureConverter {
          case "monster3717": // Blistered Soul
             swap( "<span class=type> </span>", "<span class=type>Medium aberrant humanold</span>" );
             fix( "missing content" );
-            break;
+            // Fallthrough to fix basic attack
 
          default:
             if ( find( "basic melee attack") ) {
