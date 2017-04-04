@@ -335,13 +335,14 @@ public class Converter extends Convert {
       corrections.add( correction );
    }
 
-   protected final void fix ( String correction, int field, String pattern ) {
+   protected final void fix ( String correction, int field, CharSequence pattern ) {
       fix( correction );
       test( field, pattern );
    }
 
-   protected final void test ( int field, String pattern ) {
-      test( field, Pattern.compile( pattern, Pattern.LITERAL ) );
+   protected final void test ( int field, CharSequence pattern ) {
+      if ( pattern.length() <= 0 ) return;
+      test( field, Pattern.compile( pattern.toString(), Pattern.LITERAL ) );
    }
 
    protected final void test ( int field, Pattern pattern ) {
@@ -350,6 +351,10 @@ public class Converter extends Convert {
       final String entryId = entry.getId();
       tests.add( () -> {
          Entry entry = shortId.get( entryId );
+         if ( entry == null ) {
+            log.log( Level.WARNING, "Conversion test on exisance of {0}: {1}", new Object[]{ entryId, pattern } );
+            return;
+         }
          switch ( field ) {
             case NAME:
                if ( ! pattern.matcher( entry.getName() ).find() )
@@ -360,9 +365,9 @@ public class Converter extends Convert {
                   log.log( Level.WARNING, "Conversion test failed on text of {0}: {1}", new Object[]{ entry, pattern } );
                break;
             case LOOKUP:
-               List<String> lookup = category.index.get( pattern.pattern() );
-               if ( lookup == null || ! lookup.contains( entry ) )
-                  log.log( Level.WARNING, "Conversion test failed on lookup index of {0}: expected {1}", new Object[]{ entry, pattern } );
+               List<String> lookup = category.index.get( pattern.pattern().toLowerCase() );
+               if ( lookup == null || ! lookup.contains( entry.getId() ) )
+                  log.log( Level.WARNING, "Conversion test failed on lookup index of {0}: expected {1}", new Object[]{ entry, pattern.pattern() } );
                break;
             default:
                if ( ! pattern.matcher( entry.getSimpleField( field ) ).find() )
@@ -380,6 +385,7 @@ public class Converter extends Convert {
 
    protected final void swap ( CharSequence from, CharSequence to ) {
       entry.setContent( entry.getContent().replace( from, to ) );
+      test( TEXT, to );
    }
 
    protected final void swapFirst ( String from, String to ) {
