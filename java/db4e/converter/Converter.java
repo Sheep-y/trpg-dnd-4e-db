@@ -341,6 +341,10 @@ public class Converter extends Convert {
    }
 
    protected final void test ( int field, String pattern ) {
+      test( field, Pattern.compile( pattern, Pattern.LITERAL ) );
+   }
+
+   protected final void test ( int field, Pattern pattern ) {
       if ( ! Main.debug.get() ) return;
       if ( tests == null ) tests = new ArrayList<>( 1024 );
       final String entryId = entry.getId();
@@ -348,20 +352,20 @@ public class Converter extends Convert {
          Entry entry = shortId.get( entryId );
          switch ( field ) {
             case NAME:
-               if ( ! Pattern.compile( pattern ).matcher( entry.getName() ).find() )
+               if ( ! pattern.matcher( entry.getName() ).find() )
                   log.log( Level.WARNING, "Conversion test failed on name of {0}: {1}", new Object[]{ entry, pattern } );
                break;
             case TEXT:
-               if ( ! Pattern.compile( pattern ).matcher( entry.getContent() ).find() )
+               if ( ! pattern.matcher( entry.getContent() ).find() )
                   log.log( Level.WARNING, "Conversion test failed on text of {0}: {1}", new Object[]{ entry, pattern } );
                break;
             case LOOKUP:
-               List<String> lookup = category.index.get( pattern );
+               List<String> lookup = category.index.get( pattern.pattern() );
                if ( lookup == null || ! lookup.contains( entry ) )
                   log.log( Level.WARNING, "Conversion test failed on lookup index of {0}: expected {1}", new Object[]{ entry, pattern } );
                break;
             default:
-               if ( ! Pattern.compile( pattern ).matcher( entry.getSimpleField( field ) ).find() )
+               if ( ! pattern.matcher( entry.getSimpleField( field ) ).find() )
                   log.log( Level.WARNING, "Conversion test failed on field {1} of {0}: {2}", new Object[]{ entry, field, pattern } );
                break;
          }
@@ -370,6 +374,7 @@ public class Converter extends Convert {
 
    protected void testConversion() {
       if ( ! Main.debug.get() || tests == null ) return;
+      log.log( Level.INFO, "Running {1} conversion tests on {0}", new Object[]{ category.id, tests.size() } );
       for ( Runnable test : tests ) test.run();
    }
 
@@ -389,8 +394,14 @@ public class Converter extends Convert {
       entry.setField( index, setTo );
    }
 
+   protected final void metaTest ( int index, Object setTo ) {
+      entry.setField( index, setTo );
+      test( index, Pattern.compile( setTo.toString(), Pattern.LITERAL ) );
+   }
+
    protected final void metaAdd ( int index, Object append ) {
       entry.setField( index, entry.getSimpleField( index ) + append );
+      test( index, append.toString() );
    }
 
    protected final void meta ( Object... setTo ) {
