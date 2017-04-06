@@ -305,16 +305,12 @@ public abstract class Convert {
          fixCount.clear();
          fixedEntry.clear();
       }
-      synchronized ( ClassConverter.featureMap ) {
-         ClassConverter.featureMap.clear();
-      }
    }
 
    public void mapIndex () {
       Map<String, List<String>> map = category.index = new HashMap<>( 25000, 1f );
       for ( Entry entry : category.entries ) {
          this.entry = entry;
-         indexEntry();
          for ( String name : getLookupName( entry ) ) {
             name = name.replaceAll( "[^\\w'-éû]+", " " ).trim().toLowerCase();
             if ( ! map.containsKey( name ) ) {
@@ -446,11 +442,6 @@ public abstract class Convert {
       parseSourceBook();
       // Converter will do some checking if debug is on.
    }
-
-   /**
-    * Apply index operations on entry data.
-    */
-   protected void indexEntry () {}
 
    /**
     * A chance to double check result of converts, fixes, sorts, etc.
