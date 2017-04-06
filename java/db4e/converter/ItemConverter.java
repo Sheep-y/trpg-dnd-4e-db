@@ -451,7 +451,7 @@ public class ItemConverter extends LeveledConverter {
             break;
 
          case "item1895": // Mrtok, Ogre Chief (Gauntlets of Ogre Power)
-            swap( " 0 gp", " 1,000 gp" );
+            swap( " 0 gp", " 1,000 gp" );
             meta( COST, "1,000 gp" );
             fix( "consistency" );
             break;

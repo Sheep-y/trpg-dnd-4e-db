@@ -43,17 +43,17 @@ public class ClassConverter extends Converter {
       switch ( entry.getId() ) {
          case "class811": // Assassin (Executioner)
          case "class891": // Hybrid Assassin (Executioner)
-            meta( POWER, "Martial and Shadow" );
+            metaTest( POWER, "Martial and Shadow" );
             fix( "wrong meta" );
             break;
          case "class788": // Ranger (Hunter)
          case "class790": // Ranger (Scout)
          case "class906": // Barbarian (Berserker)
-            meta( POWER, "Martial and Primal" );
+            metaTest( POWER, "Martial and Primal" );
             fix( "wrong meta" );
             break;
          case "class907": // Bard (Skald)
-            meta( POWER, "Arcane and Martial" );
+            metaTest( POWER, "Arcane and Martial" );
             fix( "wrong meta" );
             break;
          case "class893": // Hybrid Vampire
@@ -84,11 +84,11 @@ public class ClassConverter extends Converter {
          case "class446": // Hybrid Warden
          case "class8": // Warlord (Marshal)
          case "class359": // Hybrid Warlord
-            meta( ABILITY, "Str" );
+            metaTest( ABILITY, "Str" );
             break;
          case "class124": // Battlemind
          case "class590": // Hybrid Battlemind
-            meta( ABILITY, "Con" );
+            metaTest( ABILITY, "Con" );
             break;
          case "class466": // Assassian
          case "class811": // Assassian (Executioner)
@@ -101,7 +101,7 @@ public class ClassConverter extends Converter {
          case "class356": // Hybrid Rogue
          case "class817": // Vampire
          case "class893": // Hybrid Vampire
-            meta( ABILITY, "Dex" );
+            metaTest( ABILITY, "Dex" );
             break;
          case "class125": // Artificer
          case "class536": // Hybrid Artificer
@@ -115,7 +115,7 @@ public class ClassConverter extends Converter {
          case "class958": // Wizard (Sha'ir)
          case "class908": // Wizard (Witch)
          case "class360": // Hybrid Wizard
-            meta( ABILITY, "Int" );
+            metaTest( ABILITY, "Int" );
             break;
          case "class129": // Avenger
          case "class439": // Hybrid Avenger
@@ -131,7 +131,7 @@ public class ClassConverter extends Converter {
          case "class612": // Hybrid Seeker
          case "class147": // Shaman
          case "class444": // Hybrid Shaman
-            meta( ABILITY, "Wis" );
+            metaTest( ABILITY, "Wis" );
             break;
          case "class529": // Ardent
          case "class588": // Hybrid Ardent
@@ -143,30 +143,30 @@ public class ClassConverter extends Converter {
          case "class445": // Hybrid Sorcerer
          case "class821": // Warlock (Binder)
          case "class793": // Warlock (Hexblade)
-            meta( ABILITY, "Cha" );
+            metaTest( ABILITY, "Cha" );
             break;
          case "class5": // Ranger
          case "class355": // Hybrid Ranger
-            meta( ABILITY, "Str, Dex" );
+            metaTest( ABILITY, "Str, Dex" );
             break;
          case "class2": // Cleric (Templar)
          case "class352": // Hybrid Cleric
-            meta( ABILITY, "Str, Wis" );
+            metaTest( ABILITY, "Str, Wis" );
             break;
          case "class4": // Paladin
          case "class354": // Hybrid Paladin
          case "class892": // Hybrid Paladin (Blackguard)
          case "class895": // Hybrid Paladin (Cavalier)
-            meta( ABILITY, "Str, Cha" );
+            metaTest( ABILITY, "Str, Cha" );
             break;
          case "class788": // Ranger (Hunter)
          case "class719": // Rogue (Thief)
-            meta( ABILITY, "Dex or Str" );
+            metaTest( ABILITY, "Dex or Str" );
             break;
          case "class7": // Warlock
          case "class358": // Hybrid Warlock
          case "class896": // Hybrid Warlock (Binder)
-            meta( ABILITY, "Con, Cha" );
+            metaTest( ABILITY, "Con, Cha" );
             break;
          default:
             warn( "Unknown class, cannot provide primary abilities" );
