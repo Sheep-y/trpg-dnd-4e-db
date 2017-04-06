@@ -38,18 +38,18 @@ public class BackgroundConverter extends Converter {
          String associate = regxTrim.reset( regxBenefit.group( 1 ) ).replaceAll( "" ).trim();
          if ( ! associate.endsWith( "." ) ) associate += '.';
          associate = associate.replace( "saving throws", "saves" );
-         metaTest( BENEFIT, Utils.ucfirst( associate ) );
+         meta( BENEFIT, Utils.ucfirst( associate ) );
       }
 
       if ( meta( CAMPAIGN ).equals( "Scales of War Adventure Path" ) )
-         metaTest( CAMPAIGN, "Scales of War" );
+         meta( CAMPAIGN, "Scales of War" );
       else if ( meta( CAMPAIGN ).equals( "Forgotten Realms" ) )
-         metaTest( CAMPAIGN, "Faerûn" );
+         meta( CAMPAIGN, "Faerûn" );
    }
 
    @Override protected void correctEntry () {
       if ( meta( TYPE ).isEmpty() && entry.getName().contains( " - " ) ) {
-         metaTest( TYPE, entry.getName().split( " - " )[0] );
+         meta( TYPE, entry.getName().split( " - " )[0] );
          fix( "missing meta" );
       }
 
@@ -69,13 +69,13 @@ public class BackgroundConverter extends Converter {
 
       switch ( entry.getId() ) {
          case "background30": // Scorned Noble
-            metaTest( BENEFIT, "Gain +2 to saves when no allies are within 5 squares." );
+            meta( BENEFIT, "Gain +2 to saves when no allies are within 5 squares." );
             break;
          case "background34": // Warsmith
-            metaTest( BENEFIT, "Can construct weapons and armor. Can cast Creation rituals as if you have Ritual Caster." );
+            meta( BENEFIT, "Can construct weapons and armor. Can cast Creation rituals as if you have Ritual Caster." );
             break;
          case "background77": // Imbuer
-            metaTest( BENEFIT, "Can construct implements and wondrous items. Can cast Creation rituals as if you have Ritual Caster." );
+            meta( BENEFIT, "Can construct implements and wondrous items. Can cast Creation rituals as if you have Ritual Caster." );
             break;
          case "background163": // Accursed Lineage
             metaAdd( BENEFIT, ". +2 Diplomacy and Intimidate against undead." );
@@ -99,38 +99,38 @@ public class BackgroundConverter extends Converter {
             metaAdd( BENEFIT, ". +1 to saves against necrotic effects." );
             break;
          case "background232": // Child of Two Worlds
-            metaTest( BENEFIT, "Associated: choose from either region of your origin.");
+            meta( BENEFIT, "Associated: choose from either region of your origin.");
             break;
          case "background276": // Windrise Ports
-            metaTest( BENEFIT, "Add one skill to your class skill list, and gain one additional language." );
+            meta( BENEFIT, "Add one skill to your class skill list, and gain one additional language." );
             break;
          case "background570": // Urban Shaman
             metaAdd( BENEFIT, ". Substitude Streetwise for Nature on rituals when in urban." );
             break;
 
          case "background747": // Baldur's Gate (Shifter)
-            metaTest( BENEFIT, "Add History to class skill. +2 bonus to History. Add Elven to known languages. Pass as Elf when not shifting." );
+            meta( BENEFIT, "Add History to class skill. +2 bonus to History. Add Elven to known languages. Pass as Elf when not shifting." );
             break;
          case "background748": // The Dalelands (Shifter)
-            metaTest( BENEFIT, "Add Stealth and Nature to class skill. +2 bonus to Stealth. While shifting, +2 bonus to Intimidate." );
+            meta( BENEFIT, "Add Stealth and Nature to class skill. +2 bonus to Stealth. While shifting, +2 bonus to Intimidate." );
             break;
          case "background750": // Durpar (Shifter)
-            metaTest( BENEFIT, "Reroll any Dungeoneering. Add Goblin to known languages." );
+            meta( BENEFIT, "Reroll any Dungeoneering. Add Goblin to known languages." );
             break;
          case "background751": // The Great Dale (Shifter)
-            metaTest( BENEFIT, "Reroll any Nature. Add Elven to known languages." );
+            meta( BENEFIT, "Reroll any Nature. Add Elven to known languages." );
             break;
          case "background753": // Luskan (Shifter)
-            metaTest( BENEFIT, "Reroll any Stealth. Add Shou to known languages." );
+            meta( BENEFIT, "Reroll any Stealth. Add Shou to known languages." );
             break;
          case "background754": // Moonshae Isles (Shifter)
-            metaTest( BENEFIT, "Add Athletics to class skill. +3 bonus to Athletics checks made to swim, piloting water vessels, or move on boat. Add Chondathan to known languages." );
+            meta( BENEFIT, "Add Athletics to class skill. +3 bonus to Athletics checks made to swim, piloting water vessels, or move on boat. Add Chondathan to known languages." );
             break;
          case "background756": // Sembia (Shifter)
-            metaTest( BENEFIT, "Add Bluff and Diplomacy to class skill. Add Netherese to known languages. Pass as Human when not shifting." );
+            meta( BENEFIT, "Add Bluff and Diplomacy to class skill. Add Netherese to known languages. Pass as Human when not shifting." );
             break;
          case "background757": // Tethyr (Shifter)
-            metaTest( BENEFIT, "Add Stealth to class skill. +2 bonus to Stealth. Add Chondathan or Draconic to known languages." );
+            meta( BENEFIT, "Add Stealth to class skill. +2 bonus to Stealth. Add Chondathan or Draconic to known languages." );
             break;
 
          default:

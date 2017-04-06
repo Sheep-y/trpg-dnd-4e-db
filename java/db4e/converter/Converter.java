@@ -398,11 +398,10 @@ public class Converter extends Convert {
 
    protected final void meta ( int index, Object setTo ) {
       entry.setField( index, setTo );
-   }
-
-   protected final void metaTest ( int index, Object setTo ) {
-      entry.setField( index, setTo );
-      test( index, Pattern.compile( setTo.toString(), Pattern.LITERAL ) );
+      if ( setTo instanceof Object[] )
+         test( index, Pattern.compile( ( (Object[]) setTo )[0].toString(), Pattern.LITERAL ) );
+      else
+         test( index, Pattern.compile( setTo.toString(), Pattern.LITERAL ) );
    }
 
    protected final void metaAdd ( int index, Object append ) {

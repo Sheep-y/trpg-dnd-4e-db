@@ -43,17 +43,17 @@ public class ClassConverter extends Converter {
       switch ( entry.getId() ) {
          case "class811": // Assassin (Executioner)
          case "class891": // Hybrid Assassin (Executioner)
-            metaTest( POWER, "Martial and Shadow" );
+            meta( POWER, "Martial and Shadow" );
             fix( "wrong meta" );
             break;
          case "class788": // Ranger (Hunter)
          case "class790": // Ranger (Scout)
          case "class906": // Barbarian (Berserker)
-            metaTest( POWER, "Martial and Primal" );
+            meta( POWER, "Martial and Primal" );
             fix( "wrong meta" );
             break;
          case "class907": // Bard (Skald)
-            metaTest( POWER, "Arcane and Martial" );
+            meta( POWER, "Arcane and Martial" );
             fix( "wrong meta" );
             break;
          case "class893": // Hybrid Vampire
@@ -84,11 +84,11 @@ public class ClassConverter extends Converter {
          case "class446": // Hybrid Warden
          case "class8": // Warlord (Marshal)
          case "class359": // Hybrid Warlord
-            metaTest( ABILITY, "Str" );
+            meta( ABILITY, "Str" );
             break;
          case "class124": // Battlemind
          case "class590": // Hybrid Battlemind
-            metaTest( ABILITY, "Con" );
+            meta( ABILITY, "Con" );
             break;
          case "class466": // Assassian
          case "class811": // Assassian (Executioner)
@@ -101,7 +101,7 @@ public class ClassConverter extends Converter {
          case "class356": // Hybrid Rogue
          case "class817": // Vampire
          case "class893": // Hybrid Vampire
-            metaTest( ABILITY, "Dex" );
+            meta( ABILITY, "Dex" );
             break;
          case "class125": // Artificer
          case "class536": // Hybrid Artificer
@@ -115,7 +115,7 @@ public class ClassConverter extends Converter {
          case "class958": // Wizard (Sha'ir)
          case "class908": // Wizard (Witch)
          case "class360": // Hybrid Wizard
-            metaTest( ABILITY, "Int" );
+            meta( ABILITY, "Int" );
             break;
          case "class129": // Avenger
          case "class439": // Hybrid Avenger
@@ -131,7 +131,7 @@ public class ClassConverter extends Converter {
          case "class612": // Hybrid Seeker
          case "class147": // Shaman
          case "class444": // Hybrid Shaman
-            metaTest( ABILITY, "Wis" );
+            meta( ABILITY, "Wis" );
             break;
          case "class529": // Ardent
          case "class588": // Hybrid Ardent
@@ -143,30 +143,30 @@ public class ClassConverter extends Converter {
          case "class445": // Hybrid Sorcerer
          case "class821": // Warlock (Binder)
          case "class793": // Warlock (Hexblade)
-            metaTest( ABILITY, "Cha" );
+            meta( ABILITY, "Cha" );
             break;
          case "class5": // Ranger
          case "class355": // Hybrid Ranger
-            metaTest( ABILITY, "Str, Dex" );
+            meta( ABILITY, "Str, Dex" );
             break;
          case "class2": // Cleric (Templar)
          case "class352": // Hybrid Cleric
-            metaTest( ABILITY, "Str, Wis" );
+            meta( ABILITY, "Str, Wis" );
             break;
          case "class4": // Paladin
          case "class354": // Hybrid Paladin
          case "class892": // Hybrid Paladin (Blackguard)
          case "class895": // Hybrid Paladin (Cavalier)
-            metaTest( ABILITY, "Str, Cha" );
+            meta( ABILITY, "Str, Cha" );
             break;
          case "class788": // Ranger (Hunter)
          case "class719": // Rogue (Thief)
-            metaTest( ABILITY, "Dex or Str" );
+            meta( ABILITY, "Dex or Str" );
             break;
          case "class7": // Warlock
          case "class358": // Hybrid Warlock
          case "class896": // Hybrid Warlock (Binder)
-            metaTest( ABILITY, "Con, Cha" );
+            meta( ABILITY, "Con, Cha" );
             break;
          default:
             warn( "Unknown class, cannot provide primary abilities" );
@@ -183,6 +183,7 @@ public class ClassConverter extends Converter {
       }
       Set<String> result = findFeatures();
       result.add( name );
+      test( LOOKUP, name );
       if ( altName != null ) result.add( altName );
       if ( isHybrid ) result.add( "Hybrid " + name );
       if ( isHybrid && altName != null ) result.add( "Hybrid " + altName );
