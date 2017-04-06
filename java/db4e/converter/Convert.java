@@ -316,7 +316,7 @@ public abstract class Convert {
          this.entry = entry;
          indexEntry();
          for ( String name : getLookupName( entry ) ) {
-            name = name.replaceAll( "\\W+", " " ).trim().toLowerCase();
+            name = name.replaceAll( "[^\\w'-éû]+", " " ).trim().toLowerCase();
             if ( ! map.containsKey( name ) ) {
                List<String> idList = new ArrayList<>( 2 ); // Most entries do not duplicate
                idList.add( entry.getId() );

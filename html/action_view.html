@@ -222,33 +222,35 @@ od.action.view = {
          return [];
 
       function findPre ( node, len, offset ) {
-         var text = node.textContent, part = '';
+         var text = node.textContent, part = '', sibling = node.previousSibling;
          if ( text.length ) {
             if ( offset === undefined ) offset = text.length;
             part = text.substring( offset-Math.min( offset, len ), offset );
             len -= part.length;
             if ( len <= 0 ) return part;
          }
-         if ( node.previousSibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( node.previousSibling.tagName ) >= 0 )
-            return findPre( node.previousSibling, len ) + part;
+         if ( sibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( sibling.tagName ) >= 0 )
+            if ( sibling.tagName !== 'SPAN' || sibling.className !== 'level' )
+               return findPre( sibling, len ) + part;
          return part;
       }
 
       function findPost ( node, len, offset ) {
-         var text = node.textContent, part = '';
+         var text = node.textContent, part = '', sibling = node.nextSibling;
          if ( text.length ) {
             if ( offset === undefined ) offset = 0;
             part = text.substring( offset, Math.min( text.length, offset+len ) );
             len -= part.length;
             if ( len <= 0 ) return part;
          }
-         if ( node.nextSibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( node.nextSibling.tagName ) >= 0 )
-            return part + findPost( node.nextSibling, len );
+         if ( sibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( sibling.tagName ) >= 0 )
+            if ( sibling.tagName !== 'SPAN' || sibling.className !== 'level' )
+               return part + findPost( sibling, len );
          return part;
       }
 
       function normalise ( str ) {
-         return str.replace( /\W+/g, ' ' ).toLowerCase();
+         return str.replace( /[^\w'-éû]+/g, ' ' ).toLowerCase();
       }
 
       // Longest name is 45 chars long. Add one more for safe word cut.
