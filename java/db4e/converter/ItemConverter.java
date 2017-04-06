@@ -104,16 +104,18 @@ public class ItemConverter extends LeveledConverter {
 
    private void setArmorType ( Entry entry ) {
       if ( find( regxType ) ) {
-         meta( TYPE, regxType.group( 2 ).trim() );
+         String type = regxType.group( 2 ).trim();
          // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
-         if ( meta( TYPE ).split( ", " ).length >= 5 ) {
+         if ( type.split( ", " ).length >= 5 ) {
             entry.setContent( regxType.replaceFirst( "<b>$1</b>: Any" ) );
             meta( TYPE, "Any" );
             fix( "consistency" );
 
-         } else if ( meta( TYPE ).endsWith( "Shields" ) ) {
-            meta( TYPE, meta( TYPE ).replace( "Shields", "Shield" ) );
+         } else if ( type.endsWith( "Shields" ) ) {
+            meta( TYPE, type.replace( "Shields", "Shield" ) );
             fix( "consistency" );
+         } else {
+            meta( TYPE, type );
          }
          int minEnhancement = entry.getContent().indexOf( "<b>Minimum Enhancement Value</b>: " );
          if ( minEnhancement > 0 ) {
@@ -192,9 +194,8 @@ public class ItemConverter extends LeveledConverter {
       // Magical weapons
       if ( find( "<b>Weapon: </b>" ) ) {
          find( regxWeaponType );
-         meta( TYPE, regxWeaponType.group( 1 ) );
-         if ( meta( TYPE ).equals( "Dragonshard augment" ) )
-            meta( TYPE, "Dragonshard" ); // shorten type
+         String type = regxWeaponType.group( 1 );
+         meta( TYPE, type.equals( "Dragonshard augment" ) ? "Dragonshard" : type );
          return;
       }
       // Manual assign
@@ -370,12 +371,12 @@ public class ItemConverter extends LeveledConverter {
       }
 
       switch ( entry.getId() ) {
-         case "item1": // Cloth Armor
+         case "armor1": // Cloth Armor
             meta( COST, "1 gp" );
             fix( "wrong meta" );
             break;
 
-         case "item105": // Shield of Prator
+         case "armor105": // Shield of Prator
             swap( " class=magicitem>", " class=mihead>" );
             fix( "formatting" );
             break;
@@ -415,7 +416,7 @@ public class ItemConverter extends LeveledConverter {
             fix( "consistency" );
             break;
 
-         case "item509":  // Anarusi Codex
+         case "implement509":  // Anarusi Codex
             swap( "0 gp", "5,000 gp" );
             meta( COST, "5,000 gp" );
             fix( "missing content" );
@@ -437,9 +438,9 @@ public class ItemConverter extends LeveledConverter {
             fix( "missing power frequency" );
             break;
 
-         case "item1006": // Dancing Weapon
-         case "item1261": // Feral Armor
-         case "item2451": // Shadowfell Blade
+         case "weapon1006": // Dancing Weapon
+         case "armor1261": // Feral Armor
+         case "weapon2451": // Shadowfell Blade
             swap( "basic melee attack", "melee basic attack" );
             fix( "fix basic attack" );
             break;
@@ -456,13 +457,13 @@ public class ItemConverter extends LeveledConverter {
             fix( "consistency" );
             break;
 
-         case "item2002": // Orium Implement
+         case "implement2002": // Orium Implement
             swap( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand" );
             swap( "<p class='mistat indent'><b>Requirement:</b> Orb, Rod, Staff, Wand</p>", "" );
             fix( "missing content" );
             break;
 
-         case "item2495": // Shivli, White Wyrmling (Frost Weapon)
+         case "weapon2495": // Shivli, White Wyrmling (Frost Weapon)
             swap( ">+2<td class=mic3>0 gp<", ">+2<td class=mic3>3,400 gp<" );
             swap( ">+3<td class=mic3>0 gp<", ">+3<td class=mic3>17,000 gp<" );
             swap( ">+4<td class=mic3>0 gp<", ">+4<td class=mic3>85,000 gp<" );
@@ -494,7 +495,7 @@ public class ItemConverter extends LeveledConverter {
             fix( "consistency" );
             break;
 
-         case "item3328": // Scepter of the Chosen Tyrant
+         case "weapon3328": // Scepter of the Chosen Tyrant
             swap( "basic ranged attack", "ranged basic attack" );
             fix( "fix basic attack" );
             break;
@@ -507,7 +508,7 @@ public class ItemConverter extends LeveledConverter {
             fix( "missing content" );
             break;
 
-         case "item3415": // The Fifth Sword of Tyr
+         case "weapon3415": // The Fifth Sword of Tyr
             swap( "Power (Teleportation) ✦ Daily", "Power (Weapon) ✦ Daily" );
             fix( "typo" );
             break;
@@ -541,7 +542,7 @@ public class ItemConverter extends LeveledConverter {
          // case "item1864": // Mirror of Deception (fall through from above)
          case "item2271": // Ritualist's Lectern
          case "item2371": // Sacred Glade
-         case "item2490": // ShiftstoneLevel
+         case "item2490": // Shiftstone
          case "item2493": // Shining Sundial
          case "item2507": // Silence-Warded Room
          case "item2593": // Spying Mirrors (pair)
