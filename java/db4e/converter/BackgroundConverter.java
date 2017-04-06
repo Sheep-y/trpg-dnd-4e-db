@@ -62,9 +62,8 @@ public class BackgroundConverter extends Converter {
          String associate = regxAssociate.group( 1 );
          if ( regxAssociate.find() ) // Language
             associate += ", " + regxAssociate.group( 1 );
-         meta( BENEFIT, "Associated: " + associate );
          if ( ! entry.getId().equals( "background232" ) )
-            test( BENEFIT, associate );
+            meta( BENEFIT, "Associated: " + associate );
       }
 
       switch ( entry.getId() ) {

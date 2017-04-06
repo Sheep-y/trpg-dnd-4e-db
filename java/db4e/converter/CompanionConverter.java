@@ -25,15 +25,15 @@ public class CompanionConverter extends CreatureConverter {
    @Override protected void correctEntry () {
       if ( ! findSizeAndTypes() ) {
          if ( meta( 0 ).equals( "Companion" ) ) {
-            meta( SIZE, "Medium" );
-            meta( TYPE, "Beast, Natural" );
             switch ( entry.getId() ) {
                case "companion4": // Lizard
                case "companion6": // Serpent
+                  meta( SIZE, "Medium" );
                   meta( TYPE, "Beast, Natural, Reptile" );
                   break;
                case "companion5": // Raptor
                   meta( SIZE, "Small" );
+                  meta( TYPE, "Beast, Natural" );
                   break;
                case "companion54": // Vadalis-bred Griffon`
                   meta( SIZE, "Large" );
@@ -45,7 +45,11 @@ public class CompanionConverter extends CreatureConverter {
                   break;
                case "companion91": // Simian
                   meta( SIZE, "Small or Medium" );
+                  meta( TYPE, "Beast, Natural" );
                   break;
+               default:
+                  meta( SIZE, "Medium" );
+                  meta( TYPE, "Beast, Natural" );
             }
          } else { // Familiars
             meta( SIZE, "Tiny" );
