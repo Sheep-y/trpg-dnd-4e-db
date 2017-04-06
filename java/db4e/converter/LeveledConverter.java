@@ -112,29 +112,29 @@ class LeveledConverter extends Converter {
             fix( "formatting" );
          }
 
-         switch ( entry.getId() ) {
-         case "poison19": // Granny's Grief
-            swap( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
-            fix( "missing published" );
-            break;
-         case "item3561": // Aboleth Slime Concentrate
-         case "item3562": // Gibbering Grind
-         case "item3563": // Grell Bile
-         case "item3564": // Umber Dust
-         case "item3565": // Heart of Mimic Powder
-         case "item3566": // Mind Flayer Tentacle Extract
-            swap( " (Consumable)", "" );
-            swap( "(Consumable, ", "(" );
-            swap( " ✦ (", " ✦ Consumable (" );
-            fix( "missing power frequency" );
-         }
-
          // Convert from item to poison
          if ( entry.getFieldCount() == 5 ) {
             meta( meta( 1 ), "", meta( 4 ) );
             entry.setId( entry.getId().replace( "item", "poison0" ) );
             swap( "<h1 class=mihead>", "<h1 class=poison>" );
             fix( "recategorise" );
+         }
+
+         switch ( entry.getId() ) {
+         case "poison19": // Granny's Grief
+            swap( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
+            fix( "missing published" );
+            break;
+         case "poison03561": // Aboleth Slime Concentrate
+         case "poison03562": // Gibbering Grind
+         case "poison03563": // Grell Bile
+         case "poison03564": // Umber Dust
+         case "poison03565": // Heart of Mimic Powder
+         case "poison03566": // Mind Flayer Tentacle Extract
+            swap( " (Consumable)", "" );
+            swap( "(Consumable, ", "(" );
+            swap( " ✦ (", " ✦ Consumable (" );
+            fix( "missing power frequency" );
          }
          break;
 
