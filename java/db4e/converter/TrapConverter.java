@@ -5,6 +5,9 @@ import db4e.data.Entry;
 
 public class TrapConverter extends LeveledConverter {
 
+   private final int TYPE = 0;
+   private final int ROLE = 1;
+
    public TrapConverter ( Category category ) {
       super( category );
    }
@@ -13,22 +16,23 @@ public class TrapConverter extends LeveledConverter {
       if ( entry.getFieldCount() == 4 ) { // Trap
          if ( entry.getId().equals( "trap1019" ) ) { // Rubble Topple
             swap( "Singe-Use", "Single-Use" );
-            meta( 0, "Single-Use Terrain" );
+            meta( TYPE, "Terrain" );
+            meta( ROLE, "Single-Use" );
             fix( "typo" );
          }
 
-         String type = meta( 0 );
+         String type = meta( TYPE );
          String level = meta( LEVEL );
          if ( type.startsWith( "Minion " ) || type.startsWith( "Elite " ) || type.startsWith( "Solo " ) || type.startsWith( "Single-Use ") ) {
             // 33 traps / hazards has mixed type and role. 3 terrain can also be split this way.
             String[] roles = type.split( " ", 2 );
-            meta( 1, roles[ 0 ] );
-            meta( 0, roles[ 1 ] );
+            meta( ROLE, roles[ 0 ] );
+            meta( TYPE, roles[ 1 ] );
             fix( "wrong meta" );
 
          } else if ( level.endsWith( "Minion" ) ) {
             // 7 traps in Dungeon 214-215 has level like "8 Minion" and no group role.
-            meta( 1, "Minion" );
+            meta( ROLE, "Minion" );
             meta( LEVEL, level.substring( 0, level.length() - " Minion".length() ) );
             fix( "wrong meta" );
          }
@@ -39,7 +43,7 @@ public class TrapConverter extends LeveledConverter {
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
-      int diff = a.getSimpleField( 0 ).compareTo( b.getSimpleField( 0 ) );
+      int diff = a.getSimpleField( TYPE ).compareTo( b.getSimpleField( TYPE ) );
       if ( diff != 0 ) return diff;
       return super.sortEntity( a, b );
    }

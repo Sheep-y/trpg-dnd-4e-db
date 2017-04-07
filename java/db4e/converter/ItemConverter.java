@@ -304,12 +304,18 @@ public class ItemConverter extends LeveledConverter {
    private void setWondrousType ( Entry entry ) {
       if ( entry.getName().contains( "Tattoo" ) )
          meta( TYPE, "Tattoo" );
+      else if ( find( "implement for bard powers" ) )
+         meta( TYPE, "Instruments" );
+      else if ( find( "as an implement" ) )
+         meta( TYPE, "Implement" );
       else if ( find( "primordial shard" ) )
          meta( TYPE, "Primordial Shard" );
       else if ( find( "Conjuration" ) && find( "figurine" ) )
          meta( TYPE, "Figurine" );
       else if ( find( "standard" ) && find( "plant th" ) )
          meta( TYPE, "Standard" );
+      else if ( find( "dim light" ) || find( "bright light of" ) )
+         meta( TYPE, "Lighting" );
       if ( find( "Conjuration" ) && find( "mount" ) && ! entry.getName().startsWith( "Bag " ) )
          if ( meta( 1 ).isEmpty() )
             meta( TYPE, "Mount" );
