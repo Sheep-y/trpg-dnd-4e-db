@@ -49,17 +49,17 @@
       border-bottom: 1px solid #666;
       border-top-left-radius: 8px;
       border-top-right-radius: 8px;
+      display: flex;
       margin: 0 -10px;
       padding: 8px 10px 5px;
-      position: relative;
       }
       .detail h1 .level ,
       .detail h1 .milevel ,
       .detail h1 .thLevel {
-         position: absolute;
-         top: 5px;
-         right: 10px;
+         flex-grow: 1;
+         margin-left: 8px;
          text-align: right;
+         order: 1; /* levl is before title in powers, but after title in items */
          }
 
    .detail a.cat {
