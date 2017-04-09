@@ -140,7 +140,7 @@ public class BackgroundConverter extends Converter {
 
    @Override protected String[] getLookupName ( Entry entry ) {
       return new String[]{ entry.getName().contains( " - " )
-            ?  entry.getName().split( " - " )[1]
+            ? entry.getName().split( " - " )[1]
             : entry.getName()
          };
    }

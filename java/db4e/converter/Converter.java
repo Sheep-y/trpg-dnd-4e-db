@@ -390,6 +390,7 @@ public class Converter extends Convert {
 
    protected final void swapFirst ( String from, String to ) {
       entry.setContent( entry.getContent().replaceFirst( from, to ) );
+      test( TEXT, to );
    }
 
    protected final String meta ( int index ) {

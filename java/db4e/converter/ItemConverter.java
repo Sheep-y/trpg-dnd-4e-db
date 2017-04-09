@@ -108,6 +108,7 @@ public class ItemConverter extends LeveledConverter {
          // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
          if ( type.split( ", " ).length >= 5 ) {
             entry.setContent( regxType.replaceFirst( "<b>$1</b>: Any" ) );
+            test( TEXT, "</b>: Any" );
             meta( TYPE, "Any" );
             fix( "consistency" );
 
@@ -350,18 +351,20 @@ public class ItemConverter extends LeveledConverter {
          multi_cost.add( regxPriceTable.group( 2 ).replaceAll( "\\D", "" ) );
          multi_level.add( regxPriceTable.group( 1 ) );
       } while ( regxPriceTable.find() );
-      entry.setField( COST, multi_cost.toArray() );
+      meta( COST , multi_cost .toArray() );
       meta( LEVEL, multi_level.toArray() );
    }
 
    @Override protected void correctEntry () {
       if ( ! find( regxPublished ) ) {
          entry.setContent( entry.getContent() + "<p class=publishedIn>Published in " + meta( SOURCE )  + ".</p>" );
+         test( TEXT, "<p class=publishedIn>Published in" );
          fix( "missing published" );
       }
 
       if ( find( ", which is reproduced below." ) ) {
          entry.setContent( regxWhichIsReproduced.reset( entry.getContent() ).replaceFirst( "" ) );
+         test( TEXT, Pattern.compile( ".*(?!, which is reproduced below\\.)" ) );
          fix( "consistency" );
       }
 
@@ -568,6 +571,7 @@ public class ItemConverter extends LeveledConverter {
             // I checked each one and the exceptions are above.
             if ( find( regxPowerFrequency ) ) {
                entry.setContent( regxPowerFrequency.replaceAll( "✦ At-Will (" ) );
+               test( TEXT, "✦ At-Will (" );
                fix( "missing power frequency" );
             }
       }

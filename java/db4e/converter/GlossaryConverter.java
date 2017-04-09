@@ -19,6 +19,7 @@ public class GlossaryConverter extends Converter {
       if ( entry.getId().startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
          if ( ! find( "IMPROVISING WITH" ) ) {
             entry.setContent( regxFlavor.reset( entry.getContent() ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" ) );
+            test( TEXT, "<h3>IMPROVISING WITH " );
             fix( "missing content" );
          }
       }
@@ -45,6 +46,7 @@ public class GlossaryConverter extends Converter {
 "When its wielder performs actions in concert with its goals, an artifact becomes more powerful, but when " +
 "the wielder acts against the artifact's wishes, its power diminishes. The artifact's mindset is measured by a " +
 "concordance score.</p>" + entry.getContent() );
+            test( TEXT, "Artifacts have a level but no price" );
             fix( "new entry" );
             break;
          case "glossary0453": // Item Set
@@ -67,6 +69,7 @@ public class GlossaryConverter extends Converter {
 "Each character wearing or wielding an item from the set qualifies for the set benefits."
                + "<br><br>Update (08/2012)<br>Insert a paragraph for multiple set and a sentence for proficiency requiremente.<br><br></p>"
                + "<p class=publishedIn>Published in Adventurer's Vault 2, pages 92, 130.</p>" );
+            test( TEXT, "A magic item set contains four or more items" );
             fix( "new entry" );
             break;
       }
