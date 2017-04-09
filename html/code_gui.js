@@ -31,6 +31,13 @@ od.gui = {
    /** Status of on-screen keyboard detection: null = not tested, true / false otherwise */
    is_soft_keyboard: null,
 
+   min_swipe_x : 200, /** Min X pixels to register a horizontal swipe */
+   max_swipe_y : 50, /** Max Y pixels to register a horizontal swipe */
+   max_swipe_ms : 2000, /** Max time, in ms, to egister a horizontal swipe */
+   last_touch_x : 0,
+   last_touch_y : 0,
+   last_touch_time : 0,
+
    "init" : function gui_init () {
       var gui = od.gui;
       _( 'link[rel="manifest"]' )[0].href = od.config.data_read_path + "/res/manifest.json";
@@ -73,6 +80,24 @@ od.gui = {
                   }
                   break;
             }
+         },
+         'ontouchstart' : function window_touchstart ( evt ) {
+            if ( evt.touches.length !== 1 ) return;
+            gui.last_touch_x = evt.touches[0].screenX;
+            gui.last_touch_y = evt.touches[0].screenY;
+            gui.last_touch_time = new Date().getTime();
+         },
+         'ontouchend' : function window_touchend ( evt ) {
+            if ( evt.touches.length !== 0 ) return;
+            var time_diff = new Date().getTime() - gui.last_touch_time;
+            var y_diff = Math.abs( evt.changedTouches[0].screenY - gui.last_touch_y );
+            var x_diff = evt.changedTouches[0].screenX - gui.last_touch_x;
+            _.log( "[GUI] Touch detection: delta x " + x_diff + ", delta y " + y_diff + ", delta ms " + time_diff );
+            if ( time_diff > gui.max_swipe_ms || Math.abs( x_diff ) < gui.min_swipe_x || y_diff > gui.max_swipe_y ) return;
+
+            var button_class = x_diff > 0 ? 'btn_next' : 'btn_prev';
+            var button = _( 'section[id^=action_][style*=block] > nav > .' + button_class + ':not([style*=none])' )[0];
+            if ( button ) button.click();
          }
       } );
 
