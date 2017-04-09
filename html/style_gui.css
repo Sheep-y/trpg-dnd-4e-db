@@ -107,6 +107,7 @@ mark {
    opacity: 0.3;
    position: fixed;
    top: 0; left: 1ex; bottom: 0; right: 1ex;
+   z-index: 64; /* Above entry content box */
    }
    .btn_prev {
       margin-left: 0;
