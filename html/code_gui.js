@@ -95,7 +95,7 @@ od.gui = {
             _.log( "[GUI] Touch detection: delta x " + x_diff + ", delta y " + y_diff + ", delta ms " + time_diff );
             if ( time_diff > gui.max_swipe_ms || Math.abs( x_diff ) < gui.min_swipe_x || y_diff > gui.max_swipe_y ) return;
 
-            var button_class = x_diff > 0 ? 'btn_next' : 'btn_prev';
+            var button_class = x_diff > 0 ? 'btn_prev' : 'btn_next';
             var button = _( 'section[id^=action_][style*=block] > nav > .' + button_class + ':not([style*=none])' )[0];
             if ( button ) button.click();
          }
