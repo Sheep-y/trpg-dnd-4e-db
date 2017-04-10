@@ -50,6 +50,8 @@ _.l.set( 'action.list', {
    'title' : "Browse",
    'link_text' : "Browse",
    'result_summary' : "Result",
+   'menu_filter_column' : 'Add %1 to filter',
+   'menu_filter_column_only' : 'Filter only %1',
 
    'txt_search_name_placeholder' : "Type name here and then select category.",
    'txt_search_full_placeholder' : "Type search keywords here, e.g. ranger OR martial bonus -\"feat bonus\", and then select category.",

@@ -187,6 +187,8 @@
    </nav>
    <menu type='context' id='menu_list'>
       <menuitem class='i18n' label='gui.menu_view_highlight' onclick='od.gui.toggle_highlight()'></menuitem>
+      <menuitem class='i18n' label='action.list.menu_filter_column' onclick='od.action.list.filter_column()' id='act_list_menu_filter'></menuitem>
+      <menuitem class='i18n' label='action.list.menu_filter_column_only' onclick='od.action.list.filter_column_only()' id='act_list_menu_filter_only'></menuitem>
    </menu>
    <div id="act_list_pnl_term" role="search">
       <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" accesskey='s' autocomplete />
@@ -203,7 +205,7 @@
          <span id='act_list_lbl_showing'></span>
          <span id='act_list_lbl_page'></span>
       </div>
-      <div id='act_list_pnl_list' contextmenu="menu_list"></div>
+      <div id='act_list_pnl_list' contextmenu="menu_list" oncontextmenu="od.action.list.contextmenu(event);"></div>
    </div>
 
    <header role="banner">
@@ -333,6 +335,7 @@ od.action.list = {
    'url' : /^list\b/,
    'last_url' : null,
    'last_cat' : null,
+   'last_contextmenu' : null,
    'last_scrollY' : 0,
    'last_downX': 0,
    'last_downY': 0,
@@ -489,7 +492,29 @@ od.action.list = {
       }
    },
 
+   'contextmenu' : function act_list_contextmenu ( evt ) {
+      var td = od.action.list.last_contextmenu = evt.target.closest( 'td' );
+      if ( ! td || ! td.previousSibling || ! td.nextSibling ) // Skip name and source columns.
+         return _.prop( '#act_list_menu_filter, #act_list_menu_filter_only', { label: '' } );;
+      _( '#act_list_menu_filter' )[0].label = _.l( 'action.list.menu_filter_column', 'Filter %1', td.textContent );
+      _( '#act_list_menu_filter_only' )[0].label = _.l( 'action.list.menu_filter_column_only', 'Filter only %1', td.textContent );
+   },
+
    /*************************************************************************/
+
+   'filter_column' : function act_list_filter_column () {
+      var action = od.action.list, td = action.last_contextmenu;
+      if ( td ) {
+         var index = [].indexOf.call( td.parentNode.children, td );
+         _( '.txt_filter' )[index].value = td.textContent;
+      }
+      od.action.list.show_list();
+   },
+
+   'filter_column_only' : function act_list_filter_column_only () {
+      _.prop( '.txt_filter', { value: '' } );
+      od.action.list.filter_column();
+   },
 
    'get_search_category' : function act_list_get_search_category () {
       return od.action.list.category;

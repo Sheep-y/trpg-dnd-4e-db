@@ -85,6 +85,8 @@ _.l.set( 'action.list', {
    'title' : "瀏覽",
    'link_text' : "瀏覽",
    'result_summary' : "結果",
+   'menu_filter_column' : '新增過濾：%1 ',
+   'menu_filter_column_only' : '只過濾：%1',
 
    'txt_search_name_placeholder' : "在此輸入名字，然後選擇分類。",
    'txt_search_full_placeholder' : "在此輸入搜尋關鍵詞。例： ranger OR martial bonus -\"feat bonus\"，然後選擇分類。",
