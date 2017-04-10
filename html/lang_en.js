@@ -64,6 +64,10 @@ _.l.set( 'action.list', {
    'lbl_no_result' : "No result"
 });
 
+_.l.set( 'action.view', {
+   'menu_quick_lookup' : "Lookup this term"
+});
+
 _.l.set( 'action.about', {
    'title' : "Help",
    'link_text' : "Help",

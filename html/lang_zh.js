@@ -99,6 +99,10 @@ _.l.set( 'action.list', {
    'lbl_no_result' : "無結果"
 });
 
+_.l.set( 'action.view', {
+   'menu_quick_lookup' : "檢索此字"
+});
+
 _.l.set( 'action.about', {
    'title' : "說明",
    'link_text' : "說明",

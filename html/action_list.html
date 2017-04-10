@@ -185,6 +185,9 @@
       <button id="act_list_btn_prev" class="btn_prev" onclick="od.action.list.btn_flip_page(-1)">&lt;</button>
       <button id="act_list_btn_next" class="btn_next" onclick="od.action.list.btn_flip_page(1)">&gt;</button>
    </nav>
+   <menu type='context' id='menu_list'>
+      <menuitem class='i18n' label='gui.menu_view_highlight' onclick='od.gui.toggle_highlight()'></menuitem>
+   </menu>
    <div id="act_list_pnl_term" role="search">
       <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" accesskey='s' autocomplete />
    </div>
@@ -200,7 +203,7 @@
          <span id='act_list_lbl_showing'></span>
          <span id='act_list_lbl_page'></span>
       </div>
-      <div id='act_list_pnl_list' contextmenu="menu_view"></div>
+      <div id='act_list_pnl_list' contextmenu="menu_list"></div>
    </div>
 
    <header role="banner">

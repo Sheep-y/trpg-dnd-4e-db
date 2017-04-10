@@ -8,7 +8,7 @@ This program can fetches, stores, and exports D&D 4th edition resources from [D&
 Exported entries can be browsed and searched offline with exact phase search, wildcast, exclusion, join ("OR"), and more.
 
 本應用能從四代龍與地下城的[官方資料庫](http://www.wizards.com/dndinsider/compendium/database.aspx)提取、儲存、及匯出資料，以便進行離線的威力搜尋。<br/>
-下載器的說明只限英語。匯出資料後會有中文操作說明。
+下載器的說明只限英語。匯出資料後的搜尋介面可以在說明頁中切換成中文。
 
 This is a fan project and does not come with copyrighted data.
 

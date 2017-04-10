@@ -23,7 +23,11 @@
       <button id="act_view_btn_prev" class="btn_prev" onclick="od.action.view.btn_prev_click()">&lt;</button>
       <button id="act_view_btn_next" class="btn_next" onclick="od.action.view.btn_next_click()">&gt;</button>
    </nav>
-   <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.pnl_content_click(event)"></article>
+   <menu type='context' id='menu_view'>
+      <menuitem class='i18n' label='gui.menu_view_highlight' onclick='od.gui.toggle_highlight()'></menuitem>
+      <menuitem class='i18n' label='action.view.menu_quick_lookup' onclick='od.action.view.context_links()' id="act_view_menu_lookup"></menuitem>
+   </menu>
+   <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.pnl_content_click(event)" oncontextmenu="od.action.view.contextmenu(event);"></article>
    <nav id="act_view_pnl_link" onclick="od.action.view.pnl_link_click(event)">
       <table><tbody></tbody></table>
    </nav>
@@ -36,6 +40,9 @@
 
 <script><?coco-start js(minify) ?>   'use strict';(function action_view_init(){
 od.action.view = {
+
+   "last_popup_event" : null,
+   "last_popup_range" : null,
 
    "initialize" : function act_view_init () {
       function hide_popup () {
@@ -130,6 +137,28 @@ od.action.view = {
       if ( tr ) od.gui.go( _( tr, 'a' )[0].getAttribute( 'href' ).substr( 1 ) );
    },
 
+   "contextmenu" : function act_view_contextmenu ( evt ) {
+      var action = od.action.view;
+      action.last_popup_event = evt;
+      action.last_popup_range = null;
+      if ( document.caretRangeFromPoint )
+         action.last_popup_range = document.caretRangeFromPoint( evt.clientX, evt.clientY );
+      else if ( document.caretPositionFromPoint ) {
+         var pos = document.caretPositionFromPoint( evt.clientX, evt.clientY );
+         if ( pos ) {
+            var range = document.createRange();
+            range.setStart( pos.offsetNode, pos.offset );
+            action.last_popup_range = range;
+         }
+      }
+      _.visible( '#act_view_menu_lookup', action.last_popup_range );
+   },
+
+   "context_links" : function act_view_context_links () {
+      var action = od.action.view;
+      action.popup_links( action.last_popup_event, action.last_popup_range );
+   },
+
    /////////////////////////////////////////////////////////////////////////////////////////////////
 
    "act_id" : null, // Current view id, an array of or a single "cat.id"
@@ -169,9 +198,9 @@ od.action.view = {
       if ( pos < action.siblings.length-1 ) _.show( '#act_view_btn_next' );
    },
 
-   "popup_links" : function act_view_popup_links ( evt ) {
+   "popup_links" : function act_view_popup_links ( evt, range ) {
       var action = od.action.view,  data = od.data,  pnl = _( '#act_view_pnl_link' )[0];
-      var ids = action.find_internal_links( evt );
+      var ids = action.find_internal_links( evt, range );
       _.hide( pnl );
       if ( ! ids.length ) return;
 
@@ -214,8 +243,8 @@ od.action.view = {
     * Find entries that match the text in last click position (start of selection).
     * @returns {Array} List of ids that matched, in decending order of name length then in order of name.
     */
-   "find_internal_links" : function act_view_find_internal_links ( evt ) {
-      var sel = window.getSelection(),  range = sel.getRangeAt(0),  node = sel.anchorNode;
+   "find_internal_links" : function act_view_find_internal_links ( evt, selectionRange ) {
+      var range = selectionRange || getSelection().getRangeAt(0),  node = range.commonAncestorContainer;
       var textTag = [ undefined, 'MARK', 'SPAN' ], result = [];
       var entry = evt.target.closest( 'div.detail[id]' );
       if ( ! entry ) // Not within entry body, abort.
