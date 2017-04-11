@@ -103,7 +103,7 @@ _.l.set( 'action.list', {
 });
 
 _.l.set( 'action.view', {
-   'menu_quick_lookup' : "檢索此字"
+   'menu_quick_lookup' : "檢索 …%1…"
 });
 
 _.l.set( 'action.about', {

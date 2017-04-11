@@ -68,7 +68,7 @@ _.l.set( 'action.list', {
 });
 
 _.l.set( 'action.view', {
-   'menu_quick_lookup' : "Lookup this term"
+   'menu_quick_lookup' : "Lookup …%1…"
 });
 
 _.l.set( 'action.about', {
