@@ -42,7 +42,8 @@ _.l.set( 'gui', {
    'loading' : 'Loading...',
    'loading1': 'Loading %1',
 
-   'menu_view_highlight' : 'On/off search term highlights',
+   'menu_view_highlight_on' : 'Highlight search terms',
+   'menu_view_highlight_off' : 'Disable search terms highlight',
    'update': 'New Version'
 });
 
