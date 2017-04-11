@@ -240,15 +240,15 @@ od.action.view = {
    },
 
    /**
-    * Find entries that match the text in last click position (start of selection).
-    * @returns {Array} List of ids that matched, in decending order of name length then in order of name.
+    * Find terms from given selection and range.
     */
-   "find_internal_links" : function act_view_find_internal_links ( evt, selectionRange ) {
+   "find_selection_term" : function act_view_find_selection_term ( selectionRange, maxLen ) {
       var range = selectionRange || getSelection().getRangeAt(0),  node = range.commonAncestorContainer;
-      var textTag = [ undefined, 'MARK', 'SPAN' ], result = [];
-      var entry = evt.target.closest( 'div.detail[id]' );
-      if ( ! entry ) // Not within entry body, abort.
-         return [];
+      var textTag = [ undefined, 'MARK', 'SPAN' ];
+
+      function normalise ( str ) {
+         return str.replace( /[^\w'-éû]+/g, ' ' ).toLowerCase();
+      }
 
       function findPre ( node, len, offset ) {
          var text = node.textContent, part = '', sibling = node.previousSibling;
@@ -278,13 +278,22 @@ od.action.view = {
          return part;
       }
 
-      function normalise ( str ) {
-         return str.replace( /[^\w'-éû]+/g, ' ' ).toLowerCase();
-      }
+      var pre  = normalise( findPre ( node, maxLen, range.startOffset ).replace( /^\s+/, "" ) );
+      var post = normalise( findPost( node, maxLen, range.startOffset ).replace( /\s+$/, "" ) );
+      return { pre: pre, post: post };
+   },
+
+   /**
+    * Find entries that match the text in last click position (start of selection).
+    * @returns {Array} List of ids that matched, in decending order of name length then in order of name.
+    */
+   "find_internal_links" : function act_view_find_internal_links ( evt, selectionRange ) {
+      var entry = evt.target.closest( 'div.detail[id]' ), result = [];
+      if ( ! entry ) // Not within entry body, abort.
+         return [];
 
       // Longest name is 45 chars long. Add one more for safe word cut.
-      var pre  = normalise( findPre ( node, 46, range.startOffset ).replace( /^\s+/, "" ) );
-      var post = normalise( findPost( node, 46, range.startOffset ).replace( /\s+$/, "" ) );
+      var terms = this.find_selection_term( selectionRange, 46 ), pre = terms.pre, post = terms.post;
       _.time( "[Lookup] Lookup: " + pre + "^" + post );
       var nextSpace = pre.indexOf( ' ' ),  text = pre + post,   index = od.data.index;
 
