@@ -2,8 +2,7 @@ package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,51 +74,52 @@ public class GlossaryConverter extends Converter {
       }
    }
 
-   @Override protected String[] getLookupName ( Entry entry ) {
+   @Override protected Set<String> getLookupName ( Entry entry, Set<String> list ) {
       switch ( entry.getId() ) {
          case "skill27": // Athletics
-            return new String[]{ "Athletics", "Escape", "Climb", "Climbing", "Swim", "Swimming", "Jump", "Jumping", "Long Jump", "Long Jump" };
+            return appendList( list, "Athletics", "Escape", "Climb", "Climbing", "Swim", "Swimming", "Jump", "Jumping", "Long Jump", "Long Jump" );
          case "glossary86": // Teleportation
-            return new String[]{ "Teleport", "Teleportation" };
+            return appendList( list, "Teleport", "Teleportation" );
          case "glossary159": // Hit Points
-            return new String[]{ "HP", "Hit Point", "Bloodied" };
+            return appendList( list, "HP", "Hit Point", "Bloodied" );
          case "glossary163": // Sustained Durations
-            return new String[]{ "Sustained Durations", "Sustain", "Sustain Minor", "Sustain Move", "Sustain Standard", "Sustain No Action" };
+            return appendList( list, "Sustained Durations", "Sustain", "Sustain Minor", "Sustain Move", "Sustain Standard", "Sustain No Action" );
          case "glossary179": // Defense Scores
-            return new String[]{ "Defense Scores", "Defenses", "Defense", "Fortitude", "Reflex", "Will" };
+            return appendList( list, "Defense Scores", "Defenses", "Defense", "Fortitude", "Reflex", "Will" );
          case "glossary341": // Dying and Death
-            return new String[]{ "Dying", "Death", "Death Saving Throw", "Die", "Dies", "Kill", "Drop to 0 or" };
+            return appendList( list, "Dying", "Death", "Death Saving Throw", "Die", "Dies", "Kill", "Drop to 0 or" );
          case "glossary487": // Carrying, Lifting and Dragging
-            return new String[]{ "Carry", "Carrying", "Lift", "Lifting", "Drag", "Dragging", "Normal Load", "Heavy Load", "Maximum Drag Load" };
+            return appendList( list, "Carry", "Carrying", "Lift", "Lifting", "Drag", "Dragging", "Normal Load", "Heavy Load", "Maximum Drag Load" );
          case "glossary622": // Action Types
-            return new String[]{ "Standard Action", "Move Action", "Minor Action", "Immediate Reaction", "Immediate Action", "Immediate Interrupt", "Opportunity Action", "Free Action" };
+            return appendList( list, "Standard Action", "Move Action", "Minor Action", "Immediate Reaction", "Immediate Action", "Immediate Interrupt", "Opportunity Action", "Free Action" );
          case "glossary623": // Languages
-            return new String[]{ "Language", "Script" };
+            return appendList( list, "Language", "Script" );
          case "glossary670": // Magic Item Level and Rarity
-            return new String[]{ "Magic Item Level and Rarity", "Common", "Uncommon", "Rare" };
+            return appendList( list, "Magic Item Level and Rarity", "Common", "Uncommon", "Rare" );
       }
       String name = entry.getName();
-      if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) )
-         return new String[]{ name.substring( 0, name.length() - 6 ) };
-      List<String> result = new ArrayList<>( 3 );
-      result.add( name );
+      if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) ) {
+         list.add( name.substring( 0, name.length() - 6 ) );
+         return list;
+      }
+      list.add( name );
       if ( name.startsWith( "Object" ) )
-         result.add( "Object" );
+         list.add( "Object" );
       else if ( name.toLowerCase().contains( " size" ) )
-         result.add( "size" );
+         list.add( "size" );
       if ( name.endsWith( "s" ) ) {
-         result.add( name.substring( 0, name.length() - 1 ) );
+         list.add( name.substring( 0, name.length() - 1 ) );
          if ( name.endsWith( "es" ) ) {
-            result.add( name.substring( 0, name.length() - 2 ) );
+            list.add( name.substring( 0, name.length() - 2 ) );
             if ( name.endsWith( "ies" ) )
-               result.add( name.substring( 0, name.length() - 3 ) + 'y' );
+               list.add( name.substring( 0, name.length() - 3 ) + 'y' );
          }
       } else if ( name.endsWith( "ing" ) && ! name.equals( "Sling" ) )
          if ( name.equals( "Dying" ) )
-            result.add( "Die" );
+            list.add( "Die" );
          else
-            result.add( name.substring( 0, name.length() - 3 ) );
-      return result.toArray( new String[ result.size() ] );
+            list.add( name.substring( 0, name.length() - 3 ) );
+      return list;
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {

@@ -173,7 +173,7 @@ public class ClassConverter extends Converter {
       }
    }
 
-   @Override protected String[] getLookupName ( Entry entry ) {
+   @Override protected Set<String> getLookupName ( Entry entry, Set<String> list ) {
       String name = entry.getName(), altName = null;
       boolean isHybrid = name.startsWith( "Hybrid " );
       if ( isHybrid ) name = name.substring( 7 );
@@ -181,13 +181,13 @@ public class ClassConverter extends Converter {
          altName = name.substring( name.indexOf( '(' ) + 1, name.length() - 1 );
          name = name.substring( 0, name.indexOf( '(' ) - 1 );
       }
-      Set<String> result = findFeatures();
-      result.add( name );
+      list.addAll( findFeatures() );
+      list.add( name );
       test( LOOKUP, name );
-      if ( altName != null ) result.add( altName );
-      if ( isHybrid ) result.add( "Hybrid " + name );
-      if ( isHybrid && altName != null ) result.add( "Hybrid " + altName );
-      return result.toArray( new String[ result.size() ] );
+      if ( altName != null ) list.add( altName );
+      if ( isHybrid ) list.add( "Hybrid " + name );
+      if ( isHybrid && altName != null ) list.add( "Hybrid " + altName );
+      return list;
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {

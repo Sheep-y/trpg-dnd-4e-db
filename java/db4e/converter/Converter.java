@@ -5,9 +5,11 @@ import db4e.controller.Controller;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -377,10 +379,20 @@ public class Converter extends Convert {
       } );
    }
 
-   protected void testConversion() {
+   @Override protected void testConversion() {
       if ( ! Main.debug.get() || tests == null ) return;
       log.log( Level.INFO, "Running {1} conversion tests on {0}", new Object[]{ category.id, tests.size() } );
       for ( Runnable test : tests ) test.run();
+   }
+
+   protected final Set<String> appendList ( Set<String> list, String name ) {
+      list.add( name );
+      return list;
+   }
+
+   protected final Set<String> appendList ( Set<String> list, String ... name ) {
+      list.addAll( Arrays.asList( name ) );
+      return list;
    }
 
    protected final void swap ( CharSequence from, CharSequence to ) {

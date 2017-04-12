@@ -3,6 +3,7 @@ package db4e.converter;
 import db4e.Main;
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -138,10 +139,9 @@ public class BackgroundConverter extends Converter {
       }
    }
 
-   @Override protected String[] getLookupName ( Entry entry ) {
-      return new String[]{ entry.getName().contains( " - " )
-            ? entry.getName().split( " - " )[1]
-            : entry.getName()
-         };
+   @Override protected Set<String> getLookupName ( Entry entry, Set<String> list ) {
+      return appendList( list, entry.getName().contains( " - " )
+         ? entry.getName().split( " - " )[1]
+         : entry.getName() );
    }
 }

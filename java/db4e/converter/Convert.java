@@ -309,9 +309,10 @@ public abstract class Convert {
 
    public void mapIndex () {
       Map<String, List<String>> map = category.index = new HashMap<>( 25000, 1f );
+      Set<String> lookups = new HashSet<>();
       for ( Entry entry : category.entries ) {
          this.entry = entry;
-         for ( String name : getLookupName( entry ) ) {
+         for ( String name : getLookupName( entry, lookups ) ) {
             name = name.replaceAll( "[^\\w'-éû]+", " " ).trim().toLowerCase();
             if ( ! map.containsKey( name ) ) {
                List<String> idList = new ArrayList<>( 2 ); // Most entries do not duplicate
@@ -320,6 +321,7 @@ public abstract class Convert {
             } else
                map.get( name ).add( entry.getId() );
          }
+         lookups.clear();
       }
 
       if ( Main.debug.get() ) try {
@@ -336,8 +338,9 @@ public abstract class Convert {
 
    protected final Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]|,.*| -.*", Pattern.CASE_INSENSITIVE ).matcher( "" );
 
-   protected String[] getLookupName ( Entry entry ) {
-      return new String[]{ regxNote.reset( entry.getName() ).replaceAll( "" ).trim() };
+   protected Set<String> getLookupName ( Entry entry, Set<String> list ) {
+      list.add( regxNote.reset( entry.getName() ).replaceAll( "" ).trim() );
+      return list;
    }
 
    public static Converter getConverter ( Category category ) {

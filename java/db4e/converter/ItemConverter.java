@@ -6,6 +6,7 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.Utils;
@@ -583,33 +584,31 @@ public class ItemConverter extends LeveledConverter {
       return super.textData( data );
    }
 
-   @Override protected String[] getLookupName ( Entry entry ) {
+   @Override protected Set<String> getLookupName ( Entry entry, Set<String> list ) {
       switch ( category.id ) {
          case "Implement" :
             String name = entry.getName();
             if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 ); // Basic implements
-            return new String[]{ regxNote.reset( name ).replaceAll( "" ).trim() };
+            return appendList( list, regxNote.reset( name ).replaceAll( "" ).trim() );
          case "Item" :
             switch ( entry.getId() ) {
                case "item171": // Belt Pouch (empty)
-                  return new String[]{ "Belt Pouch", "Pouch" };
+                  return appendList( list, "Belt Pouch", "Pouch" );
             }
-            break;
          case "Armor" :
             switch ( entry.getId() ) {
                case "armor1": // Cloth
-                  return new String[]{ "Cloth Armor", "Cloth", "Clothing" };
+                  return appendList( list,  "Cloth Armor", "Cloth", "Clothing" );
                case "armor2": case "armor3": case "armor5": case "armor6": // Leather to Plate
-                  return new String[]{ entry.getName(), entry.getName().replace( " Armor", "" ) };
+                  return appendList( list, entry.getName(), entry.getName().replace( " Armor", "" ) );
                case "armor4": // Chainmail
-                  return new String[]{ entry.getName(), "Chain" };
+                  return appendList( list, entry.getName(), "Chain" );
                case "armor7": case "armor8": // Light/Heavy shield
-                  return new String[]{ entry.getName(), "Shields", "Shield" };
+                  return appendList( list, entry.getName(), "Shields", "Shield" );
                case "armor49": case "armor51": // Barding (Normal)
-                  return new String[]{ entry.getName(), "Barding", "Bardings" };
+                  return appendList( list, entry.getName(), "Barding", "Bardings" );
             }
-            break;
       }
-      return super.getLookupName( entry );
+      return super.getLookupName( entry, list );
    }
 }
