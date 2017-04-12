@@ -126,9 +126,10 @@ od.action.view = {
 
    "pnl_content_click" : function act_view_pnl_content_click ( evt ) {
       if ( evt.button && evt.button !== 2 ) return; // Only handle left click and right click
+      if ( evt.target.tagName === 'A' ) return; // Skip link clicks
       var action = od.action.view;
       _.time();
-      od.data.load_name_index( function(){ action.popup_links( evt ); });
+      action.popup_links( evt );
    },
 
    "pnl_link_click" : function act_view_pnl_link_click ( evt ) {
@@ -203,11 +204,11 @@ od.action.view = {
 
    "popup_links" : function act_view_popup_links ( evt, range ) {
       var action = od.action.view,  data = od.data,  pnl = _( '#act_view_pnl_link' )[0];
-      var ids = action.find_internal_links( evt, range );
       _.hide( pnl );
-      if ( ! ids.length ) return;
 
       data.load_name_index( function act_view_popup_links_loaded() {
+         var ids = action.find_internal_links( evt, range );
+         if ( ! ids.length ) return;
          var categories = {},  cat_count = 0;
          for ( var i in ids ) {
             var cat_id = data.category_name_of( ids[ i ] );
@@ -302,15 +303,16 @@ od.action.view = {
       var nextSpace = pre.indexOf( ' ' ),  text = pre + post,   index = od.data.index;
 
       for ( var name in index ) {
+         // Cut search term short if first word can be excluded for subsequence (shorter) searches
          if ( nextSpace >= 0 && name.length < pre.length - nextSpace ) {
             pre = pre.substr( nextSpace + 1 );
             text = pre + post;
             nextSpace = pre.indexOf( ' ' );
-            // _.log( "shorten: " + name + " -> " + pre + "^" + post );
          }
          var pos = text.indexOf( name );
          if ( pos >= 0 && pos <= pre.length && pos + name.length >= pre.length )
-            if ( pos === 0 || pre.charAt( pos-1 ) === ' ' )
+            if ( ( pos === 0 || pre.charAt( pos-1 ) === ' ' ) && // Check word boundaries
+                 ( pos + name.length == text.length || text.charAt( pos + name.length ) === ' ' ) )
                result = result.concat( index[ name ] );
       }
 
