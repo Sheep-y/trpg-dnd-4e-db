@@ -2,6 +2,7 @@ package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,5 +29,11 @@ public class DeityConverter extends Converter {
    @Override protected int sortEntity ( Entry a, Entry b ) {
       int diff = a.getSimpleField( 2 ).compareTo( b.getSimpleField( 2 ) );
       return diff == 0 ? super.sortEntity( a, b ) : -diff;
+   }
+
+   @Override protected Set<String> getLookupName( Entry entry, Set<String> list ) {
+      if ( entry.getName().startsWith( "The " ) )
+         list.add( entry.getName().substring( 4 ) );
+      return super.getLookupName( entry, list );
    }
 }

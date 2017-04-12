@@ -77,7 +77,7 @@ public class GlossaryConverter extends Converter {
    @Override protected Set<String> getLookupName ( Entry entry, Set<String> list ) {
       switch ( entry.getId() ) {
          case "skill27": // Athletics
-            return appendList( list, "Athletics", "Escape", "Climb", "Climbing", "Swim", "Swimming", "Jump", "Jumping", "Long Jump", "Long Jump" );
+            return appendList( list, "Athletics", "Escape", "Climb", "Climbing", "Swim", "Swimming", "Jump", "Jumping", "Long Jump" );
          case "glossary86": // Teleportation
             return appendList( list, "Teleport", "Teleportation" );
          case "glossary159": // Hit Points
@@ -98,10 +98,8 @@ public class GlossaryConverter extends Converter {
             return appendList( list, "Magic Item Level and Rarity", "Common", "Uncommon", "Rare" );
       }
       String name = entry.getName();
-      if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) ) {
-         list.add( name.substring( 0, name.length() - 6 ) );
-         return list;
-      }
+      if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) )
+         return appendList( list, name, name.substring( 0, name.length() - 6 ) );
       list.add( name );
       if ( name.startsWith( "Object" ) )
          list.add( "Object" );
