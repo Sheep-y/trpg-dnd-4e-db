@@ -1,6 +1,8 @@
 package db4e.converter;
 
 import db4e.data.Category;
+import db4e.data.Entry;
+import java.util.Set;
 
 public class MonsterConverter extends CreatureConverter {
 
@@ -50,5 +52,11 @@ public class MonsterConverter extends CreatureConverter {
       if ( ! findSizeAndTypes() )
          warn( "Creature type not found" );
       super.correctEntry();
+   }
+
+   @Override protected Set<String> getLookupName( Entry entry, Set<String> list ) {
+      if ( entry.getName().contains( "," ) ) // Named monsters like "Ninaran, Elf Archer"
+         list.add( entry.getName().split( ",", 2 )[0] );
+      return super.getLookupName( entry, list );
    }
 }
