@@ -46,6 +46,8 @@ public class RaceConverter extends Converter {
             meta( ORIGIN, "Natural Shapechanger" );
             break;
          case "race23": // Kobold
+         case "race67": // Bozak Draconian
+         case "race68": // Kapak Draconian
             meta( ORIGIN, "Natural Reptile" );
             break;
          case "race26": // Shadar-kai
@@ -80,14 +82,27 @@ public class RaceConverter extends Converter {
             meta( ABILITY, shortenAbility( ability ) );
 
       } else {
-         if ( entry.getName().endsWith( " Draconian" ) )
-            meta( ABILITY, "Cha, Con or Str" );
-         else if ( entry.getName().endsWith( " Dwarf" ) )
-            meta( ABILITY, "Con, Str or Wis" );
-         else if ( entry.getName().endsWith( " Elf" ) )
-            meta( ABILITY, "Dex, Int or Wis" );
-         else // Eladrin
-            meta( ABILITY, "Int, Cha or Dex" );
+         switch ( entry.getId() ) {
+            case "race54" : // Gold Dwarf
+            case "race55" : // Shield Dwarf
+               meta( ABILITY, "Con, Str or Wis" );
+               break;
+            case "race56" : // Moon Elf
+            case "race57" : // Sun Elf
+            case "race64" : // Llewyrr Elf
+               meta( ABILITY, "Int, Cha or Dex" );
+               break;
+            case "race58" : // Wild Elf
+            case "race59" : // Wood Elf
+               meta( ABILITY, "Dex, Int or Wis" );
+               break;
+            case "race67" : // Bozak Draconian
+               meta( ABILITY, "Cha, Con or Str" );
+               break;
+            case "race68" : // Kapak Draconian
+               meta( ABILITY, "Dex, Cha" );
+               break;
+         }
          fix( "missing meta" );
       }
       // Size column
