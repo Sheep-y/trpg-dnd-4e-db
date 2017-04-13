@@ -311,8 +311,7 @@ od.action.view = {
          }
          var pos = text.indexOf( name );
          if ( pos >= 0 && pos <= pre.length && pos + name.length >= pre.length )
-            if ( ( pos === 0 || pre.charAt( pos-1 ) === ' ' ) && // Check word boundaries
-                 ( pos + name.length == text.length || text.charAt( pos + name.length ) === ' ' ) )
+            if ( new RegExp( '(^|\\b)' + name + '(?!-)(\\b|$)' ).test( text ) )
                result = result.concat( index[ name ] );
       }
 

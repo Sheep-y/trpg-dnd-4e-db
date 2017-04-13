@@ -43,10 +43,10 @@ public class RaceConverter extends Converter {
             meta( ORIGIN, "Fey" );
             break;
          case "race14": // Changeling
-            meta( ORIGIN, "Natural, shapechanger" );
+            meta( ORIGIN, "Natural Shapechanger" );
             break;
          case "race23": // Kobold
-            meta( ORIGIN, "Natural, reptile" );
+            meta( ORIGIN, "Natural Reptile" );
             break;
          case "race26": // Shadar-kai
          case "race52": // Shade
@@ -60,13 +60,13 @@ public class RaceConverter extends Converter {
             break;
          case "race47": // Revenant
          case "race53": // Vryloka
-            meta( ORIGIN, "Undead, living" );
+            meta( ORIGIN, "Living Undead" );
             break;
          case "race49": // Shardmind
-            meta( ORIGIN, "Immortal, construct" );
+            meta( ORIGIN, "Immortal Construct" );
             break;
          case "race65": // Hengeyokai
-            meta( ORIGIN, "Fey, shapechanger" );
+            meta( ORIGIN, "Fey Shapechanger" );
             break;
          default:
             meta( ORIGIN, "Natural" );
