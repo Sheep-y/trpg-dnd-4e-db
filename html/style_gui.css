@@ -209,7 +209,11 @@ input[placeholder=Size] {
    width: 80px;
    }
 
-input[placeholder=Action] ,
+input[placeholder=Action] {
+   min-width: 90px;
+   width: 90px;
+}
+
 input[placeholder=Alignment] ,
 input[placeholder=Campaign] ,
 input[placeholder=Category] ,

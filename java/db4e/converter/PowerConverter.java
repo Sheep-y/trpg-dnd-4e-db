@@ -12,6 +12,7 @@ public class PowerConverter extends LeveledConverter {
 
    private final int CLASS = 0;
    private final int TYPE = 2;
+   private final int ACTION = 3;
    private final int KEYWORDS = 4;
 
    public PowerConverter ( Category category ) {
@@ -46,7 +47,7 @@ public class PowerConverter extends LeveledConverter {
       if ( entry.getContent().startsWith( "<h1 class=dailypower>" ) )
          meta( TYPE, "Daily" );
       else if ( entry.getContent().startsWith( "<h1 class=encounterpower>" ) )
-         meta( TYPE, "Encounter" );
+         meta( TYPE, "Enc." );
       else if ( entry.getContent().startsWith( "<h1 class=atwillpower>" ) )
          meta( TYPE, "At-Will" );
       else
@@ -113,6 +114,9 @@ public class PowerConverter extends LeveledConverter {
          entry.setName( entry.getName().substring( 0, entry.getName().length() - 19 ) );
          fix( "wrong meta" );
       }
+
+      if ( meta( ACTION ).startsWith( "Immediate " ) )
+         meta( ACTION, meta( ACTION ).replace( "Immediate ", "Imm. " ) );
 
       switch ( entry.getId() ) {
          case "power3660": // Indomitable Resolve
