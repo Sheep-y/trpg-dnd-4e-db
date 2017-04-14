@@ -123,6 +123,7 @@ public class ItemConverter extends LeveledConverter {
          if ( minEnhancement > 0 ) {
             minEnhancement += "<b>Minimum Enhancement Value</b>: ".length();
             meta( LEVEL, "Min " + entry.getContent().substring( minEnhancement, minEnhancement + 2 ) );
+            meta( RARITY, "Masterwork" );
          }
 
       } else
@@ -139,7 +140,7 @@ public class ItemConverter extends LeveledConverter {
          fix( "consistency" );
       }
       if ( meta( LEVEL ).isEmpty() ) {
-         meta( LEVEL, "Mundane" );
+         meta( RARITY, "Mundane" );
          fix( "missing meta" );
       }
    }
@@ -156,11 +157,12 @@ public class ItemConverter extends LeveledConverter {
          meta( TYPE, Utils.ucfirst( entry.getName().replaceFirst( "^\\w+ ", "" ) ) );
          if ( meta( TYPE ).equals( "Symbol" ) ) meta( TYPE, "Holy Symbol" );
          meta( LEVEL, "Superior" );
+         meta( RARITY, "Mundane" );
          fix( "recategorise" );
 
       } else if ( meta( TYPE ).equals( "Equipment" ) ) {
          meta( TYPE, entry.getName().replaceFirst( " Implement$", "" ) );
-         meta( LEVEL, "Mundane" );
+         meta( RARITY, "Mundane" );
          if ( meta( COST ).isEmpty() ) { // Ki Focus
             meta( COST, "0 gp" );
             fix( "missing meta" );
@@ -185,12 +187,25 @@ public class ItemConverter extends LeveledConverter {
             warn( "Weapon group not found" );
          else
             meta( TYPE, String.join( ", ", grp ) );
-         if ( ! meta( 2 ).isEmpty() || entry.getName().endsWith( "secondary end" ) || entry.getName().equals( "Shuriken" ) ) {
+         if ( ! meta( COST ).isEmpty() || entry.getName().endsWith( "secondary end" ) || entry.getName().equals( "Shuriken" ) ) {
             find( regxWeaponDifficulty );
             meta( LEVEL, regxWeaponDifficulty.group() );
          }
          if ( meta( LEVEL ).isEmpty() )
-            meta( LEVEL, meta( TYPE ).equals( "Unarmed" ) ? "Improvised" : "(Level)" );
+            switch ( entry.getId() ) {
+               case "weapon3625": // Unarmed Attacl
+                  meta( LEVEL, "Improvised" );
+                  break;
+               case "weapon3678": // Monk unarmed strike
+                  meta( LEVEL, "Simple" );
+                  break;
+               default:
+                  meta( LEVEL, "(Level)" );
+                  meta( RARITY, "Pact Weapon" );
+                  break;
+            }
+         if ( meta( RARITY ).isEmpty() && ! entry.getName().toLowerCase().contains( "unarmed" ) )
+            meta( RARITY, "Mundane" );
          return;
       }
       // Magical weapons
@@ -205,6 +220,7 @@ public class ItemConverter extends LeveledConverter {
          case "weapon3677": // Double scimitar - secondary end
             meta( TYPE, "Heavy blade" );
             meta( LEVEL, "Superior" );
+            meta( RARITY, "Mundane" );
             break;
          case "weapon3624": case "weapon3626": case "weapon3634": // Improvised weapons
             meta( TYPE, "Improvised" );
@@ -212,7 +228,7 @@ public class ItemConverter extends LeveledConverter {
             break;
          case "weapon176": case "weapon180": case "weapon181": case "weapon219": case "weapon220": case "weapon221": case "weapon222": case "weapon259": // Arrows, magazine, etc.
             meta( TYPE, "Ammunition" );
-            meta( LEVEL, "Mundane" );
+            meta( RARITY, "Mundane" );
             break;
          default:
             warn( "Unknown weapon type" );

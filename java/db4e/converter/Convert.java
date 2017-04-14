@@ -413,7 +413,11 @@ public abstract class Convert {
       }
 
       beforeSort();
-      category.entries.sort( this::sortEntity );
+      try {
+         category.entries.sort( this::sortEntity );
+      } catch ( Exception e ) {
+         throw new UnsupportedOperationException( "Error sorting " + category, e );
+      }
       if ( stop.get() ) throw new InterruptedException();
    }
 
