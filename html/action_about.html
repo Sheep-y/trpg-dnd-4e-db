@@ -7,10 +7,18 @@
       #action_about article { padding: 0 1em; }
       #action_about div { max-width: 1000px; margin: 0 auto; }
       #action_about div h1, #action_about article h2 { clear: both; }
-      #action_about img { border: 2px ridge lightgrey; width: 400px; }
-      #action_about figure.right { margin-left: 1em; }
-      #action_about figure.left  { margin-right: 1em; }
+      #action_about img { border: 2px ridge lightgrey; }
       #action_about .nodata { font-weight: bold; font-size: 150%; }
+      @media (min-width: 1024px ) {
+         #action_about img { width: 400px; }
+         #action_about figure.right { margin-left: 1em; }
+         #action_about figure.left  { margin-right: 1em; }
+      }
+      @media (max-width: 1023px ) {
+         #action_about figure.right , #action_about figure.left { float: none; }
+         #action_about img { max-width: 400px; width: 100%; }
+      }
+
    </style>
 
    <div>
@@ -158,7 +166,8 @@
             </p><p>
                The plan was to bug fix the old viewer and write a new one.
                But it works so well, I keep improving it after my baby is born.
-               As of writing it has decent mobile support, many new columns, small data footprints, data dump, and fixed many errors both data and code, and plan is in place to convert to android app.
+               As of writing, a new build is released every few months, and over a thousand rule entries has been fixed or enhanced.
+               I cannot promise to keep up the pace, but uf there is something you want, just file an issue request on GitHub.
             </p>
          </section>
       </article>
