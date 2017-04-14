@@ -83,15 +83,26 @@
             }
       #act_list_pnl_list td {
          padding: 0 5px;
-      }
+         }
       #act_list_pnl_list tbody tr:hover {
          background: gold;
          cursor: pointer;
          color: red;
-      }
+         }
       /* 1024 cut point: try to fit four button and switch to vertical list */
       @media (min-width: 1024px) {
          #act_list_pnl_category button { max-width: 220px; }
+         #act_list_pnl_list th {
+            position: relative;
+            }
+            #action_list input.txt_filter {
+               width: 100%;
+               width: calc( 100% - 27px );
+               }
+            #act_list_pnl_list th .button {
+               position: absolute;
+               right: 0;
+               }
       }
       @media (max-width: 1023px) {
          #act_list_pnl_category button {
@@ -706,7 +717,7 @@ od.action.list = {
       for ( var i = 1 ; i < cl ; i++ ) {
          // Data field column
          var th = _.create( 'th' ), label = _.l( 'data.field.' + col[i], col[i] );
-         th.appendChild( _.create( 'input', { 'type': 'search', 'class' : 'txt_filter', 'placeholder': label, 'list': 'list'+i, 'oninput': action.txt_filter_input } ) );
+         th.appendChild( _.create( 'input', { 'type': 'search', 'class' : 'txt_filter', 'placeholder': label, 'list': 'list'+i, 'size': 6, 'oninput': action.txt_filter_input } ) );
          //th.appendChild( _.create( 'br' ) );
          var sorter = _.create( 'span', { 'text': '⇅', 'class': 'button', 'onclick': ( function ( f ) { return function act_list_sort_click( evt ){
             _.time();
