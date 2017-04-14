@@ -896,7 +896,7 @@ od.action.list = {
       var action = od.action.list, gui = od.gui;
       var count = action.data.length;
       var catTitle = action.category ? action.category.getTitle() : _.l( 'action.list.a_all' );
-      var title = _.l( 'action.list.lbl_page', '%1 %2/%3', catTitle, gui.page + 1, gui.total_page );
+      var title = _.l( 'action.list.lbl_page', '%1 %2/%3', catTitle, gui.total_page ? gui.page + 1 : 0, gui.total_page );
       _('#act_list_h_title')[0].textContent = title;
       od.gui.update_title( title );
 
