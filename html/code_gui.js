@@ -270,8 +270,7 @@ od.gui = {
       _.info( "[Config] Toggle highlight " + onoff );
       document.body.classList[ gui.hl_enabled ? 'remove' : 'add' ]( 'no_highlight' );
       _.prop( '#action_about_rdo_highlight_' + onoff, { 'checked': true } );
-      onoff = od.gui.hl_enabled ? 'off' : 'on';
-      _.attr( '.menu_view_highlight', { 'label': _.l( 'gui.menu_view_highlight_' + onoff ), 'data-i18n': 'gui.menu_view_highlight_' + onoff } );
+      _.prop( '.menu_view_highlight', { checked: od.gui.hl_enabled } );
    },
 
    'check_update' : function gui_check_update ( ) {

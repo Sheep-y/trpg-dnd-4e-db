@@ -77,8 +77,7 @@ _.l.set( 'gui', {
    'loading' : '載入中...',
    'loading1': '載入 %1 中',
 
-   'menu_view_highlight_on' : '高亮顯示搜尋匹配',
-   'menu_view_highlight_off' : '停止高亮搜尋匹配',
+   'menu_view_highlight' : '高亮顯示搜尋匹配',
    'update': '新版本'
 });
 

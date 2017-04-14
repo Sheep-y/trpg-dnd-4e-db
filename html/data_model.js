@@ -10,7 +10,7 @@
 od.data = {
    /* Please do NOT access directly. */
    "category" : Object.create( null ),
-   /* Read only, don't modify. */
+   /* Quick lookup index,  Read only, don't modify. */
    "index" : null,
 
    /**
