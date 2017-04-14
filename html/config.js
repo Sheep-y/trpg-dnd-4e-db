@@ -25,6 +25,7 @@ od.config = {
             return od.config.data_read_path + '/' + category.toLowerCase() + '/data' + matches[1] + '.js';
          }
    },
+
    "level_to_int" : function config_level_to_int ( data ) {
       if ( typeof( data ) === 'object' )
          data = data.text;
@@ -36,6 +37,14 @@ od.config = {
       }
       var digits = data.replace( /\D+/g, '' );
       return digits === '0' ? 0.5 : +digits;
+   },
+
+   "is_mc_column" : function config_is_mc_column ( col ) {
+      return [ 'SourceBook', 'Origin', 'Keywords', 'DescriptionAttribute', 'RoleName', 'PowerSourceText', 'KeyAbilities', "Size", "CreatureType" ].indexOf( col ) >= 0;
+   },
+
+   "is_num_column" : function config_is_num_column ( col ) {
+      return [ 'Cost', 'Price', 'Level' ].indexOf( col ) >= 0;
    },
 
    "category_order" : [

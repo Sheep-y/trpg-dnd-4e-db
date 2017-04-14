@@ -772,26 +772,21 @@ od.action.list = {
       for ( var i = 1 ; i < colCount ; i++ ) {
          _.remove( '#list' + i );
          var conv, set = _.map(), colName = col[ i ];
-         switch ( colName ) {
-            case 'SourceBook': case 'Origin': case 'Keywords': case 'DescriptionAttribute':
-            case 'RoleName': case 'PowerSourceText': case 'KeyAbilities': case "Size": case "CreatureType":
-               conv = function ( prop ) {
-                  prop.split( /\s*(?:,? or | and |[,;])\s*/g ).forEach( function( e ) { set[ e ] = true; } );
-               };
-               break;
-            case "Cost": case "Price": case "Level":
-               conv = function ( prop ) {
-                  if ( prop instanceof Object )
-                     prop.set.forEach( function( e ) { set[ e ] = true; } );
-                  else if ( typeof( prop ) === 'string' )
-                     set[ prop.replace( /,| gp$/g, '' ) ] = true;
-                  else
-                     set[ prop ] = true;
-               };
-               break;
-            default:
-               conv = function ( prop ) { set[ prop ] = true; };
-         }
+         if ( od.config.is_mc_column( colName ) )
+            conv = function ( prop ) {
+               prop.split( /\s*(?:,? or | and |[,;])\s*/g ).forEach( function( e ) { set[ e ] = true; } );
+            };
+         else if ( od.config.is_num_column( colName ) )
+            conv = function ( prop ) {
+               if ( prop instanceof Object )
+                  prop.set.forEach( function( e ) { set[ e ] = true; } );
+               else if ( typeof( prop ) === 'string' )
+                  set[ prop.replace( /,| gp$/g, '' ) ] = true;
+               else
+                  set[ prop ] = true;
+            };
+         else
+            conv = function ( prop ) { set[ prop ] = true; };
 
          for ( var row = 0, rowCount = data.length ; row < rowCount ; row++ )
             conv( data[ row ][ colName ] );
