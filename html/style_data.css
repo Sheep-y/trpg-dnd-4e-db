@@ -49,26 +49,25 @@
       border-bottom: 1px solid #666;
       border-top-left-radius: 8px;
       border-top-right-radius: 8px;
-      display: flex;
       margin: 0 -10px;
       padding: 8px 10px 5px;
       }
       .detail h1 .level ,
       .detail h1 .milevel ,
       .detail h1 .thLevel {
-         flex-grow: 1;
+         float: right;
          margin-left: 8px;
          text-align: right;
-         order: 1; /* levl is before title in powers, but after title in items */
          }
 
    .detail a.cat {
       bottom: 2px;
       color: #888;
       display: block;
+      float: left;
       font-size: smaller;
-      position: absolute;
       left: 10px;
+      margin-top: 3px;
       }
    .detail .publishedIn {
       font-size: smaller;
