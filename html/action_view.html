@@ -43,6 +43,7 @@ od.action.view = {
 
    "last_popup_event" : null,
    "last_popup_range" : null,
+   'lookup_radius' : 20,
 
    "initialize" : function act_view_init () {
       function hide_popup () {
@@ -205,6 +206,10 @@ od.action.view = {
    "popup_links" : function act_view_popup_links ( evt, range ) {
       var action = od.action.view,  data = od.data,  pnl = _( '#act_view_pnl_link' )[0];
       _.hide( pnl );
+      if ( ! range ) range = getSelection().getRangeAt(0);
+      var rect = range.getBoundingClientRect(),  x = ( rect.left + rect.right ) / 2,  y = ( rect.top + rect.bottom ) / 2;
+      if ( Math.abs( evt.clientX - x ) > action.lookup_radius || Math.abs( evt.clientY - y ) > action.lookup_radius )
+         return; // _.log( '[View] Click outside of selection, skip lookup.');
 
       data.load_name_index( function act_view_popup_links_loaded() {
          var ids = action.find_internal_links( evt, range );
@@ -246,8 +251,8 @@ od.action.view = {
    /**
     * Find terms from given selection and range.
     */
-   "find_selection_term" : function act_view_find_selection_term ( selectionRange, maxLen ) {
-      var range = selectionRange || getSelection().getRangeAt(0),  node = range.commonAncestorContainer;
+   "find_selection_term" : function act_view_find_selection_term ( range, maxLen ) {
+      var node = range.commonAncestorContainer;
       var textTag = [ undefined, 'MARK', 'SPAN' ];
 
       function findPre ( node, len, offset ) {
@@ -287,7 +292,7 @@ od.action.view = {
     * Find entries that match the text in last click position (start of selection).
     * @returns {Array} List of ids that matched, in decending order of name length then in order of name.
     */
-   "find_internal_links" : function act_view_find_internal_links ( evt, selectionRange ) {
+   "find_internal_links" : function act_view_find_internal_links ( evt, range ) {
       var entry = evt.target.closest( 'div.detail[id]' ), result = [];
       if ( ! entry ) // Not within entry body, abort.
          return [];
@@ -297,7 +302,7 @@ od.action.view = {
       }
 
       // Longest name is 45 chars long. Add one more for safe word cut.
-      var terms = this.find_selection_term( selectionRange, 46 ),
+      var terms = this.find_selection_term( range, 46 ),
           pre = normalise( terms.pre ), post = normalise( terms.post );
       _.time( "[Lookup] Lookup: " + pre + "^" + post );
       var nextSpace = pre.indexOf( ' ' ),  text = pre + post,   index = od.data.index;

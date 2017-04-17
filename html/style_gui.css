@@ -50,7 +50,7 @@ button, .button {
       border-color: red !important;
       color: FireBrick !important; /* Override no result category gray out */
       cursor: pointer;
-      opacity: 1 !important;
+      opacity: 0.85 !important;
       }
 
 th { text-align: left; }
