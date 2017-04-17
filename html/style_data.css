@@ -60,20 +60,22 @@
          text-align: right;
          }
 
-   .detail a.cat {
-      bottom: 2px;
+   .detail .cat {
       color: #888;
-      display: block;
+      display: inline-block;
       float: left;
       font-size: smaller;
-      left: 10px;
-      margin-top: 3px;
       }
    .detail .publishedIn {
       font-size: smaller;
       color: #888;
       text-align: right;
       }
+      .detail .publishedIn:after {
+         content: "";
+         display: table;
+         clear: both;
+         }
       /* .detail br + .publishedIn {
          margin-top: -1.8em; /* Undo last br *
          }

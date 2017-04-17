@@ -184,7 +184,7 @@ od.action.view = {
       var action = od.action.view;
       var content = idList.map( function act_view_show_entries_each( id ) {
          var data = '<div class="detail" id="' + id + '">' + cat.data[ id ] + '</div>';
-         return data.replace( /(?=<p class=publishedIn>)/, "<a class='cat' href='?list.name."+cat.name+"'>" + cat.getTitle() + "</a>" );
+         return data.replace( /(<p class=publishedIn>.*)<\/p>/, "$1<a class='cat' href='?list.name."+cat.name+"'>" + cat.getTitle() + "</a></p>" );
       } ).join( '' );
       div.innerHTML = od.gui.highlight( content );
       // Find title
