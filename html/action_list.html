@@ -276,7 +276,7 @@ if (!Array.prototype.fill) {
 
 if (!Array.prototype.find) {
   Object.defineProperty(Array.prototype, 'find', {
-    value: function(predicate) {
+    value: function ( predicate ) {
      // 1. Let O be ? ToObject(this value).
       if (this == null) {
         throw new TypeError('"this" is null or not defined');
@@ -360,9 +360,22 @@ od.action.list = {
 
    "l10n" : function act_list_l10n() {
       var action = od.action.list, data = od.data;
+      // Search box
       _.attr( '#act_list_txt_search', 'placeholder', _.l( 'action.list.txt_search_' + action.search_type + '_placeholder' ) );
+      // Category buttons
       for ( var name in action.category_dom ) {
          _.attr( _( action.category_dom[ name ], 'b' ), 'text', name ? data.get( name ).getTitle() : _.l( 'action.list.a_all' ) );
+      }
+      // Filter boxes
+      if ( action.last_cat ) {
+         var col = action.last_cat.columns,  css = '@media (max-width: 1023px) {';
+         _.ary( _( '.txt_filter' ) ).forEach( function ( txt, i ) {
+            var label =  _.l( 'data.field.' + col[i+1], col[i+1] );
+            txt.placeholder = label;
+            if ( i > 0 )
+               css += '#act_list_table > tbody > tr > td:nth-child(' + (i+1) + ')::before{ content: "' + label + '"; }';
+         } );
+         _( '#style_dynamic' )[0].innerHTML = css + '}';
       }
    },
 
