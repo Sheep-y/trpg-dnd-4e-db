@@ -148,7 +148,11 @@ _.l.set( 'action.about', {
       " &nbsp; 例、<a href='?list.full.ritual=\"p* bonus\"'><kbd>\"p* bonus\"</kbd></a> 同時符合 <q>Proficiency bonus</q> 和 <q>Power bonus</q>。 <br/>"+
       "<br/>"+
       "<li> 等級和價格欄可以施予數字範圍 <br/>"+
-      " &nbsp; 例、在等級欄中輸入 <kbd>10-12</kbd> 會得出等級 10, 11, 或 12 的結果。"+
+      " &nbsp; 例、在等級欄中輸入 <kbd>10-12</kbd> 會得出等級 10, 11, 或 12 的結果。<br/>"+
+      " &nbsp; 例、在價格欄中輸入 <kbd><=5k</kbd> 會得出價格 5000 或以下的結果。<br/>"+
+      "<br/>"+
+      "<li> NIL 代表空白 <br/>"+
+      " &nbsp; 例、在專長的前提要求欄中輸入 <kbd>NIL</kbd> 會得出沒有任何前提要求的威能，或用 <kbd>-NIL</kbd> 排除它們。<br/>"+
       "<br/>"+
       "<li> 如果您會用<a href='https://atedev.wordpress.com/2007/11/23/%E6%AD%A3%E8%A6%8F%E8%A1%A8%E7%A4%BA%E5%BC%8F-regular-expression/'>正則表逹式</a>，您可以用它作為字詞。 <br/>"+
       " &nbsp; 例、<a href='?list.full.feat=/(martial|arcane) power( 2)?/ damage bonus'><kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd></a>。"+

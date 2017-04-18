@@ -507,8 +507,8 @@ od.action.list = {
       var td = od.action.list.last_contextmenu = evt.target.closest( 'td' );
       if ( ! td || ! td.previousSibling || ! td.nextSibling ) // Skip name and source columns.
          return _.prop( '#act_list_menu_filter, #act_list_menu_filter_only', { label: '' } );;
-      _( '#act_list_menu_filter' )[0].label = _.l( 'action.list.menu_filter_column', 'Filter %1', td.textContent );
-      _( '#act_list_menu_filter_only' )[0].label = _.l( 'action.list.menu_filter_column_only', 'Filter only %1', td.textContent );
+      _( '#act_list_menu_filter' )[0].label = _.l( 'action.list.menu_filter_column', 'Filter %1', td.textContent || 'NIL' );
+      _( '#act_list_menu_filter_only' )[0].label = _.l( 'action.list.menu_filter_column_only', 'Filter only %1', td.textContent || 'NIL' );
    },
 
    /*************************************************************************/
@@ -517,7 +517,7 @@ od.action.list = {
       var action = od.action.list, td = action.last_contextmenu;
       if ( td ) {
          var index = [].indexOf.call( td.parentNode.children, td );
-         _( '.txt_filter' )[index].value = td.textContent;
+         _( '.txt_filter' )[index].value = td.textContent || 'NIL';
       }
       od.action.list.show_list();
    },

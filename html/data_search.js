@@ -289,6 +289,10 @@ od.search = {
                   term = term.length > 2 ? _.escRegx( term.substr( 1, term.length-2 ) ) : '';
                   term = term.replace( /\\\*/g, '\\S+' );
 
+               } else if ( term === 'NIL' ) {
+                  term = '';
+                  part += '^$';
+
                // Otherwise is normal word, just need to unescape
                } else {
                   // Remove leading double quote for incomplete terms

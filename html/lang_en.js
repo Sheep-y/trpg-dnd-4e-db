@@ -116,7 +116,11 @@ _.l.set( 'action.about', {
       " &nbsp; e.g. <a href='?list.full.ritual=\"p* bonus\"'><kbd>\"p* bonus\"</kbd></a> matches both <q>Proficiency bonus</q> and <q>Power bonus</q>. <br/>"+
       "<br/>"+
       "<li> Number range is supported in level and cost column. <br/>"+
-      " &nbsp; e.g. <kbd>10-12</kbd> in the level field will yield data that is level 10, 11, or 12. <br/>"+
+      " &nbsp; e.g. <kbd>10-12</kbd> in the level field will yield results that is level 10, 11, or 12. <br/>"+
+      " &nbsp; e.g. <kbd><=5k</kbd> in the cost field will yield results that cost at most 5000. <br/>"+
+      "<br/>"+
+      "<li> NIL is empty <br/>"+
+      " &nbsp; e.g. <kbd>NIL</kbd> in the prerequisite field of feats will yield feats that has no requirements, or <kbd>-NIL</kbd> to exclude them. <br/>"+
       "<br/>"+
       "<li> If you know <a href='http://www.regular-expressions.info/quickstart.html'>regular expression</a>, you can use it as a term. <br/>"+
       " &nbsp; e.g. <a href='?list.full.feat=/(martial|arcane) power( 2)?/ damage bonus'><kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd></a>. "+
