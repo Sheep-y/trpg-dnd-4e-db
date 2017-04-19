@@ -154,16 +154,16 @@ _.l.set( 'action.about', {
       "<li> NIL 代表空白 <br/>"+
       " &nbsp; 例、在專長的前提要求欄中輸入 <kbd>NIL</kbd> 會得出沒有任何前提要求的威能，或用 <kbd>-NIL</kbd> 排除它們。<br/>"+
       "<br/>"+
-      "<li> 如果您會用<a href='https://atedev.wordpress.com/2007/11/23/%E6%AD%A3%E8%A6%8F%E8%A1%A8%E7%A4%BA%E5%BC%8F-regular-expression/'>正則表逹式</a>，您可以用它作為字詞。 <br/>"+
+      "<li> 如果您會用<a href='https://atedev.wordpress.com/2007/11/23/%E6%AD%A3%E8%A6%8F%E8%A1%A8%E7%A4%BA%E5%BC%8F-regular-expression/'>正則表逹式</a>，您可以用它作為字詞進行搜尋。 <br/>"+
       " &nbsp; 例、<a href='?list.full.feat=/(martial|arcane) power( 2)?/ damage bonus'><kbd>/(martial|arcane) power( 2)?/ damage bonus</kbd></a>。"+
       "</ul>",
 
    'h_move_data' : "手機支援",
    'p_move_data' :
       "數據儲存在 <q id='action_about_lbl_folder'></q> 目錄內。您可以將本 HTML 和數據目錄一起複制到 USB 儲存裝置或智能電話。 <br/>"+
-      "預設的安卓瀏覽器可能不允許瀏覽離線檔案；您可以用 <a href='https://play.google.com/store/apps/details?id=com.opera.browser'>Opera</a> 或 <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox</a>。Chrome 不一定能開。 <br/> "+
+      "預設的安卓瀏覽器可能無法瀏覽離線檔案；您可以用 <a href='https://play.google.com/store/apps/details?id=com.opera.browser'>Opera</a> 或 <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox</a>。Chrome 不一定能開。 <br/> "+
       "<br/>"+
-      "你可以把全部檔案當成是一個網站上載到互聯網，不過搜尋會需時：完整的全文搜尋需要下載 ~24MB 數據。",
+      "你可以把全部檔案當成是一個網站上載到互聯網。在下載器中啓用壓縮可以減少數據量。",
 
    'h_history' : "產品歷史",
    'lbl_english_only' : "此節只有英文版本。",

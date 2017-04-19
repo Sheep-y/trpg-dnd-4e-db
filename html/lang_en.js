@@ -130,9 +130,9 @@ _.l.set( 'action.about', {
    'p_move_data' :
       "Acquired data are stored locally, in <q id='action_about_lbl_folder'></q> folder. "+
       "You can copy this html file and the data folder together to USB drive or to smart phone. <br/>"+
-      "Default Android browser may not allow browsing offline file; you can use <a href='https://play.google.com/store/apps/details?id=com.opera.browser'>Opera</a> or <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox</a>. Chrome may NOT work.<br/> "+
+      "Default Android browser may be unable to browser offline file; you can use <a href='https://play.google.com/store/apps/details?id=com.opera.browser'>Opera</a> or <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox</a>. Chrome may NOT work.<br/> "+
       "<br/>"+
-      "You can also upload it to Internet as a web site, but search speed can be slow: a full search needs ~24MB data.",
+      "You can also upload it to Internet as a web site.  Enabling compression in the downloader will result in smaller data.",
 
    'h_history'   : "Product History",
    'lbl_english_only'  : "", // Please translate as "This section is English only."
