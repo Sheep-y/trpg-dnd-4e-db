@@ -124,6 +124,26 @@ mark {
          }
    }
 
+#js_enable_pointer { /* Pointer for IE's "enable JavaScript". Ignor other browsers since they don't have easy way to disable JS now. */
+   bottom: 44px;
+   color: red;
+   font: 96px 'Arial Unicode';
+   left: 68%;
+   left: calc(50% + 314px);
+   position: fixed;
+   transition: left 1s, bottom 1s;
+   }
+   @media ( max-width: 1023px ) {
+      #js_enable_pointer {
+         left: calc(50% + 200px);
+         }
+   }
+   @media ( max-width: 800px ) {
+      #js_enable_pointer {
+         bottom: 70px;
+         left: calc(50% + 150px);
+         }
+   }
 /********************** Utility classes **************************/
 
 .right { float: right; }
