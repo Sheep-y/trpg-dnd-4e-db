@@ -120,14 +120,27 @@ _.l.set( 'action.about', {
    'a_github'  : "主頁",
    'a_email'  : "電郵",
 
-   'h_intro' : "這是甚麼？",
-   'p_intro' : "這是個由同好者重制的 <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider 數據庫</a>，以便離線地威力查找四代龍與地下城的資源。",
    'p_nodata': "沒有數據。請用<a href='https://github.com/Sheep-y/trpg-dnd-4e-db#readme'>下載器</a>獲取數據。",
+
+   'h_intro' : "這是甚麼？",
+   'p_intro' : "這是個由同好者重制的 <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider 數據庫</a>，以便離線地威力查找四代龍與地下城的資源。 <br/>"+
+      "<br/>"+
+      "用法很簡單：點擊分類以選擇它，並顯示該分類的列表，然後可以輸入搜尋字詞，按 Enter 或點擊搜尋鍵就會進行搜尋。 <br/>"+
+      "列表可以用任何欄排序，每個欄都可以進一步過濾結果。 <br/>"+
+      "如果你在用火狐（或任何支援 <a href='https://davidwalsh.name/html5-context-menu'>HTML5 關聯選單</a> 的瀏覽器），你也可以右按任一欄位的內容去設定過濾。 <br/>"+
+      "<br/>"+
+      "點擊列表的任一行可以檢視條目內文，按著 Ctrl 鍵點擊會開新分頁。 <br/>"+
+      "如列表有多項條目，用左右方向鍵或用手指左右劃掃都可以前後行進。 <br/> "+
+      "當檢視條目內文時，點擊任何文字會進行快速查找。如有名稱相符於該段文字的條目，會以彈出式列表顯示。 <br/>"+
+      "你可以用此功能去查找威能關鍵詞或規則字詞，例如 \"Burst\" 或 \"Regeneration\"。 <br/>"+
+      "<br/>"+
+      "在大部分瀏覽器中，你可以用瀏覽器的前進/後退功能去遍歷瀏覽記錄。 <br/>"+
+      "（Chrome 是唯一的例外。它<a href='https://bugs.chromium.org/p/chromium/issues/detail?id=301210'>不允許</a> HTML 檔案管理自身的瀏覽記錄。）",
 
    'h_search_data' : "如何搜尋",
    'p_search_data' :
-      "搜尋有兩種：名字搜尋和全文搜尋。預設是名字，速度快。全文較大較慢。<br/>"+
-      "要進行全文搜尋，最快是輸入搜尋字詞後先選資料類別，然後再選搜尋方式。 <br/>"+
+      "搜尋有兩種：名字搜尋和全文搜尋。預設是名字搜尋，速度快。全文搜尋則較慢。<br/>"+
+      "在搜尋前先選取分類的話，搜尋範圍縮窄了就會搜得較快。 <br/>"+
       "<br/>"+
       "兩種搜尋都會找出包含所有字詞的結果，不論順序，不論大小寫。 <br/>"+
       "例、<a href='?list.full.power=fighter heal'><kbd>fighter heal</kbd></a> 會找出同時包括 <q>Fighter</q> 和 <q>Heal</q> 或 <q>Healing</q> 或 <q>Healer</q> 的資料. <br/>"+

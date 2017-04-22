@@ -85,17 +85,30 @@ _.l.set( 'action.about', {
    'a_github'  : "Homepage",
    'a_email'  : "Email",
 
-   'h_intro' : "What is this?",
-   'p_intro' :
-      "This is a fan remake of the official <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider's Compendium</a> for powerful, offline search of 4<suo>th</sup> edition D&amp;D data.",
    'p_nodata':
       "There is no data. Please fetch with <a href='https://github.com/Sheep-y/trpg-dnd-4e-db#readme'>downloader</a>.",
 
+   'h_intro' : "What is this?",
+   'p_intro' :
+      "This is a fan remake of the official <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider's Compendium</a> for powerful, offline search of 4<sup>th</sup> edition D&amp;D data. <br/>"+
+      "<br/>"+
+      "Usage is simple: click on a category to select it and see listing, then / or input search term(s) and press enter or click a search button to search. <br/>"+
+      "The listing can be sorted by any column and filtered by each column. <br/>"+
+      "On Firefox (or any browser that supports <a href='https://davidwalsh.name/html5-context-menu'>HTML5 context menu</a>), you can also right click on a column data to set filter with it. <br/>"+
+      "<br/>"+
+      "Click on a row to see the content of an entry, or Ctrl+Click to open in new tab. <br/>"+
+      "If the listing has multiple entries, you can use the left / right key or swipe to walk through the list. <br/> "+
+      "When viewing entry content, you can click any text to do a quick lookup.  If the name of any entry match the clicked text, a list will pop up. <br/>"+
+      "You can use this feature to quickly lookup power keywords or rule terms like \"Burst\" or \"Regeneration\". <br/>"+
+      "<br/>"+
+      "On most browsers, you can use the browser's forward and backward feaure to transverse browse history. <br/>"+
+      "(Chrome is the only exception, which <a href='https://bugs.chromium.org/p/chromium/issues/detail?id=301210'>does not allow</a> HTML file to manage its own history.)",
+
    'h_search_data' : "How to Search",
    'p_search_data' :
-      "There are two types of searches: name only and full text. <br/>"+
-      "Name search (default) is fast.  Full search is big and slow. <br/>"+
-      "For full search, input search terms and select data category, then search type, for quickest result. <br/>"+
+      "There are two types of search: name only search and full text search. <br/>"+
+      "Name search (default) is fast.  Full search is bigger and slower. <br/>"+
+      "A search will run faster if a category is selected before the search, to limit its scope. <br/>"+
       "<br/>"+
       "Both searches find results that contains every terms, in any order, regardless of case. <br/>"+
       "e.g. <a href='?list.full.power=fighter heal'><kbd>fighter heal</kbd></a> will search for data that contains <q>Fighter</q> and <q>Heal</q> or <q>Healing</q> or <q>Healer</q>. <br/>"+
