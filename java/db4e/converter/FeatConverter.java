@@ -93,5 +93,6 @@ public class FeatConverter extends Converter {
             fix( "consistency" );
             break;
       }
+      super.correctEntry();
    }
 }

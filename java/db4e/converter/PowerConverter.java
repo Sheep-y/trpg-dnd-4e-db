@@ -158,5 +158,7 @@ public class PowerConverter extends LeveledConverter {
          meta( CLASS, "Spellscarred" );
          fix( "wrong meta" );
       }
+
+      super.correctEntry();
    }
 }

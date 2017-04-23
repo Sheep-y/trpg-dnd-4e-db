@@ -582,6 +582,7 @@ public class ItemConverter extends LeveledConverter {
          case "item3079": // Window of Escape
             meta( CATEGORY, "Lair" );
             fix( "recategorise" );
+            // fall through
 
          default:
             // Add "At-Will" to the ~150 items missing a power frequency.
@@ -592,6 +593,7 @@ public class ItemConverter extends LeveledConverter {
                fix( "missing power frequency" );
             }
       }
+      super.correctEntry();
    }
 
    @Override public String textData( String data ) {

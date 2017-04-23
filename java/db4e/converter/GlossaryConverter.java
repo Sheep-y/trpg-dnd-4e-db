@@ -72,6 +72,7 @@ public class GlossaryConverter extends Converter {
             fix( "new entry" );
             break;
       }
+      super.correctEntry();
    }
 
    @Override protected Set<String> getLookupName ( Entry entry, Set<String> list ) {

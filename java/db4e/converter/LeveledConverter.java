@@ -146,5 +146,6 @@ class LeveledConverter extends Converter {
                break;
          }
       }
+      super.correctEntry();
    }
 }

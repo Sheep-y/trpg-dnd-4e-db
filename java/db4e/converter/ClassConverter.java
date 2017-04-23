@@ -171,6 +171,7 @@ public class ClassConverter extends Converter {
          default:
             warn( "Unknown class, cannot provide primary abilities" );
       }
+      super.correctEntry();
    }
 
    @Override protected Set<String> getLookupName ( Entry entry, Set<String> list ) {

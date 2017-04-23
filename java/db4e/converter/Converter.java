@@ -26,6 +26,12 @@ public class Converter extends Convert {
    }
 
    @Override protected void correctEntry () {
+      if ( Main.debug.get() ) {
+         if ( shortId.containsKey( entry.getId() ) )
+            log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.getId(), entry.getName(), entry.getId(), shortId.get( entry.getId() ).getName() } );
+         else
+            shortId.put( entry.getId(), entry );
+      }
    }
 
    private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
@@ -49,11 +55,6 @@ public class Converter extends Convert {
       super.convertEntry();
       // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
       if ( Main.debug.get() ) {
-         if ( shortId.containsKey( entry.getId() ) )
-            log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.getId(), entry.getName(), entry.getId(), shortId.get( entry.getId() ).getName() } );
-         else
-            shortId.put( entry.getId(), entry );
-
          // Validate content tags
          if ( find( "<img " ) || find( "<a " ) )
             warn( "Unremoved image or link" );
@@ -381,6 +382,10 @@ public class Converter extends Convert {
 
    @Override protected void testConversion() {
       if ( ! Main.debug.get() || tests == null ) return;
+      tests.add( () -> {
+         if ( shortId.size() != category.entries.size() )
+            log.log( Level.WARNING, "Conversion test failed on correction count of {0}: expected {1}, found {2}", new Object[]{ category.id, category.entries.size(), shortId.size() } );
+      } );
       log.log( Level.INFO, "Running {1} conversion tests on {0}", new Object[]{ category.id, tests.size() } );
       for ( Runnable test : tests ) test.run();
    }

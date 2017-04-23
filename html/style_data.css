@@ -27,9 +27,11 @@
       }
 
    .detail h1, .detail h2, .detail h3 {
+      display: table;
       font-size: 110%;
       padding-top: 1ex;
       padding-bottom: 0.5ex;
+      width: 100%;
       }
    .detail p, .detail div, .detail table {
       padding-top: 0.5ex;
@@ -51,7 +53,13 @@
       border-top-right-radius: 8px;
       margin: 0 -10px;
       padding: 8px 10px 5px;
+      width: calc(100% + 20px);
       }
+      .detail > h1.atwillpower ,
+      .detail > h1.encounterpower ,
+      .detail > h1.dailypower {
+         display: block;
+         }
       .detail > h1.atwillpower:not(:first-child) ,
       .detail > h1.encounterpower:not(:first-child) ,
       .detail > h1.dailypower:not(:first-child) {
@@ -60,9 +68,10 @@
       .detail h1 .level ,
       .detail h1 .milevel ,
       .detail h1 .thLevel {
-         float: right;
-         margin-left: 8px;
+         display: table-cell;
+         padding-left: 8px;
          text-align: right;
+         vertical-align: top;
          }
 
    .detail .cat {

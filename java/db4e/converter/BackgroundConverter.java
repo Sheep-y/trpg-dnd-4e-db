@@ -137,6 +137,7 @@ public class BackgroundConverter extends Converter {
             if ( Main.debug.get() && meta( BENEFIT ).startsWith( "Associated:" ) && find( regxBenefit ) )
                log.log( Level.WARNING, "Benefits in additoin to associated skills: {0}", entry );
       }
+      super.correctEntry();
    }
 
    @Override protected Set<String> getLookupName ( Entry entry, Set<String> list ) {

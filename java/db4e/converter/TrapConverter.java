@@ -40,6 +40,7 @@ public class TrapConverter extends LeveledConverter {
          // Terrain; change meta to fit into Trap
          meta( "Terrain", meta( 0 ), "", meta( 1 ) );
       }
+      super.correctEntry();
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
