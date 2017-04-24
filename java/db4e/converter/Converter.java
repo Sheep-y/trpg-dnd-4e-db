@@ -25,15 +25,7 @@ public class Converter extends Convert {
       super( category );
    }
 
-   @Override protected void correctEntry () {
-      if ( Main.debug.get() ) {
-         if ( shortId.containsKey( entry.getId() ) )
-            log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.getId(), entry.getName(), entry.getId(), shortId.get( entry.getId() ).getName() } );
-         else
-            shortId.put( entry.getId(), entry );
-      }
-   }
-
+   private final Matcher regxTitleLevel = Pattern.compile( "(<h1[^>]*>)(<span[^>]*>.*?</span>)(.*?)(?=</h1>)" ).matcher( "" );
    private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
    private final Matcher regxCheckOpenClose = Pattern.compile( "<(/?)(p|span|b|i|a|h[1-6])\\b" ).matcher( "" );
    private final Matcher regxCheckDate  = Pattern.compile( "\\(\\d+/\\d+/\\d+\\)" ).matcher( "" );
@@ -79,6 +71,19 @@ public class Converter extends Convert {
          if ( ! unbalanced.isEmpty() )
             warn( "Unbalanced open and closing element (" + unbalanced + ")" );
          openCloseCount.clear();
+      }
+   }
+
+   @Override protected void correctEntry () {
+      // Moves front-loaded level label to back for easier and consistent styling.
+      if ( find( regxTitleLevel ) )
+         entry.setContent( regxTitleLevel.replaceAll( "$1$3$2" ) );
+
+      if ( Main.debug.get() ) {
+         if ( shortId.containsKey( entry.getId() ) )
+            log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.getId(), entry.getName(), entry.getId(), shortId.get( entry.getId() ).getName() } );
+         else
+            shortId.put( entry.getId(), entry );
       }
    }
 

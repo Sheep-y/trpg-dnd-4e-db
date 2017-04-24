@@ -33,6 +33,9 @@
       padding-bottom: 0.5ex;
       width: 100%;
       }
+      .detail h1 + br, .detail h2 + br, .detail h3 + br {
+         display: none;
+         }
    .detail p, .detail div, .detail table {
       padding-top: 0.5ex;
       padding-bottom: 0.5ex;
@@ -55,11 +58,6 @@
       padding: 8px 10px 5px;
       width: calc(100% + 20px);
       }
-      .detail > h1.atwillpower ,
-      .detail > h1.encounterpower ,
-      .detail > h1.dailypower {
-         display: block;
-         }
       .detail > h1.atwillpower:not(:first-child) ,
       .detail > h1.encounterpower:not(:first-child) ,
       .detail > h1.dailypower:not(:first-child) {
