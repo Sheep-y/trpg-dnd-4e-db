@@ -59,21 +59,24 @@ od.gui = {
             if ( evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey ) return;
             if ( document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.value ) return;
             switch ( evt.key ) {
-               case "ArrowLeft":
+               case "Left": // IE & Edge
+               case "ArrowLeft": // Firefox
                   var left = _( 'section[id^=action_][style*=block] > nav > .btn_prev:not([style*=none])' )[0];
                   if ( left ) {
                      left.click();
                      evt.preventDefault();
                   }
                   break;
-               case "ArrowRight":
+               case "Right": // IE & Edge
+               case "ArrowRight": // Firefox
                   var right = _( 'section[id^=action_][style*=block] > nav > .btn_next:not([style*=none])' )[0];
                   if ( right ) {
                      right.click();
                      evt.preventDefault();
                   }
                   break;
-               case "Escape":
+               case "Esc": // IE & Edge
+               case "Escape": // Firefox
                   if ( gui.get_act_id().startsWith( 'view' ) ) {
                      gui.action.btn_browse_click();
                      evt.preventDefault();
@@ -275,7 +278,8 @@ od.gui = {
 
    'check_update' : function gui_check_update ( ) {
       var lastCheck = new Date( _.pref( 'oddi_last_update_check', '2000-01-01' ) );
-//      if ( ! window.fetch || new Date().getTime() - lastCheck.getTime() < 7*24*60*60*1000 ) return; // Check once a week
+      if ( ! window.fetch || new Date().getTime() - lastCheck.getTime() < 7*24*60*60*1000 ) // Check once a week
+         return _.info( '[Update] Skipping update check. Last check: ' + lastCheck );
       _.info( '[Update] Check update. Last check: ' + lastCheck );
 
       fetch( 'https://api.github.com/repos/Sheep-y/trpg-dnd-4e-db/releases' ).then( function( response ) {
