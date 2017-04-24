@@ -855,7 +855,11 @@ od.action.list = {
 
       if ( ! count ) {
          gui.total_page = gui.page = 0;
-         html = '<tr><td rowspan=99 align=center>' + _.l( 'action.list.lbl_no_result' );
+         html = '<tr><td rowspan=99 align=center>';
+         if ( action.search_type === 'name' )
+            html += _.l( 'action.list.lbl_no_result_name', 'No result' );
+         else
+            html += _.l( 'action.list.lbl_no_result', 'No result' );
          od.action.view.siblings = [];
 
       } else {

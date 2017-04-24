@@ -63,7 +63,8 @@ _.l.set( 'action.list', {
    'lbl_showing' : '%1 result(s)',
    'lbl_filter'   : 'Filter left %1 result(s) out of %2',
    'lbl_page' : '%1 Page %2/%3',
-   'lbl_no_result' : "No result"
+   'lbl_no_result_name' : "No result. <a href='#' onclick='od.action.list.search(\"full\");'>Switch to fulltext search?</a>",
+   'lbl_no_result' : "No result."
 });
 
 _.l.set( 'action.view', {
