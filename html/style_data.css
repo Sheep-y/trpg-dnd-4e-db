@@ -34,9 +34,10 @@
       width: 100%;
       }
       .detail h1 + br, .detail h2 + br, .detail h3 + br {
-         display: none;
+         display: none; /* Hide gap below title in race */
          }
    .detail p, .detail div, .detail table {
+      empty-cells: hide; /* Some skill tables has empty cells */
       padding-top: 0.5ex;
       padding-bottom: 0.5ex;
       }
@@ -66,7 +67,7 @@
       .detail h1 .level ,
       .detail h1 .milevel ,
       .detail h1 .thLevel {
-         display: table-cell;
+         display: table-cell; /* Level goes to the right, everything else should be to the left. */
          padding-left: 8px;
          text-align: right;
          vertical-align: top;
@@ -144,21 +145,30 @@
 
 .detail .miflavor ,
 .detail .flavortext ,
-.detail .flavor:not(.indent) ,
-.detail > h1 + i:not(:empty) {
+.detail .flavor:not(.indent) {
    background-color: #CCC;
    display: block;
    padding-bottom: 5px;
    }
+   .detail h1.monster + .flavor { /* Some monser use .alt for abillity, right after .flavor for stat block */
+      background-color: transparent;
+      }
    .detail > h1 + i + br {
       display: none;
       }
    .detail .player + .flavor ,
    .detail .bodytable .flavor ,
    .detail > h1 + i + .flavor ,
-   .detail > h1 + i + br + .flavor { /* racial traits */
+   .detail > h1 + i + br + .flavor { /* Racial traits */
       background-color: transparent;
       }
+
+.detail > h1 + i:not(:empty) {
+   background-color: #DDD;
+   display: block;
+   padding-top: 5px;
+   padding-bottom: 5px;
+}
 
 .detail ul {
    margin-left: 1em;
