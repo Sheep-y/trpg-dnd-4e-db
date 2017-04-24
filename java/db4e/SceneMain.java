@@ -91,17 +91,17 @@ public class SceneMain extends Scene {
 
    // Option Screen
    final TextField txtTimeout  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( MIN_TIMEOUT_MS / 1000, prefs.getInt( "download.timeout", DEF_TIMEOUT_MS / 1000 ) ) ) ),
-           "Download timeout in seconds.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
+           "Download timeout in seconds." );
    final TextField txtInterval  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( MIN_INTERVAL_MS, prefs.getInt( "download.interval", DEF_INTERVAL_MS ) ) ) ),
-           "Minimal interval, in millisecond, between each download action.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
+           "Minimal interval, in millisecond, between each download action." );
    final TextField txtRetry  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "download.retry", DEF_RETRY_COUNT ) ) ) ),
            "Number of timeout retry.  Only apply to timeout errors." );
    final TextField txtThread  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "export.thread", 0 ) ) ) ),
-           "More thread exports faster but use more memory.  Auto = core count-1.  Take effects immediately." );
+           "More thread exports faster but use more memory.  0 = Auto" );
    private final CheckBox chkFixAndEnhance = JavaFX.tooltip( new CheckBox( "Fix and enhance data" ),
-           "Fix known issues in the data, make them consistent, add or enhance data properties, and ignore flavor text in full search.  Must be set before export / dump." );
+           "Fix known issues in the data, make them consistent, add or enhance data properties, and ignore flavor text in full search." );
    private final CheckBox chkCompress = JavaFX.tooltip( new CheckBox( "Compress exported data" ),
-           "Compress exported data (LZMA) to reduce size, but takes time to decompress on load.  Suitable for slow or metered network.  Take effects immediately." );
+           "Compress exported data files.  Actual speedup or slowdown depends on data speed, browser, and hardware." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
            "Show program log and console, and enable internal data assertions.  Will slow down download & export and use more memory." );
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
