@@ -234,23 +234,27 @@ public class ExporterMain extends Exporter {
    private void writeData ( Writer writer, String prefix, StringBuilder data, String postfix ) throws IOException, InterruptedException {
       final int total_size = prefix.length() + data.length() + postfix.length();
       if ( data.length() <= 0 ) log.log( Level.WARNING, "Zero bytes data {0}", prefix );
+      if ( stop.get() ) throw new InterruptedException();
       if ( compress.get() ) {
          byte[] zipped = lzma( data );
          String compressed = Ascii85.encode( zipped );
          if ( compressed.length() <= 0 ) log.log( Level.WARNING, "Zero bytes encoded {0}", prefix );
          final int zipped_size = prefix.length() + compressed.length() + 2 + postfix.length();
-         writer.write( prefix + "\"" );
-         writer.write( compressed );
-         writer.write( '"' );
-         log.log( Level.FINE, "Written {0} bytes ({1,number,percent}) compressed ({2})", new Object[]{ zipped_size, (float) zipped_size / total_size, prefix } );
-      } else {
-         writer.write( prefix );
-         writer.write( data.toString() );
-         log.log( Level.FINE, "Written {0} bytes uncompressed ({1})", new Object[]{ total_size, prefix } );
+         if ( zipped_size < total_size * 0.96 ) { // Don't waste decompression time on low compression or negative compression
+            writer.write( prefix + "\"" );
+            writer.write( compressed );
+            writer.write( '"' );
+            writer.write( postfix );
+            log.log( Level.FINE, "Written {0} bytes ({1,number,percent}) compressed ({2})", new Object[]{ zipped_size, (float) zipped_size / total_size, prefix } );
+            data.setLength( 0 );
+            return;
+         }
       }
-      data.setLength( 0 );
+      writer.write( prefix );
+      writer.write( data.toString() );
       writer.write( postfix );
-      if ( stop.get() ) throw new InterruptedException();
+      log.log( Level.FINE, "Written {0} bytes uncompressed ({1})", new Object[]{ total_size, prefix } );
+      data.setLength( 0 );
    }
 
    private void testViewerExists () throws IOException {
