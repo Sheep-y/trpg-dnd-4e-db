@@ -94,7 +94,7 @@ _.l.set( 'action.about', {
       "This is a fan remake of the official <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider's Compendium</a> for powerful, offline search of 4<sup>th</sup> edition D&amp;D data. <br/>"+
       "<br/>"+
       "Usage is simple: click on a category to select it and see listing, then / or input search term(s) and press enter or click a search button to search. <br/>"+
-      "The listing can be sorted by any column and filtered by each column. <br/>"+
+      "Text that match the terms is highlighted by default, and the listing can be sorted by any column and filtered by each column. <br/>"+
       "On Firefox (or any browser that supports <a href='https://davidwalsh.name/html5-context-menu'>HTML5 context menu</a>), you can also right click on a column data to set filter with it. <br/>"+
       "<br/>"+
       "Click on a row to see the content of an entry, or Ctrl+Click to open in new tab. <br/>"+

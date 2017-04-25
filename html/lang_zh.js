@@ -127,7 +127,7 @@ _.l.set( 'action.about', {
    'p_intro' : "這是個由同好者重制的 <a href='http://www.wizards.com/dndinsider/compendium/database.aspx'>D&amp;D Insider 數據庫</a>，以便離線地威力查找四代龍與地下城的資源。 <br/>"+
       "<br/>"+
       "用法很簡單：點擊分類以選擇它，並顯示該分類的列表，然後可以輸入搜尋字詞，按 Enter 或點擊搜尋鍵就會進行搜尋。 <br/>"+
-      "列表可以用任何欄排序，每個欄都可以進一步過濾結果。 <br/>"+
+      "符合搜尋的文字預設會高亮顯示。列表可以用任何欄排序，每個欄都可以進一步過濾結果。 <br/>"+
       "如果你在用火狐（或任何支援 <a href='https://davidwalsh.name/html5-context-menu'>HTML5 關聯選單</a> 的瀏覽器），你也可以右按任一欄位的內容去設定過濾。 <br/>"+
       "<br/>"+
       "點擊列表的任一行可以檢視條目內文，按著 Ctrl 鍵點擊會開新分頁。 <br/>"+
