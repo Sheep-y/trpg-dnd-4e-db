@@ -264,6 +264,7 @@ public class ExporterMain extends Exporter {
    private void writeViewer ( String root, File target ) throws IOException {
       new File( root + "res" ).mkdir();
       Files.copy( ResourceUtils.getStream( "res/script.js" ), new File( root + "res/script.js" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      Files.copy( ResourceUtils.getStream( "res/style.css" ), new File( root + "res/style.css" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
       Files.copy( ResourceUtils.getStream( "res/viewer_category_icon.png" ), new File( root + "res/viewer_category_icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
       Files.copy( ResourceUtils.getStream( "res/icon.png" ), new File( root + "res/icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
       Files.copy( ResourceUtils.getStream( "res/manifest.json" ), new File( root + "res/manifest.json" ).toPath(), StandardCopyOption.REPLACE_EXISTING );

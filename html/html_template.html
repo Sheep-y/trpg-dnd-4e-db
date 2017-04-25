@@ -19,7 +19,8 @@
   <link rel="license" href="https://www.gnu.org/licenses/agpl-3.0.en.html" hreflang="en" />
   <link rel="help" href="?about" />
   <link rel="search" href="?list" />
-  <style><?coco file( "style_gui.css", "style_data.css") css(minify) ?></style>
+  <style><?coco file( "style_gui.css" ) css(minify) ?></style>
+  <link href="4e_database_files/res/style.css" rel="stylesheet" />
 </head><body>
 <!--[if lte IE 11]>
    <h1> Please upgrade browser. </h1>
@@ -37,22 +38,34 @@
    </section>
    <script>(function(){'use strict';
       document.getElementById('action_script_error').style.display = 'block';
-      var tag = document.createElement( 'script' );
-      tag.src = location.pathname.match( /[^/]+(?=\.htm)/ ) + '_files/res/script.js?<?coco var( time.last_modified ) ?>';
+
+      var tag = document.createElement( 'script' ), folder = location.pathname.match( /[^/]+(?=\.htm)/ ) + '_files';
+      tag.src = folder + '/res/script.js?<?coco var( time.last_modified ) ?>';
       tag.setAttribute( 'onload', "od.gui.init()" );
       document.body.appendChild( tag );
+
+      if ( folder !== '4e_database_files' ) {
+         tag = document.querySelector( 'link[rel=stylesheet]' );
+         tag.parentNode.removeChild( tag );
+         tag = document.createElement( 'link' );
+         tag.href = folder + '/res/style.css?<?coco var( time.last_modified ) ?>';
+         tag.rel = "stylesheet";
+         document.head.appendChild( tag );
+      }
+
       window.od = { action : {} };
    })();</script><noscript>
       <h1> Please enable JavaScript </h1>
       <h1> 請啟用 JavaScript </h1>
       <div id="js_enable_pointer" style="">☟</div><!-- Points to 'Allow' button. Rough position, not accurate, but enough. -->
    </noscript>
-   <?coco file( "action_list.html", "action_view.html", "action_about.html", "images.html" ) coco trim(xml) ?>
+   <?coco file( "action_list.html", "action_view.html", "action_about.html" ) coco trim(xml) ?>
    <script>
       <?coco file( "config.js", "code_gui.js", "data_model.js", "data_search.js", "data_reader.js" ) coco js(minify) ?>
    </script>
-</body></html><?coco-output "../res/4e_database.html" ?><?coco-end?>
-<?coco-start trim(oneline) ?>'use strict';
+</body></html><?coco-output "../res/4e_database.html" ?><?coco-end?><?coco-start?>
+<?coco file( "images.css", "style_data.css") css(minify) ?>
+<?coco-output "../res/style.css" ?><?coco-end?><?coco-start?>'use strict';
 <?coco file( "lzma-d.js" ) ?>
 <?coco file( "shim.js", "base85.js", "sparrow.js", "lang_en.js", "lang_zh.js" ) js(minify) ?>
 <?coco-output "../res/script.js" ?><?coco-end?>

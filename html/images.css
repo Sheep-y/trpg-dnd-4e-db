@@ -1,11 +1,10 @@
-<!--
-  - images.html
-  - Contains embeded image for easier management
-  -->
-<style><?coco-start css(minify) ?>
+/*
+ * images.css
+ * Style of category icons
+ */
 .rpg {
-  /** Icons for RPG by Ails, CC-by-sa 3.0 . Path is dtnamically set at runtime. */
-  background-image: url("4e_database_files/res/viewer_category_icon.png");
+  /** Icons for RPG by Ails, CC-by-sa 3.0 . */
+  background-image: url("viewer_category_icon.png");
   display: inline-block;
   width: 34px;
   height: 34px;
@@ -37,5 +36,3 @@
 .rpg.armor     { background-position: -136px -68px }
 .rpg.implement { background-position: -136px -34px }
 .rpg.weapon    { background-position: -102px -68px }
-
-<?coco-end?></style>
