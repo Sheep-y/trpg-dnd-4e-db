@@ -37,7 +37,6 @@
          display: none; /* Hide gap below title in race */
          }
    .detail p, .detail div, .detail table {
-      empty-cells: hide; /* Some skill tables has empty cells */
       padding-top: 0.5ex;
       padding-bottom: 0.5ex;
       }
@@ -45,6 +44,9 @@
       .detail p:empty + br {
          display: none;
          }
+         .detail table td:only-child:empty {
+            display: none; /* Some skill tables has empty cells, but most magic items also use empty cell as separator*/
+            }
 
    .detail > h1:first-child ,
    .detail > h1.atwillpower ,
@@ -77,7 +79,6 @@
       color: #888;
       display: inline-block;
       float: left;
-      font-size: smaller;
       }
    .detail .publishedIn {
       font-size: smaller;
@@ -168,7 +169,7 @@
    display: block;
    padding-top: 5px;
    padding-bottom: 5px;
-}
+   }
 
 .detail ul {
    margin-left: 1em;

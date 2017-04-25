@@ -55,9 +55,13 @@
                   font-size: 10pt;
                   }
       /* Result list */
-      #act_list_lbl_showing {
-         padding-top: 10px;
-      }
+      #act_list_lbl_caption {
+         clear: both;
+         padding: 5px 0;
+         }
+         #act_list_lbl_showing {
+            padding: 0 7px;
+            }
       #action_list input.txt_filter {
          color: red;
          flex-grow: 1;
@@ -211,11 +215,9 @@
 
    <div id='act_list_pnl_category' role="tablist"></div>
 
-   <div>
-      <div style='clear:left'>
-         <span id='act_list_lbl_showing'></span>
-         <span id='act_list_lbl_page'></span>
-      </div>
+   <div id="act_list_lbl_caption">
+      <span id='act_list_lbl_showing'></span>
+      <span id='act_list_lbl_page'></span>
       <div id='act_list_pnl_list' contextmenu="menu_list" oncontextmenu="od.action.list.contextmenu(event);"></div>
    </div>
 
