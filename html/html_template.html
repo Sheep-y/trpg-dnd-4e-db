@@ -41,7 +41,10 @@
 
       var tag = document.createElement( 'script' ), folder = location.pathname.match( /[^/]+(?=\.htm)/ ) + '_files';
       tag.src = folder + '/res/script.js?<?coco var( time.last_modified ) ?>';
-      tag.setAttribute( 'onload', "od.gui.init()" );
+      tag.onload = function script_loaded () {
+         if ( ! od || ! od.gui ) return setTimeout( script_loaded, 50 );
+         od.gui.init();
+      };
       document.body.appendChild( tag );
 
       if ( folder !== '4e_database_files' ) {
