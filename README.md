@@ -15,7 +15,7 @@ This is a fan project and does not come with copyrighted data.
 ## How To Download Data ##
 
 1. You need an active [Dungeons & Dragons Insider subscription](http://ddi.wizards.com/) to fetch data.
-   1. This may be impossible since registration is closed. See [in-program help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/development/res/downloader_about.html#faq) for links.
+   1. A new subscription can be purchased from [digitalriver](http://gc.digitalriver.com/store/dndi/html/pbPage.wizards).
 2. [Download](http://www.java.com/) and install Java (version 8 or above).
 3. [Download](https://github.com/Sheep-y/trpg-dnd-4e-db/releases/) the downloader exe (Windows) or downloader jar (Linux/Mac).
 4. Open a folder for the downloader, put it in, and run it.
