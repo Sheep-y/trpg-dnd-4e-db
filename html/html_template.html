@@ -44,6 +44,11 @@
       tag.onload = function script_loaded () {
          if ( ! od || ! od.gui ) return setTimeout( script_loaded, 50 );
          od.gui.init();
+         _( '#action_script_error' )[0].innerHTML = '';
+      };
+      tag.onerror = function script_error ( err ) {
+         document.querySelector( '#action_script_error' ).innerHTML = '<p>Script error.  Please try another browser.<br>Details: ' + err + '</p>';
+         console.error( err );
       };
       document.body.appendChild( tag );
 
