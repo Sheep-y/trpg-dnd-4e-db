@@ -42,9 +42,12 @@ od.gui = {
       var gui = od.gui;
       _( 'link[rel="manifest"]' )[0].href = od.config.data_read_path + "/res/manifest.json";
       _( 'link[rel="icon"]' )[0].href = od.config.data_read_path + "/res/icon.png";
-      try {
-         var lastCSS = document.styleSheets.length-1;
-         document.styleSheets[lastCSS].cssRules[0].style.backgroundImage = 'url("' + od.config.data_read_path + '/res/viewer_category_icon.png")';
+      try { // Fix category icon location for non-default html name.
+         var rule = document.styleSheets[1].cssRules[0];
+         if ( rule.selectorText === '.rpg' && rule.styles.backgroundImage )
+            rule.styles.backgroundImage = 'url("' + od.config.data_read_path + '/res/viewer_category_icon.png")';
+         else
+            _.warn( '[GUI] Cannot find rpg css rule to fix path.' );
       } catch ( err ) { _.error( err ); }
       if ( ! _.pref( _.l.saveKey ) ) _.l.setLocale( 'en' ); // Default to English
       _.l.detectLocale( 'en' );
