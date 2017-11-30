@@ -13,13 +13,13 @@ import java.util.logging.Level;
  */
 public class ExporterRawCsv extends Exporter {
 
-   @Override public void preExport ( List<Category> categories ) throws IOException {
+   @Override protected void _preExport ( List<Category> categories ) throws IOException {
       log.log( Level.CONFIG, "Export raw CSV: {0}", target );
       target.getParentFile().mkdirs();
       state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
-   @Override public void export ( Category category ) throws IOException, InterruptedException {
+   @Override protected void _export ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 

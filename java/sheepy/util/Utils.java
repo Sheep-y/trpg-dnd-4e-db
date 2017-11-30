@@ -10,8 +10,13 @@ import java.util.regex.Matcher;
 public class Utils {
 
    /** Return a copy of the source cloned in a sync block */
-   public static <T> List<T> sync(List<T> source) {
-      synchronized (source) {
+   public static <T> List<T> sync( List<T> source ) {
+      return sync( source, source );
+   }
+
+   /** Return a copy of the source cloned in a sync block */
+   public static <T> List<T> sync( List<T> source, Object lock ) {
+      synchronized (lock) {
          return new ArrayList<>(source);
       }
    }

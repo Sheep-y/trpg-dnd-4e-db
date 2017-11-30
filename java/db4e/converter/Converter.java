@@ -55,6 +55,7 @@ public class Converter extends Convert {
          if ( Main.debug.get() && entry.getContent().isEmpty() )
             warn( "Empty data" );
 
+         // Check open tag count = close tag count
          regxCheckOpenClose.reset( entry.getContent() );
          while ( regxCheckOpenClose.find() ) {
             String tag = regxCheckOpenClose.group( 2 );
@@ -190,7 +191,7 @@ public class Converter extends Convert {
             if ( abbr == null ) {
                if ( book.equals( "Class Compendium" ) ) continue; // Never published, do not show in source column
                if ( book.contains( " Magazine " ) )
-                  abbr = book.replace( "gon Magazine ", "" ).replace( "geon Magazine ", "" );
+                  abbr = book.replace( "gon Magazine ", "" ).replace( "geon Magazine ", "" ); // Shorten "D* Magazine" to "Dra" and "Dun"
                else {
                   abbr = book;
                   warn( "Unknown sourcebook: " + book );

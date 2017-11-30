@@ -38,12 +38,22 @@ public abstract class Exporter implements Closeable {
       this.state = state;
    }
 
-   public abstract void preExport ( List<Category> categories ) throws IOException, InterruptedException;
-   public abstract void export ( Category category ) throws IOException, InterruptedException;
-   public void postExport ( List<Category> categories ) throws IOException, InterruptedException {};
-   @Override public void close() throws IOException { }
+   public synchronized final void preExport ( List<Category> categories ) throws IOException, InterruptedException {
+      _preExport( categories ); // Synchronized
+   }
+   public synchronized final void export ( Category category ) throws IOException, InterruptedException {
+      _export( category ); // Synchronized
+   }
+   public synchronized final void postExport ( List<Category> categories ) throws IOException, InterruptedException {
+      _postExport( categories ); // Synchronized
+   }
 
-   protected void checkStop ( String status ) {
+   protected abstract void _preExport ( List<Category> categories ) throws IOException, InterruptedException;
+   protected abstract void _export ( Category category ) throws IOException, InterruptedException;
+   protected void _postExport ( List<Category> categories ) throws IOException, InterruptedException {};
+   @Override public synchronized void close() throws IOException { }
+
+   protected synchronized void checkStop ( String status ) {
       stopChecker.accept( status );
    }
 

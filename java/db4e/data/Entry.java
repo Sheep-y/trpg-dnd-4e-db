@@ -100,10 +100,12 @@ public class Entry {
    }
 
    public <T extends Entry> T cloneTo ( T copy ) {
-      copy.setId( getId() );
-      copy.setName( getName() );
-      copy.setFields( Arrays.copyOf( getFields(), getFieldCount() ) );
-      copy.setContent( getContent() );
+      synchronized ( copy ) {
+         copy.setId( getId() );
+         copy.setName( getName() );
+         copy.setFields( Arrays.copyOf( getFields(), getFieldCount() ) );
+         copy.setContent( getContent() );
+      }
       return copy;
    }
 

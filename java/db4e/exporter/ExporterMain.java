@@ -50,7 +50,7 @@ public class ExporterMain extends Exporter {
       root = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
    }
 
-   @Override public void preExport ( List<Category> categories ) throws IOException {
+   @Override protected void _preExport ( List<Category> categories ) throws IOException {
       log.log( Level.CONFIG, "Export target: {0}", target );
       try {
          testViewerExists();
@@ -62,7 +62,7 @@ public class ExporterMain extends Exporter {
       state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
    }
 
-   @Override public void postExport ( List<Category> categories ) throws IOException, InterruptedException {
+   @Override protected void _postExport ( List<Category> categories ) throws IOException, InterruptedException {
       checkStop( "Writing viewer" );
       writeIndex( root, categories );
       writeViewer( root, target );
@@ -79,7 +79,7 @@ public class ExporterMain extends Exporter {
       }
    }
 
-   @Override public void export ( Category category ) throws IOException, InterruptedException {
+   @Override protected void _export ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
       String cat_id = category.id.toLowerCase();

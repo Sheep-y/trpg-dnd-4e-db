@@ -125,6 +125,7 @@ public abstract class Convert {
 
       for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
          Entry entry = i.next();
+         synchronized ( entry ) {
          switch ( entry.getField( 0 ).toString() ) {
             case "Arms":
                if ( ! entry.getContent().contains( ">Arms Slot: <" ) || ! entry.getContent().contains( " shield" ) ) break;
@@ -286,21 +287,21 @@ public abstract class Convert {
                   case "item.aspx?id=153": // Head of Vyrellis
                      markArtifact( entry, "Wondrous" ); break;
                }
-         }
+         } }
       }
    }
 
-   private static void moveArtifact ( Iterator<Entry> i, Category target, Entry entry, String type ) {
+   private static void moveArtifact ( Iterator<Entry> i, Category target, Entry entry, String type ) { synchronized ( entry ) {
       if ( i != null ) i.remove();
       target.entries.add( entry );
       Object[] fields = entry.getFields();
       entry.setFields( type, fields[1], fields[2], "Artifact", fields[4] );
-   }
+   } }
 
-   private static void markArtifact ( Entry entry, String category ) {
+   private static void markArtifact ( Entry entry, String category ) { synchronized ( entry ) {
       Object[] fields = entry.getFields();
       entry.setFields( category, "", fields[1], fields[2], "Artifact", fields[4] );
-   }
+   } }
 
    public static void afterConvert () {
       synchronized( fixCount ) {
@@ -314,15 +315,16 @@ public abstract class Convert {
       }
    }
 
+   /** Populate category.index with lookup index. (name => id) */
    public void mapIndex () {
       Map<String, List<String>> map = category.index = new HashMap<>( 25000, 1f );
       Set<String> lookups = new HashSet<>();
-      for ( Entry entry : category.entries ) {
+      for ( Entry entry : sync( category.entries, category ) ) synchronized ( entry ) { // Raw export may skip convert, so we still need to sync!
          this.entry = entry;
          for ( String name : getLookupName( entry, lookups ) ) {
             name = name.replaceAll( "[^\\w'-éû]+", " " ).trim().toLowerCase();
             if ( ! map.containsKey( name ) ) {
-               List<String> idList = new ArrayList<>( 2 ); // Most entries do not duplicate
+               List<String> idList = new ArrayList<>( 2 ); // Most lookup names do not have multiple entries
                idList.add( entry.getId() );
                map.put( name, idList );
             } else
@@ -332,8 +334,8 @@ public abstract class Convert {
       }
 
       if ( Main.debug.get() ) try {
-         // Check short index
-         category.index.keySet().stream().filter( key -> key.length() <= 2 && ! key.equals( "hp" ) && ! key.equals( "og" ) ) // monster1132 = Og, Orog Hero
+         // Check short index (1 or 2 characters).  Only exception is hp and "Og, Orog Hero" (monster1132)
+         category.index.keySet().stream().filter( key -> key.length() <= 2 && ! key.equals( "hp" ) && ! key.equals( "og" ) )
             .forEach( key -> category.index.get( key ).forEach( id ->
                log.log( Level.WARNING, "Short index \"{2}\": {0} {1}", new Object[]{ id, "", key } ) ) );
          // Test entry conversion
@@ -401,7 +403,7 @@ public abstract class Convert {
       initialise();
       final List<Entry> entries = category.entries;
       for ( Entry entry : entries ) {
-         try {
+         try { synchronized ( entry ) {
             this.entry = entry;
             convertEntry();
             if ( ! corrections.isEmpty() ) {
@@ -413,7 +415,7 @@ public abstract class Convert {
                   corrected( entry, "multiple fix " + corrections.size() + " (bookkeep)" );
                corrections.clear();
             }
-         } catch ( Exception e ) {
+         } } catch ( Exception e ) {
             throw new UnsupportedOperationException( "Error converting " + entry, e );
          }
          if ( stop.get() ) throw new InterruptedException();
@@ -480,7 +482,6 @@ public abstract class Convert {
 
    /**
     * Entry specific data fixes. No need to call super when overriden.
-    * @param entry Entry to be corrected.
     */
    protected abstract void correctEntry ();
 
@@ -493,7 +494,6 @@ public abstract class Convert {
 
    /**
     * Read the sourcebook meta data and convert to abbreviated form.
-    * @param entry
     */
    protected abstract void parseSourceBook ();
 

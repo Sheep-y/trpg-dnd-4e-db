@@ -666,14 +666,13 @@ public class Controller {
             tasks.add( future );
             threadPool.execute( () -> { try {
                log.log( Level.INFO, "Exporting category {0} in thread {1}.", new Object[]{ category.name, Thread.currentThread().getName() } );
-               synchronized ( exporter ) { /* sync with exporter.setState */ }
                synchronized ( category ) {
                   Convert converter = Convert.getConverter( category );
-                  if ( fixData ) // The converted data is no longer required.  Kill them to save memory/
+                  if ( fixData )
                      converter.convert();
                   converter.mapIndex();
                   exporter.export( category );
-                  if ( fixData ) // The converted data is no longer required.  Kill them to save memory/
+                  if ( fixData ) // The converted data is no longer required.  Kill them to save memory
                      category.entries.clear();
                }
                future.complete( null );

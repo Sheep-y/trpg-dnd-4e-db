@@ -26,9 +26,11 @@ public class EntryDownloaded extends Entry {
    }
 
    @Override public <T extends Entry> T cloneTo( T copy ) {
-      copy = super.cloneTo( copy );
-      if ( copy instanceof EntryDownloaded )
-         copy.setHasContent( hasContent() );
+      synchronized ( copy ) {
+         copy = super.cloneTo( copy );
+         if ( copy instanceof EntryDownloaded )
+            copy.setHasContent( hasContent() );
+      }
       return copy;
    }
 }

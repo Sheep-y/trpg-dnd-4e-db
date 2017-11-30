@@ -53,7 +53,7 @@ public class ExporterRawSql extends Exporter {
          throw new RuntimeException( "Cancelled" );
    }
 
-   @Override public void preExport ( List<Category> categories ) throws IOException, InterruptedException {
+   @Override protected void _preExport ( List<Category> categories ) throws IOException, InterruptedException {
       log.log( Level.CONFIG, "Export raw {1}Sql{2}: {0}", new Object[]{ target, id_quote_start, id_quote_end } );
       target.getParentFile().mkdirs();
       synchronized ( this ) {
@@ -64,7 +64,7 @@ public class ExporterRawSql extends Exporter {
       state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
-   @Override public void export ( Category category ) throws IOException, InterruptedException {
+   @Override protected void _export ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Building {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 
