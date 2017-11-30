@@ -258,6 +258,9 @@ public class ExporterMain extends Exporter {
    }
 
    private void testViewerExists () throws IOException {
+      ResourceUtils.getText( "res/script.js" );
+      ResourceUtils.getText( "res/style.css" );
+      ResourceUtils.getText( "res/manifest.json" );
       ResourceUtils.getText( "res/4e_database.html" );
    }
 

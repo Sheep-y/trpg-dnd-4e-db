@@ -5,7 +5,6 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import static db4e.exporter.Exporter.stop;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
@@ -28,11 +27,6 @@ public class ExporterRawHtml extends Exporter {
 
    @Override public void preExport ( List<Category> categories ) throws IOException {
       log.log( Level.CONFIG, "Export raw HTML: {0}", target );
-      try {
-         testViewerExists();
-      } catch ( IOException ex ) {
-         throw new FileNotFoundException( "No viewer. Run ant make-viewer." );
-      }
       new File( root ).mkdirs();
       checkStop( "Writing catlog" );
       writeCatalog( categories );
@@ -104,10 +98,5 @@ public class ExporterRawHtml extends Exporter {
          }
          state.addOne();
       }
-   }
-
-   private void testViewerExists () throws IOException {
-      ResourceUtils.getText( "res/export_list.html" );
-      ResourceUtils.getText( "res/export_entry.html" );
    }
 }

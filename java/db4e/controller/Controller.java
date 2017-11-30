@@ -88,7 +88,6 @@ public class Controller {
    private boolean hasReset = false; // true if empty data is caused by reset, to prevent jumping to help tab.
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
-   public final ObservableList<Category> exportCategories = new ObservableArrayList<>();
    // Will be completed when entities are loaded.  Will be replaced with a new future on reset, so please sync on controller before access.
    private CompletableFuture<Void> entityLoadedFuture = new CompletableFuture<>();
    public CompletionStage<Void> entityLoaded = entityLoadedFuture;
@@ -168,7 +167,6 @@ public class Controller {
                gui.stateBusy( "Failed: Out of Memory" );
                gui.setTitle( "Error" );
                // Try free up memory to stabilse program for log
-               synchronized ( exportCategories ) { exportCategories.clear(); }
                for ( Category category : sync( categories ) ) synchronized ( category ) {
                   category.fields = null;
                   category.index = null;
@@ -203,7 +201,6 @@ public class Controller {
          gui.setStatus( "Clearing data" );
          gui.setProgress( -1.0 );
          synchronized ( categories ) { categories.clear(); }
-         synchronized ( exportCategories ) { exportCategories.clear(); }
          state.reset();
          state.total = 0;
          hasReset = true;
@@ -548,16 +545,14 @@ public class Controller {
       final List<Category> data;
       if ( fixData ) {
          log.log( Level.CONFIG, "Fix enabled. Converting data." );
-         Convert.beforeConvert( categories, exportCategories );
-         data = exportCategories;
+         data = Convert.mapExportCategories( categories );
       } else
-         data = categories;
+         data = sync( categories );
       exporter.preExport( data );
       checkStop( dataMessage );
       exportEachCategory( data, exporter );
       exporter.postExport( data );
       if ( fixData ) {
-         exportCategories.clear();
          Convert.afterConvert();
       }
    }

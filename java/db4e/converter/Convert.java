@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import sheepy.util.Utils;
+import static sheepy.util.Utils.sync;
 
 /**
  * Convert category and entry data for export.
@@ -39,82 +40,88 @@ public abstract class Convert {
    }
 
    /**
-    * Called before doing any export.
-    * All entries must be assigned to the export categories here.
+    * Map original data categories to export (fixed) categories.
     *
-    * @param categories
+    * After this, each export category will be processed in its own thread, so
+    * all entries must be assigned to the final export categories here.
+    *
+    * @param categories Original compendium categories.
+    * @return Mapped export categories
     */
-   public static void beforeConvert ( List<Category> categories, List<Category> exportCategories ) {
-      synchronized ( categories ) {
-         exportCategories.clear();
-         String[] itemMeta  = new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
-         Category armour    = new Category( "Armor"    , "Armor"    , itemMeta );
-         Category implement = new Category( "Implement", "implement", itemMeta );
-         Category weapon    = new Category( "Weapon"   , "weapon"   , itemMeta );
-         exportCategories.add( armour );
-         exportCategories.add( implement );
-         exportCategories.add( weapon );
-         for ( Category c : categories )
-            if ( ! c.id.equals( "Terrain" ) ) // Terrain is merged into Traps
-               exportCategories.add( new Category( c.id, c.name, c.fields ) );
+   public static List<Category> mapExportCategories ( List<Category> categories ) {
+      final int EXPORT_CAT_COUNT = 20;
+      final List<Category> result = new ArrayList<>( EXPORT_CAT_COUNT );
+      final Map<String,Category> map = new HashMap<>( 20, 1f ); // A temp dictionary to quickly find cat by id
 
-         Map<String,Category> map = new HashMap<>( 20, 1f );
-         for ( Category c : exportCategories )
-            map.put( c.id, c );
+      final String[] itemMeta  = new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
+      final Category armour    = new Category( "Armor"    , "Armor"    , itemMeta );
+      final Category implement = new Category( "Implement", "implement", itemMeta );
+      final Category weapon    = new Category( "Weapon"   , "weapon"   , itemMeta );
+      result.add( armour );
+      result.add( implement );
+      result.add( weapon );
 
-         // Move entries around before export
-         for ( Category c : categories ) synchronized( c ) {
-            String exportTarget = c.id.equals( "Terrain" ) ? "Trap" : c.id; // Moves terrain into trap.
-            Category exported = map.get( exportTarget );
-            synchronized( exported ) {
-               c.entries.stream().forEach( e -> exported.entries.add( e.cloneTo( new Entry() ) ) );
-               switch ( c.id ) {
-                  case "Glossary" :
-                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
-                        Entry entry = i.next();
-                        // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
-                        if ( entry.getId().equals( "glossary.aspx?id=679" ) || entry.getContent().contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
-                           i.remove();
-                           corrected( entry, "blacklist" );
+      for ( Category c : sync( categories ) )
+         if ( ! c.id.equals( "Terrain" ) ) // Terrain is merged into Traps
+            result.add( new Category( c.id, c.name, c.fields ) );
+
+      for ( Category c : result ) // Create export map
+         map.put( c.id, c );
+
+      // Move entries around before export
+      for ( Category source : sync( categories ) ) synchronized( source ) {
+         String exportTarget = source.id.equals( "Terrain" ) ? "Trap" : source.id; // Moves terrain into trap.
+         Category exported = map.get( exportTarget );
+         synchronized( exported ) {
+            source.entries.stream().forEach( e -> exported.entries.add( e.cloneTo( new Entry() ) ) );
+            switch ( source.id ) {
+               case "Glossary" :
+                  for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+                     Entry entry = i.next();
+                     // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
+                     if ( entry.getId().equals( "glossary.aspx?id=679" ) || entry.getContent().contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
+                        i.remove();
+                        corrected( entry, "blacklist" );
+                     }
+                  }
+                  exported.entries.add( new Entry().setId( "glossary0453" ).setName( "Item Set" ) );
+                  break;
+
+               case "Item" :
+                  transferItem( exported, map );
+                  break;
+
+               case "Background" :
+                  for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+                     Entry entry = i.next();
+                     // Nine background from Dra376 are hooks only, not actual character resources.
+                     if ( entry.getField( 3 ).toString().endsWith( "376" ) ) {
+                        switch ( entry.getId() ) {
+                           case "background.aspx?id=283" : case "background.aspx?id=284" : case "background.aspx?id=285" :
+                           case "background.aspx?id=286" : case "background.aspx?id=287" : case "background.aspx?id=288" :
+                           case "background.aspx?id=289" : case "background.aspx?id=290" : case "background.aspx?id=291" :
+                              i.remove();
+                              corrected( entry, "blacklist" );
                         }
                      }
-                     exported.entries.add( new Entry().setId( "glossary0453" ).setName( "Item Set" ) );
-                     break;
-
-                  case "Item" :
-                     synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
-                        transferItem( exported, map );
-                     } } }
-                     break;
-
-                  case "Background" :
-                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
-                        Entry entry = i.next();
-                        // Nine background from Dra376 are hooks only, not actual character resources.
-                        if ( entry.getField( 3 ).toString().endsWith( "376" ) ) {
-                           switch ( entry.getId() ) {
-                              case "background.aspx?id=283" : case "background.aspx?id=284" : case "background.aspx?id=285" :
-                              case "background.aspx?id=286" : case "background.aspx?id=287" : case "background.aspx?id=288" :
-                              case "background.aspx?id=289" : case "background.aspx?id=290" : case "background.aspx?id=291" :
-                                 i.remove();
-                                 corrected( entry, "blacklist" );
-                           }
-                        }
-                     }
-               }
+                  }
             }
          }
-
-         // Export big categories first to better balance CPU threads and to die early on out of memory
-         exportCategories.sort( ( a, b ) -> b.getExportCount() - a.getExportCount() );
       }
+
+      // Export big categories first to better balance CPU workload, and to die early on out of memory
+      synchronized( result ) { result.sort( ( a, b ) -> b.getExportCount() - a.getExportCount() ); }
+      if ( Main.debug.get() && result.size() != EXPORT_CAT_COUNT )
+         log.log( Level.WARNING, "Export category map has incorrect size {0}. {1} expected.", new Object[]{ result.size(), EXPORT_CAT_COUNT });
+      return result;
    }
 
    private static void transferItem ( Category exported, Map<String, Category> map ) {
       // May convert to parallel stream if this part grows too much...
-      Category armour = map.get( "Armor" );
-      Category implement = map.get( "Implement" );
-      Category weapon = map.get( "Weapon" );
+      final Category armour = map.get( "Armor" );
+      final Category implement = map.get( "Implement" );
+      final Category weapon = map.get( "Weapon" );
+
       for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
          Entry entry = i.next();
          switch ( entry.getField( 0 ).toString() ) {
