@@ -186,7 +186,7 @@ public class Controller {
             gui.setTitle( "Done" );
          }
          state.update();
-         currentThread = null;
+         synchronized( this ) { currentThread = null; }
          Thread.interrupted(); // Clear flag
       };
    }
@@ -374,7 +374,7 @@ public class Controller {
          setPriority( Thread.NORM_PRIORITY );
          if ( Main.simulate.get() )
             log.info( "Login check skipped for simulation" );
-         else if ( categories.stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
+         else if ( sync( categories ).stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
             runAndCheckLogin( "Testing login", crawler::randomGlossary );
          downloadCategory();
          downloadEntities();
@@ -565,9 +565,7 @@ public class Controller {
       final CompletableFuture<Void> result = new CompletableFuture<>();
       threadPool.execute( ()-> { try {
          synchronized ( this ) { currentThread = Thread.currentThread(); } // Unset (cleanup) by terminate()
-         synchronized ( categories ) { // Sync data
-            task.run();
-         }
+         task.run();
          result.complete( null );
 
       } catch ( Exception e ) {

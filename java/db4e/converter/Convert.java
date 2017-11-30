@@ -73,7 +73,7 @@ public abstract class Convert {
          String exportTarget = source.id.equals( "Terrain" ) ? "Trap" : source.id; // Moves terrain into trap.
          Category exported = map.get( exportTarget );
          synchronized( exported ) {
-            source.entries.stream().forEach( e -> exported.entries.add( e.cloneTo( new Entry() ) ) );
+            source.entries.stream().forEach( e -> exported.entries.add( e.clone() ) );
             switch ( source.id ) {
                case "Glossary" :
                   for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
@@ -94,7 +94,7 @@ public abstract class Convert {
                case "Background" :
                   for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
                      Entry entry = i.next();
-                     // Nine background from Dra376 are hooks only, not actual character resources.
+                     // Nine backgrounds from Dra376 are hooks only, not actual character resources.
                      if ( entry.getField( 3 ).toString().endsWith( "376" ) ) {
                         switch ( entry.getId() ) {
                            case "background.aspx?id=283" : case "background.aspx?id=284" : case "background.aspx?id=285" :
@@ -105,6 +105,7 @@ public abstract class Convert {
                         }
                      }
                   }
+                  break;
             }
          }
       }
@@ -235,11 +236,10 @@ public abstract class Convert {
                   case "item.aspx?id=104": // The Shadowstaff
                   case "item.aspx?id=156": // Audaviator
                      moveArtifact( i, implement, entry, "Staff" ); break;
-                  case "item.aspx?id=147": // Arrow of Fate - make a copy for implement and then move to weapon
-                     Entry copy = entry.cloneTo( new Entry() );
-                     moveArtifact( null, weapon, entry, "Spear or arrow" );
-                     entry = copy;
-                     // fall through
+                  case "item.aspx?id=147": // Arrow of Fate - make a copy for weapon and then move to implement
+                     moveArtifact( null, weapon, entry.clone(), "Spear, arrow or bolt" );
+                     moveArtifact( i, implement, entry, "Rod, staff or wand" );
+                     break;
                   case "item.aspx?id=164": // Staff of Fraz-Urb'luu
                      moveArtifact( i, implement, entry, "Rod, staff or wand" ); break;
                   case "item.aspx?id=146": // Seed of Winter

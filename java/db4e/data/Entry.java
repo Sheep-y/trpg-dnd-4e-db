@@ -95,6 +95,10 @@ public class Entry {
       throw new UnsupportedOperationException();
    }
 
+   @Override public Entry clone () {
+      return cloneTo( new Entry() );
+   }
+
    public <T extends Entry> T cloneTo ( T copy ) {
       copy.setId( getId() );
       copy.setName( getName() );
