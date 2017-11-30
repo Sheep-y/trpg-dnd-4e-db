@@ -409,7 +409,7 @@ public class ItemConverter extends LeveledConverter {
 
          case "item434": // Rings of the Akarot
             swapFirst( "<br><br>",
-                         "<br><br><h1 class=dailypower><span class=level>Item Set Power</span>Voice of the Akarot</h1>"
+                         "<br><br><h1 class=dailypower>Voice of the Akarot<span class=level>Item Set Power</span></h1>"
                        + "<p class=flavor><i>Channeling the power of your allies' will, you command your enemy to stop attacking, though each ally is momentarily disoriented.</i></p>"
                        + "<p class=powerstat><b>Daily (Special)</b> ✦     <b>Charm</b><br>"
                        + "<b>Standard Action</b>      <b>Close</b> burst 5</p>"
