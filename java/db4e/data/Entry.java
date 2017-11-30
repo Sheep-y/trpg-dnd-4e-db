@@ -3,7 +3,8 @@ package db4e.data;
 import java.util.Arrays;
 
 /**
- * Represents a data entry
+ * Represents a data entry.
+ * Access are NOT synchronised.  Read and write MUST be synchronised to the entry object.
  */
 public class Entry {
    private String id; // Compendium url of this entry

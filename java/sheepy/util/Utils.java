@@ -9,6 +9,13 @@ import java.util.regex.Matcher;
 
 public class Utils {
 
+   /** Return a copy of the source cloned in a sync block */
+   public static <T> List<T> sync(List<T> source) {
+      synchronized (source) {
+         return new ArrayList<>(source);
+      }
+   }
+
    public static String stacktrace ( Throwable ex ) {
       if ( ex == null ) return "";
       StringWriter sw = new StringWriter();

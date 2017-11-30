@@ -7,7 +7,9 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 /**
- * Represents a data category
+ * Represents a data category.
+ * Read and write to entry list and non-final properties must be synchronised to the category object.
+ * When multiple category has to be locked, lock in alphabetic order (Armor first, Weapon last)
  */
 public class Category {
    public final String id; // Compendium id

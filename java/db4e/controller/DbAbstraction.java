@@ -20,6 +20,7 @@ import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import sheepy.util.JavaFX;
+import static sheepy.util.Utils.sync;
 
 /**
  * Database abstraction.
@@ -123,18 +124,21 @@ class DbAbstraction {
                   cursor.getString( "id" ),
                   cursor.getString( "name" ),
                   parseCsvLine( cursor.getString( "fields" ) ) );
-               category.total_entry.set( (int) cursor.getInteger( "count" ) );
+               synchronized ( category ) {
+                  category.total_entry.set( (int) cursor.getInteger( "count" ) );
+               }
                list.add( category );
             } while ( cursor.next() );
          } } else {
             throw new UnsupportedOperationException( "dnd4e database does not contains category." );
          }
          cursor.close();
-         JavaFX.runNow( () -> { synchronized ( list ) {
+         synchronized ( list ) { log.log( Level.FINE, "Loaded {0} categories.", list.size() ); }
+
+         JavaFX.runNow( () -> { synchronized ( categories ) { synchronized ( list ) {
             categories.clear();
             categories.addAll( list );
-         } } );
-         log.log( Level.FINE, "Loaded {0} categories.", list.size() );
+         } } } );
 
       } finally {
          db.commit();
@@ -153,7 +157,7 @@ class DbAbstraction {
          state.total = total;
          cursor.close();
 
-         for ( Category category : categories ) synchronized( category ) {
+         for ( Category category : sync( categories ) ) synchronized( category ) {
             int countWithData = 0, size = category.total_entry.get();
             List<Entry> list = category.entries;
             list.clear();
@@ -163,7 +167,7 @@ class DbAbstraction {
                if ( ! cursor.eof() ) do {
                   final EntryDownloaded entry = new EntryDownloaded( cursor.getString( "id" ), cursor.getString( "name" ) );
                   list.add( entry );
-                  if ( cursor.getInteger( "hasData" ) != 0 ) {
+                  if ( cursor.getInteger( "hasData" ) != 0 ) synchronized( entry ) {
                      entry.setHasContent( true );
                      ++countWithData;
                   }
@@ -186,12 +190,12 @@ class DbAbstraction {
 
    void loadEntityContent ( List<Category> categories, ProgressState state ) throws SqlJetException {
       db.beginTransaction( SqlJetTransactionMode.READ_ONLY );
-      try { synchronized ( categories ) {
-         state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
+      try {
+         synchronized( categories ) { state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum(); }
          ISqlJetTable tblEntry = db.getTable( "entry" );
-         for ( Category category : categories ) synchronized( category ) {
+         for ( Category category : sync( categories ) ) synchronized( category ) {
             log.log( Level.FINE, "Loading {0} content", category.id );
-            for ( Entry entry : category.entries ) {
+            for ( Entry entry : category.entries ) synchronized( entry ) {
                if ( entry.getFields() == null || entry.getContent() == null ) {
                   ISqlJetCursor cursor = tblEntry.lookup( null, entry.getId() );
                   if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.getName() + "' not in database" );
@@ -204,7 +208,7 @@ class DbAbstraction {
             }
          }
          state.update();
-      } } finally {
+      } finally {
          db.commit();
       }
    }
@@ -215,16 +219,16 @@ class DbAbstraction {
       try {
          ISqlJetTable tblCategory = db.getTable( "category" );
          ISqlJetTable tblEntry = db.getTable( "entry" );
-         int i = 0;
-         for ( Entry entry : entries ) {
+
+         for ( Entry entry : entries ) synchronized( entry ) {
             log.log( Level.FINER, "Saving {0}", entry );
             ISqlJetCursor lookup = tblEntry.lookup( null, entry.getId() );
             // Table fields: id, name, category, fields, hasData, data
             String fields = buildCsvLine( entry.getFields() ).toString();
             if ( lookup.eof() ) {
                tblEntry.insert( entry.getId(), entry.getName(), category.id, fields, 0, null );
-//            } else { // Shouldn't need to update.
-//               lookup.update( entry.id, entry.name, category.id, fields );
+            //} else { // Shouldn't need to update.
+            //   lookup.update( entry.id, entry.name, category.id, fields );
             }
             lookup.close();
          }
@@ -236,9 +240,11 @@ class DbAbstraction {
             throw new IllegalStateException( "Category " + category.id + " not found in database." );
          owner.update( category.id, category.name, count );
          owner.close();
-         category.entries.clear();
-         category.entries.addAll( entries );
-         category.total_entry.set( count );
+         synchronized( category ) {
+            category.entries.clear();
+            category.entries.addAll( entries );
+            category.total_entry.set( count );
+         }
          db.commit();
 
       } finally {
@@ -254,7 +260,7 @@ class DbAbstraction {
          entryUpdateMap.put( "hasData", 1 );
       }
       db.beginTransaction( SqlJetTransactionMode.WRITE );
-      try {
+      try { synchronized( entry ) {
          ISqlJetTable tblEntry = db.getTable( "entry" );
          ISqlJetCursor cursor = tblEntry.lookup( null, entry.getId() );
          if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.getName() + "' not in database" );
@@ -263,7 +269,7 @@ class DbAbstraction {
          db.commit();
          entry.setHasContent( true );
 
-      } finally {
+      } } finally {
          db.rollback();
       }
    }
