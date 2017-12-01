@@ -350,15 +350,15 @@ public class Converter extends Convert {
    }
 
    protected final void test ( int field, CharSequence pattern ) {
+      if ( ! Main.debug.get() ) return;
       if ( pattern.length() <= 0 ) return;
       test( field, Pattern.compile( pattern.toString(), Pattern.LITERAL ) );
    }
 
    protected final void test ( int field, Pattern pattern ) {
       if ( ! Main.debug.get() ) return;
-      if ( tests == null ) tests = new ArrayList<>( 1024 );
       final String entryId = entry.getId();
-      tests.add( () -> {
+      test( () -> {
          Entry entry = shortId.get( entryId );
          if ( entry == null ) {
             log.log( Level.WARNING, "Conversion test on exisance of {0}: {1}", new Object[]{ entryId, pattern } );
@@ -384,6 +384,12 @@ public class Converter extends Convert {
                break;
          }
       } );
+   }
+
+   protected final void test ( Runnable testCase ) {
+      if ( ! Main.debug.get() ) return;
+      if ( tests == null ) tests = new ArrayList<>( 1024 );
+      tests.add( testCase );
    }
 
    @Override protected void testConversion() {
