@@ -119,10 +119,10 @@ public class ItemConverter extends LeveledConverter {
          } else {
             meta( TYPE, type );
          }
-         int minEnhancement = entry.getContent().indexOf( "<b>Minimum Enhancement Value</b>: " );
+         int minEnhancement = data().indexOf( "<b>Minimum Enhancement Value</b>: " );
          if ( minEnhancement > 0 ) {
             minEnhancement += "<b>Minimum Enhancement Value</b>: ".length();
-            meta( LEVEL, "Min " + entry.getContent().substring( minEnhancement, minEnhancement + 2 ) );
+            meta( LEVEL, "Min " + data().substring( minEnhancement, minEnhancement + 2 ) );
             meta( RARITY, "Masterwork" );
          }
 
@@ -181,7 +181,7 @@ public class ItemConverter extends LeveledConverter {
       if ( meta( TYPE ).equals( "Ammunition" ) ) return;
       // Mundane weapons with groups
       if ( find( "<b>Group</b>: " ) ) {
-         String region = entry.getContent().substring( entry.getContent().indexOf( "<b>Group</b>: " ) );
+         String region = data().substring( data().indexOf( "<b>Group</b>: " ) );
          List<String> grp = Utils.matchAll( regxWeaponGroup, region, 1 );
          if ( grp.isEmpty() )
             warn( "Weapon group not found" );
@@ -374,13 +374,13 @@ public class ItemConverter extends LeveledConverter {
 
    @Override protected void correctEntry () {
       if ( ! find( regxPublished ) ) {
-         entry.setContent( entry.getContent() + "<p class=publishedIn>Published in " + meta( SOURCE )  + ".</p>" );
+         entry.setContent( data() + "<p class=publishedIn>Published in " + meta( SOURCE )  + ".</p>" );
          test( TEXT, "<p class=publishedIn>Published in" );
          fix( "missing published" );
       }
 
       if ( find( ", which is reproduced below." ) ) {
-         entry.setContent( regxWhichIsReproduced.reset( entry.getContent() ).replaceFirst( "" ) );
+         entry.setContent( regxWhichIsReproduced.reset( data() ).replaceFirst( "" ) );
          test( TEXT, Pattern.compile( ".*(?!, which is reproduced below\\.)" ) );
          fix( "consistency" );
       }

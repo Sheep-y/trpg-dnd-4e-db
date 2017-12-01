@@ -17,7 +17,7 @@ public class GlossaryConverter extends Converter {
    @Override protected void correctEntry () {
       if ( entry.getId().startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
          if ( ! find( "IMPROVISING WITH" ) ) {
-            entry.setContent( regxFlavor.reset( entry.getContent() ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" ) );
+            entry.setContent( regxFlavor.reset( data() ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" ) );
             test( TEXT, "<h3>IMPROVISING WITH " );
             fix( "missing content" );
          }
@@ -44,7 +44,7 @@ public class GlossaryConverter extends Converter {
 "What's more, an artifact's powers change depending on its attitude or connection to its current owner.<br><br>" +
 "When its wielder performs actions in concert with its goals, an artifact becomes more powerful, but when " +
 "the wielder acts against the artifact's wishes, its power diminishes. The artifact's mindset is measured by a " +
-"concordance score.</p>" + entry.getContent() );
+"concordance score.</p>" + data() );
             test( TEXT, "Artifacts have a level but no price" );
             fix( "new entry" );
             break;

@@ -52,11 +52,11 @@ public class Converter extends Convert {
             warn( "Unremoved image or link" );
 
          // Check that we have content
-         if ( Main.debug.get() && entry.getContent().isEmpty() )
+         if ( Main.debug.get() && data().isEmpty() )
             warn( "Empty data" );
 
          // Check open tag count = close tag count
-         regxCheckOpenClose.reset( entry.getContent() );
+         regxCheckOpenClose.reset( data() );
          while ( regxCheckOpenClose.find() ) {
             String tag = regxCheckOpenClose.group( 2 );
             boolean isOpen = regxCheckOpenClose.group( 1 ).isEmpty();
@@ -407,13 +407,17 @@ public class Converter extends Convert {
    }
 
    protected final void swap ( CharSequence from, CharSequence to ) {
-      entry.setContent( entry.getContent().replace( from, to ) );
+      entry.setContent( data().replace( from, to ) );
       test( TEXT, to );
    }
 
    protected final void swapFirst ( String from, String to ) {
-      entry.setContent( entry.getContent().replaceFirst( from, to ) );
+      entry.setContent( data().replaceFirst( from, to ) );
       test( TEXT, to );
+   }
+
+   protected final String data () {
+      return entry.getContent();
    }
 
    protected final String meta ( int index ) {
@@ -442,11 +446,11 @@ public class Converter extends Convert {
    }
 
    protected final boolean find ( CharSequence substr ) {
-      return entry.getContent().contains( substr );
+      return data().contains( substr );
    }
 
    protected final boolean find ( Matcher regx ) {
-      return regx.reset( entry.getContent() ).find();
+      return regx.reset( data() ).find();
    }
 
    protected final String shortenAbility ( Object txt ) {

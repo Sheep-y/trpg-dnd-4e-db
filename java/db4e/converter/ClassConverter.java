@@ -19,7 +19,7 @@ public class ClassConverter extends Converter {
    private final Matcher regxClassFeatures = Pattern.compile( "<b>(?:Class Features?|Hybrid Talent Options?):? ?</b>:?([^<.]+)", Pattern.CASE_INSENSITIVE ).matcher( "" );
 
    private Set<String> findFeatures () {
-      regxClassFeatures.reset( entry.getContent() );
+      regxClassFeatures.reset( data() );
       Set<String> features = new HashSet<>( 16, 1.0f );
       while ( regxClassFeatures.find() ) {
          String[] names = regxClassFeatures.group( 1 ).trim().split( ",| or " );
