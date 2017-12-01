@@ -75,7 +75,7 @@ od.action.view = {
 
    'parse_action_id' : function act_view_parse_action_id () {
       var id = od.gui.act_id, action = od.action.view;
-      var idList = id.substr( 'view='.length ).split( ',' );
+      var idList = id.substr( 'view='.length ).split( ',' ).map( id => decodeURIComponent( id ) );
       var loadCount = idList.length;
       action.clear();
       idList.forEach( function act_view_show_each ( id ) {
@@ -111,7 +111,7 @@ od.action.view = {
       var action = od.action.view;
       var pos = action.siblings.indexOf( action.act_id );
       if ( pos <= 0 ) return _.hide( '#act_view_btn_prev' );
-      action.act_id = action.siblings[ pos-1 ];
+      action.act_id = encodeURIComponent( action.siblings[ pos-1 ] );
       action.update_action_id();
       action.parse_action_id();
    },
@@ -120,7 +120,7 @@ od.action.view = {
       var action = od.action.view;
       var pos = action.siblings.indexOf( action.act_id );
       if ( pos >= action.siblings.length-1 ) return _.hide( '#act_view_btn_next' );
-      action.act_id = action.siblings[ pos+1 ];
+      action.act_id = encodeURIComponent( action.siblings[ pos+1 ] );
       action.update_action_id();
       action.parse_action_id();
    },
@@ -189,8 +189,8 @@ od.action.view = {
       } ).join( '' );
       div.innerHTML = od.gui.highlight( content );
       // Find title
-      var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
-      action.set_title( h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' ) );
+      var h1 = content ? content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ ) : null;
+      action.set_title( h1 ? h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' ) : idList.join(', ') );
    },
 
    "update_nav_button" : function act_view_update_nav_button () {
