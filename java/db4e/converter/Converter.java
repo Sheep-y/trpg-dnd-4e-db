@@ -361,7 +361,8 @@ public class Converter extends Convert {
       test( () -> {
          Entry entry = shortId.get( entryId );
          if ( entry == null ) {
-            log.log( Level.WARNING, "Conversion test on exisance of {0}: {1}", new Object[]{ entryId, pattern } );
+            if ( ! shortId.isEmpty() ) // shortId is built by correctEntry, which is skipped in raw export
+               log.log( Level.WARNING, "Conversion test on existance of {0}: {1}", new Object[]{ entryId, pattern } );
             return;
          }
          switch ( field ) {
@@ -394,10 +395,11 @@ public class Converter extends Convert {
 
    @Override protected void testConversion() {
       if ( ! Main.debug.get() || tests == null ) return;
-      tests.add( () -> {
-         if ( shortId.size() != category.entries.size() )
-            log.log( Level.WARNING, "Conversion test failed on correction count of {0}: expected {1}, found {2}", new Object[]{ category.id, category.entries.size(), shortId.size() } );
-      } );
+      if ( ! shortId.isEmpty() ) // shortId is built by correctEntry, which is skipped in raw export
+         tests.add( () -> {
+            if ( shortId.size() != category.entries.size() )
+               log.log( Level.WARNING, "Conversion test failed on correction count of {0}: expected {1}, found {2}", new Object[]{ category.id, category.entries.size(), shortId.size() } );
+         } );
       log.log( Level.INFO, "Running {1} conversion tests on {0}", new Object[]{ category.id, tests.size() } );
       for ( Runnable test : tests ) test.run();
    }
