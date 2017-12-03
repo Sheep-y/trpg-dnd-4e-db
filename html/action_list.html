@@ -206,7 +206,7 @@
       <menuitem class='i18n' label='action.list.menu_filter_column_only' onclick='od.action.list.filter_column_only()' id='act_list_menu_filter_only'></menuitem>
    </menu>
    <div id="act_list_pnl_term" role="search">
-      <input type='search' id='act_list_txt_search' onkeydown="od.action.list.txt_search_down(event)" accesskey='s' autocomplete />
+      <input type='search' id='act_list_txt_search' onclick="od.gui.detect_soft_keyboard()" onkeydown="od.action.list.txt_search_down(event)" accesskey='s' autocomplete />
    </div>
    <table id="act_list_tbl_search" summary=""><tr><td
       ><button id='act_list_btn_search_name' class="button pressable i18n" onclick="od.action.list.search('name');" accesskey='n'> action.list.btn_search_name </button
@@ -384,26 +384,12 @@ od.action.list = {
       }
    },
 
-   /** Focus on search box if not using on-screen keyboard, or detect its present if status unknown */
+   /** Focus on search box if not using on-screen keyboard,  */
    'focus_searchbox' : function act_list_focus_searchbox () {
       var gui = od.gui;
-      if ( gui.is_soft_keyboard === true ) return; // Don't focus if using on-screen keyboard
-      var old_height = window.innerHeight;
+      if ( gui.is_soft_keyboard ) return; // Don't focus if using on-screen keyboard
       _( '#act_list_txt_search' )[0].focus();
-      if ( gui.is_soft_keyboard === false ) return;
-      // Detect keyboard
-      _.info( "[List] Detecting soft keyboard" );
-      gui.is_soft_keyboard = false;
-      for ( var i = 1 ; i <= 10 ; i++ )
-         setTimeout( act_list_focus_searchbox_detect, i*200 );
-      setTimeout( function(){ _.info( "[List] Soft keyboard: " + gui.is_soft_keyboard ); }, 2000 );
-
-      function act_list_focus_searchbox_detect (){
-         if ( window.innerHeight > old_height )
-            old_height = window.innerHeight;
-         else if ( window.innerHeight < old_height - 100 )
-            gui.is_soft_keyboard = true;
-      }
+      gui.detect_soft_keyboard();
    },
 
    'contextmenu' : function act_list_contextmenu ( evt ) {

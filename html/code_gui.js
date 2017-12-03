@@ -29,7 +29,7 @@ od.gui = {
    total_page: 0,
 
    /** Status of on-screen keyboard detection: null = not tested, true / false otherwise */
-   is_soft_keyboard: null,
+   is_soft_keyboard: false,
 
    min_swipe_x : 200, /** Min X pixels to register a horizontal swipe */
    max_swipe_y : 50, /** Max Y pixels to register a horizontal swipe */
@@ -302,5 +302,26 @@ od.gui = {
       } ).catch( function ( error ) {
          return _.info( '[Update] Cannot check update.' );
       } );
+   },
+
+   /* Watch window height to detect the present of soft keyboard.
+    * Triggered onfocus for obvious reason, and onclick because js focus may not trigger keyboard until user actually click on search box. */
+   'detect_soft_keyboard' : function gui_detect_soft_keyboard () {
+      var gui = od.gui;
+      if ( gui.is_soft_keyboard ) return; // Skip detection if soft keyboard was *ever* detected.
+      var timers = [],  old_height = window.innerHeight;
+      for ( var i = 1 ; i <= 10 ; i++ ) // check height 10 times in 2 seconds
+         timers.push( setTimeout( act_list_focus_searchbox_detect, i*200 ) );
+
+      function act_list_focus_searchbox_detect (){
+         if ( window.innerHeight > old_height )
+            old_height = window.innerHeight;
+         else if ( window.innerHeight < old_height - 100 ) {
+            gui.is_soft_keyboard = true;
+            _.info( "[List] Soft keyboard detected." );
+            timers.forEach( clearTimeout );
+         }
+         timers.shift();
+      }
    }
 };
