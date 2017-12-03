@@ -44,8 +44,8 @@ od.gui = {
       _( 'link[rel="icon"]' )[0].href = od.config.data_read_path + "/res/icon.png";
       try { // Fix category icon location for non-default html name.
          var rule = document.styleSheets[1].cssRules[0];
-         if ( rule.selectorText === '.rpg' && rule.styles.backgroundImage )
-            rule.styles.backgroundImage = 'url("' + od.config.data_read_path + '/res/viewer_category_icon.png")';
+         if ( rule && rule.selectorText === '.rpg' && rule.style.backgroundImage )
+            rule.style.backgroundImage = 'url("' + od.config.data_read_path + '/res/viewer_category_icon.png")';
          else
             _.warn( '[GUI] Cannot find rpg css rule to fix path.' );
       } catch ( err ) { _.error( err ); }
