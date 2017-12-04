@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+import static sheepy.util.Utils.escapeJsString;
 
 /**
  * Base exporter class that provides export interface and support functions.
@@ -83,10 +84,6 @@ public abstract class Exporter implements Closeable {
    }
 
    protected final StringBuilder str ( StringBuilder buf, String txt ) {
-      return buf.append( '"' ).append( js( txt ) ).append( '"' );
-   }
-
-   protected final String js ( String in ) {
-      return in.replace( "\\", "\\\\" ).replace( "\"", "\\\"" );
+      return buf.append( '"' ).append( escapeJsString( txt ) ).append( '"' );
    }
 }
