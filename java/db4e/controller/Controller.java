@@ -496,11 +496,13 @@ public class Controller {
       synchronized ( this ) {
          return entityLoaded.thenCompose( stage -> runTask( () -> {
             setPriority( Thread.MIN_PRIORITY );
+            final long startNs = System.nanoTime();
             checkStop( "Writing catlog" );
             try ( Exporter exporter = new ExporterMain() ) {
                exporter.setState( target, this::checkStop, state );
                doExport( exporter, "Writing data" );
             }
+            log.log( Level.INFO, "Data exported in {0}ns", System.nanoTime() - startNs );
             System.gc();
             gui.stateCanExport( "Export complete, may view data" );
          } ) ).whenComplete( terminate( "Export", gui::stateCanExport ) );
@@ -532,10 +534,12 @@ public class Controller {
       synchronized ( this ) {
          entityLoaded.thenCompose( stage -> runTask( () -> {
             setPriority( Thread.MIN_PRIORITY );
+            final long startNs = System.nanoTime();
             checkStop( "Dumping catalog" );
             try ( Exporter exp = exporter ) {
                doExport( exp, "Dumping data" );
             }
+            log.log( Level.INFO, "Raw data dumped in {0}ns", System.nanoTime() - startNs );
             gui.stateCanExport( "Raw data dumped" );
          } ) ).whenComplete( terminate( "Dump", gui::stateCanExport ) );
       }
