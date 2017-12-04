@@ -87,16 +87,22 @@ public class Utils {
       @Override int escapeCharCount() { return 1; }
       @Override int capacityIncrement() { return 64; }
       @Override boolean needEscape( final char c ) {
-         switch ( c ) { case '\n': case '\r': case '\\': case '\'': case '\"': case '\u2028': case '\u2029':
+         switch ( c ) { case '\b': case '\f': case '\n': case '\r': case '\\': case '\"': case '\u2028': case '\u2029':
             return true;
          }
          return false;
       }
       @Override void doEscape( final StringBuilder out, final char c ) {
          switch ( c ) {
+            case '\b': out.append( "\\b" ); break;
+            case '\f': out.append( "\\f" ); break;
             case '\n': out.append( "\\n" ); break;
             case '\r': out.append( "\\r" ); break;
-            default:   out.append( '\\' ).append( c );
+            case '\\': out.append( "\\\\" ); break;
+            case '\"': out.append( "\\\"" ); break;
+            case '\u2028': out.append( "\\u2028" ); break;
+            case '\u2029': out.append( "\\u2029" ); break;
+            default: throw new IllegalStateException();
          }
       }
    };
@@ -144,7 +150,8 @@ scan_loop:
    }
 
    /**
-    * Js (ES8) text escape, suitable for use as js string content (surrounding quotes not expected or included).
+    * Js (ES8) text escape, suitable for use as js string content enclosed by double quote (enclosing quotes not expected or included).
+    * Single quotes are not escaped for JSON compatibility.
     *
     * @param src Text to escape
     * @return Escaped text.
