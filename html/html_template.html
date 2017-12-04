@@ -47,8 +47,13 @@
          _( '#action_script_error' )[0].innerHTML = '';
       };
       tag.onerror = function script_error ( err ) {
-         document.querySelector( '#action_script_error' ).innerHTML = '<p>Script error.  Please try another browser.<br>Details: ' + err + '</p>';
          console.error( err );
+         if ( typeof( err ) !== 'string' ) err = ''; else err = '<br>' + err;
+         if ( location.protocol === "content:" ) {
+            document.querySelector( '#action_script_error' ).innerHTML = '<p>Cannot load content script.  Please open with proper file manager such as <a href="https://play.google.com/store/apps/details?id=com.estrongs.android.pop">ES File</a> or <a href="https://play.google.com/store/apps/details?id=com.ghisler.android.TotalCommander">Total Commander</a>.</p>';
+         } else {
+            document.querySelector( '#action_script_error' ).innerHTML = '<p>Script error.  Please try another file manager or browser.' + err + '</p>';
+         }
       };
       document.body.appendChild( tag );
 

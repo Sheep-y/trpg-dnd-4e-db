@@ -501,7 +501,7 @@ _.js = function _js ( option, onload ) {
       // Delay execution to make sure validate/load is called _after_ script has been ran.
       _.setImmediate( function _js_load_delayed () {
          if ( option.validate && ! _.call( option.validate, e, url, option )  ) {
-            return _js_done( option.onerror, "[JS] Script loaded but fails validation: " + url );
+            return _js_done( option.onerror, "[JS] Script exists but fails to load or validate: " + url );
          }
          _js_done( option.onload, "[JS] Script loaded: " + url );
       } );

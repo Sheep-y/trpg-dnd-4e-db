@@ -28,9 +28,9 @@ This is a fan project and does not come with copyrighted data.
 
 ### Compatibility ###
 
-The downloader is tested with Sun Java version 8 update 121.
+The downloader is tested with Sun Java 8 and 9.
 If you use [OpenJDK](http://openjdk.java.net/), you also need [OpenJFX](http://openjdk.java.net/projects/openjfx/). <br/>
-The viewer is tested on Chrome 56, Edge 14, Firefox 52, IE 11, Android Chrome 56, and Android Firefox 52. <br/>
+The viewer is tested on Chrome 62, Edge 15, Firefox 57, IE 11, Android Chrome 62, and Android Firefox 57. <br/>
 Mac and iOS cannot be supported.  Walled garden is walled.
 
 ## Differences from Official Compendium ##

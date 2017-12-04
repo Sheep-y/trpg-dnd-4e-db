@@ -57,29 +57,29 @@ iframe {
          <ol>
             <li>
                <b>You need an active (paid) <a href='https://store.digitalriver.com/store/dndi/DisplayHelpPage'>D&amp;D Insider subscription</a>.</b> <br/>
-               You can check / recover your DDI account from its <a href='http://ddi.wizards.com/'>official site.</a>
+               You can check / recover your DDI account from its <a href='http://ddi.wizards.com/'>official site</a>, and can buy subscription from <a href='http://gc.digitalriver.com/store/dndi/html/pbPage.wizards'>Digitial River</a>.
                This program cannot access protected content without an active subscription.
             </li>
             <li>
                <b>Fill the login in Data tab.</b> <br/>
                This downloader relies on you to fill in correct DDI login information.
                It'll only send your login to the DDI site.
-               Password is remembered <a href='http://stackoverflow.com/questions/1320709/preference-api-storage'>on your pc</a> (but not with saved data); delete it after download to be safe.
+               <small>Password is remembered <a href='http://stackoverflow.com/questions/1320709/preference-api-storage'>on your pc</a> (but not with saved data); delete it after download to be safe.</small>
             </li>
             <li>
-               <b>Click "Download" and leave it running</b> <br/>
+               <b>Click "Download" and leave it running.</b> <br/>
                The download process takes at least a day or longer.
                Progress is saved in real time, so it can be stopped mid-way and it will resume from there next time.
                The download step requires Internet connection and an active subscription.
             </li>
             <li>
-               <b>Click "Export" and save it somewhere </b> <br/>
+               <b>Click "Export" and save it somewhere.</b> <br/>
                Once data is complete, the download button will become export button.
                Export is a process of converting downloaded data into a form that web browsers can read.
                It starts anew every time, usually takes a few minutes, and need 1GB memory.
             </li>
             <li>
-               <b>(Optional) Transfer the exported file and data to mobile devices </b> <br/>
+               <b>(Optional) Transfer the exported file and data to mobile devices.</b> <br/>
                The exported <code>.html</code> file can be opened in most browser,
                and it comes with a same named folder that contains the data.
                You can copy the file and the folder to other PC or <a href='https://www.google.com/search?q=transfer+file+to+android'>mobile devices</a>.
@@ -97,14 +97,14 @@ iframe {
                <b>How to get DDI subscription?</b> <br/>
                <ol>
                   <li>First, you to login or create a <a href='https://accounts.wizards.com/'>wizards account</a>, so that you can login to <a href='http://ddi.wizards.com/'>DDI</a>.</li>
-                  <li>A new subscriptions can be purchased from <a href='http://gc.digitalriver.com/store/dndi/html/pbPage.wizards'>digitial river</a>, which handles subscription payments.</li>
+                  <li>A new subscriptions can be purchased from <a href='http://gc.digitalriver.com/store/dndi/html/pbPage.wizards'>Digitial River</a>, which handles subscription payments.</li>
                   <li>Once paid, you can <a href='https://wizards.custhelp.com/app/answers/detail/a_id/2297/=1.01'>disable auto-renew</a> by viewing the new order and follow its manage link.</li>
                </ol>
             </li>
             <li>
                <b>Cannot open / read / write database</b> <br/>
                Data is stored in "dnd4_compendium.database", and a backup is normally in the same folder which you can try to manually restore. <br/>
-               If that doesn't help, try "Clear Data" in option tab.  You will need to re-download all data after clear.
+               If that doesn't help, try "Clear Data" in option tab.  All data has to be re-downloaded after clear.
             </li>
             <li>
                <b>Connection timeout</b> <br/>
@@ -118,27 +118,27 @@ iframe {
             <li>
                <b>Slow download</b> <br/>
                <i>Whoever is patient has great understanding, but one who is quick-tempered displays folly.</i> - Proverbs 14:29 <br/>
-               Decrease the throttle rate in option tab, but there are 25k pieces of data to download after all.
+               You may decrease the throttle rate in option tab, but there are 25k pieces of data to download after all.
                That is 14 hours if you can crawl at 1 page per 2 seconds.
             </li>
             <li>
                <b>Slow export</b> <br/>
                Temporary disable anti-virus before export.
                (Windows has a default AV called Windows Defender.)
-               You can also add the export location to the anti-virus' white list. <br/>
+               You can also add the export location to the anti-virus' exclusion list. <br/>
                Alternatively, get a faster computer.
                My development PC can go from startup to finish export in 8 seconds.
             </li>
             <li>
                <b>~ failed (script error)</b> <br/>
                This means the login form or compendium has changed (again).
-               May need a programmer to solve this one. See "other download errors" below.
+               Usually need a programmer to solve this one.  See "other download errors" below.
             </li>
             <li>
                <b>Unknown host</b> <br/>
                1) Network issue. Try again later. <br/>
                2) Your network is blocking the site, for example some company networks block gaming sites. <br/>
-               3) Wizards finally pulled the plug on ddi.wizards.com.
+               3) Wizards finally pulled the plug on <a href='http://ddi.wizards.com/'>ddi.wizards.com</a>.
             </li>
             <li>
                <b>Other download errors</b> <br/>
@@ -152,9 +152,9 @@ iframe {
                In case this program is no longer maintained,
                <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/26'>some</a> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/27'>errors</a>
                may be solved by using another Java or an older Java,
-               such as Oracle Java SE 1.8.0.91. <br/> <br/>
+               such as Oracle Java SE 1.8.0.121. <br/> <br/>
 
-               Alternatively, some problems may be solvable with the embedded browser.
+               Alternatively, some problems <i>may</i> be solvable with the embedded browser.
                For example if there is a login problem because Wizards changed the login system,
                you can try to manually login from this browser.
                This may allows downloads to proceed normally.<br/>
@@ -168,8 +168,7 @@ iframe {
                Exported data takes up 60 MB,
                but some devices <a href='http://www.howtogeek.com/180369/why-is-there-a-big-difference-between-size-and-size-on-disk/'>may require</a> 100+ MB.
                <br/>
-               If you are overwriting an export from older version (3.5.1 or before), please delete old export first.
-               New version use a more efficient format that dramatically reduce waste space and speedup file copy.
+               You may also opt to compress data, which reduce data size to 12 MB.
             </li>
             <li>
                <b>Out of Memory</b>
@@ -180,12 +179,17 @@ iframe {
                <b>Data is wrong / different from official compendium</b> <br/>
                Known errors of the official compendium will be fixed during export, in addition to other enhancements.
                See <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/#user-content-fixed-errors'>project homepage</a> for a summary,
-               and the in-app debug log will log each affected entry. <br/>
-               Alternatively, you may use the Option tab's data dump to access unmodified data.
+               and the in-app debug log (if enabled) will log each affected entry. <br/>
+               Alternatively, you may uncheck "Fix and enhance data" in the Option tab to skip these changes.
+            </li>
+            <li>
+               <b>Data is wrong / different from rulebook</b> <br/>
+               Please <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/'>file an issue</a> and I'll confirm and fix it in next release. <br/>
+               Note that the data need to be re-exported to apply new fixes.
             </li>
             <li>
                <b>How to extract the data?</b> <br/>
-               Go to options tab, click on "Dump Data", and select the dump file from the save file dialog.
+               Go to options tab, click on "Dump Data", and select file type from the save file dialog.
             </li>
             <li>
                <b>I want the data in XXX format.</b> <br/>
@@ -201,8 +205,8 @@ iframe {
                For example Excel has a <a href='https://support.office.com/en-us/article/Excel-specifications-and-limits-ca36e2dc-1f09-4620-b726-67c00b05040f'>32k character limits</a> per cell.
                It will chop off longer data when it reads the csv/tsv dump.
                <br/>
-               3) The raw data depends on online images and css, the same as official compendium.<br/>
-               If you dump the data in HTML format, they can recreate the original view when online.
+               3) The raw (unfixed) data depends on official compendium's online images and css.<br/>
+               If you dump the data in HTML format, the original view will be preserved.
             </li>
             <li>
                <b>Cannot import dumped data</b> <br/>
@@ -211,13 +215,52 @@ iframe {
                2) The data contains Unicode characters and are in UTF-8 format.<br/>
                Program that does not use Unicode by default may display garbage or throw error.
                <br/>
-               3) For SQL, the export is tested on latest database during development, at default settings: <br/>
+               3) For SQL, the export is tested on these databases at default settings: <br/>
                MySQL 5.7, SQL Server 2016, and Postgre 9.6. <br/>
-               Older versions may not support the syntax being used, which you can fix with search and replace.
+               Older versions may not support the syntax being used; usually they are not hard to fix yourself.
                <br/>
                4) For Excel (xlsx), the export opens without error in Excel 2013.<br/>
                As of Jan 2017, Google Sheet cannot import the data regardless of the format for unknown reason.
-               If you ask for their support and they reply something useful, please file <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/'>an issue</a>.
+               If you ask for their support and they reply something useful, please <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/'>file an issue</a> to let me know.
+            </li>
+         </ol>
+         <h2 id='faq_export'> Troubleshoot (HTML)</h2>
+         <ol>
+            <li>
+               <b>"Please Enable JavaScript"</b> <br/>
+               1) "Internet Explorer" (Windows):
+               When the page is loaded, a bar would popup at the bottom that allow you to enable JavaScript.
+               The bar will disappear after a while, but you can reload the page to get it back.
+               <br>
+               2) "HTML Viewer" (Android):
+               Choice a proper browser, such as <a href='https://play.google.com/store/apps/details?id=com.android.chrome'>Chrome</a>.  HTML Viewer is not a browser.
+               <br>
+               3) No browser choice on Android:
+               Clear default browser (Settings > Apps > Reset default apps) first.
+               If there is still no choice, some apps will use their own internal browser when you click on an HTML file.
+               Use a proper file manager instead (see next point).
+            </li>
+            <li>
+               <b>"Cannot load content script"</b> <br/>
+               Some file managers on Android will wrap the file into a "content://" url.
+               We can't load data from a content url because we don't know the real path. <br/>
+               A real file manager such as <a href='https://play.google.com/store/apps/details?id=com.estrongs.android.pop'>ES File Explorer</a> or <a href='https://play.google.com/store/apps/details?id=com.ghisler.android.TotalCommander'>Total Commander</a> will use the correct "file://" url.
+            </li>
+            <li>
+               <b>"Script error"</b> <br/>
+               This should not happen if you used a release version to export the data.
+               First thing to try should be to upgrade your browser.
+               See <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/'>Homepage</a> for a list of tested browsers.
+            </li>
+            <li>
+               <b>"Cannot read XX from xxx/yyy/zzz.js"</b> <br/>
+               This happens when the data files are corrupted.
+               If clear cache does not help, try re-export the data.
+               <small>Note this this is not caused by download data corruption, please don't re-download data.</small>
+            </li>
+            <li>
+               <b>Blank / "null" / "undefined" list or content</b> <br/>
+               This is usually caused by coding error and should be <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/issues/'>reported</a> with detailed steps to reproduce.
             </li>
          </ol>
       </section>

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- *\ Export raw data as TSV
+ * Export raw data as TSV
  */
 public class ExporterRawTsv extends Exporter {
 
