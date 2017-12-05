@@ -49,10 +49,17 @@
       tag.onerror = function script_error ( err ) {
          console.error( err );
          if ( typeof( err ) !== 'string' ) err = ''; else err = '<br>' + err;
+         var lang = navigator.userLanguage || navigator.language || 'en';
          if ( location.protocol === "content:" ) {
-            document.querySelector( '#action_script_error' ).innerHTML = '<p>Cannot load content script.  Please open with proper file manager such as <a href="https://play.google.com/store/apps/details?id=com.estrongs.android.pop">ES File</a> or <a href="https://play.google.com/store/apps/details?id=com.ghisler.android.TotalCommander">Total Commander</a>.</p>';
+            if ( lang.startsWith( 'zh' ) )
+               document.querySelector( '#action_script_error' ).innerHTML = '<p>無法載入程序。請用像樣的檔案管理工具打開，例如 <a href="https://play.google.com/store/apps/details?id=com.estrongs.android.pop">ES File</a> 或 <a href="https://play.google.com/store/apps/details?id=com.ghisler.android.TotalCommander">Total Commander</a>。</p>';
+            else
+               document.querySelector( '#action_script_error' ).innerHTML = '<p>Cannot load program script.  Please open with proper file manager such as <a href="https://play.google.com/store/apps/details?id=com.estrongs.android.pop">ES File</a> or <a href="https://play.google.com/store/apps/details?id=com.ghisler.android.TotalCommander">Total Commander</a>.</p>';
          } else {
-            document.querySelector( '#action_script_error' ).innerHTML = '<p>Script error.  Please try another file manager or browser.' + err + '</p>';
+            if ( lang.startsWith( 'zh' ) )
+               document.querySelector( '#action_script_error' ).innerHTML = '<p>程序錯誤。請更新瀏覽器或試用其他瀏覽器。' + err + '</p>';
+            else
+               document.querySelector( '#action_script_error' ).innerHTML = '<p>Program script error.  Please upgrade browser or try another.' + err + '</p>';
          }
       };
       document.body.appendChild( tag );
