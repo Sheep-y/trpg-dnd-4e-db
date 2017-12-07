@@ -37,14 +37,16 @@
       </p>
    </section>
    <script>(function(){'use strict';
-      document.getElementById('action_script_error').style.display = 'block';
+      var doc = document, lblError = doc.querySelector( '#action_script_error' );
+      lblError.style.display = 'block';
 
-      var tag = document.createElement( 'script' ), folder = location.pathname.match( /[^/]+(?=\.htm)/ ) + '_files';
+      var tag = doc.createElement( 'script' ), folder = location.pathname.match( /[^/]+(?=\.htm)/ ) + '_files';
       tag.src = folder + '/res/script.js?<?coco var( time.last_modified ) ?>';
       tag.onload = function script_loaded () {
-         if ( ! od || ! od.gui ) return setTimeout( script_loaded, 50 );
+         if ( ! od || ! od.actions_loaded ) return setTimeout( script_loaded, 30 );
+         delete od.actions_loaded;
          od.gui.init();
-         _( '#action_script_error' )[0].innerHTML = '';
+         lblError.innerHTML = '';
       };
       tag.onerror = function script_error ( err ) {
          console.error( err );
@@ -52,42 +54,41 @@
          var lang = navigator.userLanguage || navigator.language || 'en';
          if ( location.protocol === "content:" ) {
             if ( lang.startsWith( 'zh' ) )
-               document.querySelector( '#action_script_error' ).innerHTML = '<p>無法載入程序。請用像樣的檔案管理工具打開，例如 <a href="https://play.google.com/store/apps/details?id=com.estrongs.android.pop">ES File</a> 或 <a href="https://play.google.com/store/apps/details?id=com.ghisler.android.TotalCommander">Total Commander</a>。</p>';
+               lblError.innerHTML = '<p>無法載入程序。請用像樣的檔案管理工具打開，例如 <a href="https://play.google.com/store/apps/details?id=com.estrongs.android.pop">ES File</a> 或 <a href="https://play.google.com/store/apps/details?id=com.ghisler.android.TotalCommander">Total Commander</a>。</p>';
             else
-               document.querySelector( '#action_script_error' ).innerHTML = '<p>Cannot load program script.  Please open with proper file manager such as <a href="https://play.google.com/store/apps/details?id=com.estrongs.android.pop">ES File</a> or <a href="https://play.google.com/store/apps/details?id=com.ghisler.android.TotalCommander">Total Commander</a>.</p>';
+               lblError.innerHTML = '<p>Cannot load program script.  Please open with proper file manager such as <a href="https://play.google.com/store/apps/details?id=com.estrongs.android.pop">ES File</a> or <a href="https://play.google.com/store/apps/details?id=com.ghisler.android.TotalCommander">Total Commander</a>.</p>';
          } else {
             if ( lang.startsWith( 'zh' ) )
-               document.querySelector( '#action_script_error' ).innerHTML = '<p>程序錯誤。請更新瀏覽器或試用其他瀏覽器。' + err + '</p>';
+               lblError.innerHTML = '<p>程序錯誤。請更新瀏覽器或試用其他瀏覽器。' + err + '</p>';
             else
-               document.querySelector( '#action_script_error' ).innerHTML = '<p>Program script error.  Please upgrade browser or try another.' + err + '</p>';
+               lblError.innerHTML = '<p>Program script error.  Please upgrade browser or try another.' + err + '</p>';
          }
       };
-      document.body.appendChild( tag );
+      doc.body.appendChild( tag );
 
       if ( folder !== '4e_database_files' ) {
-         tag = document.querySelector( 'link[rel=stylesheet]' );
+         tag = doc.querySelector( 'link[rel=stylesheet]' );
          tag.parentNode.removeChild( tag );
-         tag = document.createElement( 'link' );
+         tag = doc.createElement( 'link' );
          tag.href = folder + '/res/style.css?<?coco var( time.last_modified ) ?>';
          tag.rel = "stylesheet";
-         document.head.appendChild( tag );
+         doc.head.appendChild( tag );
       }
 
       window.od = { action : {} };
    })();</script><noscript>
       <h1 lang='en'> Please enable JavaScript </h1>
       <h1 lang='zh'> 請啟用 JavaScript </h1>
-      <p lang='en'> If you are using the "HTML Viewer" on Android, please use <a href='http://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox</a> or <a href='http://play.google.com/store/apps/details?id=com.opera.browser'>Opera</a> instead. </p>
-      <p lang='zh'> 如果你在使用安卓的 "HTML 檢視器"，請改用 <a href='http://play.google.com/store/apps/details?id=org.mozilla.firefox'>火狐</a> 或 <a href='http://play.google.com/store/apps/details?id=com.opera.browser'>Opera</a>。 </p>
+      <p lang='en'> If you are using the "HTML Viewer" on Android, please use <a href='https://play.google.com/store/apps/details?id=com.android.chrome'>Chrome</a> or <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>Firefox</a> instead. </p>
+      <p lang='zh'> 如果你在使用安卓的 "HTML 檢視器"，請試改用 <a href='https://play.google.com/store/apps/details?id=com.android.chrome'>Chrome</a> 或 <a href='https://play.google.com/store/apps/details?id=org.mozilla.firefox'>火狐</a>。 </p>
       <div id="js_enable_pointer" style="">☟</div><!-- Points to 'Allow' button on IE. Rough position, not accurate, but enough. -->
    </noscript>
    <?coco file( "action_list.html", "action_view.html", "action_about.html" ) coco trim(xml) ?>
-   <script>
-      <?coco file( "config.js", "code_gui.js", "data_model.js", "data_search.js", "data_reader.js" ) coco js(minify) ?>
-   </script>
+   <script> od.actions_loaded = true; </script>
 </body></html><?coco-output "../res/4e_database.html" ?><?coco-end?><?coco-start?>
 <?coco file( "images.css", "style_data.css") css(minify) ?>
 <?coco-output "../res/style.css" ?><?coco-end?><?coco-start?>'use strict';
 <?coco file( "lzma-d.js" ) ?>
-<?coco file( "shim.js", "base85.js", "sparrow.js", "lang_en.js", "lang_zh.js" ) js(minify) ?>
+<?coco file( "shim.js", "base85.js", "sparrow.js", "lang_en.js", "lang_zh.js",
+             "config.js", "code_gui.js", "data_model.js", "data_search.js", "data_reader.js" ) coco js(minify) ?>
 <?coco-output "../res/script.js" ?><?coco-end?>
