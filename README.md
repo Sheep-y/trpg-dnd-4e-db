@@ -9,6 +9,7 @@ Exported entries can be browsed and searched offline with exact phase search, wi
 
 本應用能從四代龍與地下城的[官方資料庫](http://www.wizards.com/dndinsider/compendium/database.aspx)提取、儲存、及匯出資料，以便進行離線的威力搜尋。<br/>
 下載器的說明只限英語。匯出資料後的搜尋介面可以在說明頁中切換成中文。
+注意 3.x 為最後一代有中文介面的數據庫。日後的版本只支援英文。
 
 This is a fan project and does not come with copyrighted data.
 
