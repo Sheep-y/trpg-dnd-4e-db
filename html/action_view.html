@@ -26,6 +26,8 @@
    <menu type='context' id='menu_view'>
       <menuitem class='i18n menu_view_highlight' label='gui.menu_view_highlight' onclick='od.gui.toggle_highlight()' type='checkbox' checked='checked'></menuitem>
       <menuitem class='i18n' label='action.view.menu_quick_lookup' onclick='od.action.view.context_links()' id="act_view_menu_lookup"></menuitem>
+      <menuitem class='i18n' label='action.view.menu_name_search' onclick='od.action.view.menu_name_search_click()' id="act_view_menu_name_search"></menuitem>
+      <menuitem class='i18n' label='action.view.menu_full_search' onclick='od.action.view.menu_full_search_click()' id="act_view_menu_full_search"></menuitem>
    </menu>
    <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.pnl_content_click(event)" oncontextmenu="od.action.view.contextmenu(event);"></article>
    <nav id="act_view_pnl_link" onclick="od.action.view.pnl_link_click(event)">
@@ -140,28 +142,56 @@ od.action.view = {
    },
 
    "contextmenu" : function act_view_contextmenu ( evt ) {
-      var action = od.action.view;
+      var action = od.action.view,  selection = window.getSelection ? getSelection() : null,  terms, range;
       action.last_popup_event = evt;
       action.last_popup_range = null;
-      if ( document.caretRangeFromPoint )
-         action.last_popup_range = document.caretRangeFromPoint( evt.clientX, evt.clientY );
-      else if ( document.caretPositionFromPoint ) {
-         var pos = document.caretPositionFromPoint( evt.clientX, evt.clientY );
-         if ( pos ) {
-            var range = document.createRange();
-            range.setStart( pos.offsetNode, pos.offset );
-            action.last_popup_range = range;
+      if ( selection && selection.rangeCount && ! selection.isCollapsed ) {
+         terms = selection.toString();
+         action.last_popup_range = { pre: terms, post: '' };
+
+      } else {
+         if ( document.caretRangeFromPoint ) {
+            range = action.last_popup_range = document.caretRangeFromPoint( evt.clientX, evt.clientY );
+
+         } else if ( document.caretPositionFromPoint ) {
+            var pos = document.caretPositionFromPoint( evt.clientX, evt.clientY );
+            if ( pos ) {
+               range = action.last_popup_range = document.createRange();
+               range.setStart( pos.offsetNode, pos.offset );
+            }
          }
+         terms = action.find_selection_term( range, 20 );
+         terms = terms.pre.replace( /.*\s\b/, '' ) + terms.post.replace( /\b\s.*/, '' );
       }
-      var terms = action.find_selection_term( range, 20 ),
-          pre = terms.pre.replace( /.*\s\b/, '' ), post = terms.post.replace( /\b\s.*/, '' );
-      _.attr( '#act_view_menu_lookup', { label: _.l( 'action.view.menu_quick_lookup', 'Lookup %1', pre + post ) } );
-      _.visible( '#act_view_menu_lookup', action.last_popup_range );
+      _.attr( '#act_view_menu_lookup'     , { label: _.l( 'action.view.menu_quick_lookup', 'Lookup %1', terms ) } );
+      _.attr( '#act_view_menu_name_search', { label: _.l( 'action.view.menu_name_search', 'Name search %1', terms ) } );
+      _.attr( '#act_view_menu_full_search', { label: _.l( 'action.view.menu_full_search', 'Full search "%1"', terms ) } );
+      _.visible( '#act_view_menu_lookup, #act_view_menu_name_search, #act_viewmenu_full_search', terms );
    },
 
    "context_links" : function act_view_context_links () {
       var action = od.action.view;
       action.popup_links( action.last_popup_event, action.last_popup_range );
+   },
+
+   "menu_name_search_click" : function act_view_menu_name_search_click () {
+      var action = od.action.view, terms = action.last_popup_range.pre;
+      if ( ! terms ) {
+         terms = action.find_selection_term( action.last_popup_range, 20 ),
+         terms = terms.pre.replace( /.*\s\b/, '' ) + terms.post.replace( /\b\s.*/, '' );
+      }
+      _.log( '[View] Name search ' + terms );
+      od.gui.go( 'list.name.all=' + encodeURIComponent( terms ) );
+   },
+
+   "menu_full_search_click" : function act_view_menu_full_search_click () {
+      var action = od.action.view, terms = action.last_popup_range.pre;
+      if ( ! terms ) {
+         terms = action.find_selection_term( action.last_popup_range, 20 ),
+         terms = terms.pre.replace( /.*\s\b/, '' ) + terms.post.replace( /\b\s.*/, '' );
+      }
+      _.log( '[View] Full search ' + terms );
+      od.gui.go( 'list.full.all="' + encodeURIComponent( terms ) + '"' );
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,6 +282,9 @@ od.action.view = {
     * Find terms from given selection and range.
     */
    "find_selection_term" : function act_view_find_selection_term ( range, maxLen ) {
+      if ( ! range ) return { 'pre': '', 'post': '' };
+      if ( 'pre' in range && 'post' in range ) return range;
+
       var node = range.commonAncestorContainer;
       var textTag = [ undefined, 'MARK', 'SPAN' ];
 

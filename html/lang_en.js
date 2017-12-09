@@ -68,7 +68,9 @@ _.l.set( 'action.list', {
 });
 
 _.l.set( 'action.view', {
-   'menu_quick_lookup' : "Lookup …%1…"
+   'menu_quick_lookup' : "Lookup …%1…",
+   'menu_name_search' : "Name Search %1",
+   'menu_full_search' : 'Full Search "%1"'
 });
 
 _.l.set( 'action.about', {

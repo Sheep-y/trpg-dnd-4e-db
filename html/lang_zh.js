@@ -103,7 +103,9 @@ _.l.set( 'action.list', {
 });
 
 _.l.set( 'action.view', {
-   'menu_quick_lookup' : "檢索 …%1…"
+   'menu_quick_lookup' : "檢索 …%1…",
+   'menu_name_search' : "名字搜索 %1",
+   'menu_full_search' : '全文搜索 "%1"'
 });
 
 _.l.set( 'action.about', {
