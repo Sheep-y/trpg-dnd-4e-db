@@ -146,7 +146,7 @@ od.action.view = {
       action.last_popup_event = evt;
       action.last_popup_range = null;
       if ( selection && selection.rangeCount && ! selection.isCollapsed ) {
-         terms = selection.toString();
+         terms = selection.toString().trim();
          action.last_popup_range = { pre: terms, post: '' };
 
       } else {
@@ -237,9 +237,11 @@ od.action.view = {
       var action = od.action.view,  data = od.data,  pnl = _( '#act_view_pnl_link' )[0];
       _.hide( pnl );
       if ( ! range ) range = getSelection().getRangeAt(0);
-      var rect = range.getBoundingClientRect(),  x = ( rect.left + rect.right ) / 2,  y = ( rect.top + rect.bottom ) / 2;
-      if ( Math.abs( evt.clientX - x ) > action.lookup_radius || Math.abs( evt.clientY - y ) > action.lookup_radius )
-         return; // _.log( '[View] Click outside of selection, skip lookup.');
+      if ( range.getBoundingClientRect ) {
+         var rect = range.getBoundingClientRect(),  x = ( rect.left + rect.right ) / 2,  y = ( rect.top + rect.bottom ) / 2;
+         if ( Math.abs( evt.clientX - x ) > action.lookup_radius || Math.abs( evt.clientY - y ) > action.lookup_radius )
+            return; // _.log( '[View] Click outside of selection, skip lookup.');
+      }
 
       data.load_name_index( function act_view_popup_links_loaded() {
          var ids = action.find_internal_links( evt, range );
