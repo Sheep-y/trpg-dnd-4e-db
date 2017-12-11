@@ -402,6 +402,16 @@ od.action.list = {
 
    /*************************************************************************/
 
+   'clear_search' : function act_list_clear_filter () {
+      _( '#act_list_txt_search' )[0].value = '';
+      od.action.list.show_list();
+   },
+
+   'clear_filter' : function act_list_clear_filter () {
+      _.prop( '.txt_filter', { value: '' } );
+      od.action.list.show_list();
+   },
+
    'filter_column' : function act_list_filter_column () {
       var action = od.action.list, td = action.last_contextmenu;
       if ( td ) {
@@ -422,6 +432,14 @@ od.action.list = {
 
    'get_search_term' : function act_list_get_search_term () {
       return _( '#act_list_txt_search' )[0].value;
+   },
+
+   'get_filters' : function act_list_get_filters () {
+      return _.ary( _( '.txt_filter' ) ).map( function ( txt ) {
+         return txt.value;
+      } ).filter( function ( val ) {
+         return val;
+      } );
    },
 
    'update_action_id' : function act_list_get_action_id () {
@@ -732,10 +750,22 @@ od.action.list = {
       if ( ! count ) {
          gui.total_page = gui.page = 0;
          html = '<tr><td rowspan=99 align=center>';
+         html += _.l( 'action.list.lbl_no_result', 'No result' );
+         var actions = [];
          if ( action.search_type === 'name' )
-            html += _.l( 'action.list.lbl_no_result_name', 'No result' );
-         else
-            html += _.l( 'action.list.lbl_no_result', 'No result' );
+            actions.push( _.l( 'action.list.switch_to_full_text', "<a onclick='od.action.list.search(\"full\");'>Full text search</a>" ) );
+         if ( action.get_search_term() )
+            actions.push(  _.l( 'action.list.clear_search', "<a onclick='od.action.list.clear_search();'>Clear search</a>" ) );
+         if ( action.get_filters().length > 0 )
+            actions.push(  _.l( 'action.list.clear_filter', "<a onclick='od.action.list.clear_filter();'>Clear filter</a>" ) );
+         switch ( actions.length ) {
+            case 1:
+               html += actions[0] + _.l( 'gui.?', '?' ); break;
+            case 2:
+               html += actions[0] + _.l( 'gui.or', ' or ' ) + actions[1] + _.l( 'gui.?', '?' ); break;
+            case 3:
+               html += actions[0] + _.l( 'gui.,', ', ' ) + actions[1] + _.l( 'gui.or', ' or ' ) + actions[2] + _.l( 'gui.?', '?' ); break;
+         }
          od.action.view.siblings = [];
 
       } else {

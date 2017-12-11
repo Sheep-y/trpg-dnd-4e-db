@@ -43,7 +43,11 @@ _.l.set( 'gui', {
    'loading1': 'Loading %1',
 
    'menu_view_highlight' : 'Highlight search terms',
-   'update': 'New Version'
+   'update': 'New Version',
+
+   ',' : ", ",
+   '?' : "?",
+   'or' : " or "
 });
 
 _.l.set( 'action.list', {
@@ -63,8 +67,10 @@ _.l.set( 'action.list', {
    'lbl_showing' : '%1 result(s)',
    'lbl_filter'   : 'Filter left %1 result(s) out of %2',
    'lbl_page' : '%1 Page %2/%3',
-   'lbl_no_result_name' : "No result. <a href='#' onclick='od.action.list.search(\"full\");'>Switch to fulltext search?</a>",
-   'lbl_no_result' : "No result."
+   'clear_search' : "<a href='#' onclick='od.action.list.clear_search();'>Clear search</a>",
+   'clear_filter' : "<a href='#' onclick='od.action.list.clear_filter();'>Clear filter</a>",
+   'switch_to_full_text' : "<a href='#' onclick='od.action.list.search(\"full\");'>Switch to full text search</a>",
+   'lbl_no_result' : "No result. "
 });
 
 _.l.set( 'action.view', {

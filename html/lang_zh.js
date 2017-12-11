@@ -78,7 +78,11 @@ _.l.set( 'gui', {
    'loading1': '載入 %1 中',
 
    'menu_view_highlight' : '高亮顯示搜尋匹配',
-   'update': '新版本'
+   'update': '新版本',
+
+   ',' : "，",
+   '?' : "？",
+   'or' : " 或 "
 });
 
 _.l.set( 'action.list', {
@@ -98,7 +102,9 @@ _.l.set( 'action.list', {
    'lbl_showing' : '%2 項結果',
    'lbl_filter' : '從 %2 項結果中過濾出 %1 項',
    'lbl_page' : '%1 頁 %2/%3',
-   'lbl_no_result_name' : "無結果。<a href='#' onclick='od.action.list.search(\"full\");'>切換至全文搜索？</a>",
+   'clear_search' : "<a href='#' onclick='od.action.list.clear_search();'>清除搜尋</a>",
+   'clear_filter' : "<a href='#' onclick='od.action.list.clear_filter();'>清除過濾</a>",
+   'switch_to_full_text' : "<a href='#' onclick='od.action.list.search(\"full\");'>切換至全文搜索</a>",
    'lbl_no_result' : "無結果。"
 });
 
