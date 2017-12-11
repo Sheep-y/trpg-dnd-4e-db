@@ -166,8 +166,8 @@ public class Controller {
                // Don't allow further actions
                gui.stateBusy( "Failed: Out of Memory" );
                gui.setTitle( "Error" );
-               // Try free up memory to stabilse program for log
-               for ( Category category : sync( categories ) ) synchronized ( category ) {
+               // Try free up memory to stabilse program. NOT syncing categories since we're OoM!
+               for ( Category category : categories ) synchronized ( category ) {
                   category.fields = null;
                   category.index = null;
                   category.entries.clear();
@@ -470,7 +470,7 @@ public class Controller {
       if ( new File( data_dir + "Glossary/glossary1.js" ).exists() )
          state.total = 25960; // Exact file count by ver 3.5.1. But just to show progress, no need to be perfect.
       else
-         state.total = 1817; // File count ot ver 3.5.2 to 3.5.3.
+         state.total = 1817; // File count of ver 3.5.2 to 3.5.3.
       state.reset();
       return runTask( () -> {
          for ( File folder : new File( data_dir ).listFiles() )
@@ -503,7 +503,6 @@ public class Controller {
                doExport( exporter, "Writing data" );
             }
             log.log( Level.INFO, "Data exported in {0}ns", System.nanoTime() - startNs );
-            System.gc();
             gui.stateCanExport( "Export complete, may view data" );
          } ) ).whenComplete( terminate( "Export", gui::stateCanExport ) );
       }
