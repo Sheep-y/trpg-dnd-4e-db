@@ -753,7 +753,9 @@ od.action.list = {
          html += _.l( 'action.list.lbl_no_result', 'No result' );
          var actions = [];
          if ( action.search_type === 'name' )
-            actions.push( _.l( 'action.list.switch_to_full_text', "<a onclick='od.action.list.search(\"full\");'>Full text search</a>" ) );
+            actions.push( _.l( 'action.list.switch_to_full_text', "<a onclick='od.action.list.search(\"full\");'>Full search</a>" ) );
+         if ( cat )
+            actions.push( _.l( 'action.list.switch_to_all', "<a onclick='od.action.list.a_category();'>Search All</a>" ) );
          if ( action.get_search_term() )
             actions.push(  _.l( 'action.list.clear_search', "<a onclick='od.action.list.clear_search();'>Clear search</a>" ) );
          if ( action.get_filters().length > 0 )

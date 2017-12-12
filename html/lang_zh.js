@@ -105,6 +105,7 @@ _.l.set( 'action.list', {
    'clear_search' : "<a href='#' onclick='od.action.list.clear_search();'>清除搜尋</a>",
    'clear_filter' : "<a href='#' onclick='od.action.list.clear_filter();'>清除過濾</a>",
    'switch_to_full_text' : "<a href='#' onclick='od.action.list.search(\"full\");'>切換至全文搜索</a>",
+   'switch_to_all' : "<a href='#' onclick='od.action.list.a_category();'>全類別搜尋</a>",
    'lbl_no_result' : "無結果。"
 });
 

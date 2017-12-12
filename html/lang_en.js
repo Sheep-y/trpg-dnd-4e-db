@@ -69,7 +69,8 @@ _.l.set( 'action.list', {
    'lbl_page' : '%1 Page %2/%3',
    'clear_search' : "<a href='#' onclick='od.action.list.clear_search();'>Clear search</a>",
    'clear_filter' : "<a href='#' onclick='od.action.list.clear_filter();'>Clear filter</a>",
-   'switch_to_full_text' : "<a href='#' onclick='od.action.list.search(\"full\");'>Switch to full text search</a>",
+   'switch_to_full_text' : "<a href='#' onclick='od.action.list.search(\"full\");'>Switch to full search</a>",
+   'switch_to_all' : "<a href='#' onclick='od.action.list.a_category();'>Search everything</a>",
    'lbl_no_result' : "No result. "
 });
 
