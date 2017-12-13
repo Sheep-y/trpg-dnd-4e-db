@@ -18,7 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -211,7 +211,7 @@ public class ExporterMain extends Exporter {
    private Map<Thread, Encoder> encoders = new WeakHashMap<>( 8, 1.0f );
 
    private byte[] lzma ( CharSequence txt ) throws IOException {
-      byte[] data = txt.toString().getBytes( StandardCharsets.UTF_8 );
+      byte[] data = txt.toString().getBytes( UTF_8 );
       ByteArrayOutputStream buffer = new ByteArrayOutputStream( data.length / 2 ); // Only a few poisons data has a lower compression rate
       Encoder encoder = encoders.get( Thread.currentThread() );
       if ( encoder == null ) {
@@ -271,6 +271,9 @@ public class ExporterMain extends Exporter {
       Files.copy( ResourceUtils.getStream( "res/viewer_category_icon.png" ), new File( root + "res/viewer_category_icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
       Files.copy( ResourceUtils.getStream( "res/icon.png" ), new File( root + "res/icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
       Files.copy( ResourceUtils.getStream( "res/manifest.json" ), new File( root + "res/manifest.json" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
-      Files.copy( ResourceUtils.getStream( "res/4e_database.html" ), target.toPath(), StandardCopyOption.REPLACE_EXISTING );
+      String html = ResourceUtils.getText( "res/4e_database.html" );
+      if ( ! target.getName().startsWith( "4e_database." ) )
+         html = html.replace( "4e_database_files/", target.getName().split( "\\.", 2 )[0] + "_files/" );
+      Files.copy( new ByteArrayInputStream( html.getBytes( UTF_8 ) ), target.toPath(), StandardCopyOption.REPLACE_EXISTING );
    }
 }

@@ -20,7 +20,7 @@
   <link rel="help" href="?about" />
   <link rel="search" href="?list" />
   <style><?coco file( "style_gui.css" ) css(minify) ?></style>
-  <link href="4e_database_files/res/style.css" rel="stylesheet" />
+  <link href="4e_database_files/res/style.css?<?coco var( time.last_modified ) ?>" rel="stylesheet" />
 </head><body>
 <!--[if lte IE 11]>
    <h1> Please upgrade browser. </h1>
@@ -39,17 +39,13 @@
    <script>(function(){'use strict';
       var doc = document, lblError = doc.querySelector( '#action_script_error' );
       lblError.style.display = 'block';
-
-      var tag = doc.createElement( 'script' ), folder = location.pathname.match( /[^/]+(?=\.htm)/ ) + '_files';
-      tag.src = folder + '/res/script.js?<?coco var( time.last_modified ) ?>';
-      tag.onload = function script_loaded () {
-         if ( ! od || ! od.actions_loaded ) return setTimeout( script_loaded, 30 );
-         delete od.actions_loaded;
+      window.script_loaded = function script_loaded () {
+         if ( ! od ) return script_error( "Namespace does not exist." );
          od.gui.init();
          lblError.innerHTML = '';
       };
-      tag.onerror = function script_error ( err ) {
-         console.error( err );
+      window.script_error = function script_error ( err ) {
+         if ( err ) console.error( err );
          if ( typeof( err ) !== 'string' ) err = ''; else err = '<br>' + err;
          var lang = navigator.userLanguage || navigator.language || 'en';
          if ( location.protocol === "content:" ) {
@@ -64,17 +60,6 @@
                lblError.innerHTML = '<p>Program script error.  Please upgrade browser or try another.' + err + '</p>';
          }
       };
-      doc.body.appendChild( tag );
-
-      if ( folder !== '4e_database_files' ) {
-         tag = doc.querySelector( 'link[rel=stylesheet]' );
-         tag.parentNode.removeChild( tag );
-         tag = doc.createElement( 'link' );
-         tag.href = folder + '/res/style.css?<?coco var( time.last_modified ) ?>';
-         tag.rel = "stylesheet";
-         doc.head.appendChild( tag );
-      }
-
       window.od = { action : {} };
    })();</script><noscript>
       <h1 lang='en'> Please enable JavaScript </h1>
@@ -84,7 +69,7 @@
       <div id="js_enable_pointer" style="">☟</div><!-- Points to 'Allow' button on IE. Rough position, not accurate, but enough. -->
    </noscript>
    <?coco file( "action_list.html", "action_view.html", "action_about.html" ) coco trim(xml) ?>
-   <script> od.actions_loaded = true; </script>
+   <script async crossorigin src="4e_database_files/res/script.js?<?coco var( time.last_modified ) ?>" onload="script_loaded()" onerror="script_error(error)"></script>
 </body></html><?coco-output "../res/4e_database.html" ?><?coco-end?><?coco-start?>
 <?coco file( "images.css", "style_data.css") css(minify) ?>
 <?coco-output "../res/style.css" ?><?coco-end?><?coco-start?>'use strict';

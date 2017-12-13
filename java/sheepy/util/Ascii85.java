@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /* Base85 (RFC 1924)  encode / decoder */
 public class Ascii85 {
@@ -47,7 +47,7 @@ public class Ascii85 {
 
     static public byte[] decode( String data ) throws IOException  {
        ByteArrayOutputStream out = new ByteArrayOutputStream( (int) Math.ceil( data.length() * 0.8 ) );
-       decode( new ByteArrayInputStream( data.getBytes( StandardCharsets.UTF_8 ) ), out );
+       decode( new ByteArrayInputStream( data.getBytes( UTF_8 ) ), out );
        return out.toByteArray();
     }
 
