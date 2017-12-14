@@ -273,7 +273,7 @@ public class ExporterMain extends Exporter {
       Files.copy( ResourceUtils.getStream( "res/manifest.json" ), new File( root + "res/manifest.json" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
       String html = ResourceUtils.getText( "res/4e_database.html" );
       if ( ! target.getName().startsWith( "4e_database." ) )
-         html = html.replace( "4e_database_files/", target.getName().split( "\\.", 2 )[0] + "_files/" );
+         html = html.replace( "4e_database_files", target.getName().split( "\\.", 2 )[0] + "_files" );
       Files.copy( new ByteArrayInputStream( html.getBytes( UTF_8 ) ), target.toPath(), StandardCopyOption.REPLACE_EXISTING );
    }
 }

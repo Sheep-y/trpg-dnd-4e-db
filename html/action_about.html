@@ -249,7 +249,7 @@ od.action.about = {
    "setup": function act_about_setup () {
       od.action.about.change_language( _('#action_about_lst_lang')[0].value );
       od.gui.toggle_highlight( od.gui.hl_enabled );
-      _('#action_about_lbl_folder')[0].textContent = od.config.data_read_path; // Must be after default l10n created the placeholder
+      _('#action_about_lbl_folder')[0].textContent = od.data_path; // Must be after default l10n created the placeholder
    },
 
    "change_language" : function act_about_change_language ( lang ) {

@@ -5,24 +5,22 @@
  */
 
 od.config = {
-   "data_read_path" : location.pathname.match( /[^/]+(?=\.htm)/ ) + '_files',
-
    //"url_monitor_interval" : 500, // Duration between checking url change, in ms.
 
    "url" : {
       "catalog" :
-         function config_url () { return od.config.data_read_path + '/catalog.js'; },
+         function config_url () { return od.data_path + '/catalog.js'; },
       "listing" :
-         function config_url ( category ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/_listing.js'; },
+         function config_url ( category ) { return od.data_path + '/' + category.toLowerCase() + '/_listing.js'; },
       "index" :
          function config_url ( category ) {
-            return od.config.data_read_path + '/' + ( category ? category.toLowerCase() + '/_index.js'
+            return od.data_path + '/' + ( category ? category.toLowerCase() + '/_index.js'
                                                                : 'index.js' ); },
       "data" :
          function config_url ( category, id ) {
             var matches = id.match( /(\d{1,2})$/ ) || [];
             matches[1] = ~~matches[1] % 20; // Removes leading 0
-            return od.config.data_read_path + '/' + category.toLowerCase() + '/data' + matches[1] + '.js';
+            return od.data_path + '/' + category.toLowerCase() + '/data' + matches[1] + '.js';
          }
    },
 

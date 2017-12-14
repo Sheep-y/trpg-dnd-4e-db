@@ -40,8 +40,6 @@ od.gui = {
 
    "init" : function gui_init () {
       var gui = od.gui;
-      _( 'link[rel="manifest"]' )[0].href = od.config.data_read_path + "/res/manifest.json";
-      _( 'link[rel="icon"]' )[0].href = od.config.data_read_path + "/res/icon.png";
       if ( ! _.pref( _.l.saveKey ) ) _.l.setLocale( 'en' ); // Default to English
       _.l.detectLocale( 'en' );
       gui.l10n();
