@@ -1,6 +1,6 @@
 # 4e Compendium Downloader #
 
-## Version 3.6 development branch ##
+## Version 3.6.1 development branch ##
 
 [![3 min. intro video](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/Frontpage.jpg)](https://youtu.be/aNDze9Ok5fE)
 
@@ -23,7 +23,7 @@ This is a fan project and does not come with copyrighted data.
    1. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar". This should launch the program.
 5. In the downloader, fill in DDI username and password, then click "Download".
    1. Download can be stopped and resumed any time.
-   2. See [in-program help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/development/res/downloader_about.html) for steps and troubleshoots.
+   2. See [in-program help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/res/downloader_about.html) for steps and troubleshoots.
 6. Once all data is downloaded, you can export the data to an HTML file, which can be opened in browsers.
 7. There is a [video guide](https://youtu.be/aNDze9Ok5fE) for the above steps.
 
