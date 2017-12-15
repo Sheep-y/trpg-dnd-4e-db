@@ -9,8 +9,8 @@
 
 od.data = {
    /* Please do NOT access directly. */
-   "category" : _.map(),
-   /* Read only, don't modify. */
+   "category" : Object.create( null ),
+   /* Quick lookup index,  Read only, don't modify. */
    "index" : null,
 
    /**
@@ -46,7 +46,7 @@ od.data = {
    },
 
    "category_name_of" : function data_category_name_of ( id ) {
-      var cat = id.split( /\d/, 2 )[0];
+      var cat = id.split( /[\.\d]/, 2 )[0];
       switch ( cat ) {
          case 'associate': return 'companion';
          case 'skill'    : return 'glossary';

@@ -86,6 +86,7 @@
          <fileset dir="org"/>
          <fileset dir="db4e"/>
          <fileset dir="sheepy"/>
+         <fileset dir="SevenZip"/>
          <fileset dir="META-INF"/>
          <fileset file="sqljet.build.properties"/>
       </delete>
@@ -96,6 +97,10 @@
    <!-- Compile viewer and copy to user home, will always rebuild -->
    <target name="make_viewer" depends="-make-html" description="Compile the HTML viewer and moves it to default export location (user home)" >
       <copy todir="${user.home}"><fileset file="res/4e_database.html"/></copy>
+      <copy todir="${user.home}/4e_database_files/res">
+         <fileset file="res/script.js"/>
+         <fileset file="res/style.css"/>
+      </copy>
    </target>
 
    <target name="-check-jar">

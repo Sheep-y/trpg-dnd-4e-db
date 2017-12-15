@@ -53,7 +53,7 @@ public class ExporterRawSql extends Exporter {
          throw new RuntimeException( "Cancelled" );
    }
 
-   @Override public void preExport ( List<Category> categories ) throws IOException, InterruptedException {
+   @Override protected void _preExport ( List<Category> categories ) throws IOException, InterruptedException {
       log.log( Level.CONFIG, "Export raw {1}Sql{2}: {0}", new Object[]{ target, id_quote_start, id_quote_end } );
       target.getParentFile().mkdirs();
       synchronized ( this ) {
@@ -64,7 +64,7 @@ public class ExporterRawSql extends Exporter {
       state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
-   @Override public void export ( Category category ) throws IOException, InterruptedException {
+   @Override protected void _export ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Building {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 
@@ -72,10 +72,10 @@ public class ExporterRawSql extends Exporter {
       int[] maxLen = new int[ category.fields.length + 2 ];
       for ( Entry entry : category.entries ) {
          if ( entry.getUrl().length() > maxLen[0] ) maxLen[0] = entry.getUrl().length();
-         if ( entry.name.length() > maxLen[1] ) maxLen[1] = entry.name.length();
+         if ( entry.getName().length() > maxLen[1] ) maxLen[1] = entry.getName().length();
          for ( int i = 0 ; i <= maxField ; i++ )
-            if ( entry.fields[i].length() > maxLen[i+2] )
-               maxLen[i+2] = entry.fields[i].length();
+            if ( entry.getSimpleField( i ).length() > maxLen[i+2] )
+               maxLen[i+2] = entry.getSimpleField( i ).length();
       }
 
       StringBuilder buffer = new StringBuilder( 3 * 1024 * 1024 );
@@ -90,15 +90,15 @@ public class ExporterRawSql extends Exporter {
 
       int rowCount = 0;
       for ( Entry entry : category.entries ) {
-         if ( ! entry.contentDownloaded ) continue;
+         if ( ! entry.hasContent() ) continue;
          if ( rowCount++ % 20 == 0 )
             id( backspace( buffer ).append( ";\nINSERT INTO "), category.id ).append( " VALUES " );
          buffer.append( "\n(" );
          txt( buffer, entry.getUrl() ).append( ',' );
-         txt( buffer, entry.name ).append( ',' );
-         for ( String field : entry.fields )
+         txt( buffer, entry.getName() ).append( ',' );
+         for ( String field : entry.getSimpleFields() )
             txt( buffer, field ).append( ',' );
-         txt( buffer, entry.content );
+         txt( buffer, entry.getContent() );
          buffer.append( ")," );
       }
 

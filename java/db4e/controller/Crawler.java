@@ -3,8 +3,8 @@ package db4e.controller;
 import db4e.Main;
 import db4e.data.Category;
 import db4e.data.Entry;
+import db4e.data.EntryDownloaded;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
@@ -121,15 +121,14 @@ public class Crawler {
             String name = row[1].toString();
             log.log( Level.FINER, "Copying row {0}", name );
             Object[] props = toArray( row[ 2 ] );
-            String[] fields = Arrays.copyOf( props, props.length, String[].class );
-            result.add( new Entry( row[0].toString(), name, fields ) );
+            result.add( new EntryDownloaded( row[0].toString(), name, props ) );
          }
       } );
       return result;
    }
 
    void openEntry ( Entry entry ) {
-      openEntry( entry.id );
+      openEntry( entry.getId() );
    }
 
    private void openEntry ( String url ) {
@@ -138,14 +137,14 @@ public class Crawler {
 
    void getEntry ( Entry entry ) throws InterruptedException, TimeoutException {
       if ( Main.simulate.get() ) {
-         entry.content = "Simulated";
+         entry.setContent( "Simulated" );
          return;
       }
       Object verify = eval( " document.querySelector( 'body > form#form1 + script' ) " ); // Make sure form finished loading
       Object content = eval( " document.querySelector( '#detail' ).innerHTML.trim() " );
       if ( content == null || verify == null ) throw new IllegalStateException( "Incomplete or empty entry" );
       if ( ! ( content instanceof CharSequence ) ) throw new IllegalStateException( "Invalid entry" );
-      entry.content = content.toString();
+      entry.setContent( content.toString() );
    }
 
    /////////////////////////////////////////////////////////////////////////////

@@ -50,7 +50,7 @@ button, .button {
       border-color: red !important;
       color: FireBrick !important; /* Override no result category gray out */
       cursor: pointer;
-      opacity: 1 !important;
+      opacity: 0.85 !important;
       }
 
 th { text-align: left; }
@@ -107,6 +107,7 @@ mark {
    opacity: 0.3;
    position: fixed;
    top: 0; left: 1ex; bottom: 0; right: 1ex;
+   z-index: 64; /* Above entry content box */
    }
    .btn_prev {
       margin-left: 0;
@@ -123,6 +124,26 @@ mark {
          }
    }
 
+#js_enable_pointer { /* Pointer for IE's "enable JavaScript". Ignor other browsers since they don't have easy way to disable JS now. */
+   bottom: 44px;
+   color: red;
+   font: 96px 'Arial Unicode';
+   left: 68%;
+   left: calc(50% + 314px);
+   position: fixed;
+   transition: left 1s, bottom 1s;
+   }
+   @media ( max-width: 1023px ) {
+      #js_enable_pointer {
+         left: calc(50% + 200px);
+         }
+   }
+   @media ( max-width: 800px ) {
+      #js_enable_pointer {
+         bottom: 70px;
+         left: calc(50% + 150px);
+         }
+   }
 /********************** Utility classes **************************/
 
 .right { float: right; }
@@ -194,37 +215,3 @@ button.pressable {
       color: #008;
       opacity: 1;
       }
-
-input[placeholder] {
-   width: 180px;
-   }
-
-input[placeholder=Group] ,
-input[placeholder=Level] ,
-input[placeholder=Power\ Source] ,
-input[placeholder=Rarity] ,
-input[placeholder=Size] {
-   min-width: 80px;
-   width: 80px;
-   }
-
-input[placeholder=Action] ,
-input[placeholder=Alignment] ,
-input[placeholder=Campaign] ,
-input[placeholder=Category] ,
-input[placeholder=Cost] ,
-input[placeholder=Price] ,
-input[placeholder=Role] ,
-input[placeholder=Tier] {
-   min-width: 120px;
-   width: 120px;
-   }
-
-input[placeholder=Type] {
-   min-width: 140px;
-   width: 140px;
-   }
-
-input[placeholder=Name] {
-   width: 240px;
-   }

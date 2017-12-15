@@ -7,21 +7,20 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 /**
- * Represents a data category
+ * Represents a data category.
+ * Read and write to entry list and non-final properties must be synchronised to the category object.
+ * When multiple category has to be locked, lock in alphabetic order (Armor first, Weapon last)
  */
 public class Category {
    public final String id; // Compendium id
    public final String name; // Display name
-   // Number of entry on the compendium. Either 0 (no listing) or the final count (listing done).
+   // Number of entry on the compendium. Either 0 (no listing) or the final count (listing done), no middle ground.
    public final IntegerProperty total_entry = new SimpleIntegerProperty();
    // Number of entry with downloaded content. Will increase during the download process.
    public final IntegerProperty downloaded_entry = new SimpleIntegerProperty();
 
-   public final String[] fields; // Name (id) of compendium fields
+   public String[] fields; // Name (id) of compendium fields
    public final List<Entry> entries = new ArrayList<>(); // Entry list
-
-   public String[] meta; // Transform field list for export.
-   public Entry[] sorted; // Sorted entry list for export.
    public Map<String, List<String>> index; // Lookup name to entry id
 
    public Category( String id, String name, String[] fields ) {

@@ -12,6 +12,7 @@ public class PowerConverter extends LeveledConverter {
 
    private final int CLASS = 0;
    private final int TYPE = 2;
+   private final int ACTION = 3;
    private final int KEYWORDS = 4;
 
    public PowerConverter ( Category category ) {
@@ -19,7 +20,7 @@ public class PowerConverter extends LeveledConverter {
    }
 
    @Override protected void initialise () {
-      category.meta = new String[]{ "ClassName", "Level", "Type", "Action", "Keywords", "SourceBook" };
+      category.fields = new String[]{ "ClassName", "Level", "Type", "Action", "Keywords", "SourceBook" };
       super.initialise();
    }
 
@@ -27,7 +28,8 @@ public class PowerConverter extends LeveledConverter {
    private final Matcher regxLevel = Pattern.compile( "<span class=level>([^<]+) (Racial )?(Attack|Utility|Feature|Pact Boon|Cantrip)( \\d+)?" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( entry.fields[0], entry.fields[1], "", entry.fields[2], "", entry.fields[3] );
+      Object[] fields = entry.getFields();
+      meta( fields[0], fields[1], "", fields[2], "", fields[3] );
       super.convertEntry();
 
       if ( ! find( regxLevel ) )
@@ -35,18 +37,18 @@ public class PowerConverter extends LeveledConverter {
 
       // Add skill name to skill power type
       if ( meta( CLASS ).equals( "Skill Power" ) )
-         entry.meta[ CLASS ] += ", " + regxLevel.group( 1 );
+         metaAdd( CLASS, ", " + regxLevel.group( 1 ) );
       else if ( meta( CLASS ).equals( "Theme Power" ) ) {
          meta( CLASS, regxLevel.group( 1 ) );
          fix( "wrong meta" );
       }
 
       // Set frequency part of power type, a new column
-      if ( entry.data.startsWith( "<h1 class=dailypower>" ) )
+      if ( entry.getContent().startsWith( "<h1 class=dailypower>" ) )
          meta( TYPE, "Daily" );
-      else if ( entry.data.startsWith( "<h1 class=encounterpower>" ) )
-         meta( TYPE, "Encounter" );
-      else if ( entry.data.startsWith( "<h1 class=atwillpower>" ) )
+      else if ( entry.getContent().startsWith( "<h1 class=encounterpower>" ) )
+         meta( TYPE, "Enc." );
+      else if ( entry.getContent().startsWith( "<h1 class=atwillpower>" ) )
          meta( TYPE, "At-Will" );
       else
          warn( "Power with unknown frequency" );
@@ -54,14 +56,14 @@ public class PowerConverter extends LeveledConverter {
       // Set type part of power type column
       switch ( regxLevel.group( 3 ) ) {
          case "Attack":
-            entry.meta[ TYPE ] += " Attack";
+            metaAdd( TYPE, " Attack" );
             break;
          case "Cantrip":
          case "Utility":
-            entry.meta[ TYPE ] += " Utility";
+            metaAdd( TYPE, " Utility" );
             break;
          default:
-            entry.meta[ TYPE ] += " Feature";
+            metaAdd( TYPE, " Feature" );
       }
 
       // Set keyword, a new column
@@ -74,25 +76,49 @@ public class PowerConverter extends LeveledConverter {
             meta( KEYWORDS, String.join( ", ", keywords.toArray( new String[ keywords.size() ] ) ) );
          } else {
             // Deathly Glare, Hamadryad Aspects, and Flock Tactics have bullet star in body but not keywords.
-            if ( ! entry.shortid.equals( "power12521" ) && ! entry.shortid.equals( "power15829" ) && ! entry.shortid.equals( "power16541" ) )
+            if ( ! entry.getId().equals( "power12521" ) && ! entry.getId().equals( "power15829" ) && ! entry.getId().equals( "power16541" ) )
                warn( "Power without keywords" );
          }
       }
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
-      int diff = a.meta[ CLASS ].toString().compareTo( b.meta[ CLASS ].toString() );
+      int diff = a.getSimpleField( CLASS ).compareTo( b.getSimpleField( CLASS ) );
       if ( diff != 0 ) return diff;
-      return super.sortEntity( a, b );
+      diff = sortLevel( a, b );
+      if ( diff != 0 ) return diff;
+      if ( ! a.getSimpleField( CLASS ).contains( "Power" ) ) { // Feat Power. Skill Power, Wild Talent Power
+         int aFreq = sortType( a.getSimpleField( TYPE ) ), bFreq = sortType( b.getSimpleField( TYPE ) );
+         if ( aFreq != bFreq ) return aFreq - bFreq;
+      }
+      return a.getName().compareTo( b.getName() );
+   }
+
+   private int sortType ( String type ) {
+      int result;
+      if ( type.startsWith( "Daily" ) )
+         result = 16;
+      else if ( type.startsWith( "Encounter" ) )
+         result = 8;
+      else
+         result = 0;
+      if ( type.endsWith( "Attack" ) )
+         result += 2;
+      else if ( type.endsWith( "Utility" ) )
+         result += 4;
+      return result;
    }
 
    @Override protected void correctEntry () {
-      if ( entry.display_name.endsWith( " [Attack Technique]" ) ) {
-         entry.display_name = entry.display_name.substring( 0, entry.display_name.length() - 19 );
+      if ( entry.getName().endsWith( " [Attack Technique]" ) ) {
+         entry.setName( entry.getName().substring( 0, entry.getName().length() - 19 ) );
          fix( "wrong meta" );
       }
 
-      switch ( entry.shortid ) {
+      if ( meta( ACTION ).startsWith( "Immediate " ) )
+         meta( ACTION, meta( ACTION ).replace( "Immediate ", "Imm. " ) );
+
+      switch ( entry.getId() ) {
          case "power3660": // Indomitable Resolve
             swapFirst( "<br>", "" ); // <br> in flavor text
             fix( "formatting" );
@@ -132,5 +158,7 @@ public class PowerConverter extends LeveledConverter {
          meta( CLASS, "Spellscarred" );
          fix( "wrong meta" );
       }
+
+      super.correctEntry();
    }
 }

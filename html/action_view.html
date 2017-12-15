@@ -23,7 +23,13 @@
       <button id="act_view_btn_prev" class="btn_prev" onclick="od.action.view.btn_prev_click()">&lt;</button>
       <button id="act_view_btn_next" class="btn_next" onclick="od.action.view.btn_next_click()">&gt;</button>
    </nav>
-   <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.pnl_content_click(event)"></article>
+   <menu type='context' id='menu_view'>
+      <menuitem class='i18n menu_view_highlight' label='gui.menu_view_highlight' onclick='od.gui.toggle_highlight()' type='checkbox' checked='checked'></menuitem>
+      <menuitem class='i18n' label='action.view.menu_quick_lookup' onclick='od.action.view.context_links()' id="act_view_menu_lookup"></menuitem>
+      <menuitem class='i18n' label='action.view.menu_name_search' onclick='od.action.view.menu_name_search_click()' id="act_view_menu_name_search"></menuitem>
+      <menuitem class='i18n' label='action.view.menu_full_search' onclick='od.action.view.menu_full_search_click()' id="act_view_menu_full_search"></menuitem>
+   </menu>
+   <article id="act_view_pnl_content" contextmenu="menu_view" onclick="od.action.view.pnl_content_click(event)" oncontextmenu="od.action.view.contextmenu(event);"></article>
    <nav id="act_view_pnl_link" onclick="od.action.view.pnl_link_click(event)">
       <table><tbody></tbody></table>
    </nav>
@@ -36,6 +42,10 @@
 
 <script><?coco-start js(minify) ?>   'use strict';(function action_view_init(){
 od.action.view = {
+
+   "last_popup_event" : null,
+   "last_popup_range" : null,
+   'lookup_radius' : 20,
 
    "initialize" : function act_view_init () {
       function hide_popup () {
@@ -67,7 +77,7 @@ od.action.view = {
 
    'parse_action_id' : function act_view_parse_action_id () {
       var id = od.gui.act_id, action = od.action.view;
-      var idList = id.substr( 'view='.length ).split( ',' );
+      var idList = id.substr( 'view='.length ).split( ',' ).map( function( id ){ return decodeURIComponent( id ); });
       var loadCount = idList.length;
       action.clear();
       idList.forEach( function act_view_show_each ( id ) {
@@ -103,7 +113,7 @@ od.action.view = {
       var action = od.action.view;
       var pos = action.siblings.indexOf( action.act_id );
       if ( pos <= 0 ) return _.hide( '#act_view_btn_prev' );
-      action.act_id = action.siblings[ pos-1 ];
+      action.act_id = encodeURIComponent( action.siblings[ pos-1 ] );
       action.update_action_id();
       action.parse_action_id();
    },
@@ -112,21 +122,76 @@ od.action.view = {
       var action = od.action.view;
       var pos = action.siblings.indexOf( action.act_id );
       if ( pos >= action.siblings.length-1 ) return _.hide( '#act_view_btn_next' );
-      action.act_id = action.siblings[ pos+1 ];
+      action.act_id = encodeURIComponent( action.siblings[ pos+1 ] );
       action.update_action_id();
       action.parse_action_id();
    },
 
    "pnl_content_click" : function act_view_pnl_content_click ( evt ) {
       if ( evt.button && evt.button !== 2 ) return; // Only handle left click and right click
+      if ( evt.target.tagName === 'A' ) return; // Skip link clicks
       var action = od.action.view;
-      od.data.load_name_index( function(){ action.popup_links( evt ); });
+      _.time();
+      action.popup_links( evt );
    },
 
    "pnl_link_click" : function act_view_pnl_link_click ( evt ) {
       _.noDef( evt );
       var tr = _.parent( evt.target, '#act_view_pnl_link tr' );
       if ( tr ) od.gui.go( _( tr, 'a' )[0].getAttribute( 'href' ).substr( 1 ) );
+   },
+
+   "contextmenu" : function act_view_contextmenu ( evt ) {
+      var action = od.action.view,  selection = window.getSelection ? getSelection() : null,  terms, range;
+      action.last_popup_event = evt;
+      action.last_popup_range = null;
+      if ( selection && selection.rangeCount && ! selection.isCollapsed ) {
+         terms = selection.toString().trim();
+         action.last_popup_range = { pre: terms, post: '' };
+
+      } else {
+         if ( document.caretRangeFromPoint ) {
+            range = action.last_popup_range = document.caretRangeFromPoint( evt.clientX, evt.clientY );
+
+         } else if ( document.caretPositionFromPoint ) {
+            var pos = document.caretPositionFromPoint( evt.clientX, evt.clientY );
+            if ( pos ) {
+               range = action.last_popup_range = document.createRange();
+               range.setStart( pos.offsetNode, pos.offset );
+            }
+         }
+         terms = action.find_selection_term( range, 20 );
+         terms = terms.pre.replace( /.*\s\b/, '' ) + terms.post.replace( /\b\s.*/, '' );
+      }
+      _.attr( '#act_view_menu_lookup'     , { label: _.l( 'action.view.menu_quick_lookup', 'Lookup %1', terms ) } );
+      _.attr( '#act_view_menu_name_search', { label: _.l( 'action.view.menu_name_search', 'Name search %1', terms ) } );
+      _.attr( '#act_view_menu_full_search', { label: _.l( 'action.view.menu_full_search', 'Full search "%1"', terms ) } );
+      _.visible( '#act_view_menu_lookup, #act_view_menu_name_search, #act_viewmenu_full_search', terms );
+   },
+
+   "context_links" : function act_view_context_links () {
+      var action = od.action.view;
+      action.popup_links( action.last_popup_event, action.last_popup_range );
+   },
+
+   "menu_name_search_click" : function act_view_menu_name_search_click () {
+      var action = od.action.view, terms = action.last_popup_range.pre;
+      if ( ! terms ) {
+         terms = action.find_selection_term( action.last_popup_range, 20 ),
+         terms = terms.pre.replace( /.*\s\b/, '' ) + terms.post.replace( /\b\s.*/, '' );
+      }
+      _.log( '[View] Name search ' + terms );
+      od.gui.go( 'list.name.all=' + encodeURIComponent( terms ) );
+   },
+
+   "menu_full_search_click" : function act_view_menu_full_search_click () {
+      var action = od.action.view, terms = action.last_popup_range.pre;
+      if ( ! terms ) {
+         terms = action.find_selection_term( action.last_popup_range, 20 ),
+         terms = terms.pre.replace( /.*\s\b/, '' ) + terms.post.replace( /\b\s.*/, '' );
+      }
+      _.log( '[View] Full search ' + terms );
+      od.gui.go( 'list.full.all="' + encodeURIComponent( terms ) + '"' );
    },
 
    /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,12 +215,12 @@ od.action.view = {
       var action = od.action.view;
       var content = idList.map( function act_view_show_entries_each( id ) {
          var data = '<div class="detail" id="' + id + '">' + cat.data[ id ] + '</div>';
-         return data.replace( /(?=<p class=publishedIn>)/, "<a class='cat' href='?list.name."+cat.name+"'>" + cat.getTitle() + "</a>" );
+         return data.replace( /(<p class=publishedIn>.*)<\/p>/, "$1<a class='cat' href='?list.name."+cat.name+"'>" + cat.getTitle() + "</a></p>" );
       } ).join( '' );
       div.innerHTML = od.gui.highlight( content );
       // Find title
-      var h1 = content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ );
-      action.set_title( h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' ) );
+      var h1 = content ? content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ ) : null;
+      action.set_title( h1 ? h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' ) : idList.join(', ') );
    },
 
    "update_nav_button" : function act_view_update_nav_button () {
@@ -168,13 +233,19 @@ od.action.view = {
       if ( pos < action.siblings.length-1 ) _.show( '#act_view_btn_next' );
    },
 
-   "popup_links" : function act_view_popup_links ( evt ) {
+   "popup_links" : function act_view_popup_links ( evt, range ) {
       var action = od.action.view,  data = od.data,  pnl = _( '#act_view_pnl_link' )[0];
-      var ids = action.find_internal_links( evt );
       _.hide( pnl );
-      if ( ! ids.length ) return;
+      if ( ! range ) range = getSelection().getRangeAt(0);
+      if ( range.getBoundingClientRect ) {
+         var rect = range.getBoundingClientRect(),  x = ( rect.left + rect.right ) / 2,  y = ( rect.top + rect.bottom ) / 2;
+         if ( Math.abs( evt.clientX - x ) > action.lookup_radius || Math.abs( evt.clientY - y ) > action.lookup_radius )
+            return; // _.log( '[View] Click outside of selection, skip lookup.');
+      }
 
       data.load_name_index( function act_view_popup_links_loaded() {
+         var ids = action.find_internal_links( evt, range );
+         if ( ! ids.length ) return;
          var categories = {},  cat_count = 0;
          for ( var i in ids ) {
             var cat_id = data.category_name_of( ids[ i ] );
@@ -210,65 +281,78 @@ od.action.view = {
    },
 
    /**
-    * Find entries that match the text in last click position (start of selection).
-    * @returns {Array} List of ids that matched, in decending order of name length then in order of name.
+    * Find terms from given selection and range.
     */
-   "find_internal_links" : function act_view_find_internal_links ( evt ) {
-      var sel = window.getSelection(),  range = sel.getRangeAt(0),  node = sel.anchorNode;
-      var textTag = [ undefined, 'MARK', 'SPAN' ], result = [];
-      var entry = evt.target.closest( 'div.detail[id]' );
-      if ( ! entry ) // Not within entry body, abort.
-         return [];
+   "find_selection_term" : function act_view_find_selection_term ( range, maxLen ) {
+      if ( ! range ) return { 'pre': '', 'post': '' };
+      if ( 'pre' in range && 'post' in range ) return range;
 
-      _.time();
+      var node = range.commonAncestorContainer;
+      var textTag = [ undefined, 'MARK', 'SPAN' ];
 
       function findPre ( node, len, offset ) {
-         var text = node.textContent, part = '';
+         var text = node.textContent, part = '', sibling = node.previousSibling;
          if ( text.length ) {
             if ( offset === undefined ) offset = text.length;
             part = text.substring( offset-Math.min( offset, len ), offset );
             len -= part.length;
             if ( len <= 0 ) return part;
          }
-         if ( node.previousSibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( node.previousSibling.tagName ) >= 0 )
-            return findPre( node.previousSibling, len ) + part;
+         if ( sibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( sibling.tagName ) >= 0 )
+            if ( sibling.tagName !== 'SPAN' || sibling.className !== 'level' )
+               return findPre( sibling, len ) + part;
          return part;
       }
 
       function findPost ( node, len, offset ) {
-         var text = node.textContent, part = '';
+         var text = node.textContent, part = '', sibling = node.nextSibling;
          if ( text.length ) {
             if ( offset === undefined ) offset = 0;
             part = text.substring( offset, Math.min( text.length, offset+len ) );
             len -= part.length;
             if ( len <= 0 ) return part;
          }
-         if ( node.nextSibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( node.nextSibling.tagName ) >= 0 )
-            return part + findPost( node.nextSibling, len );
+         if ( sibling && textTag.indexOf( node.tagName ) >= 0 && textTag.indexOf( sibling.tagName ) >= 0 )
+            if ( sibling.tagName !== 'SPAN' || sibling.className !== 'level' )
+               return part + findPost( sibling, len );
          return part;
       }
 
+      var pre  = findPre ( node, maxLen, range.startOffset ).replace( /^\s+/, "" );
+      var post = findPost( node, maxLen, range.startOffset ).replace( /\s+$/, "" );
+      return { pre: pre, post: post };
+   },
+
+   /**
+    * Find entries that match the text in last click position (start of selection).
+    * @returns {Array} List of ids that matched, in decending order of name length then in order of name.
+    */
+   "find_internal_links" : function act_view_find_internal_links ( evt, range ) {
+      var entry = evt.target.closest( 'div.detail[id]' ), result = [];
+      if ( ! entry ) // Not within entry body, abort.
+         return [];
+
       function normalise ( str ) {
-         return str.replace( /\W+/g, ' ' ).toLowerCase();
+         return str.replace( /[^\w'-éû]+/g, ' ' ).toLowerCase();
       }
 
       // Longest name is 45 chars long. Add one more for safe word cut.
-      var pre  = normalise( findPre ( node, 46, range.startOffset ).replace( /^\s+/, "" ) );
-      var post = normalise( findPost( node, 46, range.startOffset ).replace( /\s+$/, "" ) );
+      var terms = this.find_selection_term( range, 46 ),
+          pre = normalise( terms.pre ), post = normalise( terms.post );
       _.time( "[Lookup] Lookup: " + pre + "^" + post );
       var nextSpace = pre.indexOf( ' ' ),  text = pre + post,   index = od.data.index;
 
       for ( var name in index ) {
+         // Cut search term short if first word can be excluded for subsequence (shorter) searches
          if ( nextSpace >= 0 && name.length < pre.length - nextSpace ) {
             pre = pre.substr( nextSpace + 1 );
             text = pre + post;
             nextSpace = pre.indexOf( ' ' );
-            // _.log( "shorten: " + name + " -> " + pre + "^" + post );
          }
-         var pos = text.indexOf( name );
+         var pos = text.indexOf( name ),  ids = index[ name ];
          if ( pos >= 0 && pos <= pre.length && pos + name.length >= pre.length )
-            if ( pos === 0 || pre.charAt( pos-1 ) === ' ' )
-               result = result.concat( index[ name ] );
+            if ( new RegExp( '(^|\\b)' + name + '(?!-)(\\b|$)' ).test( text ) )
+               result = result.concat( ids );
       }
 
       result = result.filter( function ( e, i ) { // Remove dups

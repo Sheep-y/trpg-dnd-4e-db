@@ -16,7 +16,7 @@ public class FeatConverter extends Converter {
    }
 
    @Override protected void initialise () {
-      category.meta = new String[]{ "Tier", "Prerequisite", "SourceBook" };
+      category.fields = new String[]{ "Tier", "Prerequisite", "SourceBook" };
       super.initialise();
    }
 
@@ -24,7 +24,8 @@ public class FeatConverter extends Converter {
    private final Matcher regxLevel = Pattern.compile( "(?:, )?([12]?\\d)(?:st|nd|th) level(?:, )?" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( "Heroic","", entry.fields[1] );
+      String oldTier = meta( 0 );
+      meta( "Heroic","", meta( 1 ) );
       super.convertEntry();
 
       if ( find( regxPrerequisite ) ) {
@@ -43,9 +44,9 @@ public class FeatConverter extends Converter {
                warn( "Feat with multiple level" );
             if ( level == 11 || level == 21 )
                text = regxLevel.reset( text ).replaceFirst( "" );
-            if ( ! entry.fields[0].isEmpty() && ! entry.fields[0].equals( meta( TIER ) ) )
+            if ( ! oldTier.isEmpty() && !oldTier.equals( meta( TIER ) ) )
                fix( "wrong meta" );
-            else if  ( entry.fields[0].isEmpty() && ! meta( TIER ).equals( "Heroic" ) )
+            else if ( oldTier.isEmpty() && ! meta( TIER ).equals( "Heroic" ) )
                fix( "missing meta" );
          } else if ( text.contains( "level" ) && ! text.contains( "has a level" ) )
             warn( "Feat with unparsed level" );
@@ -66,17 +67,17 @@ public class FeatConverter extends Converter {
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
       int aTier = 0, bTier = 0;
-      if ( a.meta[TIER].equals( "Paragon" ) ) aTier = 1;
-      else if ( a.meta[TIER].equals( "Epic" ) ) aTier = 2;
-      if ( b.meta[TIER].equals( "Paragon" ) ) bTier = 1;
-      else if ( b.meta[TIER].equals( "Epic" ) ) bTier = 2;
+      if ( a.getSimpleField( TIER ).equals( "Paragon" ) ) aTier = 1;
+      else if ( a.getSimpleField( TIER ).equals( "Epic" ) ) aTier = 2;
+      if ( b.getSimpleField( TIER ).equals( "Paragon" ) ) bTier = 1;
+      else if ( b.getSimpleField( TIER ).equals( "Epic" ) ) bTier = 2;
 
       if ( aTier != bTier ) return aTier - bTier;
       return super.sortEntity( a, b );
    }
 
    @Override protected void correctEntry () {
-      switch ( entry.shortid ) {
+      switch ( entry.getId() ) {
          case "feat1111": // Bane's Tactics
             swap( "basic melee attack", "melee basic attack" );
             fix( "fix basic attack" );
@@ -92,5 +93,6 @@ public class FeatConverter extends Converter {
             fix( "consistency" );
             break;
       }
+      super.correctEntry();
    }
 }

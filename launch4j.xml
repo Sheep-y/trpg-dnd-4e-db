@@ -5,7 +5,6 @@
   <jar>4e_compendium_downloader.jar</jar>
   <outfile>4e_compendium_downloader.exe</outfile>
   <errTitle></errTitle>
-  <cmdLine></cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
@@ -22,17 +21,20 @@
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
+    <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>3.5.3.0</fileVersion>
+    <fileVersion>3.6.0.0</fileVersion>
     <txtFileVersion>4e Compendium Downloader</txtFileVersion>
     <fileDescription>4e Compendium Downloader</fileDescription>
     <copyright>2012-2017</copyright>
-    <productVersion>3.5.3.0</productVersion>
-    <txtProductVersion>3.5.3.0</txtProductVersion>
+    <productVersion>3.6.0.0</productVersion>
+    <txtProductVersion>3.6.0.0</txtProductVersion>
     <productName>4e Compendium Downloader</productName>
     <companyName></companyName>
     <internalName>oddi</internalName>
     <originalFilename>4e_compendium_downloader.exe</originalFilename>
+    <trademarks></trademarks>
+    <language>ENGLISH_UK</language>
   </versionInfo>
 </launch4jConfig>

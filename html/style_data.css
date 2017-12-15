@@ -18,6 +18,7 @@
    max-width: 800px;
    margin: 50px auto 10px;
    padding: 0 10px;
+   position: relative;
    }
 
    .detail * { /* Reset all margins and paddings */
@@ -26,10 +27,15 @@
       }
 
    .detail h1, .detail h2, .detail h3 {
+      display: table;
       font-size: 110%;
       padding-top: 1ex;
       padding-bottom: 0.5ex;
+      width: 100%;
       }
+      .detail h1 + br, .detail h2 + br, .detail h3 + br {
+         display: none; /* Hide gap below title in race */
+         }
    .detail p, .detail div, .detail table {
       padding-top: 0.5ex;
       padding-bottom: 0.5ex;
@@ -38,6 +44,9 @@
       .detail p:empty + br {
          display: none;
          }
+         .detail table td:only-child:empty {
+            display: none; /* Some skill tables has empty cells, but most magic items also use empty cell as separator*/
+            }
 
    .detail > h1:first-child ,
    .detail > h1.atwillpower ,
@@ -50,20 +59,25 @@
       border-top-right-radius: 8px;
       margin: 0 -10px;
       padding: 8px 10px 5px;
-      position: relative;
+      width: calc(100% + 20px);
       }
+      .detail > h1.atwillpower:not(:first-child) ,
+      .detail > h1.encounterpower:not(:first-child) ,
+      .detail > h1.dailypower:not(:first-child) {
+         margin-top: 10px; /* Put some space between paragon / feat feature and powers */
+         }
       .detail h1 .level ,
       .detail h1 .milevel ,
       .detail h1 .thLevel {
-         position: absolute;
-         top: 5px;
-         right: 10px;
+         display: table-cell; /* Level goes to the right, everything else should be to the left. */
+         padding-left: 8px;
          text-align: right;
+         vertical-align: top;
          }
 
-   .detail a.cat {
+   .detail .cat {
       color: #888;
-      font-size: smaller;
+      display: inline-block;
       float: left;
       }
    .detail .publishedIn {
@@ -71,6 +85,11 @@
       color: #888;
       text-align: right;
       }
+      .detail .publishedIn:after {
+         content: "";
+         display: table;
+         clear: both;
+         }
       /* .detail br + .publishedIn {
          margin-top: -1.8em; /* Undo last br *
          }
@@ -127,21 +146,30 @@
 
 .detail .miflavor ,
 .detail .flavortext ,
-.detail .flavor:not(.indent) ,
-.detail > h1 + i:not(:empty) {
+.detail .flavor:not(.indent) {
    background-color: #CCC;
    display: block;
    padding-bottom: 5px;
    }
+   .detail h1.monster + .flavor { /* Some monser use .alt for abillity, right after .flavor for stat block */
+      background-color: transparent;
+      }
    .detail > h1 + i + br {
       display: none;
       }
    .detail .player + .flavor ,
    .detail .bodytable .flavor ,
    .detail > h1 + i + .flavor ,
-   .detail > h1 + i + br + .flavor { /* racial traits */
+   .detail > h1 + i + br + .flavor { /* Racial traits */
       background-color: transparent;
       }
+
+.detail > h1 + i:not(:empty) {
+   background-color: #DDD;
+   display: block;
+   padding-top: 5px;
+   padding-bottom: 5px;
+   }
 
 .detail ul {
    margin-left: 1em;

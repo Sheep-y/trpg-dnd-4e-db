@@ -15,17 +15,17 @@ public class RaceConverter extends Converter {
    }
 
    @Override protected void initialise() {
-      category.meta = new String[]{ "Origin", "DescriptionAttribute", "Size", "SourceBook" };
+      category.fields = new String[]{ "Origin", "DescriptionAttribute", "Size", "SourceBook" };
       super.initialise();
    }
 
    private final Matcher regxAbility  = Pattern.compile( "<b>Ability scores</b>: ([^<]+)" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( null, null, entry.fields[1], entry.fields[2] );
+      meta( null, null, meta( 1 ), meta( 2 ) );
       super.convertEntry();
       // Origin column
-      switch ( entry.shortid ) {
+      switch ( entry.getId() ) {
          case "race3":  // Eladrin
          case "race4":  // Elf
          case "race16": // Drow
@@ -43,10 +43,12 @@ public class RaceConverter extends Converter {
             meta( ORIGIN, "Fey" );
             break;
          case "race14": // Changeling
-            meta( ORIGIN, "Natural, shapechanger" );
+            meta( ORIGIN, "Natural Shapechanger" );
             break;
          case "race23": // Kobold
-            meta( ORIGIN, "Natural, reptile" );
+         case "race67": // Bozak Draconian
+         case "race68": // Kapak Draconian
+            meta( ORIGIN, "Natural Reptile" );
             break;
          case "race26": // Shadar-kai
          case "race52": // Shade
@@ -60,13 +62,13 @@ public class RaceConverter extends Converter {
             break;
          case "race47": // Revenant
          case "race53": // Vryloka
-            meta( ORIGIN, "Undead, living" );
+            meta( ORIGIN, "Living Undead" );
             break;
          case "race49": // Shardmind
-            meta( ORIGIN, "Immortal, construct" );
+            meta( ORIGIN, "Immortal Construct" );
             break;
          case "race65": // Hengeyokai
-            meta( ORIGIN, "Fey, shapechanger" );
+            meta( ORIGIN, "Fey Shapechanger" );
             break;
          default:
             meta( ORIGIN, "Natural" );
@@ -80,18 +82,31 @@ public class RaceConverter extends Converter {
             meta( ABILITY, shortenAbility( ability ) );
 
       } else {
-         if ( entry.name.endsWith( " Draconian" ) )
-            meta( ABILITY, "Cha, Con or Str" );
-         else if ( entry.name.endsWith( " Dwarf" ) )
-            meta( ABILITY, "Con, Str or Wis" );
-         else if ( entry.name.endsWith( " Elf" ) )
-            meta( ABILITY, "Dex, Int or Wis" );
-         else // Eladrin
-            meta( ABILITY, "Int, Cha or Dex" );
+         switch ( entry.getId() ) {
+            case "race54" : // Gold Dwarf
+            case "race55" : // Shield Dwarf
+               meta( ABILITY, "Con, Str or Wis" );
+               break;
+            case "race56" : // Moon Elf
+            case "race57" : // Sun Elf
+            case "race64" : // Llewyrr Elf
+               meta( ABILITY, "Int, Cha or Dex" );
+               break;
+            case "race58" : // Wild Elf
+            case "race59" : // Wood Elf
+               meta( ABILITY, "Dex, Int or Wis" );
+               break;
+            case "race67" : // Bozak Draconian
+               meta( ABILITY, "Cha, Con or Str" );
+               break;
+            case "race68" : // Kapak Draconian
+               meta( ABILITY, "Dex, Cha" );
+               break;
+         }
          fix( "missing meta" );
       }
       // Size column
-      if ( entry.fields[ 1 ].isEmpty() ) {
+      if ( meta( SIZE ).isEmpty() ) {
          meta( SIZE, "Medium" );
          fix( "missing meta" );
       }

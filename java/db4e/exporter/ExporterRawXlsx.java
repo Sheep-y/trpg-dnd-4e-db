@@ -27,7 +27,7 @@ public class ExporterRawXlsx extends Exporter {
    private static final Map<String,Integer> SharedString = new HashMap<>( 78200, 1f );
    private static final AtomicInteger shareCount = new AtomicInteger();
 
-   @Override public void preExport ( List<Category> categories ) throws IOException {
+   @Override protected void _preExport ( List<Category> categories ) throws IOException {
       log.log( Level.CONFIG, "Export raw XLSX: {0}", target );
       StringBuilder buffer = new StringBuilder( 65535 );
       synchronized ( SharedString ) {
@@ -73,7 +73,7 @@ public class ExporterRawXlsx extends Exporter {
       state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
-   @Override public void export ( Category category ) throws IOException, InterruptedException {
+   @Override protected void _export ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 
@@ -93,13 +93,13 @@ public class ExporterRawXlsx extends Exporter {
       buffer.append( "</row>" );
 
       for ( Entry entry : category.entries ) {
-         if ( ! entry.contentDownloaded ) continue;
+         if ( ! entry.hasContent() ) continue;
          buffer.append( "<row>" );
          cell( buffer, entry.getUrl() );
-         cell( buffer, entry.name );
-         for ( String field : entry.fields )
+         cell( buffer, entry.getName() );
+         for ( String field : entry.getSimpleFields() )
             cell( buffer, field );
-         longCell( buffer, entry.content );
+         longCell( buffer, entry.getContent() );
          buffer.append( "</row>" );
       }
       buffer.append( "</sheetData></worksheet>" );
@@ -112,7 +112,7 @@ public class ExporterRawXlsx extends Exporter {
       state.add( category.entries.size() );
    }
 
-   @Override public void postExport( List<Category> categories ) throws IOException {
+   @Override protected void _postExport( List<Category> categories ) throws IOException {
       checkStop( "Building table" );
       state.set( -1 );
       StringBuilder buffer = new StringBuilder( 46 * 1024 * 1024 );

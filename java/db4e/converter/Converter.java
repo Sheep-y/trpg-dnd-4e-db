@@ -1,10 +1,15 @@
 package db4e.converter;
 
 import db4e.Main;
+import db4e.controller.Controller;
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -20,14 +25,17 @@ public class Converter extends Convert {
       super( category );
    }
 
-   @Override protected void correctEntry () {
-   }
-
+   private final Matcher regxTitleLevel = Pattern.compile( "(<h1[^>]*>)(<span[^>]*>.*?</span>)(.*?)(?=</h1>)" ).matcher( "" );
    private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
    private final Matcher regxCheckOpenClose = Pattern.compile( "<(/?)(p|span|b|i|a|h[1-6])\\b" ).matcher( "" );
    private final Matcher regxCheckDate  = Pattern.compile( "\\(\\d+/\\d+/\\d+\\)" ).matcher( "" );
    private final Map<String, Entry> shortId = new HashMap<>();
    private final Map<String, AtomicInteger> openCloseCount = new HashMap<>();
+
+   protected final int NAME = -123;
+   protected final int TEXT = -456;
+   protected final int LOOKUP = -789;
+   private List<Runnable> tests;
 
    /**
     * Apply common conversions to entry data.
@@ -39,20 +47,16 @@ public class Converter extends Convert {
       super.convertEntry();
       // These checks are enabled only when debug log is showing, mainly for development and debug purpose.
       if ( Main.debug.get() ) {
-         if ( shortId.containsKey( entry.shortid ) )
-            log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.id, entry.name, entry.shortid, shortId.get( entry.shortid ).name } );
-         else
-            shortId.put( entry.shortid, entry );
-
          // Validate content tags
          if ( find( "<img " ) || find( "<a " ) )
             warn( "Unremoved image or link" );
 
          // Check that we have content
-         if ( Main.debug.get() && entry.data.isEmpty() )
+         if ( Main.debug.get() && data().isEmpty() )
             warn( "Empty data" );
 
-         regxCheckOpenClose.reset( entry.data );
+         // Check open tag count = close tag count
+         regxCheckOpenClose.reset( data() );
          while ( regxCheckOpenClose.find() ) {
             String tag = regxCheckOpenClose.group( 2 );
             boolean isOpen = regxCheckOpenClose.group( 1 ).isEmpty();
@@ -68,14 +72,19 @@ public class Converter extends Convert {
          if ( ! unbalanced.isEmpty() )
             warn( "Unbalanced open and closing element (" + unbalanced + ")" );
          openCloseCount.clear();
+      }
+   }
 
-         // Validate fulltext
-         if ( regxCheckFulltext.reset( entry.fulltext ).find() )
-            warn( "Unremoved html tag in fulltext" );
-         if ( regxCheckDate.reset( entry.fulltext ).find() )
-            warn( "Unremoved errata date in fulltext" );
-         if ( ! entry.fulltext.endsWith( "." ) ) // Item144 & Item152 fails this check
-            warn( "Not ending in full stop" );
+   @Override protected void correctEntry () {
+      // Moves front-loaded level label to back for easier and consistent styling.
+      if ( find( regxTitleLevel ) )
+         entry.setContent( regxTitleLevel.replaceAll( "$1$3$2" ) );
+
+      if ( Main.debug.get() ) {
+         if ( shortId.containsKey( entry.getId() ) )
+            log.log( Level.WARNING, "{1} duplicate shortid '{2}': {3} & {0}", new Object[]{ entry.getId(), entry.getName(), entry.getId(), shortId.get( entry.getId() ).getName() } );
+         else
+            shortId.put( entry.getId(), entry );
       }
    }
 
@@ -89,8 +98,8 @@ public class Converter extends Convert {
       books.put( "Dark Sun Creature Catalog", "DSCC" );
       books.put( "Divine Power", "DP" );
       books.put( "Dragons of Eberron", "DoE" );
-      books.put( "Draconomicon: Chromatic Dragons", "Draconomicon: Chromatic" );
-      books.put( "Draconomicon: Metallic Dragons", "Draconomicon: Metallic" );
+      books.put( "Draconomicon: Chromatic Dragons", "Draco: Chromatic" );
+      books.put( "Draconomicon: Metallic Dragons", "Draco: Metallic" );
       books.put( "Dungeon Delve", "DD" );
       books.put( "Dungeon Master's Guide", "DMG" );
       books.put( "Dungeon Master's Guide 2", "DMG2" );
@@ -142,6 +151,29 @@ public class Converter extends Convert {
       books.put( "The Plane Below", "TPB" );
       books.put( "The Shadowfell", "TS" );
       books.put( "Vor Rukoth: An Ancient Ruins Adventure Site", "Vor Rukoth" );
+      // Books without abbreviations
+      books.put( "Beyond the Crystal Cave", "Beyond the Crystal Cave" );
+      books.put( "City of Stormreach", "City of Stormreach" );
+      books.put( "Council of Spiders", "Council of Spiders" );
+      books.put( "Dangerous Delves", "Dangerous Delves" );
+      books.put( "Demonomicon", "Demonomicon" );
+      books.put( "Elder Evils", "Elder Evils" );
+      books.put( "Exemplars of Evil", "Exemplars of Evil" );
+      books.put( "Fortress of the Yuan-ti", "Fortress of the Yuan-ti" );
+      books.put( "Halls of Undermountain", "Halls of Undermountain" );
+      books.put( "Hammerfast", "Hammerfast" );
+      books.put( "Legendary Evils", "Legendary Evils" );
+      books.put( "Madness at Gardmore Abbey", "Madness at Gardmore Abbey" );
+      books.put( "Marauders of the Dune Sea", "Marauders of the Dune Sea" );
+      books.put( "Open Grave", "Open Grave" );
+      books.put( "Revenge of the Giants", "Revenge of the Giants" );
+      books.put( "Savage Encounters", "Savage Encounters" );
+      books.put( "Seekers of the Ashen Crown", "Seekers of the Ashen Crown" );
+      books.put( "The Book of Vile Darkness", "The Book of Vile Darkness" );
+      books.put( "Tomb of Horrors", "Tomb of Horrors" );
+      books.put( "Underdark", "Underdark" );
+      books.put( "Vor Rukoth", "Vor Rukoth" );
+      books.put( "Web of the Spider Queen", "Web of the Spider Queen" );
    }
 
    protected final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]+)</p>" ).matcher( "" );
@@ -149,7 +181,6 @@ public class Converter extends Convert {
 
    @Override protected void parseSourceBook () {
       if ( find( regxPublished ) ) {
-
          String published = regxPublished.group( 1 );
          StringBuilder sourceBook = new StringBuilder();
          String lastSource = "";
@@ -158,16 +189,12 @@ public class Converter extends Convert {
             String book = regxBook.group( 1 ).trim();
             String abbr = books.get( book );
             if ( abbr == null ) {
-               if ( book.equals( "Class Compendium" ) ) continue; // Never published
+               if ( book.equals( "Class Compendium" ) ) continue; // Never published, do not show in source column
                if ( book.contains( " Magazine " ) )
-                  abbr = book.replace( "gon Magazine ", "" ).replace( "geon Magazine ", "" );
-               else synchronized ( book ) {
-                  abbr = books.get( book );
-                  if ( abbr == null ) {
-                     books.put( book, book );
-                     log.log( Level.FINE, "Source without abbrivation: {0} ({1})", new Object[]{ book, entry.shortid } );
-                     abbr = book;
-                  }
+                  abbr = book.replace( "gon Magazine ", "" ).replace( "geon Magazine ", "" ); // Shorten "D* Magazine" to "Dra" and "Dun"
+               else {
+                  abbr = book;
+                  warn( "Unknown sourcebook: " + book );
                }
             }
             if ( sourceBook.length() > 0 ) sourceBook.append( ", " );
@@ -179,7 +206,7 @@ public class Converter extends Convert {
                lastSource = "CC"; // 11 feats and 2 powers does not list any other source book, only class compendium.
             else
                warn( "Entry with unparsed book" );
-         meta( entry.meta.length-1, sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource );
+         meta( entry.getFieldCount()-1, sourceBook.indexOf( ", " ) > 0 ? sourceBook.toString() : lastSource );
 
          if ( regxPublished.find() )
             warn( "Entry with multiple publish" );
@@ -263,8 +290,9 @@ public class Converter extends Convert {
       return data.trim();
    }
 
-   private final Matcher regxPowerFlav = Pattern.compile( "(<h1 class=\\w{5,9}power>.*?</h1>)<p class=flavor><i>[^>]+</i></p>" ).matcher( "" );
-   private final Matcher regxItemFlav  = Pattern.compile( "(<h1 class=mihead>.*?</h1>)<p class=miflavor>[^>]+</p>" ).matcher( "" );
+   private final Matcher regxPowerFlav = Pattern.compile( "(<h1 class=\\w{5,9}power>.*?</h1>)<p class=flavor>.*?</p>" ).matcher( "" );
+   private final Matcher regxItemFlav  = Pattern.compile( "(<h1 class=mihead>.*?</h1>)<p class=miflavor>.*?</p>" ).matcher( "" );
+   private final Matcher regxRitualFlav = Pattern.compile( "(<h1 class=player>.*?</h1>)(?:<p>)?<i>.*?</i>(?:</p>|<br>)" ).matcher( "" );
    // Errata removal. monster217 has empty change, and many have empty action (Update/Added/Removed).
    private final Matcher regxErrata  = Pattern.compile( "<br>\\w* \\([123]?\\d/[123]?\\d/20[01]\\d\\)<br>[^<]*" ).matcher( "" );
    private final Matcher regxHtmlTag = Pattern.compile( "</?\\w+[^>]*>" ).matcher( "" );
@@ -276,61 +304,161 @@ public class Converter extends Convert {
     * @param data Data to strip
     * @return Text data
     */
-   @Override protected String textData ( String data ) {
+   @Override public String textData ( String data ) {
       // Removes excluded text
-      if ( data.indexOf( "power>" ) > 0 ) // Power flavour
-         data = regxPowerFlav.reset( data ).replaceAll( "$1" );
-      if ( data.indexOf( "mihead>" ) > 0 ) // Magic item flavour
-         data = regxItemFlav.reset( data ).replaceAll( "$1" );
-      data = data.replace( "<p class=publishedIn>Published in", "" ); // Source book
-      data = regxErrata.reset( data ).replaceAll( " " ); // Errata
+      if ( Controller.fixData ) {
+         if ( data.indexOf( "power>" ) > 0 ) // Power flavour
+            data = regxPowerFlav.reset( data ).replaceAll( "$1" );
+         if ( data.indexOf( "=mihead>" ) > 0 ) // Magic item flavour
+            data = regxItemFlav.reset( data ).replaceAll( "$1" );
+         if ( ! category.id.equals( "Glossary" ) && data.indexOf( "=player>" ) > 0 ) // Ritual flavour
+            data = regxRitualFlav.reset( data ).replaceAll( "$1" );
+         data = data.replace( "<p class=publishedIn>Published in", "" ); // Source book
+         data = regxErrata.reset( data ).replaceAll( " " ); // Errata
+      }
 
       // Strip HTML tags then redundent spaces
       data = data.replace( '\u00A0', ' ' );
       data = regxHtmlTag.reset( data ).replaceAll( " " );
       data = regxSpaces.reset( data ).replaceAll( " " );
+      data = data.trim();
 
       // HTML unescape. Compendium has relatively few escapes.
       data = data.replace( "&amp;", "&" )
                  .replace( "&gt;", ">" ); // glossary.433/"Weapons and Size"
 
-      return data.trim();
+      // Validate
+      if ( Main.debug.get() && Controller.fixData ) {
+         if ( regxCheckFulltext.reset( data ).find() )
+            warn( "Unremoved html tag in fulltext" );
+         if ( regxCheckDate.reset( data ).find() )
+            warn( "Unremoved errata date in fulltext" );
+         if ( ! data.endsWith( "." ) )
+            warn( "Not ending in full stop" );
+      }
+
+      return data;
    }
 
    protected final void fix ( String correction ) {
       corrections.add( correction );
    }
 
+   protected final void fix ( String correction, int field, CharSequence pattern ) {
+      fix( correction );
+      test( field, pattern );
+   }
+
+   protected final void test ( int field, CharSequence pattern ) {
+      if ( ! Main.debug.get() ) return;
+      if ( pattern.length() <= 0 ) return;
+      test( field, Pattern.compile( pattern.toString(), Pattern.LITERAL ) );
+   }
+
+   protected final void test ( int field, Pattern pattern ) {
+      if ( ! Main.debug.get() ) return;
+      final String entryId = entry.getId();
+      test( () -> {
+         Entry entry = shortId.get( entryId );
+         if ( entry == null ) {
+            if ( ! shortId.isEmpty() ) // shortId is built by correctEntry, which is skipped in raw export
+               log.log( Level.WARNING, "Conversion test on existance of {0}: {1}", new Object[]{ entryId, pattern } );
+            return;
+         }
+         switch ( field ) {
+            case NAME:
+               if ( ! pattern.matcher( entry.getName() ).find() )
+                  log.log( Level.WARNING, "Conversion test failed on name of {0}: {1}", new Object[]{ entry, pattern } );
+               break;
+            case TEXT:
+               if ( ! pattern.matcher( entry.getContent() ).find() )
+                  log.log( Level.WARNING, "Conversion test failed on text of {0}: {1}", new Object[]{ entry, pattern } );
+               break;
+            case LOOKUP:
+               List<String> lookup = category.index.get( pattern.pattern().toLowerCase() );
+               if ( lookup == null || ! lookup.contains( entry.getId() ) )
+                  log.log( Level.WARNING, "Conversion test failed on lookup index of {0}: expected {1}", new Object[]{ entry, pattern.pattern() } );
+               break;
+            default:
+               if ( ! pattern.matcher( entry.getSimpleField( field ) ).find() )
+                  log.log( Level.WARNING, "Conversion test failed on field {1} of {0}: {2}", new Object[]{ entry, field, pattern } );
+               break;
+         }
+      } );
+   }
+
+   protected final void test ( Runnable testCase ) {
+      if ( ! Main.debug.get() ) return;
+      if ( tests == null ) tests = new ArrayList<>( 1024 );
+      tests.add( testCase );
+   }
+
+   @Override protected void testConversion() {
+      if ( ! Main.debug.get() || tests == null ) return;
+      if ( ! shortId.isEmpty() ) // shortId is built by correctEntry, which is skipped in raw export
+         tests.add( () -> {
+            if ( shortId.size() != category.entries.size() )
+               log.log( Level.WARNING, "Conversion test failed on correction count of {0}: expected {1}, found {2}", new Object[]{ category.id, category.entries.size(), shortId.size() } );
+         } );
+      log.log( Level.INFO, "Running {1} conversion tests on {0}", new Object[]{ category.id, tests.size() } );
+      for ( Runnable test : tests ) test.run();
+   }
+
+   protected final Set<String> appendList ( Set<String> list, String name ) {
+      list.add( name );
+      return list;
+   }
+
+   protected final Set<String> appendList ( Set<String> list, String ... name ) {
+      list.addAll( Arrays.asList( name ) );
+      return list;
+   }
+
    protected final void swap ( CharSequence from, CharSequence to ) {
-      entry.data = entry.data.replace( from, to );
+      entry.setContent( data().replace( from, to ) );
+      test( TEXT, to );
    }
 
    protected final void swapFirst ( String from, String to ) {
-      entry.data = entry.data.replaceFirst( from, to );
+      entry.setContent( data().replaceFirst( from, to ) );
+      test( TEXT, to );
+   }
+
+   protected final String data () {
+      return entry.getContent();
    }
 
    protected final String meta ( int index ) {
-      return entry.meta[ index ].toString();
+      return entry.getSimpleField( index );
    }
 
    protected final void meta ( int index, Object setTo ) {
-      entry.meta[ index ] = setTo;
+      entry.setField( index, setTo );
+      if ( setTo instanceof Object[] )
+         test( index, Pattern.compile( ( (Object[]) setTo )[0].toString(), Pattern.LITERAL ) );
+      else
+         test( index, Pattern.compile( setTo.toString(), Pattern.LITERAL ) );
+   }
+
+   protected final void metaAdd ( int index, Object append ) {
+      entry.setField( index, entry.getSimpleField( index ) + append );
+      test( index, append.toString() );
    }
 
    protected final void meta ( Object... setTo ) {
-      entry.meta = setTo;
+      entry.setFields( setTo );
    }
 
    protected final void warn ( String issue ) {
-      log.log( Level.WARNING, issue + ": {0} {1}", new Object[]{ entry.shortid, entry.name } );
+      log.log( Level.WARNING, issue + ": {0}", entry );
    }
 
    protected final boolean find ( CharSequence substr ) {
-      return entry.data.contains( substr );
+      return data().contains( substr );
    }
 
    protected final boolean find ( Matcher regx ) {
-      return regx.reset( entry.data ).find();
+      return regx.reset( data() ).find();
    }
 
    protected final String shortenAbility ( Object txt ) {

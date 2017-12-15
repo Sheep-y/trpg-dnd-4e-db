@@ -25,9 +25,10 @@ import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,9 +47,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import netscape.javascript.JSException;
+import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import org.w3c.dom.Document;
-import sheepy.util.Utils;
+import static sheepy.util.Utils.stacktrace;
+import static sheepy.util.Utils.sync;
 import sheepy.util.ui.ConsoleWebView;
 import sheepy.util.ui.ObservableArrayList;
 
@@ -71,6 +74,9 @@ public class Controller {
    public static volatile int TIMEOUT_MS = DEF_TIMEOUT_MS;
    public static volatile int INTERVAL_MS = DEF_INTERVAL_MS;
    public static volatile int RETRY_COUNT = DEF_RETRY_COUNT;
+   public static volatile boolean fixData = true;
+
+   public static final int MIN_LZMA_MEMORY = 494*1024*1024; // Actual heap memory when max heap is set to 512mb
 
    public static final String DB_NAME = "dnd4_compendium.database";
 
@@ -79,24 +85,22 @@ public class Controller {
    private volatile DbAbstraction dal;
    private Thread currentThread;
    private final ProgressState state;
-   private boolean hasReset = false;
+   private boolean hasReset = false; // true if empty data is caused by reset, to prevent jumping to help tab.
 
    public final ObservableList<Category> categories = new ObservableArrayList<>();
-   public final ObservableList<Category> exportCategories = new ObservableArrayList<>();
+   // Will be completed when entities are loaded.  Will be replaced with a new future on reset, so please sync on controller before access.
+   private CompletableFuture<Void> entityLoadedFuture = new CompletableFuture<>();
+   public CompletionStage<Void> entityLoaded = entityLoadedFuture;
 
    private final SceneMain gui;
-   private final ConsoleWebView browser;
-   private final WebEngine engine;
-   private final Crawler crawler;
+   private ConsoleWebView browser;
+   private WebEngine engine;
+   private Crawler crawler;
    private final Timer scheduler = new Timer();
-   private final int threads = Math.max( 2, Math.min( Runtime.getRuntime().availableProcessors(), 22 ) );
-   private final ExecutorService threadPool = Executors.newFixedThreadPool( threads );
+   private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor( 2, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
    public Controller ( SceneMain main ) {
       gui = main;
-      browser = main.getWorker();
-      engine = browser.getWebEngine();
-      crawler = new Crawler( engine );
       state = new ProgressState( ( progress ) -> {
          checkStop( null );
          main.setProgress( progress );
@@ -107,9 +111,19 @@ public class Controller {
    // Stop task
    /////////////////////////////////////////////////////////////////////////////
 
+   public void setThreadCount( int thread ) {
+      if ( thread <= 0 )
+         thread = Math.max( 2, Math.min( Runtime.getRuntime().availableProcessors(), 32 ) );
+      else
+         ++thread;
+      threadPool.setCorePoolSize( thread );
+      log.log( Level.CONFIG, "Thread count set to {0} plus one controll thread", thread - 1 );
+   }
+
    public void stop () {
-      engine.getLoadWorker().cancel();
       synchronized ( this ) {
+         if ( engine != null )
+            engine.getLoadWorker().cancel();
          if ( currentThread != null )
             currentThread.interrupt();
       }
@@ -148,9 +162,19 @@ public class Controller {
             } else if ( err instanceof JSException ) {
                enabler.accept( action + " failed (script error)" );
                gui.setTitle( "Error" );
+            } else if ( err instanceof OutOfMemoryError ) {
+               // Don't allow further actions
+               gui.stateBusy( "Failed: Out of Memory" );
+               gui.setTitle( "Error" );
+               // Try free up memory to stabilse program. NOT syncing categories since we're OoM!
+               for ( Category category : categories ) synchronized ( category ) {
+                  category.fields = null;
+                  category.index = null;
+                  category.entries.clear();
+               }
             } else {
                gui.setTitle( "Error" );
-               log.log( Level.WARNING, action + " failed: {0}", Utils.stacktrace( err ) );
+               log.log( Level.WARNING, action + " failed: {0}", stacktrace( err ) );
                String msg = ( (Throwable) err ).getMessage();
                if ( msg == null || msg.isEmpty() ) msg = err.toString();
                if ( msg.contains( "Exception: ") ) msg = "Error: " + msg.split( "Exception: ", 2 )[1];
@@ -162,7 +186,7 @@ public class Controller {
             gui.setTitle( "Done" );
          }
          state.update();
-         currentThread = null;
+         synchronized( this ) { currentThread = null; }
          Thread.interrupted(); // Clear flag
       };
    }
@@ -171,38 +195,38 @@ public class Controller {
    // Open, Close, and Reset
    /////////////////////////////////////////////////////////////////////////////
 
-   public void resetDb () {
-      gui.setStatus( "Clearing data" );
-      gui.setProgress( -1.0 );
-      synchronized ( categories ) {
-         categories.clear();
-         exportCategories.clear();
-      }
-      Convert.reset();
-      state.reset();
-      state.total = 0;
-      hasReset = true;
+   public synchronized void resetDb () {
+      gui.setStatus( "Loading data" );
+      entityLoaded.thenRun(  () -> {
+         gui.setStatus( "Clearing data" );
+         gui.setProgress( -1.0 );
+         synchronized ( categories ) { categories.clear(); }
+         state.reset();
+         state.total = 0;
+         hasReset = true;
 
-      threadPool.execute( () -> { try {
-         synchronized ( this ) { // Lock database for the whole duration
-            closeDb();
-            Thread.sleep( 1000 ); // Give it some time to save and close
-            final File file = new File( DB_NAME );
-            if ( file.exists() ) {
-               log.log( Level.INFO, "Deleting database {0}", new File( DB_NAME ).getAbsolutePath() );
-               file.delete();
-            } else {
-               log.log( Level.WARNING, "Database file not found: {0}", new File( DB_NAME ).getAbsolutePath() );
+         threadPool.execute( () -> { try {
+            synchronized ( this ) { // Lock database for the whole duration
+               closeDb();
+               Thread.sleep( 1000 ); // Give it some time to save and close
+               final File file = new File( DB_NAME );
+               if ( file.exists() ) {
+                  log.log( Level.INFO, "Deleting database {0}", new File( DB_NAME ).getAbsolutePath() );
+                  file.delete();
+               } else {
+                  log.log( Level.WARNING, "Database file not found: {0}", new File( DB_NAME ).getAbsolutePath() );
+               }
+               synchronized ( this ) { entityLoaded = entityLoadedFuture = new CompletableFuture<>(); }
+               Thread.sleep( 500 ); // Give OS some time to delete the file
+               open( null );
             }
-            Thread.sleep( 500 ); // Give OS some time to delete the file
-            open( null );
-         }
 
-      } catch ( Exception ex ) {
-         log.log( Level.WARNING, "Error when deleting database: {0}", Utils.stacktrace( ex ) );
-         open( null ).whenComplete( ( a, b ) -> gui.setStatus( "Cannot clear data" ) );
+         } catch ( Exception ex ) {
+            log.log( Level.WARNING, "Error when deleting database: {0}", stacktrace( ex ) );
+            open( null ).whenComplete( ( a, b ) -> gui.setStatus( "Cannot clear data" ) );
 
-      } } );
+         } } );
+      } );
    }
 
    public CompletableFuture<Void> open ( TableView categoryTable ) {
@@ -217,7 +241,7 @@ public class Controller {
                dal = new DbAbstraction();
             }
          } catch ( Exception err ) {
-            log.log(Level.SEVERE, "Cannot open local database {0}: {1}", new Object[]{ db_path, Utils.stacktrace( err ) } );
+            log.log(Level.SEVERE, "Cannot open local database {0}: {1}", new Object[]{ db_path, stacktrace( err ) } );
 
             db_file = new File( System.getProperty("user.home") + "/" + DB_NAME );
             db_path = db_file.getAbsolutePath();
@@ -228,7 +252,7 @@ public class Controller {
                   dal = new DbAbstraction();
                }
             } catch ( Exception ex ) {
-               log.log( Level.SEVERE, "Cannot open user database {0}: {1}", new Object[]{ db_path, Utils.stacktrace( ex ) } );
+               log.log( Level.SEVERE, "Cannot open user database {0}: {1}", new Object[]{ db_path, stacktrace( ex ) } );
                gui.stateBadData();
                closeDb();
                throw new RuntimeException( ex );
@@ -236,9 +260,9 @@ public class Controller {
          }
 
          log.log( Level.CONFIG, "Opened database {0}", db_file );
-         if ( categoryTable != null ) Platform.runLater( () -> {
+         if ( categoryTable != null ) Platform.runLater( () -> { synchronized ( categories ) {
             categoryTable.setItems( categories );
-         } );
+         } } );
          openOrCreateTable();
       } );
    }
@@ -257,28 +281,24 @@ public class Controller {
          db = null;
          dal = null;
       } catch ( Exception ex ) {
-         log.log( Level.WARNING, "Error when closing database: {0}", Utils.stacktrace( ex ) );
+         log.log( Level.WARNING, "Error when closing database: {0}", stacktrace( ex ) );
       }
    }
 
    private void openOrCreateTable () {
       gui.setStatus( "Checking data" );
       try {
-         synchronized ( categories ) {
-            dal.setDb( db, categories, state );
-         }
+         dal.setDb( db, categories, state );
 
       } catch ( Exception e1 ) {
 
-         log.log( Level.CONFIG, "Create tables because {0}", Utils.stacktrace( e1 ) );
+         log.log( Level.CONFIG, "Create tables because {0}", stacktrace( e1 ) );
          try {
             dal.createTables();
-            synchronized ( categories ) {
-               dal.setDb( db, categories, state );
-            }
+            dal.setDb( db, categories, state );
 
          } catch ( Exception e2 ) {
-            log.log( Level.SEVERE, "Cannot create tables: {0}", Utils.stacktrace( e2 ) );
+            log.log( Level.SEVERE, "Cannot create tables: {0}", stacktrace( e2 ) );
             gui.stateBadData();
             closeDb();
             throw new RuntimeException( e2 );
@@ -287,13 +307,25 @@ public class Controller {
 
       backupDb();
 
-      final boolean downloadIncomplete = categories.stream().anyMatch( e -> e.downloaded_entry.get() <= 0 );
+      final boolean downloadIncomplete;
+      synchronized ( categories ) { downloadIncomplete = categories.stream().anyMatch( e -> e.downloaded_entry.get() <= 0 ); }
       if ( downloadIncomplete ) {
          gui.stateCanDownload( "Ready to download" );
          if ( state.get() <= 0 && ! hasReset && gui.getUsername().isEmpty() && gui.getPassword().isEmpty() )
             gui.selectTab( "help" );
-      } else
+         synchronized ( this ) { entityLoadedFuture.complete( null ); }
+      } else {
          gui.stateCanExport( "Ready to export" );
+         threadPool.execute( () -> {
+            try {
+               state.reset();
+               dal.loadEntityContent( categories, state );
+               synchronized ( this ) { entityLoadedFuture.complete( null ); }
+            } catch (SqlJetException ex) {
+               synchronized ( this ) { entityLoadedFuture.completeExceptionally( ex ); }
+            }
+         });
+      }
       state.update();
    }
 
@@ -314,7 +346,7 @@ public class Controller {
          Files.copy( current.toPath(), backup.toPath(), REPLACE_EXISTING );
          log.log( Level.FINE, "Created backup {0}", backup );
       } catch ( Exception e ) {
-         log.log( Level.WARNING, "Cannot create backup {0}: {1}", new Object[]{ backup, Utils.stacktrace( e ) } );
+         log.log( Level.WARNING, "Cannot create backup {0}: {1}", new Object[]{ backup, stacktrace( e ) } );
       } } );
    }
 
@@ -322,18 +354,27 @@ public class Controller {
    // Download
    /////////////////////////////////////////////////////////////////////////////
 
+   private synchronized void initCrawler () {
+      if ( browser != null ) return;
+      log.log( Level.INFO, "Initialise web crawler" );
+      browser = gui.getWorker();
+      engine = browser.getWebEngine();
+      crawler = new Crawler( engine );
+   }
+
    // Open compendium
    public CompletableFuture<Void> startDownload () {
       gui.setTitle( "Downloading" );
       gui.stateRunning();
       gui.setProgress( -1.0 );
+      initCrawler();
       log.log( Level.CONFIG, "WebView Agent: {0}", engine.getUserAgent() );
       log.log( Level.CONFIG, "Timeout {0} ms / Interval {1} ms ", new Object[]{ TIMEOUT_MS, INTERVAL_MS } );
       return runTask( () -> {
          setPriority( Thread.NORM_PRIORITY );
          if ( Main.simulate.get() )
             log.info( "Login check skipped for simulation" );
-         else if ( categories.stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
+         else if ( sync( categories ).stream().anyMatch( e -> e.total_entry.get() <= 0 ) )
             runAndCheckLogin( "Testing login", crawler::randomGlossary );
          downloadCategory();
          downloadEntities();
@@ -344,7 +385,7 @@ public class Controller {
    private void downloadCategory() throws Exception { // Too many exceptions to throw one by one
       TransformerFactory factory = null;
 
-      for ( Category category : categories ) {
+      for ( Category category : sync( categories ) ) synchronized( category ) {
          if ( category.total_entry.get() > 0 ) continue;
          String name = category.name.toLowerCase();
 
@@ -377,38 +418,38 @@ public class Controller {
    private void downloadEntities () throws Exception {
       Instant[] pastFinishTime = new Instant[ 64 ]; // Past 64 finish time
       int remainingCount = state.total - state.get(), second;
-      for ( Category category : categories ) {
-         for ( Entry entry : category.entries ) {
-            if ( ! entry.contentDownloaded ) {
-               String name = entry.name + " (" + category.name + ")";
-               runAndCheckLogin( name, () -> crawler.openEntry( entry ) );
-               crawler.getEntry( entry );
-               dal.saveEntry( entry );
+      for ( Category category : sync( categories ) ) synchronized( category ) {
+         for ( Entry entry : category.entries ) synchronized ( entry ) {
+            if ( entry.hasContent() ) continue;
 
-               category.downloaded_entry.set( category.downloaded_entry.get() + 1 );
-               state.addOne();
+            String jobName = entry.getName() + " (" + category.name + ")";
+            runAndCheckLogin( jobName, () -> crawler.openEntry( entry ) );
+            crawler.getEntry( entry );
+            dal.saveEntry( entry );
 
-               --remainingCount;
-               if ( remainingCount > 0 ) {
-                  System.arraycopy( pastFinishTime, 1, pastFinishTime, 0, 63 );
-                  pastFinishTime[63] = Instant.now();
-                  if ( pastFinishTime[56] == null ) continue;
-                  // Remaining time
-                  if ( pastFinishTime[0] != null ) { // Use all 64 entry to estimate time
-                     Duration sessionTime = Duration.between( pastFinishTime[0], Instant.now() );
-                     second = (int) Math.ceil( ( sessionTime.getSeconds() / (double) 64 ) * remainingCount );
-                  } else { // Use 8 entry to estimate time
-                     Duration sessionTime = Duration.between( pastFinishTime[56], Instant.now() );
-                     second = (int) Math.ceil( ( sessionTime.getSeconds() / (double) 8 ) * remainingCount );
-                  }
-                  // And make sure it's not less than current interval
-                  second = Math.max( second, (int) Math.ceil( remainingCount * (double) INTERVAL_MS / 1000 ) );
-                  // Manual format and display
-                  if ( second >= 86400 )    gui.setTitle( ( second / 86400 ) + "d " + ( ( second % 86400 ) / 3600 ) + "h remain" );
-                  if ( second >= 3600 )     gui.setTitle( ( second / 3600 ) + "h " + ( ( second % 3600 ) / 60 )  + "m remain" );
-                  else if ( second >= 100 ) gui.setTitle( ( second / 60 )  + "m remain" );
-                  else                      gui.setTitle( second + "s remain" );
+            category.downloaded_entry.set( category.downloaded_entry.get() + 1 );
+            state.addOne();
+
+            --remainingCount;
+            if ( remainingCount > 0 ) {
+               System.arraycopy( pastFinishTime, 1, pastFinishTime, 0, 63 );
+               pastFinishTime[63] = Instant.now();
+               if ( pastFinishTime[56] == null ) continue;
+               // Remaining time
+               if ( pastFinishTime[0] != null ) { // Use all 64 entry to estimate time
+                  Duration sessionTime = Duration.between( pastFinishTime[0], Instant.now() );
+                  second = (int) Math.ceil( ( sessionTime.getSeconds() / (double) 64 ) * remainingCount );
+               } else { // Use 8 entry to estimate time
+                  Duration sessionTime = Duration.between( pastFinishTime[56], Instant.now() );
+                  second = (int) Math.ceil( ( sessionTime.getSeconds() / (double) 8 ) * remainingCount );
                }
+               // And make sure it's not less than current interval
+               second = Math.max( second, (int) Math.ceil( remainingCount * (double) INTERVAL_MS / 1000 ) );
+               // Manual format and display
+               if ( second >= 86400 )    gui.setTitle( ( second / 86400 ) + "d " + ( ( second % 86400 ) / 3600 ) + "h remain" );
+               if ( second >= 3600 )     gui.setTitle( ( second / 3600 ) + "h " + ( ( second % 3600 ) / 60 )  + "m remain" );
+               else if ( second >= 100 ) gui.setTitle( ( second / 60 )  + "m remain" );
+               else                      gui.setTitle( second + "s remain" );
             }
          }
       }
@@ -418,10 +459,18 @@ public class Controller {
    // Export
    /////////////////////////////////////////////////////////////////////////////
 
-   public CompletableFuture<Void> deleteOld ( String data_dir ) {
+   public boolean hasOldExport ( String data_dir ) {
+      return new File( data_dir + "Glossary/glossary1.js" ).exists() ||  // 3.5.1
+             new File( data_dir + "Glossary/data99.js" ).exists(); // 3.5.2 and 3.5.3
+   }
+
+   public CompletableFuture<Void> deleteOldExport ( String data_dir ) {
       gui.setTitle( "Exporting" );
       gui.setStatus( "Deleting old export" );
-      state.total = 25960; // Exact file count by ver 3.5.1. But just to show progress, no need to be perfect.
+      if ( new File( data_dir + "Glossary/glossary1.js" ).exists() )
+         state.total = 25960; // Exact file count by ver 3.5.1. But just to show progress, no need to be perfect.
+      else
+         state.total = 1817; // File count of ver 3.5.2 to 3.5.3.
       state.reset();
       return runTask( () -> {
          for ( File folder : new File( data_dir ).listFiles() )
@@ -436,29 +485,27 @@ public class Controller {
       } );
    }
 
-   public CompletableFuture<Void> startExport ( File target ) {
+   public boolean canCompressData () {
+      return Runtime.getRuntime().maxMemory() >= MIN_LZMA_MEMORY;
+   }
+
+   public CompletionStage<Void> startExport ( File target ) {
       gui.setTitle( "Exporting" );
-      gui.setStatus( "Starting export" );
+      gui.setStatus( "Loading data" );
       gui.stateRunning();
-      state.set( -1 );
-      return runTask( () -> {
-         setPriority( Thread.MIN_PRIORITY );
-         checkStop( "Loading data" );
-         dal.loadEntityContent( categories, state );
-
-         checkStop( "Writing catlog" );
-         try ( Exporter exporter = new ExporterMain() ) {
-            exporter.setState( target, this::checkStop, state );
-            Convert.beforeConvert( categories, exportCategories );
-            exporter.preExport( exportCategories );
-            checkStop( "Writing data" );
-            exportEachCategory( exportCategories, exporter );
-            exporter.postExport( exportCategories );
-            Convert.afterConvert();
-         }
-
-         gui.stateCanExport( "Export complete, may view data" );
-      } ).whenComplete( terminate( "Export", gui::stateCanExport ) );
+      synchronized ( this ) {
+         return entityLoaded.thenCompose( stage -> runTask( () -> {
+            setPriority( Thread.MIN_PRIORITY );
+            final long startNs = System.nanoTime();
+            checkStop( "Writing catlog" );
+            try ( Exporter exporter = new ExporterMain() ) {
+               exporter.setState( target, this::checkStop, state );
+               doExport( exporter, "Writing data" );
+            }
+            log.log( Level.INFO, "Data exported in {0}ns", System.nanoTime() - startNs );
+            gui.stateCanExport( "Export complete, may view data" );
+         } ) ).whenComplete( terminate( "Export", gui::stateCanExport ) );
+      }
    }
 
    public void startExportRaw ( File target ) {
@@ -481,24 +528,36 @@ public class Controller {
       }
       exporter.setState( target, this::checkStop, state );
       gui.setTitle( "Dumping" );
-      gui.setStatus( "Starting dump" );
+      gui.setStatus( "Loading data" );
       gui.stateRunning();
-      state.set( -1 );
-      runTask( () -> {
-         setPriority( Thread.MIN_PRIORITY );
-         checkStop( "Loading data" );
-         dal.loadEntityContent( categories, state );
+      synchronized ( this ) {
+         entityLoaded.thenCompose( stage -> runTask( () -> {
+            setPriority( Thread.MIN_PRIORITY );
+            final long startNs = System.nanoTime();
+            checkStop( "Dumping catalog" );
+            try ( Exporter exp = exporter ) {
+               doExport( exp, "Dumping data" );
+            }
+            log.log( Level.INFO, "Raw data dumped in {0}ns", System.nanoTime() - startNs );
+            gui.stateCanExport( "Raw data dumped" );
+         } ) ).whenComplete( terminate( "Dump", gui::stateCanExport ) );
+      }
+   }
 
-         try ( Exporter exp = exporter ) {
-            checkStop( "Writing catlog" );
-            exp.preExport( categories );
-            checkStop( "Writing data" );
-            exportEachCategory( categories, exp );
-            exp.postExport( categories );
-         }
-
-         gui.stateCanExport( "Raw data dumped" );
-      } ).whenComplete( terminate( "Dump", gui::stateCanExport ) );
+   private void doExport( Exporter exporter, String dataMessage ) throws Exception {
+      final List<Category> data;
+      if ( fixData ) {
+         log.log( Level.CONFIG, "Fix enabled. Converting data." );
+         data = Convert.mapExportCategories( categories );
+      } else
+         data = sync( categories );
+      exporter.preExport( data );
+      checkStop( dataMessage );
+      exportEachCategory( data, exporter );
+      exporter.postExport( data );
+      if ( fixData ) {
+         Convert.afterConvert();
+      }
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -509,9 +568,7 @@ public class Controller {
       final CompletableFuture<Void> result = new CompletableFuture<>();
       threadPool.execute( ()-> { try {
          synchronized ( this ) { currentThread = Thread.currentThread(); } // Unset (cleanup) by terminate()
-         synchronized ( categories ) { // Sync data
-            task.run();
-         }
+         task.run();
          result.complete( null );
 
       } catch ( Exception e ) {
@@ -602,7 +659,7 @@ public class Controller {
    private void exportEachCategory ( List<Category> categories, Exporter exporter ) throws Exception {
       state.reset();
       state.update();
-      log.log( Level.CONFIG, "Running category task in {0} threads.", threads-1 );
+      log.log( Level.CONFIG, "Running category task in {0} threads: 1 control and {1} worker(s).", new Object[]{ threadPool.getCorePoolSize(), threadPool.getCorePoolSize()-1 } );
       try {
          Converter.stop.set( false );
          Exporter.stop.set( false );
@@ -611,12 +668,18 @@ public class Controller {
             CompletableFuture<Void> future = new CompletableFuture<>();
             tasks.add( future );
             threadPool.execute( () -> { try {
-               synchronized ( exporter ) { /* sync with exporter.setState */ }
+               log.log( Level.INFO, "Exporting category {0} in thread {1}.", new Object[]{ category.name, Thread.currentThread().getName() } );
                synchronized ( category ) {
+                  Convert converter = Convert.getConverter( category );
+                  if ( fixData )
+                     converter.convert();
+                  converter.mapIndex();
                   exporter.export( category );
+                  if ( fixData ) // The converted data is no longer required.  Kill them to save memory
+                     category.entries.clear();
                }
                future.complete( null );
-            } catch ( Exception e ) {
+            } catch ( Throwable e ) {
                future.completeExceptionally( e );
             } } );
          }
@@ -631,6 +694,7 @@ public class Controller {
    /**
     * Same as Runnable, but throws Exception.
     */
+
    public static interface RunExcept {
       void run ( ) throws Exception;
    }

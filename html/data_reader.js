@@ -9,7 +9,7 @@ od.reader = {
    /**
      * Internal routine; add jsonp call and timeout detection
      */
-   _read: function reader_read( src, validate, onload, onerror ) {
+   _read: function reader_read ( src, validate, onload, onerror ) {
       var errorHandler = onerror;
       if ( onerror && typeof( onerror ) === 'string' ) errorHandler = function(){ _.alert( onerror ); };
       _.js({
@@ -17,6 +17,25 @@ od.reader = {
          "validate": validate,
          "onload"  : onload,
          "onerror" : errorHandler });
+   },
+
+   /**
+    *  Internal routine: decompress compressed data.
+    */
+   _inflate: function reader_inflate ( name, data ) {
+      if ( typeof( data ) === 'string' && data.startsWith( 'T>t<;' ) ) try { /* LZMA + Base85 */
+         _.time( '[Reader] Decompressing ' + name );
+         var from_len = data.length;
+         data = Base85.decode( data );
+         data = LZMA.decompress( data ); // Heaviest step
+         var to_len = data.length;
+         data = JSON.parse( data );
+         _.time( '[Reader] Decompressed ' + name + '(' + from_len + ' -> ' + to_len + ')' );
+      } catch ( err ) {
+         /* if ( err instanceof SyntaxError ) document.body.textContent = data; */
+         throw err;
+      }
+      return data;
    },
 
    /////////////////////////////////////////////////////////
@@ -52,7 +71,7 @@ od.reader = {
    },
 
    jsonp_name_index: function reader_jsonp_index( version, data ) {
-      od.data.index = data;
+      od.data.index = od.reader._inflate( "name index", data );
    },
 
    /////////////////////////////////////////////////////////
@@ -70,17 +89,11 @@ od.reader = {
    },
 
    jsonp_data_listing: function reader_jsonp_data_listing( version, category, columns, data ) {
-      var cat = od.data.get( category );
-      if ( ! cat || data.length !== cat.count || version === 20140414 ) {
-         // Version 20140414 was saving compressed binary as unicode, corrupting them.
-         cat.count = data.length;
-         _.alert( _.l( 'error.inconsistent_category', 'Please re-export %1.', cat.getTitle(), 'listing' ) );
-      }
-
-      if ( version < 20130703 )
+      if ( version < 20130703 || version === 20140414 )
          return _.alert( _.l( 'error.old_format' ) );
+      var cat = od.data.get( category );
       cat.columns = columns;
-      cat.list = data;
+      cat.list = od.reader._inflate( "listing", data );
       cat.build_listing();
    },
 
@@ -102,10 +115,10 @@ od.reader = {
    },
 
    jsonp_data_index: function reader_jsonp_data_index( version, category, data ) {
-      var cat = od.data.get(category);
       if ( version < 20130616 )
          return _.alert( _.l( 'error.old_format' ) );
-      cat.index = data;
+      var cat = od.data.get( category );
+      cat.index = od.reader._inflate( "text index", data );
    },
 
    /////////////////////////////////////////////////////////
@@ -129,6 +142,7 @@ od.reader = {
       if ( version < 20160803 )
          return _.alert( _.l( 'error.old_format' ) );
       var cat = od.data.get(category);
+      data = od.reader._inflate( "data", data );
       for ( var id in data )
          cat.data[id] = data[id];
    }

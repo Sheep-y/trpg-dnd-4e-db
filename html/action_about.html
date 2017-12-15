@@ -4,12 +4,21 @@
   -->
 <section id='action_about'>
    <style scoped>
+      #action_about article { padding: 0 1em; }
       #action_about div { max-width: 1000px; margin: 0 auto; }
       #action_about div h1, #action_about article h2 { clear: both; }
-      #action_about img { border: 2px ridge lightgrey; width: 400px; }
-      #action_about figure.right { margin-left: 1em; }
-      #action_about figure.left  { margin-right: 1em; }
+      #action_about img { border: 2px ridge lightgrey; }
       #action_about .nodata { font-weight: bold; font-size: 150%; }
+      @media (min-width: 1024px ) {
+         #action_about img { width: 400px; }
+         #action_about figure.right { margin-left: 1em; }
+         #action_about figure.left  { margin-right: 1em; }
+      }
+      @media (max-width: 1023px ) {
+         #action_about figure.right , #action_about figure.left { float: none; }
+         #action_about img { max-width: 400px; width: 100%; }
+      }
+
    </style>
 
    <div>
@@ -18,9 +27,8 @@
       <article class='left'>
          <h1 class='i18n'> action.about.h_language </h1>
          <p>
-            Language 語言： <span class='i18n'> action.about.lbl_select_lang </span>
+            Language<span class='i18n'> action.about.lbl_select_lang </span>
             <select id='action_about_lst_lang' onchange='od.action.about.change_language(this.value)'>
-               <option value='' class='i18n'> action.about.opt_auto
                <option value='zh'> Chinese 中文
                <option value='en'> English
             </select> <br/>
@@ -69,7 +77,7 @@
          <section lang="en">
             <h2> Original Prototype </h2>
                <figure class='right'>
-                  <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/res/img/History - 1st alpha.jpg"><img alt='' id="action_about_history_0" src=''/></a>
+                  <a href="https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/res/img/History - 1st alpha.jpg"><img alt='' src='https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History%20-%201st%20alpha.jpg'/></a>
                   <figcaption>Date: <time>2010-11-17</time></figcaption>
                </figure>
             <p>
@@ -85,7 +93,7 @@
          <section lang="en">
             <h2> 1<sup>st</sup> Version </h2>
                <figure class='left'>
-                  <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/res/img/History - 1st gen.jpg"><img alt='' id="action_about_history_1" src=''/></a>
+                  <a href="https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History - 1st gen.jpg"><img alt='' src='https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History - 1st gen.jpg'/></a>
                   <figcaption>Date: <time>2012-03-23</time>; Development stopped 2011 March. </figcaption>
                </figure>
             <p>
@@ -103,27 +111,27 @@
          <section lang="en">
             <h2> 2<sup>nd</sup> Version </h2>
                <figure class='right'>
-                  <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/res/img/History - 2nd alpha.jpg"><img alt='' id="action_about_history_2" src=''/></a>
+                  <a href="https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History - 2nd alpha.jpg"><img alt='' src='https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History - 2nd alpha.jpg'/></a>
                   <figcaption>Three screens from left to right. Date: <time>2012-02-17</time></figcaption>
                </figure>
             <p>
                The problem with first version is that it is big and slow even on PC, much less mobile.
-               "Powers" is a 15MB html file, and the browser has to layout 8800 all items when it is opened.
+               "Powers" is a 15MB html file, and the browser has to layout all 8800 powers when it is opened.
             </p><p>
                Thus come the second version, powered by the then prototype <a href="http://jquerymobile.com/‎">jQuery Mobile</a>.
                It looks good.  Impressive animation, elegance style, familiar icons.  An index was created from <a href='http://ails.deviantart.com/art/420-Pixel-Art-Icons-for-RPG-129892453'>Ails' RPG icons</a>, data are processed in multiple threads, and appcache used to preload data.
             </p><p>
                Then disaster struck.  Most mobile browser refuse to load local HTML, and Google Chrome disabling a lot of features for local file.
-               Biggest problem is, jQuery Mobile takes very long time to display entry titles (rightmost screen).  Two to three times longer then displaying their _contents_ in previous version.
+               Biggest problem is, jQuery Mobile takes very long time to display entry list (rightmost screen).  Two to three times longer then displaying their _contents_ in previous version.
                This is when I give up.
             </p><p>
-               At least the nice icons were reused in later versions.
+               At least the nice icons are reused in later versions.
             </p>
          </section>
          <section lang="en">
             <h2> 3<sup>rd</sup> Version </h2>
                <figure class='left'>
-                  <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/res/img/History - 3rd alpha.jpg"><img alt='' id="action_about_history_3" src=''/></a>
+                  <a href="https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History - 3rd alpha.jpg"><img alt='' src='https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History - 3rd alpha.jpg'/></a>
                   <figcaption>Date: <time>2012-05-16</time>, prototype. Later releases look like v3.5.</figcaption>
                </figure>
             <p>
@@ -141,7 +149,7 @@
          <section lang="en">
             <h2> 3.5<sup>th</sup> Version </h2>
                <figure class='right'>
-                  <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/res/img/History - v3.5 viewer.png"><img alt='' id="action_about_history_3_5" src=''/></a>
+                  <a href="https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History - v3.5 viewer.png"><img alt='' src='https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/History - v3.5 viewer.png'/></a>
                   <figcaption>Date: <time>2016-07-20</time></figcaption>
                </figure>
             <p>
@@ -154,12 +162,12 @@
                In <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/commit/0fede587e31f7ec90f00e779f906822ddb3413a6#diff-49da3f7f21ed8673cfa993016bea63a7'>July 2016</a>,
                a downloader is coded in Java.
                Code is simple.  No need to check new data, no need to fool security, and clean separation of input and output.
-               I can fix errors, add new columns, or exclude flavour text from full text search.  Things that were too complicated in v3.
+               I can fix errors, add new columns, or exclude flavour text from full text search.  Things that were too complicated to do in v3.
             </p><p>
                The plan was to bug fix the old viewer and write a new one.
-               But it works so well, I keep improving it after my baby is born.
-               As of writing it has decent mobile support, many new columns, small data structure, data dump, and fixed many errors both data and code.
-               This should be the final major release of the 3.5 branch.
+               But it works so well, I keep improving it after our baby is born.
+               As of writing, a new build is released every few months, and over a thousand rule entries has been fixed or enhanced.
+               I cannot promise to keep up the pace, but if there is something you want, just file a <a href="https://github.com/Sheep-y/trpg-dnd-4e-db/issues">feature request</a> on GitHub.
             </p>
          </section>
       </article>
@@ -168,32 +176,38 @@
          <h1 class='i18n'> action.about.h_version_history </h1>
          <p class="i18n"> action.about.lbl_english_only </p>
          <dl>
-            <dt> 3.5.3 <time>2017-02-02</time> </dt>
-            <dd> Autocomplete in column filters, list power types and race origins, item can be filtered by high level versions, item set text index exclude items, column filter highlight, update checker in viewer.
-               Add csv, tsv, json, sql, and xlsx dump of raw data.  Total fixed 1300+ entries.  New columns, assorted fixes and improvements. <a href='https://youtu.be/aNDze9Ok5fE'>First Youtube video</a>. </dd>
+            <dt> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/releases/tag/release/3.6'>3.6 <time>2017-12-15</time></a> </dt>
+            <dd> Regroup Artifact, Lair, and Alchemical items.  Add size and type column to companions and monsters.  Add Artifact and Item Set rules.
+                 Allow filtering empty columns.  Exclude more flavour text from search.  Better mobile support and UI.
+                 Reduce file count to 446, supports LZMA+Base85 compression (57MB to 12MB).  Allow exporting unfixed data and dumping fixed data.
+                 Total fixed 1560+ entries including regressions.  Plus assorted fixes and enhancements. </dd>
 
-            <dt> 3.5.2.1 <time>2016-12-19</time> </dt>
+            <dt> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/releases/tag/release/3.5.3'>3.5.3 <time>2017-02-02</time></a> </dt>
+            <dd> Autocomplete in column filters, list power types and race origins, item can be filtered by high level versions, item set text index exclude items, column filter highlight, update checker in viewer.
+                 Add csv, tsv, json, sql, and xlsx dump of raw data.  Total fixed 1300+ entries.  New columns, assorted fixes and improvements. <a href='https://youtu.be/aNDze9Ok5fE'>First Youtube video</a>. </dd>
+
+            <dt> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/releases/tag/release/3.5.2.1'>3.5.2.1 <time>2016-12-19</time></a> </dt>
             <dd> Add raw data export in html and high contrast theme (Windows). Fix new Java compatibility and other bugs. </dd>
 
-            <dt> 3.5.2 <time>2016-11-19</time> </dt>
+            <dt> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/releases/tag/release/3.5.2'>3.5.2 <time>2016-11-19</time></a> </dt>
             <dd> Multi-thread export, reduce file count from 25k to 1.8k, split items into four categories, new data columns, internal lookup, and accessibility improvements. Total fixed 530+ entries. </dd>
 
-            <dt> 3.5.1 <time>2016-07-31</time> </dt>
+            <dt> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/releases/tag/release/3.5.1'>3.5.1 <time>2016-07-31</time></a> </dt>
             <dd> Implement paging, fix all category list and some search bugs, update entry style and mobile layout, and 370+ entry corrections. </dd>
 
-            <dt> 3.5.0 <time>2016-07-20</time> </dt>
+            <dt> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/releases/tag/release/3.5.0.1'>3.5.0 <time>2016-07-20</time></a> </dt>
             <dd> Faster result display; improves layout, highlight, and search. Fix IE 11 and Chrome 51 compatibility. </dd>
 
             <dt> 3.0 M3 <time>2014-05-12</time> </dt>
             <dd> Improved search flow, guide, and navigation; implemented filter, sort, next, prev. </dd>
 
-            <dt> 3.0 M2 <time>2013-06-25</time> </dt>
+            <dt> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/releases/tag/release/3.0/M2'>3.0 M2 <time>2013-06-25</time></a> </dt>
             <dd> Added local data reindex/delete, navbar, responsive layout, simplify data storage, proper download state tracking, sort &amp; style category, background image, style all entries. </dd>
 
-            <dt> 3.0 M1 <time>2013-05-29</time> </dt>
+            <dt> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/releases/tag/release/3.0/M1'>3.0 M1 <time>2013-05-29</time></a> </dt>
             <dd> Added style for power, content image conversion, help doc, AGPL license, view source, email, regx terms. </dd>
 
-            <dt> 3.0 M0 <time>2013-05-25</time> </dt>
+            <dt> <a href='https://github.com/Sheep-y/trpg-dnd-4e-db/releases/tag/release/3.0/M0'>3.0 M0 <time>2013-05-25</time></a> </dt>
             <dd> Published through Github. Added about page, nav header style. </dd>
 
             <dt> 3.0 Proto 2 <time>2013-05-25</time> </dt>
@@ -224,26 +238,23 @@
    </header>
 </section>
 
-<script><?coco-start js(minify) ?>   'use strict';(function action_about_init(){
+<script><?coco-start js(minify) ?>(function action_about_init(){ 'use strict';
 
 od.action.about = {
 
    "initialize" : function act_about_init () {
-      _('#action_about_history_0')[0].src = _('#img_about_history_0')[0].src;
-      _('#action_about_history_1')[0].src = _('#img_about_history_1')[0].src;
-      _('#action_about_history_2')[0].src = _('#img_about_history_2')[0].src;
-      _('#action_about_history_3')[0].src = _('#img_about_history_3')[0].src;
-      _('#action_about_history_3_5')[0].src = _('#img_about_history_3_5')[0].src;
+      _('#action_about_lst_lang')[0].value = _.l.currentLocale;
    },
 
    "setup": function act_about_setup () {
       od.action.about.change_language( _('#action_about_lst_lang')[0].value );
       od.gui.toggle_highlight( od.gui.hl_enabled );
-      _('#action_about_lbl_folder')[0].textContent = od.config.data_read_path; // Must be after default l10n created the placeholder
+      _('#action_about_lbl_folder')[0].textContent = od.data_path; // Must be after default l10n created the placeholder
    },
 
    "change_language" : function act_about_change_language ( lang ) {
       _.l.saveLocale( lang );
+      _.l.detectLocale( 'en' );
       od.gui.l10n();
    },
 };

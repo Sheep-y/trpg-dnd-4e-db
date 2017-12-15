@@ -10,17 +10,17 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- *\ Export raw data as TSV
+ * Export raw data as TSV
  */
 public class ExporterRawTsv extends Exporter {
 
-   @Override public void preExport ( List<Category> categories ) throws IOException {
+   @Override protected void _preExport ( List<Category> categories ) throws IOException {
       log.log( Level.CONFIG, "Export raw TSV: {0}", target );
       target.getParentFile().mkdirs();
       state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
-   @Override public void export ( Category category ) throws IOException, InterruptedException {
+   @Override protected void _export ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 
@@ -33,11 +33,11 @@ public class ExporterRawTsv extends Exporter {
       buffer.append( "Content\n" );
 
       for ( Entry entry : category.entries ) {
-         if ( ! entry.contentDownloaded ) continue;
-         cell( buffer.append( entry.getUrl() ).append( '\t' ), entry.name ).append( '\t' );
-         for ( String field : entry.fields )
+         if ( ! entry.hasContent() ) continue;
+         cell( buffer.append( entry.getUrl() ).append( '\t' ), entry.getName() ).append( '\t' );
+         for ( String field : entry.getSimpleFields() )
             cell( buffer, field ).append( '\t' );
-         cell( buffer, entry.content ).append( '\n' );
+         cell( buffer, entry.getContent() ).append( '\n' );
       }
       backspace( buffer );
 

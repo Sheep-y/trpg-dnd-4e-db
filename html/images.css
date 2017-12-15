@@ -1,0 +1,38 @@
+/*
+ * images.css
+ * Style of category icons
+ */
+.rpg {
+  /** Icons for RPG by Ails, CC-by-sa 3.0 . */
+  background-image: url("viewer_category_icon.png");
+  display: inline-block;
+  width: 34px;
+  height: 34px;
+  /* Another good looking icon set is Legendora <http://raindropmemory.deviantart.com/art/Legendora-Icon-Set-118999011>, but not suitable for this */
+}
+
+.rpg.race        { background-position:    0   0 }
+.rpg.background  { background-position:  -34px 0 }
+.rpg.theme       { background-position:  -68px 0 }
+.rpg.class       { background-position: -102px 0 }
+.rpg.paragonpath { background-position: -136px 0 }
+.rpg.epicdestiny { background-position: -170px 0 }
+.rpg.power       { background-position: -204px 0 }
+.rpg.feat        { background-position: -238px 0 }
+
+.rpg           { background-position:    0   -34px }
+.rpg.glossary  { background-position:  -34px -34px }
+.rpg.ritual    { background-position:  -68px -34px }
+.rpg.deity     { background-position: -102px -34px }
+.rpg.terrain,
+.rpg.trap      { background-position: -170px -34px }
+.rpg.item      { background-position: -204px -34px }
+.rpg.companion { background-position: -238px -34px }
+
+.rpg.monster { background-position:   0   -68px }
+.rpg.poison  { background-position: -34px -68px }
+.rpg.disease { background-position: -68px -68px }
+
+.rpg.armor     { background-position: -136px -68px }
+.rpg.implement { background-position: -136px -34px }
+.rpg.weapon    { background-position: -102px -68px }

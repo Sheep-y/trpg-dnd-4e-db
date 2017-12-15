@@ -17,7 +17,7 @@ public class ExporterRawJson extends Exporter {
 
    private Writer writer;
 
-   @Override public void preExport ( List<Category> categories ) throws IOException {
+   @Override protected void _preExport ( List<Category> categories ) throws IOException {
       log.log( Level.CONFIG, "Export raw Json: {0}", target );
       target.getParentFile().mkdirs();
       synchronized ( this ) {
@@ -27,7 +27,7 @@ public class ExporterRawJson extends Exporter {
       state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
-   @Override public void export ( Category category ) throws IOException, InterruptedException {
+   @Override protected void _export ( Category category ) throws IOException, InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Building {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 
@@ -36,13 +36,13 @@ public class ExporterRawJson extends Exporter {
 
 
       for ( Entry entry : category.entries ) {
-         if ( ! entry.contentDownloaded ) continue;
+         if ( ! entry.hasContent() ) continue;
          buffer.append( '{' );
          prop( buffer, "Url", entry.getUrl() ).append( ',' );
-         prop( buffer, "Name", entry.name ).append( ',' );
+         prop( buffer, "Name", entry.getName() ).append( ',' );
          for ( int i = category.fields.length - 1 ; i >= 0 ; i-- )
-            prop( buffer, category.fields[ i ], entry.fields[ i ] ).append( ',' );
-         prop( buffer, "Content", entry.content );
+            prop( buffer, category.fields[ i ], entry.getSimpleField( i ) ).append( ',' );
+         prop( buffer, "Content", entry.getContent() );
          buffer.append( "}," );
       }
       backspace( buffer ).append( "]," );

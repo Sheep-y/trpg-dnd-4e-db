@@ -29,11 +29,18 @@ od.gui = {
    total_page: 0,
 
    /** Status of on-screen keyboard detection: null = not tested, true / false otherwise */
-   is_soft_keyboard: null,
+   is_soft_keyboard: false,
+
+   min_swipe_x : 200, /** Min X pixels to register a horizontal swipe */
+   max_swipe_y : 50, /** Max Y pixels to register a horizontal swipe */
+   max_swipe_ms : 2000, /** Max time, in ms, to egister a horizontal swipe */
+   last_touch_x : 0,
+   last_touch_y : 0,
+   last_touch_time : 0,
 
    "init" : function gui_init () {
       var gui = od.gui;
-      _( 'link[rel="icon"]' )[0].href = od.config.data_read_path + "/res/icon.png";
+      if ( ! _.pref( _.l.saveKey ) ) _.l.setLocale( 'en' ); // Default to English
       _.l.detectLocale( 'en' );
       gui.l10n();
       gui.go();
@@ -44,29 +51,50 @@ od.gui = {
          },
          'onkeydown' : function window_keydown ( evt ) {
             if ( evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey ) return;
-            if ( document.activeElement && document.activeElement.tagName === 'INPUT' ) return;
+            if ( document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.value ) return;
             switch ( evt.key ) {
-               case "ArrowLeft":
+               case "Left": // IE & Edge
+               case "ArrowLeft": // Firefox
                   var left = _( 'section[id^=action_][style*=block] > nav > .btn_prev:not([style*=none])' )[0];
                   if ( left ) {
                      left.click();
                      evt.preventDefault();
                   }
                   break;
-               case "ArrowRight":
+               case "Right": // IE & Edge
+               case "ArrowRight": // Firefox
                   var right = _( 'section[id^=action_][style*=block] > nav > .btn_next:not([style*=none])' )[0];
                   if ( right ) {
                      right.click();
                      evt.preventDefault();
                   }
                   break;
-               case "Escape":
+               case "Esc": // IE & Edge
+               case "Escape": // Firefox
                   if ( gui.get_act_id().startsWith( 'view' ) ) {
                      gui.action.btn_browse_click();
                      evt.preventDefault();
                   }
                   break;
             }
+         },
+         'ontouchstart' : function window_touchstart ( evt ) {
+            if ( evt.touches.length !== 1 ) return;
+            gui.last_touch_x = evt.touches[0].screenX;
+            gui.last_touch_y = evt.touches[0].screenY;
+            gui.last_touch_time = new Date().getTime();
+         },
+         'ontouchend' : function window_touchend ( evt ) {
+            if ( evt.touches.length !== 0 ) return;
+            var time_diff = new Date().getTime() - gui.last_touch_time;
+            var y_diff = Math.abs( evt.changedTouches[0].screenY - gui.last_touch_y );
+            var x_diff = evt.changedTouches[0].screenX - gui.last_touch_x;
+            _.log( "[GUI] Touch detection: delta x " + x_diff + ", delta y " + y_diff + ", delta ms " + time_diff );
+            if ( time_diff > gui.max_swipe_ms || Math.abs( x_diff ) < gui.min_swipe_x || y_diff > gui.max_swipe_y ) return;
+
+            var button_class = x_diff > 0 ? 'btn_prev' : 'btn_next';
+            var button = _( 'section[id^=action_][style*=block] > nav > .' + button_class + ':not([style*=none])' )[0];
+            if ( button ) button.click();
          }
       } );
 
@@ -235,14 +263,17 @@ od.gui = {
          gui.hl_enabled = ! gui.hl_enabled;
       else
          gui.hl_enabled = state;
-      _.info( "[Config] Toggle highlight " + ( gui.hl_enabled ? 'on' : 'off' ) );
+      var onoff = od.gui.hl_enabled ? 'on' : 'off';
+      _.info( "[Config] Toggle highlight " + onoff );
       document.body.classList[ gui.hl_enabled ? 'remove' : 'add' ]( 'no_highlight' );
-      _.prop( '#action_about_rdo_highlight_' + ( od.gui.hl_enabled ? 'on' : 'off' ), { 'checked': true } );
+      _.prop( '#action_about_rdo_highlight_' + onoff, { 'checked': true } );
+      _.prop( '.menu_view_highlight', { checked: od.gui.hl_enabled } );
    },
 
    'check_update' : function gui_check_update ( ) {
       var lastCheck = new Date( _.pref( 'oddi_last_update_check', '2000-01-01' ) );
-//      if ( ! window.fetch || new Date().getTime() - lastCheck.getTime() < 7*24*60*60*1000 ) return; // Check once a week
+      if ( ! window.fetch || new Date().getTime() - lastCheck.getTime() < 7*24*60*60*1000 ) // Check once a week
+         return _.info( '[Update] Skipping update check. Last check: ' + lastCheck );
       _.info( '[Update] Check update. Last check: ' + lastCheck );
 
       fetch( 'https://api.github.com/repos/Sheep-y/trpg-dnd-4e-db/releases' ).then( function( response ) {
@@ -262,5 +293,26 @@ od.gui = {
       } ).catch( function ( error ) {
          return _.info( '[Update] Cannot check update.' );
       } );
+   },
+
+   /* Watch window height to detect the present of soft keyboard.
+    * Triggered onfocus for obvious reason, and onclick because js focus may not trigger keyboard until user actually click on search box. */
+   'detect_soft_keyboard' : function gui_detect_soft_keyboard () {
+      var gui = od.gui;
+      if ( gui.is_soft_keyboard ) return; // Skip detection if soft keyboard was *ever* detected.
+      var timers = [],  old_height = window.innerHeight;
+      for ( var i = 1 ; i <= 10 ; i++ ) // check height 10 times in 2 seconds
+         timers.push( setTimeout( act_list_focus_searchbox_detect, i*200 ) );
+
+      function act_list_focus_searchbox_detect (){
+         if ( window.innerHeight > old_height )
+            old_height = window.innerHeight;
+         else if ( window.innerHeight < old_height - 100 ) {
+            gui.is_soft_keyboard = true;
+            _.info( "[List] Soft keyboard detected." );
+            timers.forEach( clearTimeout );
+         }
+         timers.shift();
+      }
    }
 };

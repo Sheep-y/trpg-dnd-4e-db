@@ -2,6 +2,7 @@ package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,22 +13,27 @@ public class DeityConverter extends Converter {
    }
 
    @Override protected void initialise() {
-      category.meta = new String[]{ "Domains", "Alignment", "SourceBook" };
+      category.fields = new String[]{ "Domains", "Alignment", "SourceBook" };
       super.initialise();
    }
 
-   private final Matcher regxDomain  = Pattern.compile( "<b>Domain: </b>([^<]+)" ).matcher( "" );
+   private final Matcher regxDomain = Pattern.compile( "<b>Domain: </b>([^<]+)" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( "", entry.fields[0], entry.fields[1] );
+      meta( "", meta( 0 ), meta( 1 ) );
       super.convertEntry();
       if ( find( regxDomain ) )
          meta( 0, regxDomain.group( 1 ) );
    }
 
    @Override protected int sortEntity ( Entry a, Entry b ) {
-      int diff = a.meta[ 2 ].toString().compareTo( b.meta[ 2 ].toString() );
-      if ( diff != 0 ) return -diff;
-      return super.sortEntity( a, b );
+      int diff = a.getSimpleField( 2 ).compareTo( b.getSimpleField( 2 ) );
+      return diff == 0 ? super.sortEntity( a, b ) : -diff;
+   }
+
+   @Override protected Set<String> getLookupName( Entry entry, Set<String> list ) {
+      if ( entry.getName().startsWith( "The " ) )
+         list.add( entry.getName().substring( 4 ) );
+      return super.getLookupName( entry, list );
    }
 }

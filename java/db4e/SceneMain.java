@@ -7,6 +7,7 @@ import static db4e.controller.Controller.DEF_TIMEOUT_MS;
 import static db4e.controller.Controller.MIN_INTERVAL_MS;
 import static db4e.controller.Controller.MIN_TIMEOUT_MS;
 import db4e.data.Category;
+import db4e.exporter.ExporterMain;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -89,23 +91,32 @@ public class SceneMain extends Scene {
 
    // Option Screen
    final TextField txtTimeout  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( MIN_TIMEOUT_MS / 1000, prefs.getInt( "download.timeout", DEF_TIMEOUT_MS / 1000 ) ) ) ),
-           "Download timeout in seconds.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
+           "Download timeout in seconds." );
    final TextField txtInterval  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( MIN_INTERVAL_MS, prefs.getInt( "download.interval", DEF_INTERVAL_MS ) ) ) ),
-           "Minimal interval, in millisecond, between each download action.  If changed mid-way, will apply in next action not current action; stop and restart if necessary." );
+           "Minimal interval, in millisecond, between each download action." );
    final TextField txtRetry  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "download.retry", DEF_RETRY_COUNT ) ) ) ),
            "Number of timeout retry.  Only apply to timeout errors." );
+   final TextField txtThread  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "export.thread", 0 ) ) ) ),
+           "More thread exports faster but use more memory.  0 = Auto" );
+   private final CheckBox chkFixAndEnhance = JavaFX.tooltip( new CheckBox( "Fix and enhance data" ),
+           "Fix known issues in the data, make them consistent, add or enhance data properties, and ignore flavor text in full search." );
+   private final CheckBox chkCompress = JavaFX.tooltip( new CheckBox( "Compress exported data" ),
+           "Compress exported data files.  Actual speedup or slowdown depends on data speed, browser, and hardware." );
    private final CheckBox chkDebug = JavaFX.tooltip( new CheckBox( "Show debug tabs" ),
-           "Show app log and console.  Will slow down download & export and use more memory." );
+           "Show program log and console, and enable internal data assertions.  Will slow down download & export and use more memory." );
    final Button btnClearData = JavaFX.tooltip( new Button( "Clear Downloaded Data" ), // Allow downloader access, to allow clear when db is down
            "Clear ALL downloaded data by deleting '" + Controller.DB_NAME + "'." );
    final Button btnExportData = JavaFX.tooltip( new Button( "Dump Data" ),
-           "Dump raw downloaded data in different formats." );
+           "Dump data in plain formats, such as Excel or CSV.  Uncheck \"Fix and enhance data\" above to export raw data." );
    final Button btnCheckUpdate = JavaFX.tooltip( new Button( "Check update" ),
            "Check for availability of new releases." );
    private final Pane pnlOptionTab = new VBox( 8,
            new HBox( 8, new Label( "Timeout in" ), txtTimeout, new Label( "seconds.") ),
            new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (minimal) per request.") ),
            new HBox( 8, new Label( "Retry" ), txtRetry, new Label( "times on timeout.") ),
+           new HBox( 8, new Label( "Export in" ), txtThread, new Label( "threads (0 = Auto)") ),
+           chkFixAndEnhance,
+           chkCompress,
            chkDebug,
            new HBox( 8, btnClearData, btnExportData ),
            btnCheckUpdate );
@@ -116,8 +127,8 @@ public class SceneMain extends Scene {
    private final Tab tabLog = new Tab( "Log", new BorderPane( txtLog ) );
 
    // Worker Screen
-   private final ConsoleWebView pnlWorker = new ConsoleWebView();
-   private final Tab tabWorker = new Tab( "Worker", new BorderPane( pnlWorker ) );
+   private ConsoleWebView pnlWorker;
+   private final Tab tabWorker = new Tab( "Worker" );
    private final Controller loader = new Controller( this );
 
    // Layout regions
@@ -133,6 +144,7 @@ public class SceneMain extends Scene {
          Controller.TIMEOUT_MS = Integer.parseUnsignedInt( txtTimeout.getText() ) * 1000;
          Controller.INTERVAL_MS = Integer.parseUnsignedInt( txtInterval.getText() );
          Controller.RETRY_COUNT = Integer.parseUnsignedInt( txtRetry.getText() );
+         loader.setThreadCount( Integer.parseUnsignedInt( txtThread.getText() ) );
       } catch ( NumberFormatException ignored ) {}
       setRoot( pnlC );
    }
@@ -179,9 +191,22 @@ public class SceneMain extends Scene {
          log.log( Level.CONFIG, "Retry count changed to {0}", i );
       } catch ( NumberFormatException ignored ) { } } );
 
-      chkDebug.selectedProperty().addListener( this::chkDebug_change );
-      if ( prefs.getBoolean( "gui.debug", false ) )
-         chkDebug.selectedProperty().set( true );
+      txtThread.textProperty().addListener( (prop, old, now ) -> { try {
+         int i = Integer.parseUnsignedInt( now );
+         if ( i < 0 ) return;
+         prefs.putInt( "export.thread", i );
+         loader.setThreadCount( i );
+      } catch ( NumberFormatException ignored ) { } } );
+
+      setupCheckbox( chkFixAndEnhance, "export.fix", true, this::chkFix_change );
+      setupCheckbox( chkDebug, "gui.debug", false, this::chkDebug_change );
+      if ( loader.canCompressData() ) {
+         setupCheckbox( chkCompress, "export.compress", false, this::chkCompress_change );
+      } else {
+         log.log( Level.CONFIG, "Data compression disabled because of lack of configurated java memory." );
+         chkCompress.setText( chkCompress.getText() + " (Disabled; insufficient java memory)" );
+         chkCompress.setDisable( true );
+      }
 
       btnClearData.addEventHandler( ActionEvent.ACTION, this::btnClearData_click );
       btnExportData.addEventHandler( ActionEvent.ACTION, this::action_export_raw );
@@ -191,6 +216,13 @@ public class SceneMain extends Scene {
       txtLog.setEditable( false );
 
       stateBusy( "Initialising" );
+   }
+
+   private void setupCheckbox ( CheckBox checkbox, String preference, boolean defaultValue, ChangeListener<Boolean> listener ) {
+      boolean state = prefs.getBoolean( preference, defaultValue );
+      checkbox.selectedProperty().set( state );
+      checkbox.selectedProperty().addListener( listener );
+      listener.changed( checkbox.selectedProperty(), ! state, state );
    }
 
    private void initLayout () {
@@ -217,10 +249,11 @@ public class SceneMain extends Scene {
       pnlC.getSelectionModel().select( tabData );
       // Load help doc dynamically
       pnlC.getSelectionModel().selectedItemProperty().addListener( (prop,old,now) -> {
-         if ( now == tabHelp )
-            initWebViewTab( pnlHelpTab, "res/downloader_about.html" );
-         else if ( now == tabWorker )
+         if ( now == tabWorker ) {
+            initWorkerTab();
             Platform.runLater( () -> pnlWorker.getConsoleInput().requestFocus() );
+         } else if ( now == tabHelp )
+            initWebViewTab( pnlHelpTab, "res/downloader_about.html" );
       } );
    }
 
@@ -268,6 +301,7 @@ public class SceneMain extends Scene {
    private void allowAction () {
       txtUser.setDisable( false );
       txtPass.setDisable( false );
+      chkFixAndEnhance.setDisable( false );
       btnLeft.setDisable( false );
       btnClearData.setDisable( false );
       btnExportData.setDisable( false );
@@ -276,6 +310,7 @@ public class SceneMain extends Scene {
    private void disallowAction () {
       txtUser.setDisable( true );
       txtPass.setDisable( true );
+      chkFixAndEnhance.setDisable( true );
       btnLeft.setDisable( true );
       btnClearData.setDisable( true );
       btnExportData.setDisable( true );
@@ -312,6 +347,7 @@ public class SceneMain extends Scene {
    private void initWebViewTab ( BorderPane pane, String doc ) {
       if ( pane.getCenter() != null ) return;
 
+      log.log( Level.INFO, "Initialise help browser" );
       WebView web = new WebView();
       WebEngine engine = web.getEngine();
       pane.setCenter( web );
@@ -420,12 +456,12 @@ public class SceneMain extends Scene {
 
       CompletableFuture<Void> ready = CompletableFuture.completedFuture( null );
       String data_dir = target.toString().replaceAll( "\\.html$", "" ) + "_files/";
-      if ( new File( data_dir + "Glossary/glossary1.js" ).exists() ) {
+      if ( loader.hasOldExport( data_dir ) ) {
          Alert dlgRemoveOld = new Alert( Alert.AlertType.CONFIRMATION, "Delete old version export data?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
          ButtonType remove = dlgRemoveOld.showAndWait().orElse( null );
          if ( remove == null || ButtonType.CANCEL.equals( remove ) ) return;
          if ( ButtonType.YES.equals( remove ) )
-            ready = loader.deleteOld( data_dir );
+            ready = loader.deleteOldExport( data_dir );
       }
 
       ready.thenRun( () -> {
@@ -512,6 +548,7 @@ public class SceneMain extends Scene {
       log.log( Level.FINE, "State: Running" );
       txtUser.setDisable( true );
       txtPass.setDisable( true );
+      chkFixAndEnhance.setDisable( true );
       btnClearData.setDisable( true );
       btnExportData.setDisable( true );
       setLeft( "Stop", this::action_stop );
@@ -525,8 +562,18 @@ public class SceneMain extends Scene {
    // Option Tab
    /////////////////////////////////////////////////////////////////////////////
 
+   private void chkFix_change ( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+      prefs.putBoolean( "export.fix", newValue );
+      Controller.fixData = newValue;
+   }
+
+   private void chkCompress_change ( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+      prefs.putBoolean( "export.compress", newValue );
+      ExporterMain.compress.set( newValue );
+   }
+
    private void chkDebug_change ( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-      prefs.putBoolean("gui.debug", newValue );
+      prefs.putBoolean( "gui.debug", newValue );
       Main.debug.set( newValue );
       ObservableList<Tab> tabs = pnlC.getTabs();
       if ( newValue ) {
@@ -547,8 +594,6 @@ public class SceneMain extends Scene {
 
    Alert confirmClear;
    private void btnClearData_click ( ActionEvent evt ) {
-      assert( Platform.isFxApplicationThread() );
-
       if ( confirmClear == null ) {
          confirmClear = JavaFX.dialogDefault( new Alert( Alert.AlertType.CONFIRMATION, "Clear all downloaded data?", ButtonType.YES, ButtonType.NO ), ButtonType.NO );
       }
@@ -595,5 +640,15 @@ public class SceneMain extends Scene {
    // Worker Screen
    /////////////////////////////////////////////////////////////////////////////
 
-   public ConsoleWebView getWorker () { return pnlWorker; }
+   private synchronized void initWorkerTab() {
+      if ( pnlWorker != null ) return;
+      log.log( Level.INFO, "Initialise download browser" );
+      pnlWorker = new ConsoleWebView();
+      tabWorker.setContent( new BorderPane( pnlWorker ) );
+   }
+
+   public ConsoleWebView getWorker () {
+      initWorkerTab();
+      return pnlWorker;
+   }
 }

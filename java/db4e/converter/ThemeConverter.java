@@ -11,14 +11,14 @@ public class ThemeConverter extends Converter {
    }
 
    @Override protected void initialise() {
-      category.meta = new String[]{ "Prerequisite", "SourceBook" };
+      category.fields = new String[]{ "Prerequisite", "SourceBook" };
       super.initialise();
    }
 
    private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite: </b>([^<(]+)" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( "", entry.fields[0] );
+      meta( "", meta( 0 ) );
       super.convertEntry();
       if ( find( regxPrerequisite ) ) {
          String prerequisite = regxPrerequisite.group( 1 );

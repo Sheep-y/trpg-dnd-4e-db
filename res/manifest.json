@@ -1,0 +1,17 @@
+{
+  "name": "4e Compendium",
+  "short_name": "4e Comp",
+  "description": "Offline D&D 4e Database",
+  "lang": "en-UK",
+  "dir": "ltr",
+  "start_url": "../../index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F7DE84",
+  "theme_color": "black",
+  "icons": [{
+    "src": "icon.png",
+    "sizes": "256x256",
+    "type": "image/png"
+  }]
+}

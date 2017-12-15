@@ -73,7 +73,10 @@ od.search = {
             result = cache[ cat.name ];
             if ( ! result ) {
                _.time( '[Search] Search ' + cat.name + ': ' + options.term );
-               cache[ cat.name ] = result = search( cat.list );
+               if ( cat.map[ term ] )
+                  cache[ cat.name ] = result = [ cat.map[ term ] ];
+               else
+                  cache[ cat.name ] = result = search( cat.list );
                count[ cat.name ] = result.length;
                _.time( '[Search] Search done, ' + result.length + ' result(s).' );
             }
@@ -86,9 +89,13 @@ od.search = {
                od.data.get().forEach( function search_search_each ( cat ) {
                   var data = cache[ cat.name ];
                   if ( ! data ) {
-                     cache[ cat.name ] = data = search( cat.list );
+                     if ( cat.map[ term ] )
+                        cache[ cat.name ] = data = [ cat.map[ term ] ];
+                     else
+                        cache[ cat.name ] = data = search( cat.list );
                      count[ cat.name ] = data.length;
                   }
+                  if ( data.length <= 0 ) return;
                   result = result.concat( data );
                   count[ '' ] += data.length;
                } );
@@ -137,7 +144,7 @@ od.search = {
 
    "filter_column": function data_search_filter_column ( search, col_name ) {
       if ( ! search ) return;
-      var num = search.match( /^(\d+[kmg]?)\s*-\s*(\d+[kmg]?)|([<>]=?)\s*(\d+[kmg]?)?|(\d+[kmg]?)([+-]?)$/i );
+      var num = search.trim().match( /^(?:(\d+[kmg]?)\s*-\s*(\d+[kmg]?)|([<>]=?)\s*(\d+[kmg]?)?|(\d+[kmg]?)([+-]?))$/i );
       if ( ! num ) {
          // Text based search; parse pattern.
          var pattern = search ? od.search.gen_search( search ) : null;
@@ -281,6 +288,10 @@ od.search = {
                } else if ( /^"[^"]*"$/.test( term ) ) {
                   term = term.length > 2 ? _.escRegx( term.substr( 1, term.length-2 ) ) : '';
                   term = term.replace( /\\\*/g, '\\S+' );
+
+               } else if ( term === 'NIL' ) {
+                  term = '';
+                  part += '^$';
 
                // Otherwise is normal word, just need to unescape
                } else {

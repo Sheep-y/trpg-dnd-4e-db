@@ -1,11 +1,9 @@
 package db4e.converter;
 
 import db4e.Main;
-import db4e.controller.ProgressState;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,6 +17,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import sheepy.util.Utils;
+import static sheepy.util.Utils.sync;
 
 /**
  * Convert category and entry data for export.
@@ -37,112 +37,113 @@ public abstract class Convert {
    protected Entry entry; // Current convert subject
 
    public static void reset () {
-      synchronized ( fixCount ) {
-         fixCount.clear();
-         fixedEntry.clear();
-      }
-      synchronized ( ClassConverter.featureMap ) {
-         ClassConverter.featureMap.clear();
-      }
    }
 
    /**
-    * Called before doing any export.
-    * All entries must be assigned to the export categories here.
+    * Map original data categories to export (fixed) categories.
     *
-    * @param categories
+    * After this, each export category will be processed in its own thread, so
+    * all entries must be assigned to the final export categories here.
+    *
+    * @param categories Original compendium categories.
+    * @return Mapped export categories
     */
-   public static void beforeConvert ( List<Category> categories, List<Category> exportCategories ) {
-      synchronized ( categories ) {
-         if ( exportCategories.size() > 0 ) return;
-         Map<String,Category> map = new HashMap<>( 18, 1f );
-         for ( Category c : categories )
-            map.put( c.id, c );
+   public static List<Category> mapExportCategories ( List<Category> categories ) {
+      final int EXPORT_CAT_COUNT = 20;
+      final List<Category> result = new ArrayList<>( EXPORT_CAT_COUNT );
+      final Map<String,Category> map = new HashMap<>( 20, 1f ); // A temp dictionary to quickly find cat by id
 
-         String[] itemMeta  = new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
-         Category armour    = new Category( "Armor"    , "Armor"    , itemMeta );
-         Category implement = new Category( "Implement", "implement", itemMeta );
-         Category weapon    = new Category( "Weapon"   , "weapon"   , itemMeta );
-         exportCategories.add( armour );
-         exportCategories.add( implement );
-         exportCategories.add( weapon );
+      final String[] itemMeta  = new String[]{ "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
+      final Category armour    = new Category( "Armor"    , "Armor"    , itemMeta );
+      final Category implement = new Category( "Implement", "implement", itemMeta );
+      final Category weapon    = new Category( "Weapon"   , "weapon"   , itemMeta );
+      result.add( armour );
+      result.add( implement );
+      result.add( weapon );
 
-         // Move entries around before export
-         for ( Category c : categories ) synchronized( c ) {
-            if ( c.id.equals( "Terrain" ) ) continue;
-            Category exported = new Category( c.id, c.name, c.fields );
-            exportCategories.add( exported );
-            synchronized( exported ) {
-               exported.entries.addAll( c.entries );
-               switch ( c.id ) {
-                  case "Glossary" :
-                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
-                        Entry entry = i.next();
-                        // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
-                        if ( entry.id.equals( "glossary.aspx?id=679" ) || entry.content.contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
-                           i.remove();
-                           corrected( entry, "blacklist" );
+      for ( Category c : sync( categories ) )
+         if ( ! c.id.equals( "Terrain" ) ) // Terrain is merged into Traps
+            result.add( new Category( c.id, c.name, c.fields ) );
+
+      for ( Category c : result ) // Create export map
+         map.put( c.id, c );
+
+      // Move entries around before export
+      for ( Category source : sync( categories ) ) synchronized( source ) {
+         String exportTarget = source.id.equals( "Terrain" ) ? "Trap" : source.id; // Moves terrain into trap.
+         Category exported = map.get( exportTarget );
+         synchronized( exported ) {
+            source.entries.stream().forEach( e -> exported.entries.add( e.clone() ) );
+            switch ( source.id ) {
+               case "Glossary" :
+                  for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+                     Entry entry = i.next();
+                     // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
+                     if ( entry.getId().equals( "glossary.aspx?id=679" ) || entry.getContent().contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
+                        i.remove();
+                        corrected( entry, "blacklist" );
+                     }
+                  }
+                  exported.entries.add( new Entry().setId( "glossary0453" ).setName( "Item Set" ) );
+                  break;
+
+               case "Item" :
+                  transferItem( exported, map );
+                  break;
+
+               case "Background" :
+                  for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
+                     Entry entry = i.next();
+                     // Nine backgrounds from Dra376 are hooks only, not actual character resources.
+                     if ( entry.getField( 3 ).toString().endsWith( "376" ) ) {
+                        switch ( entry.getId() ) {
+                           case "background.aspx?id=283" : case "background.aspx?id=284" : case "background.aspx?id=285" :
+                           case "background.aspx?id=286" : case "background.aspx?id=287" : case "background.aspx?id=288" :
+                           case "background.aspx?id=289" : case "background.aspx?id=290" : case "background.aspx?id=291" :
+                              i.remove();
+                              corrected( entry, "blacklist" );
                         }
                      }
-                     break;
-
-                  case "Item" :
-                     synchronized( armour ) { synchronized( implement ) { synchronized ( weapon ) {
-                        transferItem( exported, armour, implement, weapon, map );
-                     } } }
-                     break;
-
-                  case "Trap" :
-                     exported.entries.addAll( map.get( "Terrain" ).entries );
-                     break;
-
-                  case "Background" :
-                     for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
-                        Entry entry = i.next();
-                        // Nine background from Dra376 are hooks only, not actual character resources.
-                        if ( entry.fields[3].endsWith( "376" ) ) {
-                           switch ( entry.id ) {
-                              case "background.aspx?id=283" :
-                              case "background.aspx?id=284" :
-                              case "background.aspx?id=285" :
-                              case "background.aspx?id=286" :
-                              case "background.aspx?id=287" :
-                              case "background.aspx?id=288" :
-                              case "background.aspx?id=289" :
-                              case "background.aspx?id=290" :
-                              case "background.aspx?id=291" :
-                                 i.remove();
-                                 corrected( entry, "blacklist" );
-                           }
-                        }
-                     }
-               }
+                  }
+                  break;
             }
          }
       }
+
+      // Export big categories first to better balance CPU workload, and to die early on out of memory
+      synchronized( result ) { result.sort( ( a, b ) -> b.getExportCount() - a.getExportCount() ); }
+      if ( Main.debug.get() && result.size() != EXPORT_CAT_COUNT )
+         log.log( Level.WARNING, "Export category map has incorrect size {0}. {1} expected.", new Object[]{ result.size(), EXPORT_CAT_COUNT });
+      return result;
    }
 
-   private static void transferItem ( Category exported, Category armour, Category implement, Category weapon, Map<String, Category> map ) {
+   private static void transferItem ( Category exported, Map<String, Category> map ) {
       // May convert to parallel stream if this part grows too much...
+      final Category armour = map.get( "Armor" );
+      final Category implement = map.get( "Implement" );
+      final Category weapon = map.get( "Weapon" );
+
       for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
          Entry entry = i.next();
-         switch ( entry.fields[0] ) {
+         synchronized ( entry ) {
+         switch ( entry.getField( 0 ).toString() ) {
             case "Arms":
-               if ( ! entry.content.contains( ">Arms Slot: <" ) || ! entry.content.contains( " shield" ) ) break;
+               if ( ! entry.getContent().contains( ">Arms Slot: <" ) || ! entry.getContent().contains( " shield" ) ) break;
                // falls through
             case "Armor":
                i.remove();
                armour.entries.add( entry );
                break;
             case "Consumable":
-               if ( entry.content.contains( "<b>Consumable: </b>Assassin poison" ) ) {
+               if ( entry.getContent().contains( "<b>Consumable: </b>Assassin poison" ) ) {
                   i.remove();
-                  map.get( "Poison" ).entries.add( entry );
-                  // Correction handled by correctEntry
+                  synchronized ( map.get( "Poison" ) ) {
+                     map.get( "Poison" ).entries.add( entry ); // Meta correction and fix registration handled by correctEntry
+                  }
                }
                break;
             case "Equipment":
-               switch ( entry.name ) {
+               switch ( entry.getName() ) {
                   case "Arrow": case "Arrows":
                   case "Crossbow Bolt": case "Crossbow Bolts":
                   case "Sling Bullet": case "Sling Bullets":
@@ -156,7 +157,7 @@ public abstract class Convert {
                      implement.entries.add( entry );
                      break;
                   default:
-                     if ( entry.name.endsWith( "Implement" ) ) {
+                     if ( entry.getName().endsWith( "Implement" ) ) {
                         i.remove();
                         implement.entries.add( entry );
                      }
@@ -169,13 +170,13 @@ public abstract class Convert {
             case "Ammunition":
             case "Weapon":
                i.remove();
-               if ( entry.content.contains( "<br>Superior <br>" ) )
+               if ( entry.getContent().contains( "<br>Superior <br>" ) )
                   implement.entries.add( entry );
                else
                   weapon.entries.add( entry );
                break;
             case "Artifact":
-               switch ( entry.id ) {
+               switch ( entry.getId() ) {
                   // Armours
                   case "item.aspx?id=105": // Shield of Prator
                      moveArtifact( i, armour, entry, "Heavy shield" ); break;
@@ -212,7 +213,7 @@ public abstract class Convert {
 
                   // Implements
                   case "item.aspx?id=145": // The Deluvian Hourglass
-                     moveArtifact( i, implement, entry, null ); break;
+                     moveArtifact( i, implement, entry, "Any" ); break;
                   case "item.aspx?id=140": // Crystal of Ebon Flame
                      moveArtifact( i, implement, entry, "Any" ); break;
                   case "item.aspx?id=123": // Orb of Light
@@ -236,11 +237,10 @@ public abstract class Convert {
                   case "item.aspx?id=104": // The Shadowstaff
                   case "item.aspx?id=156": // Audaviator
                      moveArtifact( i, implement, entry, "Staff" ); break;
-                  case "item.aspx?id=147": // Arrow of Fate - make a copy for implement and then move to weapon
-                     Entry copy = entry.clone();
-                     moveArtifact( null, weapon, entry, "Spear or arrow" );
-                     entry = copy;
-                     // fall through
+                  case "item.aspx?id=147": // Arrow of Fate - make a copy for weapon and then move to implement
+                     moveArtifact( null, weapon, entry.clone(), "Spear, arrow or bolt" );
+                     moveArtifact( i, implement, entry, "Rod, staff or wand" );
+                     break;
                   case "item.aspx?id=164": // Staff of Fraz-Urb'luu
                      moveArtifact( i, implement, entry, "Rod, staff or wand" ); break;
                   case "item.aspx?id=146": // Seed of Winter
@@ -250,7 +250,7 @@ public abstract class Convert {
                   case "item.aspx?id=110": // Figurine of Tantron
                   case "item.aspx?id=130": // Adamantine Horse of Xarn
                      markArtifact( entry, "Wondrous" );
-                     entry.meta[1] = "Artifact: Mount";
+                     entry.setField( 1, "Mount" );
                      break;
                   case "item.aspx?id=134": // Rash and Reckless
                      markArtifact( entry, "Feet" ); break;
@@ -275,7 +275,9 @@ public abstract class Convert {
                      markArtifact( entry, "Neck" ); break;
                   case "item.aspx?id=120": // Unconquered Standard of Arkhosia
                   case "item.aspx?id=136": // Standard of Eternal Battle
-                     markArtifact( entry, "Standard" ); break;
+                     markArtifact( entry, "Wondrous" );
+                     entry.setField( 1, "Standard" );
+                     break;
                   case "item.aspx?id=101": // Codex of Infinite Planes
                   case "item.aspx?id=109": // The Immortal Game
                   case "item.aspx?id=112": // Wayfinder Badge
@@ -285,22 +287,21 @@ public abstract class Convert {
                   case "item.aspx?id=153": // Head of Vyrellis
                      markArtifact( entry, "Wondrous" ); break;
                }
-         }
+         } }
       }
    }
 
-   private static void moveArtifact ( Iterator<Entry> i, Category target, Entry entry, String type ) {
+   private static void moveArtifact ( Iterator<Entry> i, Category target, Entry entry, String type ) { synchronized ( entry ) {
       if ( i != null ) i.remove();
       target.entries.add( entry );
-      String[] fields = entry.fields;
-      type = type == null ? "" : ": " + type;
-      entry.meta = new Object[]{ "Artifact" + type, fields[1], fields[2], fields[3], fields[4] };
-   }
+      Object[] fields = entry.getFields();
+      entry.setFields( type, fields[1], fields[2], "Artifact", fields[4] );
+   } }
 
-   private static void markArtifact ( Entry entry, String type ) {
-      String[] fields = entry.fields;
-      entry.meta = new Object[]{ type, "Artifact", fields[1], fields[2], fields[3], fields[4] };
-   }
+   private static void markArtifact ( Entry entry, String category ) { synchronized ( entry ) {
+      Object[] fields = entry.getFields();
+      entry.setFields( category, "", fields[1], fields[2], "Artifact", fields[4] );
+   } }
 
    public static void afterConvert () {
       synchronized( fixCount ) {
@@ -309,29 +310,46 @@ public abstract class Convert {
             fixCount.entrySet().stream()
                .sorted( (a,b) -> b.getValue().get() - a.getValue().get() )
                .map( e -> e.getKey() + " = " + e.getValue().get() ).collect( Collectors.joining( "\n" ) ) } );
+         fixCount.clear();
+         fixedEntry.clear();
       }
    }
 
-   protected Map<String, List<String>> mapIndex () {
-      Map<String, List<String>> map = new HashMap<>( 25000, 1f );
-      for ( Entry entry : category.sorted ) {
-         for ( String name : getLookupName( entry ) ) {
-            name = name.replaceAll( "\\W+", " " ).trim().toLowerCase();
+   /** Populate category.index with lookup index. (name => id) */
+   public void mapIndex () {
+      Map<String, List<String>> map = category.index = new HashMap<>( 25000, 1f );
+      Set<String> lookups = new HashSet<>();
+      for ( Entry entry : sync( category.entries, category ) ) synchronized ( entry ) { // Raw export may skip convert, so we still need to sync!
+         this.entry = entry;
+         for ( String name : getLookupName( entry, lookups ) ) {
+            name = name.replaceAll( "[^\\w'-éû]+", " " ).trim().toLowerCase();
             if ( ! map.containsKey( name ) ) {
-               List<String> idList = new ArrayList<>( 2 ); // Most entries do not duplicate
-               idList.add( entry.shortid );
+               List<String> idList = new ArrayList<>( 2 ); // Most lookup names do not have multiple entries
+               idList.add( entry.getId() );
                map.put( name, idList );
             } else
-               map.get( name ).add( entry.shortid );
+               map.get( name ).add( entry.getId() );
          }
+         lookups.clear();
       }
-      return map;
+
+      if ( Main.debug.get() ) try {
+         // Check short index (1 or 2 characters).  Only exception is hp and "Og, Orog Hero" (monster1132)
+         category.index.keySet().stream().filter( key -> key.length() <= 2 && ! key.equals( "hp" ) && ! key.equals( "og" ) )
+            .forEach( key -> category.index.get( key ).forEach( id ->
+               log.log( Level.WARNING, "Short index \"{2}\": {0} {1}", new Object[]{ id, "", key } ) ) );
+         // Test entry conversion
+         testConversion();
+      } catch ( Exception ex ) {
+         log.log( Level.WARNING, "Error when testing conversion of {0}: {1}", new Object[]{ category.id, Utils.stacktrace( ex ) });
+      }
    }
 
    protected final Matcher regxNote = Pattern.compile( "\\(.+?\\)|\\[.+?\\]|,.*| -.*", Pattern.CASE_INSENSITIVE ).matcher( "" );
 
-   protected String[] getLookupName ( Entry entry ) {
-      return new String[]{ regxNote.reset( entry.name ).replaceAll( "" ).trim() };
+   protected Set<String> getLookupName ( Entry entry, Set<String> list ) {
+      list.add( regxNote.reset( entry.getName() ).replaceAll( "" ).trim() );
+      return list;
    }
 
    public static Converter getConverter ( Category category ) {
@@ -340,10 +358,13 @@ public abstract class Convert {
             return new BackgroundConverter( category );
          case "Class":
             return new ClassConverter( category );
+         case "Companion":
+            return new CompanionConverter( category ); // Sort by first field
          case "Deity":
             return new DeityConverter( category );
-         case "Companion":
-            return new FieldSortConverter( category, 0 ); // Sort by first field
+         case "EpicDestiny":
+         case "ParagonPath":
+            return new PPEDConverter( category );
          case "Feat":
             return new FeatConverter( category );
          case "Glossary":
@@ -353,8 +374,9 @@ public abstract class Convert {
          case "Implement":
          case "Weapon":
             return new ItemConverter( category );
-         case "Ritual":
          case "Monster":
+            return new MonsterConverter( category );
+         case "Ritual":
          case "Poison":
          case "Disease":
             return new LeveledConverter( category );
@@ -366,8 +388,6 @@ public abstract class Convert {
             return new ThemeConverter( category );
          case "Trap":
             return new TrapConverter( category );
-         case "Terrain":
-            return null;
          default:
             return new Converter( category );
       }
@@ -377,18 +397,17 @@ public abstract class Convert {
       this.category = category;
    }
 
-   public void convert ( ProgressState state ) throws InterruptedException {
+   public void convert () throws InterruptedException {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Converting {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
-      if ( category.meta == null )
-         initialise();
+      initialise();
       final List<Entry> entries = category.entries;
       for ( Entry entry : entries ) {
-         if ( entry.fulltext == null ) try {
+         try { synchronized ( entry ) {
             this.entry = entry;
             convertEntry();
             if ( ! corrections.isEmpty() ) {
-               if ( entry.shortid.equals( "weapon147" ) ) // Duplicate of Arrow of Fate
+               if ( entry.getId().equals( "weapon147" ) ) // Duplicate of Arrow of Fate
                   corrections.clear();
                for ( String fix : corrections )
                   corrected( entry, fix );
@@ -396,28 +415,25 @@ public abstract class Convert {
                   corrected( entry, "multiple fix " + corrections.size() + " (bookkeep)" );
                corrections.clear();
             }
-         } catch ( Exception e ) {
-            throw new UnsupportedOperationException( "Error converting " + entry.shortid, e );
+         } } catch ( Exception e ) {
+            throw new UnsupportedOperationException( "Error converting " + entry, e );
          }
          if ( stop.get() ) throw new InterruptedException();
-         state.addOne();
       }
-      if ( category.sorted == null ) {
-         beforeSort();
-         category.sorted = entries.toArray( new Entry[ entries.size() ] );
-         Arrays.sort( category.sorted, this::sortEntity );
+
+      beforeSort();
+      try {
+         category.entries.sort( this::sortEntity );
+      } catch ( Exception e ) {
+         throw new UnsupportedOperationException( "Error sorting " + category, e );
       }
-      if ( category.index == null )
-         category.index = mapIndex();
+      if ( stop.get() ) throw new InterruptedException();
    }
 
    /**
     * Called at the beginning of entity conversion.  Will be called in every export.
     */
-   protected void initialise()  {
-      if ( category.meta == null )
-         category.meta = category.fields;
-   }
+   protected void initialise()  {}
 
    /**
     * Called at the end of entity conversion but before sort.  Will be called in every export.
@@ -425,28 +441,29 @@ public abstract class Convert {
    protected void beforeSort()  { }
 
    protected int sortEntity ( Entry a, Entry b ) {
-      return a.name.compareTo( b.name );
+      return a.getName().compareTo( b.getName() );
    }
 
    /**
     * Apply common conversions to entry data.
-    * entry.meta may be set, but other prorerties will be overwritten.
-    *
-    * @param entry Entry to be converted
     */
    protected void convertEntry () {
-      entry.display_name = entry.name.replace( "’", "'" );
-      entry.shortid = entry.id.replace( ".aspx?id=", "" ).toLowerCase();
-      if ( entry.meta == null ) {
-         final int length = entry.fields.length;
-         entry.meta = new Object[ length ];
-         System.arraycopy( entry.fields, 0, entry.meta, 0, length );
-      }
-      entry.data = normaliseData( entry.content );
+      if ( entry.getName().contains( "’" ) )
+         entry.setName( entry.getName().replace( "’", "'" ) );
+      if ( entry.getId().contains( ".aspx" ) )
+         entry.setId( entry.getId().replace( ".aspx?id=", "" ).toLowerCase() );
+      if ( entry.getContent() != null )
+         entry.setContent( normaliseData( entry.getContent() ) );
       correctEntry();
       parseSourceBook();
-      entry.fulltext = textData( entry.data );
       // Converter will do some checking if debug is on.
+   }
+
+   /**
+    * A chance to double check result of converts, fixes, sorts, etc.
+    * Log a warning if any exception is thrown here, would not stop the export process.
+    */
+   protected void testConversion() {
    }
 
    /**
@@ -455,17 +472,16 @@ public abstract class Convert {
     * @param fix Type of fix.
     */
    private static void corrected ( Entry entry, String fix ) {
-      log.log( Level.FINE, "Corrected {0} {1} ({2})", new Object[]{ entry.shortid, entry.name, fix });
+      log.log( Level.FINE, "Corrected {0} ({1})", new Object[]{ entry, fix });
       synchronized ( fixCount ) {
          if ( fixCount.containsKey( fix ) ) fixCount.get( fix ).incrementAndGet();
          else fixCount.put( fix, new AtomicInteger( 1 ) );
-         fixedEntry.add( entry.id );
+         fixedEntry.add( entry.getId() );
       }
    }
 
    /**
     * Entry specific data fixes. No need to call super when overriden.
-    * @param entry Entry to be corrected.
     */
    protected abstract void correctEntry ();
 
@@ -478,15 +494,15 @@ public abstract class Convert {
 
    /**
     * Read the sourcebook meta data and convert to abbreviated form.
-    * @param entry
     */
    protected abstract void parseSourceBook ();
 
    /**
     * Convert HTML data into full text data for full text search.
+    * To conserve memory, this is called by exporter on demand, instead of mass convert before export.
     *
     * @param data Data to strip
     * @return Text data
     */
-   protected abstract String textData ( String data );
+   public abstract String textData ( String data );
 }

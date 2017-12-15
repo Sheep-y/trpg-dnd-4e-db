@@ -5,26 +5,25 @@
  */
 
 od.config = {
-   "data_read_path" : location.pathname.match( /\w+(?=\.htm)/ ) + '_files',
-
    //"url_monitor_interval" : 500, // Duration between checking url change, in ms.
 
    "url" : {
       "catalog" :
-         function config_url () { return od.config.data_read_path + '/catalog.js'; },
+         function config_url () { return od.data_path + '/catalog.js'; },
       "listing" :
-         function config_url ( category ) { return od.config.data_read_path + '/' + category.toLowerCase() + '/_listing.js'; },
+         function config_url ( category ) { return od.data_path + '/' + category.toLowerCase() + '/_listing.js'; },
       "index" :
          function config_url ( category ) {
-            return od.config.data_read_path + '/' + ( category ? category.toLowerCase() + '/_index.js'
+            return od.data_path + '/' + ( category ? category.toLowerCase() + '/_index.js'
                                                                : 'index.js' ); },
       "data" :
          function config_url ( category, id ) {
             var matches = id.match( /(\d{1,2})$/ ) || [];
-            matches[1] = ~~matches[1]; // Removes leading 0
-            return od.config.data_read_path + '/' + category.toLowerCase() + '/data' + matches[1] + '.js';
+            matches[1] = ~~matches[1] % 20; // Removes leading 0
+            return od.data_path + '/' + category.toLowerCase() + '/data' + matches[1] + '.js';
          }
    },
+
    "level_to_int" : function config_level_to_int ( data ) {
       if ( typeof( data ) === 'object' )
          data = data.text;
@@ -36,6 +35,14 @@ od.config = {
       }
       var digits = data.replace( /\D+/g, '' );
       return digits === '0' ? 0.5 : +digits;
+   },
+
+   "is_mc_column" : function config_is_mc_column ( col ) {
+      return [ 'SourceBook', 'Origin', 'Keywords', 'DescriptionAttribute', 'RoleName', 'PowerSourceText', 'KeyAbilities', "Size", "CreatureType" ].indexOf( col ) >= 0;
+   },
+
+   "is_num_column" : function config_is_num_column ( col ) {
+      return [ 'Cost', 'Price', 'Level' ].indexOf( col ) >= 0;
    },
 
    "category_order" : [

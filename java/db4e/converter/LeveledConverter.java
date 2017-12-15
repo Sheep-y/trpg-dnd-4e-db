@@ -5,7 +5,6 @@ import db4e.data.Entry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 class LeveledConverter extends Converter {
 
@@ -17,7 +16,7 @@ class LeveledConverter extends Converter {
 
    @Override protected void initialise () {
       super.initialise();
-      LEVEL = Arrays.asList( category.meta ).indexOf( "Level" );
+      LEVEL = Arrays.asList( category.fields ).indexOf( "Level" );
       // if ( LEVEL < 0 ) throw new IllegalStateException( "Level field not in " + category.name );
    }
 
@@ -28,14 +27,14 @@ class LeveledConverter extends Converter {
       if ( LEVEL < 0 ) return;
       synchronized ( levelMap ) { // Make sure that sortEntity has all the numbers in this category
          for ( Entry entry : category.entries ) {
-            Object levelText = entry.meta[ LEVEL ];
+            Object levelText = entry.getField( LEVEL );
             if ( levelText.getClass().isArray() )
                levelText = ( (Object[]) levelText )[1];
             String level = levelText.toString();
             if ( ! levelMap.containsKey( level ) ) {
                float lv = parseLevel( level );
                levelMap.put( level, lv );
-               if ( lv < -10 ) log.log( Level.WARNING, "Unknown level \"{0}\": {1} {2}", new Object[]{ levelText, entry.shortid, entry.name } );
+               if ( lv < -10 ) warn( "Unknown level \"" + levelText + "\"" );
             }
          }
       }
@@ -85,10 +84,10 @@ class LeveledConverter extends Converter {
       }
    }
 
-   @Override protected int sortEntity ( Entry a, Entry b ) {
+   protected int sortLevel ( Entry a, Entry b ) {
       if ( LEVEL >= 0 ) {
-         Object aLv = a.meta[ LEVEL ];
-         Object bLv = b.meta[ LEVEL ];
+         Object aLv = a.getField( LEVEL );
+         Object bLv = b.getField( LEVEL );
          if ( aLv.getClass().isArray() ) aLv = ( ( Object[] ) aLv )[1];
          if ( bLv.getClass().isArray() ) bLv = ( ( Object[] ) bLv )[1];
          float level = levelMap.get( aLv ) - levelMap.get( bLv );
@@ -97,7 +96,12 @@ class LeveledConverter extends Converter {
          else if ( level > 0 )
             return 1;
       }
-      return super.sortEntity( a, b );
+      return 0;
+   }
+
+   @Override protected int sortEntity ( Entry a, Entry b ) {
+      int lv = sortLevel( a, b );
+      return lv != 0 ? lv : super.sortEntity( a, b );
    }
 
    @Override protected void correctEntry () {
@@ -108,60 +112,40 @@ class LeveledConverter extends Converter {
             fix( "formatting" );
          }
 
-         switch ( entry.shortid ) {
-         case "poison19": // Granny's Grief
-            swap( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
-            fix( "missing published" );
-            break;
-         case "item3561": // Aboleth Slime Concentrate
-         case "item3562": // Gibbering Grind
-         case "item3563": // Grell Bile
-         case "item3564": // Umber Dust
-         case "item3565": // Heart of Mimic Powder
-         case "item3566": // Mind Flayer Tentacle Extract
-            swap( " (Consumable)", "" );
-            swap( "(Consumable, ", "(" );
-            swap( " ✦ (", " ✦ Consumable (" );
-            fix( "missing power frequency" );
-         }
-
          // Convert from item to poison
-         if ( entry.meta.length == 5 ) {
+         if ( entry.getFieldCount() == 5 ) {
             meta( meta( 1 ), "", meta( 4 ) );
-            entry.shortid = entry.shortid.replace( "item", "poison0" );
+            entry.setId( entry.getId().replace( "item", "poison0" ) );
             swap( "<h1 class=mihead>", "<h1 class=poison>" );
             fix( "recategorise" );
          }
+
+         switch ( entry.getId() ) {
+            case "poison19": // Granny's Grief
+               swap( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
+               fix( "missing published" );
+               break;
+            case "poison03561": // Aboleth Slime Concentrate
+            case "poison03562": // Gibbering Grind
+            case "poison03563": // Grell Bile
+            case "poison03564": // Umber Dust
+            case "poison03565": // Heart of Mimic Powder
+            case "poison03566": // Mind Flayer Tentacle Extract
+               swap( " (Consumable)", "" );
+               swap( "(Consumable, ", "(" );
+               swap( " ✦ (", " ✦ Consumable (" );
+               fix( "missing power frequency" );
+         }
          break;
 
-      case "Monster":
-         switch ( entry.shortid ) {
-
-         case "monster2248": // Cambion Stalwart
-            swap( "bit points", "hit points" );
-            fix( "typo" );
-            break;
-
-         case "monster3222": // Veln
-         case "monster3931": // Demon Furor
-            swap( "basic melee or basic ranged attack", "melee or ranged basic attack" );
-            fix( "fix basic attack" );
-            break;
-
-         default:
-            if ( find( "basic melee attack") ) {
-               swap( "basic melee attack", "melee basic attack" );
-               fix( "fix basic attack" );
-            }
-         }
       case "Ritual":
-         switch ( entry.shortid ) {
-
-         case "ritual288": // Primal Grove
-            swap( " grp to ", " gp to " );
-            fix( "typo" );
-            break;
+         switch ( entry.getId() ) {
+            case "ritual288": // Primal Grove
+               swap( " grp to ", " gp to " );
+               fix( "typo" );
+               break;
          }
       }
+      super.correctEntry();
    }
 }

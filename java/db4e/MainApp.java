@@ -33,6 +33,7 @@ public class MainApp extends Application {
    @Override public void start( Stage stage ) throws Exception {
       final SceneMain sceneMain = new SceneMain( this );
       log.log( Level.CONFIG, "Java {0} on {1} {2}", new Object[]{ System.getProperty( "java.runtime.version" ), System.getProperty("os.name"), System.getProperty("os.arch") });
+      log.log( Level.CONFIG, "Max memory {0}MB", (float) Runtime.getRuntime().maxMemory() / 1024 / 1024 );
 
       stage.setTitle( Main.TITLE );
       stage.setScene( sceneMain );

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+import static sheepy.util.Utils.escapeJsString;
 
 /**
  * Base exporter class that provides export interface and support functions.
@@ -38,12 +39,22 @@ public abstract class Exporter implements Closeable {
       this.state = state;
    }
 
-   public abstract void preExport ( List<Category> categories ) throws IOException, InterruptedException;
-   public abstract void export ( Category category ) throws IOException, InterruptedException;
-   public void postExport ( List<Category> categories ) throws IOException {};
-   @Override public void close() throws IOException { }
+   public synchronized final void preExport ( List<Category> categories ) throws IOException, InterruptedException {
+      _preExport( categories ); // Synchronized
+   }
+   public synchronized final void export ( Category category ) throws IOException, InterruptedException {
+      _export( category ); // Synchronized
+   }
+   public synchronized final void postExport ( List<Category> categories ) throws IOException, InterruptedException {
+      _postExport( categories ); // Synchronized
+   }
 
-   protected void checkStop ( String status ) {
+   protected abstract void _preExport ( List<Category> categories ) throws IOException, InterruptedException;
+   protected abstract void _export ( Category category ) throws IOException, InterruptedException;
+   protected void _postExport ( List<Category> categories ) throws IOException, InterruptedException {};
+   @Override public synchronized void close() throws IOException { }
+
+   protected synchronized void checkStop ( String status ) {
       stopChecker.accept( status );
    }
 
@@ -73,10 +84,6 @@ public abstract class Exporter implements Closeable {
    }
 
    protected final StringBuilder str ( StringBuilder buf, String txt ) {
-      return buf.append( '"' ).append( js( txt ) ).append( '"' );
-   }
-
-   protected final String js ( String in ) {
-      return in.replace( "\\", "\\\\" ).replace( "\"", "\\\"" );
+      return buf.append( '"' ).append( escapeJsString( txt ) ).append( '"' );
    }
 }

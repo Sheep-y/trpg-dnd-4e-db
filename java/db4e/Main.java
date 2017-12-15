@@ -33,8 +33,8 @@ public class Main {
    }
 
    static String TITLE = "Compendium downloader";
-   static String VERSION = "3.5.3";
-   static String UPDATE_TIME = "2017-02-03"; // Any release beyond this time is an update
+   static String VERSION = "3.6";
+   static String UPDATE_TIME = "2017-12-16"; // Any release beyond this time is an update
 
    // Global log ang preference
    public static final Logger log = Logger.getLogger( Main.class.getName() );
@@ -44,14 +44,14 @@ public class Main {
 
    // Main method. No need to check java version because min version is compile target.
    public static void main( String[] args ) {
-      if ( simulate.get() && ! TITLE.contains( "(development)" ) )
+      if ( simulate.get() && ! VERSION.contains( "(development)" ) )
          simulate.set( false );
       log.setLevel( Level.CONFIG );
       try {
          Class.forName( "javafx.stage.Stage" ); // OpenJDK does not come with JavaFX by default
          MainApp.run( args );
       } catch  ( ClassNotFoundException ex ) {
-         final String ERR = "This app requires JavaFX (or OpenJFX with WebKit) to run.";
+         final String ERR = "This program requires JavaFX (or OpenJFX with WebKit) to run.";
          System.out.println( ERR );
          JOptionPane.showMessageDialog( null, ERR, TITLE + " " + VERSION, JOptionPane.ERROR_MESSAGE );
       }
