@@ -1,0 +1,68 @@
+* {
+   margin: 0;
+   padding: 0; 
+   }
+
+html, body {
+   min-width: 100%;
+   min-height: 100%;
+   }
+   
+/* Global styles */
+
+button {
+   background-color: white;
+   border: 1px solid black;
+   padding: 0.5ex;
+   }
+
+
+/* Temporary states */
+   
+body.noscript > *:not(:last-child) { /* Last child is noscript.  This selector allow noscript to show on IE. */
+   display: none; /* Hide all until shown by script */
+   }
+
+
+/* Header */
+
+#titlebar {
+   align-content: stretch;
+   align-items: stretch;
+   border-bottom: 1px solid black;
+   flex-flow: row nowrap;
+   display: flex;
+   width: 100%;
+   }
+   #titlebar > button {
+      height: 2em;
+      width: 2em;
+      }
+   #titlebar > div {
+      align-self: center;
+      flex-grow: 1;
+      text-align: center;
+      }
+      #titlebar > #title {
+         font-weight: bold;
+         }
+         
+#menu {
+   background-color: white;
+   border-right: 1px solid black;
+   left: 0;
+   position: fixed;
+   top: 0;
+   height: 100vh;
+   transform: translate(0, 0);
+    transition: transform .5s ease-out;
+   }
+   .closed > #menu {
+      transform: translate(-100%, 0);
+      }
+      #menu > * {
+         display: block;
+         width: 100%;
+         }
+
+/* Body */

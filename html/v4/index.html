@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"/>
+   <link rel="stylesheet" href="res/style.css" type="text/css" />
+</head><body class="noscript">
+<header>
+   <div id="titlebar">
+      <button id="btn_menu" title="Open Menu">☰</button>
+      <div id="title">Title</div>
+      <button id="btn_search" title="Search">🔍</button>
+   </div>
+   <nav class="closed" aria-hidden="true">
+      <div id="menu">
+         <button id="menu_close">X Close Menu</button>
+         <div class="closed">
+            <button title="Expand">+</button><button>Resources</button>
+         </div>
+            <button class="submenu">Cat A</button>
+            <button class="submenu">Cat B</button>
+            <button class="submenu">Cat C</button>
+         <button>My Lists</button>
+         <button>Options</button>
+         <button>Help</button>
+         <button>About</button>
+      </div>
+   </nav>
+</header>
+<section id="main">
+</section>
+<footer><!-- Status popup --></footer>
+
+
+<div id="error_script" style="display:none">
+JavaScript error.
+</div><script>
+if ( window.Symbol === undefined ) {
+   document.getElementById( "error_script" ).textContent = "Your browser's JavaScript is outdated, please upgrade.";
+   document.getElementById( "error_script" ).style.display = "block";
+} else
+   window.onerror = function (msg,src,line,col,err) {
+      document.getElementById( "error_script" ).style.display = "block";
+      console.error( arguments );
+   };
+</script><script src="res/script.js"></script><noscript>
+   Please enable JavaScript.
+</noscript>
+
+
+</body></html>
