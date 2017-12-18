@@ -30,7 +30,9 @@ function base85_decode ( input, output ) {
       throw "Buffer too small for Base85 decode";
 
    for( var i= 0, len = input.length ; i < len ; ++i ) {
-      sum += DECODABET[ input[ i ] ] * FACTORS[--factor];
+      var code = input[ i ];
+      if ( ! code in DECODABET ) throw "Unknown character code when decoding Base85: " + code;
+      sum += DECODABET[ code ] * FACTORS[--factor];
       if ( factor === 0 ) {
          for ( var e = 24 ; e >= 0 ; e -= 8 )
             output[ length++ ] = (sum >>> e) & 0xFF;
