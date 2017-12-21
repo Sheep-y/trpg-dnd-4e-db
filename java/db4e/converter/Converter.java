@@ -78,7 +78,7 @@ public class Converter extends Convert {
    @Override protected void correctEntry () {
       // Moves front-loaded level label to back for easier and consistent styling.
       if ( find( regxTitleLevel ) )
-         entry.setContent( regxTitleLevel.replaceAll( "$1$3$2" ) );
+         data( regxTitleLevel.replaceAll( "$1$3$2" ) );
 
       if ( Main.debug.get() ) {
          if ( shortId.containsKey( entry.getId() ) )
@@ -415,17 +415,21 @@ public class Converter extends Convert {
    }
 
    protected final void swap ( CharSequence from, CharSequence to ) {
-      entry.setContent( data().replace( from, to ) );
+      data( data().replace( from, to ) );
       test( TEXT, to );
    }
 
    protected final void swapFirst ( String from, String to ) {
-      entry.setContent( data().replaceFirst( from, to ) );
+      data( data().replaceFirst( from, to ) );
       test( TEXT, to );
    }
 
    protected final String data () {
       return entry.getContent();
+   }
+
+   protected final void data ( String data ) {
+      entry.setContent( data );
    }
 
    protected final String meta ( int index ) {
