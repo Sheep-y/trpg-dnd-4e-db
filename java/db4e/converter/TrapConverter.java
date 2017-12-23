@@ -14,11 +14,28 @@ public class TrapConverter extends LeveledConverter {
 
    @Override protected void correctEntry () {
       if ( entry.getFieldCount() == 4 ) { // Trap
-         if ( entry.getId().equals( "trap1019" ) ) { // Rubble Topple
-            swap( "Singe-Use", "Single-Use" );
-            meta( TYPE, "Terrain" );
-            meta( ROLE, "Single-Use" );
-            fix( "typo" );
+
+         switch ( entry.getId() ) {
+            case "trap417" : // Elemental Transformation Field
+               meta( ROLE, "Elite" );
+               swap( "Level 18 Lurker", "Level 18 Elite Lurker" );
+               fix( "consistency" );
+               break;
+
+            case "trap1019" : // Rubble Topple
+               swap( "Singe-Use", "Single-Use" );
+               meta( TYPE, "Terrain" );
+               meta( ROLE, "Single-Use" );
+               fix( "typo" );
+               break;
+
+            case "trap1101" : // Glyph of Warding
+               entry.setName( "Glyph of Warding" );
+               swap( "Elite Glyph of Warding", "Glyph of Warding" );
+               swap( "Level 7 Trap", "Level 7 Elite Trap" );
+               meta( ROLE, "Elite" );
+               fix( "consistency" );
+               break;
          }
 
          String type = meta( TYPE );
@@ -36,6 +53,15 @@ public class TrapConverter extends LeveledConverter {
             meta( LEVEL, level.substring( 0, level.length() - " Minion".length() ) );
             fix( "wrong meta" );
          }
+
+         if ( entry.getName().endsWith( " (Elite)" ) ) {
+            String from = entry.getName();
+            String to = from.replace( " (Elite)", "" );
+            entry.setName( to );
+            swap( from, to );
+            fix( "consistency" ); // All entries are already elite (correct meta), except trap417
+         }
+
       } else {
          // Terrain; change meta to fit into Trap
          meta( "Terrain", meta( 0 ), "", meta( 1 ) );
