@@ -725,8 +725,12 @@ od.action.list = {
          if ( filter && data.length )
             data = data.filter( filter );
       } );
-      var label = orig_len === data.length ? 'action.list.lbl_showing' : 'action.list.lbl_filter';
-      _.attr( '#act_list_lbl_showing', 'text', _.l( label, '%1/%2',  data.length, orig_len ) );
+      if ( orig_len === data.length ) {
+         _.attr( '#act_list_lbl_showing', 'text', _.l( 'action.list.lbl_showing', '%1', orig_len ) );
+      } else {
+         _.attr( '#act_list_lbl_showing', 'text', _.l( 'action.list.lbl_filter', '%1/%2', data.length, orig_len ) );
+         _.time( '[List] Filtered ' + orig_len + ' rows' );
+      }
       this.build_datalist( data );
       return data;
    },
@@ -737,10 +741,10 @@ od.action.list = {
       var action = this, gui = od.gui;
       var data = action.data, col = action.columns, cat = action.get_search_category();
       var cl = col.length, idField = col[ 0 ];
-      _.info( '[List] Filter, sort, and display ' + data.length + ' rows' );
 
       if ( ! table ) table = _( '#act_list_pnl_list table' )[0];
       _.remove( table, 'tbody' );
+      _.time( "[List] Cleared previous list." );
       var body = _.create( 'tbody' );
 
       // Filter data and update displayed result count
@@ -750,7 +754,7 @@ od.action.list = {
       if ( ! count ) {
          gui.total_page = gui.page = 0;
          html = '<tr><td rowspan=99 align=center>';
-         html += _.l( 'action.list.lbl_no_result', 'No result' );
+         html += _.l( 'action.list.lbl_no_result', 'No result. ' );
          var actions = [];
          if ( action.search_type === 'name' )
             actions.push( _.l( 'action.list.switch_to_full_text', "<a onclick='od.action.list.search(\"full\");'>Full search</a>" ) );
@@ -760,19 +764,19 @@ od.action.list = {
             actions.push(  _.l( 'action.list.clear_search', "<a onclick='od.action.list.clear_search();'>Clear search</a>" ) );
          if ( action.get_filters().length > 0 )
             actions.push(  _.l( 'action.list.clear_filter', "<a onclick='od.action.list.clear_filter();'>Clear filter</a>" ) );
+
+         var comma = _.l( 'gui.,', ', ' ), _or = _.l( 'gui.or', ' or ' ), mark = _.l( 'gui.?', '?' );
          switch ( actions.length ) {
-            case 1:
-               html += actions[0] + _.l( 'gui.?', '?' ); break;
-            case 2:
-               html += actions[0] + _.l( 'gui.or', ' or ' ) + actions[1] + _.l( 'gui.?', '?' ); break;
-            case 3:
-               html += actions[0] + _.l( 'gui.,', ', ' ) + actions[1] + _.l( 'gui.or', ' or ' ) + actions[2] + _.l( 'gui.?', '?' ); break;
+            case 0 : break;
+            case 1 : html += actions[0] + mark; break;
+            default: html += actions.slice( 0, -1 ).join( comma ) + _or + actions[ actions.length-1 ] + mark;
          }
          od.action.view.siblings = [];
 
       } else {
          if ( action.sort_field && data[0][ action.sort_field ] !== undefined ) {
             od.search.sort_data( data, action.sort_field, action.sort_asc ? 'asc' : 'desc' );
+            _.time( '[List] Sorted ' + data.length + ' rows' );
          }
 
          // Create highlight for each column
@@ -814,6 +818,8 @@ od.action.list = {
 
       if ( count )
          _.time( '[List] Listed ' + ( end - start ) + ' / ' + count + ' results.' );
+      else
+         _.time( '[List] No data. Proposed ' + actions.length + ' quick actions.' );
    },
 
    /** Update paging state */
