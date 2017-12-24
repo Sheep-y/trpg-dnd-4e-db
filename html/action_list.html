@@ -231,7 +231,6 @@
 
 <script><?coco-start js(minify) ?>   'use strict';(function action_list_init(){
 
-
 od.action.list = {
    'url' : /^list\b/,
    'last_url' : null,
@@ -434,11 +433,11 @@ od.action.list = {
       return _( '#act_list_txt_search' )[0].value;
    },
 
-   'get_filters' : function act_list_get_filters () {
-      return _.ary( _( '.txt_filter' ) ).map( function ( txt ) {
+   'get_filters' : function act_list_get_filters ( table ) {
+      return _.ary( _( table, '.txt_filter' ) ).map( function ( txt ) {
          return txt.value;
       } ).filter( function ( val ) {
-         return val;
+         return val.trim().length;
       } );
    },
 
@@ -762,7 +761,7 @@ od.action.list = {
             actions.push( _.l( 'action.list.switch_to_all', "<a onclick='od.action.list.a_category();'>Search All</a>" ) );
          if ( action.get_search_term() )
             actions.push(  _.l( 'action.list.clear_search', "<a onclick='od.action.list.clear_search();'>Clear search</a>" ) );
-         if ( action.get_filters().length > 0 )
+         if ( action.get_filters( table ).length > 0 )
             actions.push(  _.l( 'action.list.clear_filter', "<a onclick='od.action.list.clear_filter();'>Clear filter</a>" ) );
 
          var comma = _.l( 'gui.,', ', ' ), _or = _.l( 'gui.or', ' or ' ), mark = _.l( 'gui.?', '?' );
