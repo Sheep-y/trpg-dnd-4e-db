@@ -5,10 +5,14 @@ import db4e.data.Entry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class LeveledConverter extends Converter {
 
    protected int LEVEL = -1;
+
+   private final Matcher regxFlavor = Pattern.compile( "(?<=</h1>)<p class=flavor>([^<]*|</?(?!p)[^>]+/?>)+</p>" ).matcher( "" );
 
    protected LeveledConverter ( Category category ) {
       super( category );
@@ -147,5 +151,14 @@ class LeveledConverter extends Converter {
          }
       }
       super.correctEntry();
+   }
+
+   /* Removes <br> from flavor text, called manually by Power and Trap.  Other tags has not been found.  Each entries that need to be fixed only has one flavor text. */
+   protected void stripFlavorBr () {
+      if ( ! find( regxFlavor ) ) return;
+      String matched = regxFlavor.group();
+      if ( ! matched.contains( "<br>" ) ) return;
+      swap( matched, matched.replaceAll( "<br>", " " ) );
+      fix( "formatting" );
    }
 }

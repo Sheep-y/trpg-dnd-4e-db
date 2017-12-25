@@ -9,7 +9,8 @@ public class DiseaseConverter extends LeveledConverter {
    }
 
    @Override protected void correctEntry () {
-      swap( "</i><br></p>", "</i></p>" ); // Flavor text tag removal; does not affect layout so not count as a fix
+      if ( find( "</i><br><p>") )
+         swap( "</i><br></p>", "</i></p>" ); // Flavor text tag removal; does not affect layout so not count as a fix
       super.correctEntry();
    }
 }

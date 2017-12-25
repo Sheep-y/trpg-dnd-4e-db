@@ -16,6 +16,10 @@ public class TrapConverter extends LeveledConverter {
       if ( entry.getFieldCount() == 4 ) { // Trap
 
          switch ( entry.getId() ) {
+            case "trap29": case "trap71": case "trap107": // Spider Cactus, Rock Flingers, Psychic Sinkhole
+               stripFlavorBr();
+               break;
+
             case "trap417" : // Elemental Transformation Field
                meta( ROLE, "Elite" );
                swap( "Level 18 Lurker", "Level 18 Elite Lurker" );

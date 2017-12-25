@@ -159,6 +159,7 @@ public class PowerConverter extends LeveledConverter {
          fix( "wrong meta" );
       }
 
+      stripFlavorBr();
       super.correctEntry();
    }
 }
