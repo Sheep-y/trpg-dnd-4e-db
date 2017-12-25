@@ -539,6 +539,10 @@ public class ItemConverter extends LeveledConverter {
             fix( "typo" );
             break;
 
+         case "item3545" : // Mold King's Crown
+            swap( "</i><br></p>", "</i></p>" ); // Does not affect layout so not count as a fix
+            break;
+
          case "item1864": // Mirror of Deception
             swap( " ✦ (Standard", " ✦ At-Will (Standard" );
             swap( "alter</p><p class='mistat indent'>sound", "alter sound" );
