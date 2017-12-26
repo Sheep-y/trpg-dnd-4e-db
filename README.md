@@ -56,7 +56,7 @@ Let's face it, the official compendium has errors.
 This downloader fixes over 1660 entries during export:
 
 * 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous)
-* 150 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
+* 151 entries missing power frequency. (Bending Branch, Dantrag's Bracers, many energy weapons, dragon orbs, lights etc.)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 39 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, Spike Wire, etc.)

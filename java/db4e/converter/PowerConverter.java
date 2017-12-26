@@ -44,13 +44,13 @@ public class PowerConverter extends LeveledConverter {
       }
 
       // Set frequency part of power type, a new column
-      if ( entry.getContent().startsWith( "<h1 class=dailypower>" ) )
+      if ( data().startsWith( "<h1 class=dailypower>" ) ) {
          meta( TYPE, "Daily" );
-      else if ( entry.getContent().startsWith( "<h1 class=encounterpower>" ) )
+      } else if ( entry.getContent().startsWith( "<h1 class=encounterpower>" ) ) {
          meta( TYPE, "Enc." );
-      else if ( entry.getContent().startsWith( "<h1 class=atwillpower>" ) )
+      } else if ( entry.getContent().startsWith( "<h1 class=atwillpower>" ) ) {
          meta( TYPE, "At-Will" );
-      else
+      } else
          warn( "Power with unknown frequency" );
 
       // Set type part of power type column
@@ -137,6 +137,11 @@ public class PowerConverter extends LeveledConverter {
          case "power9331": // Spot the Path
             swap( ": :", ":" );
             fix( "typo" );
+            break;
+
+         case "power9348": // Bending Branch
+            swap( "<p class=powerstat>   ✦", "<p class=powerstat><b>Encounter</b>   ✦" );
+            fix( "missing power frequency" );
             break;
 
          case "power15829": // Hamadryad Aspects
