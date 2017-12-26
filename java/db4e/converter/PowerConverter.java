@@ -46,9 +46,9 @@ public class PowerConverter extends LeveledConverter {
       // Set frequency part of power type, a new column
       if ( data().startsWith( "<h1 class=dailypower>" ) ) {
          meta( TYPE, "Daily" );
-      } else if ( entry.getContent().startsWith( "<h1 class=encounterpower>" ) ) {
+      } else if ( data().startsWith( "<h1 class=encounterpower>" ) ) {
          meta( TYPE, "Enc." );
-      } else if ( entry.getContent().startsWith( "<h1 class=atwillpower>" ) ) {
+      } else if ( data().startsWith( "<h1 class=atwillpower>" ) ) {
          meta( TYPE, "At-Will" );
       } else
          warn( "Power with unknown frequency" );
@@ -166,5 +166,27 @@ public class PowerConverter extends LeveledConverter {
 
       stripFlavorBr();
       super.correctEntry();
+
+      switch ( entry.getId() ) {
+         case "power2839" : // Globe of Invulnerability
+         case "power4915" : // Feral Rejuvenation
+         case "power5182" : // Awaken the Forest
+         case "power7421" : // Transpose Familiar
+         case "power7439" : // Winter's Blood
+         case "power7493" : // Soul Dance
+         case "power7571" : // Path of Light
+         case "power7611" : // Shadowstep
+         case "power9285" : // Just Punishment
+         case "power9710" : // Fazing Fangs
+         case "power9964" : // Boughs of the World Tree
+         case "power10254": // Deathguide's Stance
+         case "power10317": // Combined Effort
+         case "power11311": // Vestige of Kulnoghrim
+         case "power11328": // Imprison
+         case "power11516": // Cloud of Doom
+         case "power12191": // Shove and Slap
+            fixPowerFrequency();
+            break;
+      }
    }
 }

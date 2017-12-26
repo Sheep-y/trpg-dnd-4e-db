@@ -53,13 +53,13 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 1660 entries during export:
+This downloader fixes over 1690 entries during export:
 
 * 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous)
 * 151 entries missing power frequency. (Bending Branch, Dantrag's Bracers, many energy weapons, dragon orbs, lights etc.)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
+* 68 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, Spike Wire, Imprison, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
-* 39 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, Spike Wire, etc.)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 24 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)

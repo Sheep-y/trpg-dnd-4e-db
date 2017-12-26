@@ -88,6 +88,32 @@ public class Converter extends Convert {
       }
    }
 
+   private Matcher regxPowerTitle, regxPowerFrequency;
+
+   protected void fixPowerFrequency () {
+      if ( regxPowerTitle == null ) {
+         regxPowerTitle = Pattern.compile( "<h1 class=(at|en|da)(?:will|counter|ily)power>(\\w+)" ).matcher( "" );
+         regxPowerFrequency = Pattern.compile( "<p class=powerstat><b>(\\w{2})" ).matcher( "" );
+      }
+      regxPowerTitle.reset( data() );
+      regxPowerFrequency.reset( data() );
+      while ( regxPowerTitle.find() ) {
+         if ( regxPowerFrequency.find( regxPowerTitle.end() ) &&
+            ! regxPowerFrequency.group( 1 ).toLowerCase().equals( regxPowerTitle.group( 1 ) ) ) { // Mismatch
+            // Error if power, pp, or ed.  Style if disease, item, or monster
+            switch ( regxPowerFrequency.group( 1 ) ) {
+               case "At": swapFirst( regxPowerTitle.group(), "<h1 class=atwillpower>" + regxPowerTitle.group( 2 ) ); break;
+               case "En": swapFirst( regxPowerTitle.group(), "<h1 class=encounterpower>" + regxPowerTitle.group( 2 ) ); break;
+               case "Da": swapFirst( regxPowerTitle.group(), "<h1 class=dailypower>" + regxPowerTitle.group( 2 ) ); break;
+               default: warn( "Cannot fix unknown power frequency " + regxPowerFrequency.group( 1 ) );
+            }
+            fix( "formatting" );
+            return;
+         }
+      }
+      warn( "Wasted call to fixPowerFrequency" );
+   }
+
    private static final Map<String, String> books = new HashMap<>();
 
    static {
