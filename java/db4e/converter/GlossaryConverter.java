@@ -17,7 +17,7 @@ public class GlossaryConverter extends Converter {
    @Override protected void correctEntry () {
       if ( entry.getId().startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
          if ( ! find( "IMPROVISING WITH" ) ) {
-            entry.setContent( regxFlavor.reset( data() ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" ) );
+            data( regxFlavor.reset( data() ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" ) );
             test( TEXT, "<h3>IMPROVISING WITH " );
             fix( "missing content" );
          }
@@ -26,7 +26,7 @@ public class GlossaryConverter extends Converter {
          case "glossary381": // Concordance, change to Artifact
             entry.setName( "Artifact" );
             swap( "<h1 class=player>Concordance</h1><p class=flavor>", "<h3>Concordance</h3><p>" );
-            entry.setContent( "<h1 class=player>Artifact</h1>"
+            data( "<h1 class=player>Artifact</h1>"
                     + "<p class=flavor>Artifacts have a level but no price - they can't be " +
 "bought or crafted, and their temporary nature ensures that they don't have a long-term impact on a character's " +
 "total wealth. As with normal magic items, an artifact's level measures the potency of its properties and " +
@@ -48,6 +48,13 @@ public class GlossaryConverter extends Converter {
             test( TEXT, "Artifacts have a level but no price" );
             fix( "new entry" );
             break;
+
+         case "glossary664": // Reading a Weapon Entry
+            entry.setName( "Weapons" );
+            swap( "Reading a Weapon Entry", "Weapons" );
+            fix( "consistency" );
+            break;
+
          case "glossary0453": // Item Set
             entry.setFields( new Object[]{ "Rules", "Rules Other", "Adventurer's Vault 2" } ).setContent(
               "<h1 class=player>Item Set</h1>"
@@ -92,11 +99,14 @@ public class GlossaryConverter extends Converter {
          case "glossary487": // Carrying, Lifting and Dragging
             return appendList( list, "Carry", "Carrying", "Lift", "Lifting", "Drag", "Dragging", "Normal Load", "Heavy Load", "Maximum Drag Load" );
          case "glossary622": // Action Types
-            return appendList( list, "Standard Action", "Move Action", "Minor Action", "Immediate Reaction", "Immediate Action", "Immediate Interrupt", "Opportunity Action", "Free Action" );
+            return appendList( list, "Action Type", "Standard Action", "Move Action", "Minor Action", "Immediate Reaction", "Immediate Action", "Immediate Interrupt", "Opportunity Action", "Free Action" );
          case "glossary623": // Languages
             return appendList( list, "Language", "Script" );
          case "glossary670": // Magic Item Level and Rarity
             return appendList( list, "Magic Item Level and Rarity", "Common", "Uncommon", "Rare" );
+         case "glossary69": case "glossary659" : case "glossary661" : case "glossary664" : // Implement, Armor, Shields, Weapon
+            if ( entry.getId().equals( "glossary69" ) ) list.add( "Implements" );
+            appendList( list, "Proficiency", "Proficiencies" ); // Fall through to add singular lookup
       }
       String name = entry.getName();
       if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) )

@@ -78,7 +78,7 @@ public class Converter extends Convert {
    @Override protected void correctEntry () {
       // Moves front-loaded level label to back for easier and consistent styling.
       if ( find( regxTitleLevel ) )
-         entry.setContent( regxTitleLevel.replaceAll( "$1$3$2" ) );
+         data( regxTitleLevel.replaceAll( "$1$3$2" ) );
 
       if ( Main.debug.get() ) {
          if ( shortId.containsKey( entry.getId() ) )
@@ -86,6 +86,33 @@ public class Converter extends Convert {
          else
             shortId.put( entry.getId(), entry );
       }
+   }
+
+   private Matcher regxPowerTitle, regxPowerFrequency;
+
+   protected void fixPowerFrequency () {
+      if ( regxPowerTitle == null ) {
+         regxPowerTitle = Pattern.compile( "<h1 class=(at|en|da)(?:will|counter|ily)power>(\\w+)" ).matcher( "" );
+         regxPowerFrequency = Pattern.compile( "<p class=powerstat><b>(\\w{2})" ).matcher( "" );
+      }
+      regxPowerTitle.reset( data() );
+      regxPowerFrequency.reset( data() );
+      while ( regxPowerTitle.find() ) {
+         if ( regxPowerFrequency.find( regxPowerTitle.end() ) &&
+            ! regxPowerFrequency.group( 1 ).toLowerCase().equals( regxPowerTitle.group( 1 ) ) ) { // Mismatch
+            // Error if power, pp, or ed.  Style if disease, item, or monster
+            switch ( regxPowerFrequency.group( 1 ) ) {
+               case "At": swapFirst( regxPowerTitle.group(), "<h1 class=atwillpower>" + regxPowerTitle.group( 2 ) ); break;
+               case "En": swapFirst( regxPowerTitle.group(), "<h1 class=encounterpower>" + regxPowerTitle.group( 2 ) ); break;
+               case "Da": swapFirst( regxPowerTitle.group(), "<h1 class=dailypower>" + regxPowerTitle.group( 2 ) ); break;
+               default:
+                  log.log( Level.WARNING, "Cannot fix unknown power frequency {1} of {0}", new Object[]{ entry, regxPowerFrequency.group( 1 ) } );
+            }
+            fix( "formatting" );
+            return;
+         }
+      }
+      warn( "Wasted call to fixPowerFrequency" );
    }
 
    private static final Map<String, String> books = new HashMap<>();
@@ -415,17 +442,27 @@ public class Converter extends Convert {
    }
 
    protected final void swap ( CharSequence from, CharSequence to ) {
-      entry.setContent( data().replace( from, to ) );
-      test( TEXT, to );
+      if ( data().contains( from ) ) {
+         data( data().replace( from, to ) );
+         test( TEXT, to );
+      } else
+         log.log( Level.WARNING, "Cannot swap content of {0}: {1}", new Object[]{ entry, from } );
    }
 
    protected final void swapFirst ( String from, String to ) {
-      entry.setContent( data().replaceFirst( from, to ) );
-      test( TEXT, to );
+      if ( data().contains( from ) ) {
+         data( data().replaceFirst( from, to ) );
+         test( TEXT, to );
+      } else
+         log.log( Level.WARNING, "Cannot swapFirst content of {0}: {1}", new Object[]{ entry, from } );
    }
 
    protected final String data () {
       return entry.getContent();
+   }
+
+   protected final void data ( String data ) {
+      entry.setContent( data );
    }
 
    protected final String meta ( int index ) {

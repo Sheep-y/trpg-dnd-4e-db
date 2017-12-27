@@ -5,10 +5,14 @@ import db4e.data.Entry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class LeveledConverter extends Converter {
 
    protected int LEVEL = -1;
+
+   private final Matcher regxFlavor = Pattern.compile( "(?<=</h1>)<p class=flavor>([^<]*|</?(?!p)[^>]+/?>)+</p>" ).matcher( "" );
 
    protected LeveledConverter ( Category category ) {
       super( category );
@@ -125,13 +129,14 @@ class LeveledConverter extends Converter {
                swap( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
                fix( "missing published" );
                break;
-            case "poison03561": // Aboleth Slime Concentrate
             case "poison03562": // Gibbering Grind
-            case "poison03563": // Grell Bile
             case "poison03564": // Umber Dust
             case "poison03565": // Heart of Mimic Powder
-            case "poison03566": // Mind Flayer Tentacle Extract
                swap( " (Consumable)", "" );
+               // fallthrough
+            case "poison03561": // Aboleth Slime Concentrate
+            case "poison03563": // Grell Bile
+            case "poison03566": // Mind Flayer Tentacle Extract
                swap( "(Consumable, ", "(" );
                swap( " ✦ (", " ✦ Consumable (" );
                fix( "missing power frequency" );
@@ -147,5 +152,14 @@ class LeveledConverter extends Converter {
          }
       }
       super.correctEntry();
+   }
+
+   /* Removes <br> from flavor text, called manually by Power and Trap.  Other tags has not been found.  Each entries that need to be fixed only has one flavor text. */
+   protected void stripFlavorBr () {
+      if ( ! find( regxFlavor ) ) return;
+      String matched = regxFlavor.group();
+      if ( ! matched.contains( "<br>" ) ) return;
+      swap( matched, matched.replaceAll( "<br>", " " ) );
+      fix( "formatting" );
    }
 }

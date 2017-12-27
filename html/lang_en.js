@@ -51,7 +51,7 @@ _.l.set( 'gui', {
 });
 
 _.l.set( 'action.list', {
-   'title' : "Browse",
+   'title' : "4e Database",
    'link_text' : "Browse",
    'result_summary' : "Result",
    'menu_filter_column' : 'Add %1 to filter',

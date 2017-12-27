@@ -362,6 +362,8 @@ public abstract class Convert {
             return new CompanionConverter( category ); // Sort by first field
          case "Deity":
             return new DeityConverter( category );
+         case "Disease":
+            return new DiseaseConverter( category );
          case "EpicDestiny":
          case "ParagonPath":
             return new PPEDConverter( category );
@@ -378,7 +380,6 @@ public abstract class Convert {
             return new MonsterConverter( category );
          case "Ritual":
          case "Poison":
-         case "Disease":
             return new LeveledConverter( category );
          case "Power":
             return new PowerConverter( category );

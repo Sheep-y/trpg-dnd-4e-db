@@ -272,6 +272,9 @@
    font-weight: bold;
    margin-top: 1em;
    }
+   .detail .thXP {
+      display: block;
+      }
 .detail .trapblockbody  {
    display: block;
    }

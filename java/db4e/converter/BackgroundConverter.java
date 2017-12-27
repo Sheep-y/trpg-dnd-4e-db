@@ -55,7 +55,7 @@ public class BackgroundConverter extends Converter {
       }
 
       if ( find( regxAnyLang ) ) {
-         entry.setContent( regxAnyLang.replaceFirst( "Any language except " ) );
+         data( regxAnyLang.replaceFirst( "Any language except " ) );
          fix( "consistency" );
       }
 

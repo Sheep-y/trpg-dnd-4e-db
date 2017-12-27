@@ -86,7 +86,7 @@ _.l.set( 'gui', {
 });
 
 _.l.set( 'action.list', {
-   'title' : "瀏覽",
+   'title' : "四版資料庫",
    'link_text' : "瀏覽",
    'result_summary' : "結果",
    'menu_filter_column' : '新增過濾：%1 ',

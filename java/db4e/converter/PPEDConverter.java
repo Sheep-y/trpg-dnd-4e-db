@@ -30,6 +30,11 @@ public class PPEDConverter extends Converter {
       }
 
       switch ( entry.getId() ) {
+         case "paragonpath153" : // Luckbringer of Tymora
+            swap( "weakening<br>their", "weakening their" );
+            fix( "formatting" );
+            break;
+
          case "epicdestiny698" : // Unyielding Sentinel
             swap( "Defender role", "Any defender class" );
             meta( PREREQUISITE, "Any defender class" );
@@ -38,5 +43,22 @@ public class PPEDConverter extends Converter {
       }
 
       super.correctEntry();
+
+      switch ( entry.getId() ) {
+         case "paragonpath285" : // Verdant Lord
+         case "paragonpath350" : // Familiar Keeper
+         case "paragonpath361" : // Long Night Scion
+         case "paragonpath364" : // Ghostwalker
+         case "paragonpath371" : // Lightwalker
+         case "paragonpath385" : // Thuranni Shadow Killer
+         case "paragonpath458" : // Watcher of Vengeance
+         case "paragonpath482" : // Coiled Serpent
+         case "paragonpath531" : // Talaric Strategist
+         case "paragonpath598" : // Umbral Cabalist
+         case "paragonpath607" : // Death Arrow
+         case "epicdestiny510" : // World Tree Guardian
+            fixPowerFrequency();
+            break;
+      }
    }
 }

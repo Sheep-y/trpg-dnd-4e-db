@@ -1,15 +1,11 @@
 # 4e Compendium Downloader #
 
-## Version 3.6.1 development branch ##
+## Version 4.0 development branch ##
 
 [![3 min. intro video](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/Frontpage.jpg)](https://youtu.be/aNDze9Ok5fE)
 
 This program can fetches, stores, and exports D&D 4th edition resources from [D&D Compendium](http://www.wizards.com/dndinsider/compendium/database.aspx). <br/>
 Exported entries can be browsed and searched offline with exact phase search, wildcast, exclusion, join ("OR"), and more.
-
-本應用能從四代龍與地下城的[官方資料庫](http://www.wizards.com/dndinsider/compendium/database.aspx)提取、儲存、及匯出資料，以便進行離線的威力搜尋。<br/>
-下載器的說明只限英語。匯出資料後的搜尋介面可以在說明頁中切換成中文。
-注意 3.x 為最後一代有中文介面的數據庫。日後的版本只支援英文。
 
 This is a fan project and does not come with copyrighted data.
 
@@ -31,7 +27,7 @@ This is a fan project and does not come with copyrighted data.
 
 The downloader is tested with Sun Java 8 and 9.
 If you use [OpenJDK](http://openjdk.java.net/), you also need [OpenJFX](http://openjdk.java.net/projects/openjfx/). <br/>
-The viewer is tested on Chrome 62, Edge 15, Firefox 57, IE 11, Android Chrome 62, and Android Firefox 57. <br/>
+The viewer is tested on Chrome 62, Edge 15, Firefox 57, Android Chrome 62, and Android Firefox 57. <br/>
 Mac and iOS cannot be supported.  Walled garden is walled.
 
 ## Differences from Official Compendium ##
@@ -53,18 +49,18 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 1560 entries during export:
+This downloader fixes over 1690 entries during export:
 
 * 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous)
-* 150 items missing power frequency. (Dantrag's Bracers, many energy weapons, dragon orbs, light sources etc.)
+* 151 entries missing power frequency. (Bending Branch, Dantrag's Bracers, many energy weapons, dragon orbs, lights etc.)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
+* 68 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, Spike Wire, Imprison, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 24 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
-* 23 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, etc.)
 * 10 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 2 new entries (Artifact and Item Set.)
-* 204 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
+* 293 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 94 entries with missing listing data not caused by above issues. (Subrace abilities, Heroic feat tier etc.)
 * 724 entries with wrong/inconsistent listing data not caused by above issues. (Multi-source classes, theme powers etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
