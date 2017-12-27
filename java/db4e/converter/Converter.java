@@ -105,7 +105,8 @@ public class Converter extends Convert {
                case "At": swapFirst( regxPowerTitle.group(), "<h1 class=atwillpower>" + regxPowerTitle.group( 2 ) ); break;
                case "En": swapFirst( regxPowerTitle.group(), "<h1 class=encounterpower>" + regxPowerTitle.group( 2 ) ); break;
                case "Da": swapFirst( regxPowerTitle.group(), "<h1 class=dailypower>" + regxPowerTitle.group( 2 ) ); break;
-               default: warn( "Cannot fix unknown power frequency " + regxPowerFrequency.group( 1 ) );
+               default:
+                  log.log( Level.WARNING, "Cannot fix unknown power frequency {1} of {0}", new Object[]{ entry, regxPowerFrequency.group( 1 ) } );
             }
             fix( "formatting" );
             return;
@@ -441,13 +442,19 @@ public class Converter extends Convert {
    }
 
    protected final void swap ( CharSequence from, CharSequence to ) {
-      data( data().replace( from, to ) );
-      test( TEXT, to );
+      if ( data().contains( from ) ) {
+         data( data().replace( from, to ) );
+         test( TEXT, to );
+      } else
+         log.log( Level.WARNING, "Cannot swap content of {0}: {1}", new Object[]{ entry, from } );
    }
 
    protected final void swapFirst ( String from, String to ) {
-      data( data().replaceFirst( from, to ) );
-      test( TEXT, to );
+      if ( data().contains( from ) ) {
+         data( data().replaceFirst( from, to ) );
+         test( TEXT, to );
+      } else
+         log.log( Level.WARNING, "Cannot swapFirst content of {0}: {1}", new Object[]{ entry, from } );
    }
 
    protected final String data () {
