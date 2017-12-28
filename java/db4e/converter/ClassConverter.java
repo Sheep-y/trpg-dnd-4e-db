@@ -16,7 +16,7 @@ public class ClassConverter extends Converter {
       super( category );
    }
 
-   private final Matcher regxClassFeatures = Pattern.compile( "<b>(?:Class Features?|Hybrid Talent Options?):? ?</b>:?([^<.]+)", Pattern.CASE_INSENSITIVE ).matcher( "" );
+   private final Matcher regxClassFeatures = Pattern.compile( "<b>(?:Class Features?|Hybrid Talent Options?):?+ ?+</b>:?+([^<.]++)", Pattern.CASE_INSENSITIVE ).matcher( "" );
 
    private Set<String> findFeatures () {
       regxClassFeatures.reset( data() );

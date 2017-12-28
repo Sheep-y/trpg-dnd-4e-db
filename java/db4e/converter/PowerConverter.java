@@ -25,8 +25,8 @@ public class PowerConverter extends LeveledConverter {
       super.initialise();
    }
 
-   private final Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]+</b>(?:, <b>[\\w ]+</b>)*)" ).matcher( "" );
-   private final Matcher regxLevel = Pattern.compile( "<span class=level>([^<]+) (Racial )?(Attack|Utility|Feature|Pact Boon|Cantrip)( \\d+)?" ).matcher( "" );
+   private final Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]++</b>(?:, <b>[\\w ]++</b>)*+)" ).matcher( "" );
+   private final Matcher regxLevel = Pattern.compile( "<span class=level>([^<]+?) (Racial )?+(Attack|Utility|Feature|Pact Boon|Cantrip){1}+( \\d++)?" ).matcher( "" );
 
    @Override protected void convertEntry () {
       Object[] fields = entry.getFields();

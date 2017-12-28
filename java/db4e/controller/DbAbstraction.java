@@ -278,7 +278,7 @@ class DbAbstraction {
    // Utils
    /////////////////////////////////////////////////////////////////////////////
 
-   private final String csvTokenPattern = "(?<=^|,)([^\"\\r\\n,]*|\"(?:\"\"|[^\"])*\")(?:,|$)";
+   private final String csvTokenPattern = "(?<=^|,)([^\"\\r\\n,]*+|\"(?:\"\"|[^\"]++)*\")(?:,|$)";
    private final Matcher csvToken = Pattern.compile( csvTokenPattern ).matcher( "" );
    private final List<String> csvBuffer = new ArrayList<>();
 

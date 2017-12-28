@@ -20,8 +20,8 @@ public class FeatConverter extends Converter {
       super.initialise();
    }
 
-   private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite</b>:\\s*([^<>]+)<" ).matcher( "" );
-   private final Matcher regxLevel = Pattern.compile( "(?:, )?([12]?\\d)(?:st|nd|th) level(?:, )?" ).matcher( "" );
+   private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite</b>:\\s*+([^<>]++)<" ).matcher( "" );
+   private final Matcher regxLevel = Pattern.compile( "(?:, )?+([12]?\\d)(?:st|nd|th){1}+ level(?:, )?+" ).matcher( "" );
 
    @Override protected void convertEntry () {
       String oldTier = meta( 0 );

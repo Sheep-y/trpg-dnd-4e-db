@@ -25,7 +25,7 @@ public class CreatureConverter extends LeveledConverter {
       super( category );
    }
 
-   private final Matcher regxType = Pattern.compile( "<span class=type>(.*?)(,\\s*[^<()]+)?</span>" ).matcher( "" );
+   private final Matcher regxType = Pattern.compile( "<span class=type>(.*?)(,\\s*+[^<()]++)?</span>" ).matcher( "" );
 
    protected boolean findSizeAndTypes () {
       if ( ! find( regxType ) ) return false;

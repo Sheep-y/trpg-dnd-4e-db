@@ -43,12 +43,12 @@ public class ItemConverter extends LeveledConverter {
       return super.sortEntity( a, b );
    }
 
-   private final Matcher regxPowerFrequency = Pattern.compile( "✦\\s*\\(" ).matcher( "" );
-   private final Matcher regxWhichIsReproduced = Pattern.compile( " \\([^)]+\\), which is reproduced below(?=.)" ).matcher( "" );
-   private final Matcher regxTier = Pattern.compile( "\\b(?:Heroic|Paragon|Epic)\\b" ).matcher( "" );
-   private final Matcher regxType = Pattern.compile( "<b>(Type|Armor|Arms Slot|Category)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
-   private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]+)</b>" ).matcher( "" );
-   private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d+)(?:<td class=mic2>(?:\\+\\d)?)?<td class=mic3>([\\d,]+) gp" ).matcher( "" );
+   private final Matcher regxPowerFrequency = Pattern.compile( "✦\\s*+\\(" ).matcher( "" );
+   private final Matcher regxWhichIsReproduced = Pattern.compile( " \\([^)]++\\), which is reproduced below(?=.)" ).matcher( "" );
+   private final Matcher regxTier = Pattern.compile( "\\b(?:Heroic|Paragon|Epic){1}+\\b" ).matcher( "" );
+   private final Matcher regxType = Pattern.compile( "<b>(Type|Armor|Arms Slot|Category){1}+(?:</b>: |: </b>){1}+([A-Za-z, ]++)" ).matcher( "" );
+   private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]++)</b>" ).matcher( "" );
+   private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d++)(?:<td class=mic2>(?:\\+\\d)?+)?+<td class=mic3>([\\d,]++) gp" ).matcher( "" );
 
    @Override protected void convertEntry () {
       if ( ! isGeneric )
