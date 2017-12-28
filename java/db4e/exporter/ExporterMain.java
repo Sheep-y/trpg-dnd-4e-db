@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import sheepy.util.Ascii85;
+import sheepy.util.Base85;
 import sheepy.util.ResourceUtils;
 
 /**
@@ -238,7 +238,7 @@ public class ExporterMain extends Exporter {
       final String snippet = data.substring( 0, Math.min( data.length(), 20 ) );
       if ( compress.get() ) {
          byte[] zipped = lzma( data );
-         String compressed = Ascii85.encode( zipped );
+         String compressed = Base85.getRfc1942Encoder().encodeToString( zipped );
          if ( compressed.length() <= 0 ) log.log( Level.WARNING, "Zero bytes encoded {0}", prefix );
          final int zipped_size = prefix.length() + compressed.length() + 2 + postfix.length();
          if ( zipped_size < total_size * 0.96 ) { // Don't waste decompression time on low compression or negative compression
