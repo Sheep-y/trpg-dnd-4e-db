@@ -45,35 +45,42 @@ public class Ascii85 {
     }
 
 
-    static public byte[] decode( String data ) throws IOException  {
-       ByteArrayOutputStream out = new ByteArrayOutputStream( (int) Math.ceil( data.length() * 0.8 ) );
-       decode( new ByteArrayInputStream( data.getBytes( UTF_8 ) ), out );
-       return out.toByteArray();
+    static public byte[] decode( String data )  {
+       try ( ByteArrayOutputStream out = new ByteArrayOutputStream( (int) Math.ceil( data.length() * 0.8 ) ) ) {
+          decode( new ByteArrayInputStream( data.getBytes( UTF_8 ) ), out );
+          return out.toByteArray();
+       } catch ( IOException ex ) {
+          throw new RuntimeException( "Cannot decode from Base85", ex );
+       }
     }
 
     static public void decode( InputStream in, OutputStream out ) throws IOException {
         int b, factor= 5;
         long sum= 0;
-        while((b= in.read()) >= 0) {
-            sum+= DECODABET[b] * FACTORS[--factor];
+        while ( ( b = in.read() ) >= 0) {
+            sum += DECODABET[b] * FACTORS[--factor];
             if(factor == 0) {
                 for(int e= 24; e >= 0; e-= 8)
                     out.write((int)((sum >>> e) & 0xFF));
-                sum= 0;
-                factor= 5;
+                sum = 0;
+                factor = 5;
             }
         }
         // process rest (if present)
         if(factor < 5) {
-            sum/= FACTORS[factor];
-            for(int e= (3 - factor) * 8; e >= 0; e-= 8)
+            sum /= FACTORS[factor];
+            for( int e = (3 - factor) * 8; e >= 0; e -= 8)
                 out.write((int)((sum >>> e) & 0xFF));
         }
     }
 
-    static public String encode( byte[] data ) throws IOException  {
+    static public String encode( byte[] data ) {
        StringWriter out = new StringWriter( (int) Math.ceil( data.length * 1.2 ) + 5 );
-       encode( new ByteArrayInputStream( data ), out );
+       try {
+          encode( new ByteArrayInputStream( data ), out );
+       } catch ( IOException ex ) {
+          throw new RuntimeException( "Cannot encode to Base85", ex );
+       }
        return out.toString();
     }
 
@@ -92,12 +99,12 @@ public class Ascii85 {
                     out.write( ENCODABET[ (int) ( sum / FACTORS[e] ) ] );
                     sum %= FACTORS[e];
                 }
-                sum= 0;
-                bytes= 0;
+                sum = 0;
+                bytes = 0;
             }
         }
 
-        // process rest (if present)
+        // padding (if present)
         if ( bytes > 0 ) {
             for ( int e = bytes ; e >= 0 ; e-- ) {
                 out.write( ENCODABET[ (int) (sum / FACTORS[e]) ] );
