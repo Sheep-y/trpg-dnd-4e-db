@@ -26,9 +26,7 @@ public class Converter extends Convert {
    }
 
    private final Matcher regxTitleLevel = Pattern.compile( "(<h1[^>]*>)(<span[^>]*>.*?</span>)(.*?)(?=</h1>)" ).matcher( "" );
-   private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
    private final Matcher regxCheckOpenClose = Pattern.compile( "<(/?)(p|span|b|i|a|h[1-6])\\b" ).matcher( "" );
-   private final Matcher regxCheckDate  = Pattern.compile( "\\(\\d+/\\d+/\\d+\\)" ).matcher( "" );
    private final Map<String, Entry> shortId = new HashMap<>();
    private final Map<String, AtomicInteger> openCloseCount = new HashMap<>();
 
@@ -325,6 +323,8 @@ public class Converter extends Convert {
    private final Matcher regxHtmlTag = Pattern.compile( "</?\\w+[^>]*>" ).matcher( "" );
    private final Matcher regxSpaces  = Pattern.compile( " +" ).matcher( " " );
 
+   private Matcher regxCheckFulltext, regxCheckDate;
+
    /**
     * Convert HTML data into full text data for full text search.
     *
@@ -356,6 +356,10 @@ public class Converter extends Convert {
 
       // Validate
       if ( Main.debug.get() && Controller.fixData ) {
+         if ( regxCheckFulltext == null ) {
+            regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
+            regxCheckDate  = Pattern.compile( "\\(\\d+/\\d+/\\d+\\)" ).matcher( "" );
+         }
          if ( regxCheckFulltext.reset( data ).find() )
             warn( "Unremoved html tag in fulltext" );
          if ( regxCheckDate.reset( data ).find() )

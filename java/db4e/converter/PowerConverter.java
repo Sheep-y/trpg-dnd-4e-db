@@ -17,6 +17,7 @@ public class PowerConverter extends LeveledConverter {
 
    public PowerConverter ( Category category ) {
       super( category );
+      compileFlavorBr();
    }
 
    @Override protected void initialise () {

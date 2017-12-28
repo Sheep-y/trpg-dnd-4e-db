@@ -12,8 +12,6 @@ class LeveledConverter extends Converter {
 
    protected int LEVEL = -1;
 
-   private final Matcher regxFlavor = Pattern.compile( "(?<=</h1>)<p class=flavor>([^<]*|</?(?!p)[^>]+/?>)+</p>" ).matcher( "" );
-
    protected LeveledConverter ( Category category ) {
       super( category );
    }
@@ -152,6 +150,11 @@ class LeveledConverter extends Converter {
          }
       }
       super.correctEntry();
+   }
+
+   private Matcher regxFlavor;
+   protected void compileFlavorBr () {
+      regxFlavor = Pattern.compile( "(?<=</h1>)<p class=flavor>([^<]*|</?(?!p)[^>]+/?>)+</p>" ).matcher( "" );
    }
 
    /* Removes <br> from flavor text, called manually by Power and Trap.  Other tags has not been found.  Each entries that need to be fixed only has one flavor text. */

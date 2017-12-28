@@ -235,6 +235,7 @@ public class ExporterMain extends Exporter {
       final int total_size = prefix.length() + data.length() + postfix.length();
       if ( data.length() <= 0 ) log.log( Level.WARNING, "Zero bytes data {0}", prefix );
       if ( stop.get() ) throw new InterruptedException();
+      final String snippet = data.substring( 0, Math.min( data.length(), 20 ) );
       if ( compress.get() ) {
          byte[] zipped = lzma( data );
          String compressed = Ascii85.encode( zipped );
@@ -245,7 +246,7 @@ public class ExporterMain extends Exporter {
             writer.write( compressed );
             writer.write( '"' );
             writer.write( postfix );
-            log.log( Level.FINE, "Written {0} bytes ({1,number,percent}) compressed ({2})", new Object[]{ zipped_size, (float) zipped_size / total_size, prefix } );
+            log.log( Level.FINE, "Written {0} bytes ({1,number,percent}) compressed ({2})", new Object[]{ zipped_size, (float) zipped_size / total_size, snippet } );
             data.setLength( 0 );
             return;
          }
@@ -253,7 +254,7 @@ public class ExporterMain extends Exporter {
       writer.write( prefix );
       writer.write( data.toString() );
       writer.write( postfix );
-      log.log( Level.FINE, "Written {0} bytes uncompressed ({1})", new Object[]{ total_size, prefix } );
+      log.log( Level.FINE, "Written {0} bytes uncompressed ({1})", new Object[]{ total_size, snippet } );
       data.setLength( 0 );
    }
 

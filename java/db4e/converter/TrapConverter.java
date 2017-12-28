@@ -10,6 +10,7 @@ public class TrapConverter extends LeveledConverter {
 
    public TrapConverter ( Category category ) {
       super( category );
+      compileFlavorBr();
    }
 
    @Override protected void correctEntry () {
