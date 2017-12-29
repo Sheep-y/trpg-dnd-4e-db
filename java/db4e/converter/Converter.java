@@ -25,8 +25,8 @@ public class Converter extends Convert {
       super( category );
    }
 
-   private final Matcher regxTitleLevel = Pattern.compile( "(<h1[^>]*>)(<span[^>]*>.*?</span>)(.*?)(?=</h1>)" ).matcher( "" );
-   private final Matcher regxCheckOpenClose = Pattern.compile( "<(/?)(p|span|b|i|a|h[1-6])\\b" ).matcher( "" );
+   private final Matcher regxTitleLevel = Pattern.compile( "(<h1[^>]*+>)(<span[^>]*+>.*?</span>)(.*?)(?=</h1>)" ).matcher( "" );
+   private final Matcher regxCheckOpenClose = Pattern.compile( "<(/?+)(p|span|b|i|a|h[1-6]){1}+\\b" ).matcher( "" );
    private final Map<String, Entry> shortId = new HashMap<>();
    private final Map<String, AtomicInteger> openCloseCount = new HashMap<>();
 
@@ -201,8 +201,8 @@ public class Converter extends Convert {
       books.put( "Web of the Spider Queen", "Web of the Spider Queen" );
    }
 
-   protected final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]+)</p>" ).matcher( "" );
-   private final Matcher regxBook = Pattern.compile( "([A-Z][^,.]*)(?:, page[^,.]+|\\.)" ).matcher( "" );
+   protected final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]++)</p>" ).matcher( "" );
+   private final Matcher regxBook = Pattern.compile( "([A-Z][^,.]*+)(?:, page[^,.]+|\\.)" ).matcher( "" );
 
    @Override protected void parseSourceBook () {
       if ( find( regxPublished ) ) {
@@ -250,14 +250,14 @@ public class Converter extends Convert {
    // Internal search link, e.g. http://ww2.wizards.com/dnd/insider/item.aspx?fid=21&amp;ftype=3 - may also be empty (monster.2508/Darkpact Stalker)
    //private final Matcher regxSearchLink = Pattern.compile( "<a target=\"_new\" href=\"http://ww2.wizards.com/dnd/insider/[^\"]+\">([^<]*)</a>" ).matcher( "" );
    // Combined link pattern
-   private final Matcher regxLinks = Pattern.compile( "<a(?: target=\"_new\")? href=\"(?:http://ww[w2].wizards.com/[^\"]*)?\"(?: target=\"_new\")?>([^<]*)</a>" ).matcher( "" );
+   private final Matcher regxLinks = Pattern.compile( "<a(?: target=\"_new\")?+ href=\"(?:http://ww[w2].wizards.com/[^\"]*+)?\"(?: target=\"_new\")?+>([^<]*+)</a>" ).matcher( "" );
 
-   private final Matcher regxAttr1 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\">" ).matcher( "" );
-   private final Matcher regxAttr2 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\" (\\w+)=\"(\\w+)\">" ).matcher( "" );
-   private final Matcher regxAttr3 = Pattern.compile( "<(\\w+) (\\w+)=\"([^'\"/]+)\">" ).matcher( "" );
+   private final Matcher regxAttr1 = Pattern.compile( "<(\\w++) (\\w++)=\"(\\w++)\">" ).matcher( "" );
+   private final Matcher regxAttr2 = Pattern.compile( "<(\\w++) (\\w++)=\"(\\w++)\" (\\w++)=\"(\\w++)\">" ).matcher( "" );
+   private final Matcher regxAttr3 = Pattern.compile( "<(\\w++) (\\w++)=\"([^'\"/]++)\">" ).matcher( "" );
    private final Matcher regxOptionalClose = Pattern.compile( "</?tbody>|</(td|tr)>(?=</?(td|tr|tbody)|</table)" ).matcher( "" );
 
-   private final Matcher regxEmptyTag = Pattern.compile( "<(\\w+)[^>]*></\\1>" ).matcher( "" );
+   private final Matcher regxEmptyTag = Pattern.compile( "<(\\w++)[^>]*+></\\1>" ).matcher( "" );
 
    @Override protected String normaliseData ( String data ) {
       // Replace images with character. Every image really appears in the compendium.
@@ -315,13 +315,13 @@ public class Converter extends Convert {
       return data.trim();
    }
 
-   private final Matcher regxPowerFlav = Pattern.compile( "(<h1 class=\\w{5,9}power>.*?</h1>)<p class=flavor>.*?</p>" ).matcher( "" );
+   private final Matcher regxPowerFlav = Pattern.compile( "(<h1 class=(atwill|encounter|daily)power>.*?</h1>)<p class=flavor>.*?</p>" ).matcher( "" );
    private final Matcher regxItemFlav  = Pattern.compile( "(<h1 class=mihead>.*?</h1>)<p class=miflavor>.*?</p>" ).matcher( "" );
-   private final Matcher regxRitualFlav = Pattern.compile( "(<h1 class=player>.*?</h1>)(?:<p>)?<i>.*?</i>(?:</p>|<br>)" ).matcher( "" );
+   private final Matcher regxRitualFlav = Pattern.compile( "(<h1 class=player>.*?</h1>)(?:<p>)?+<i>.*?</i>(?:</p>|<br>)" ).matcher( "" );
    // Errata removal. monster217 has empty change, and many have empty action (Update/Added/Removed).
-   private final Matcher regxErrata  = Pattern.compile( "<br>\\w* \\([123]?\\d/[123]?\\d/20[01]\\d\\)<br>[^<]*" ).matcher( "" );
-   private final Matcher regxHtmlTag = Pattern.compile( "</?\\w+[^>]*>" ).matcher( "" );
-   private final Matcher regxSpaces  = Pattern.compile( " +" ).matcher( " " );
+   private final Matcher regxErrata  = Pattern.compile( "<br>\\w*+ \\([123]?\\d/[123]?\\d/20[01]\\d\\)<br>[^<]*" ).matcher( "" );
+   private final Matcher regxHtmlTag = Pattern.compile( "</?\\w++[^>]*+>" ).matcher( "" );
+   private final Matcher regxSpaces  = Pattern.compile( " ++" ).matcher( " " );
 
    private Matcher regxCheckFulltext, regxCheckDate;
 
