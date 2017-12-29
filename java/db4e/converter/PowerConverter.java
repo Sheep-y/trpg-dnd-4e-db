@@ -25,8 +25,9 @@ public class PowerConverter extends LeveledConverter {
       super.initialise();
    }
 
-   private final Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]++</b>(?:, <b>[\\w ]++</b>)*+)" ).matcher( "" );
    private final Matcher regxLevel = Pattern.compile( "<span class=level>([^<]+?) (Racial )?+(Attack|Utility|Feature|Pact Boon|Cantrip){1}+( \\d++)?" ).matcher( "" );
+   private final Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]++</b>(?:, <b>[\\w ]++</b>)*+)" ).matcher( "" );
+   private final Matcher regxRangeType = Pattern.compile( "<b>(Melee(?:(?: touch)?+ or Ranged)?+|Ranged|Close|Area|Personal|Special){1}+( burst| blast)?+</b>(?!:)" ).matcher( "" );
 
    @Override protected void convertEntry () {
       Object[] fields = entry.getFields();
@@ -67,19 +68,42 @@ public class PowerConverter extends LeveledConverter {
             metaAdd( TYPE, " Feature" );
       }
 
-      // Set keyword, a new column
+      // New column: keywords
+      Set<String> keywords = new HashSet<>(8); // Some power have multiple keyword lines.
+      if ( find( regxRangeType ) ) {
+         do {
+            String range = regxRangeType.group( 1 );
+            switch ( range ) {
+               case "Melee touch or Ranged":
+                  keywords.add( "Melee" );
+                  // fallthrough
+               case "Melee or Ranged":
+                  keywords.add( "Melee" );
+                  keywords.add( "Ranged" );
+                  break;
+               default:
+                  keywords.add( range );
+            }
+            range = regxRangeType.group( 2 );
+            if ( range != null )
+               keywords.add( range );
+         } while( regxRangeType.find() );
+      } else {
+         warn( "Rangeless power" );
+      }
       if ( find( "✦" ) ) {
          if ( find( regxKeywords ) ) {
-            Set<String> keywords = new HashSet<>(8); // Some power have multiple keyword lines.
             do {
                keywords.addAll( Arrays.asList( regxKeywords.group( 1 ).replaceAll( "</?b>", "" ).split( ", " ) ) );
             } while ( regxKeywords.find() );
-            meta( KEYWORDS, String.join( ", ", keywords.toArray( new String[ keywords.size() ] ) ) );
          } else {
             // Deathly Glare, Hamadryad Aspects, and Flock Tactics have bullet star in body but not keywords.
             if ( ! entry.getId().equals( "power12521" ) && ! entry.getId().equals( "power15829" ) && ! entry.getId().equals( "power16541" ) )
                warn( "Power without keywords" );
          }
+      }
+      if ( ! keywords.isEmpty() ) {
+         meta( KEYWORDS, String.join( ", ", keywords.toArray( new String[ keywords.size() ] ) ) );
       }
    }
 
@@ -149,6 +173,13 @@ public class PowerConverter extends LeveledConverter {
             swap( "</p><p class=powerstat>  <b>✦", "<br>  <b>✦" );
             swap( "</p><p class=flavor>  <b>✦", "<br>  <b>✦" );
             fix( "formatting" );
+            break;
+
+         case "power16604": // Spectral Forest
+         case "power14519": // Verdant Retaliation
+         case "power15868": // Terror of the Dark Moon
+            swap( "<b>Aura</b> burst", "<b>Area</b> burst" );
+            fix( "typo" );
             break;
       }
 
