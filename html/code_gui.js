@@ -219,12 +219,11 @@ od.gui = {
    },
 
    update_title : function gui_update_title ( title ) {
-      if ( title )
-         _('title')[0].textContent = title;
-      else
-         _('title')[0].textContent = od.gui.action
+      if ( ! title )
+         title = od.gui.action
             ? _( "#action_" + od.gui.action.id + ' h1' )[0].textContent
             : _.l( 'gui.title', '4e Database' );
+      document.title = _('title')[0].textContent = title;
    },
 
    /**
