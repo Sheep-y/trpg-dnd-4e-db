@@ -18,6 +18,14 @@
             #act_view_pnl_link td:first-child {
                text-align: right;
                }
+      #act_view_pnl_content .loading {
+         text-align: center;
+         padding: 1em;
+         font-size: 24px;
+         }
+      #act_view_pnl_content > div + div > .detail {
+         margin-top: 20px;
+         }
    <?coco-end?></style>
    <nav>
       <button id="act_view_btn_prev" class="btn_prev" onclick="od.action.view.btn_prev_click()">&lt;</button>
@@ -78,20 +86,17 @@ od.action.view = {
    'parse_action_id' : function act_view_parse_action_id () {
       var id = od.gui.act_id, action = od.action.view;
       var idList = id.substr( 'view='.length ).split( ',' ).map( function( id ){ return decodeURIComponent( id ); });
-      var loadCount = idList.length;
       action.clear();
       idList.forEach( function act_view_show_each ( id ) {
          // Parse id
-         _.info( "[View] Parsing " + id );
+         _.info( "[View] Displaying " + id );
          var cat = od.data.create( od.data.category_name_of( id ) );
-         _.info( "[View] Display " + cat.name + "." + id );
          // Create div
-         var div = _.html( '<div><h1>' + _.l( 'gui.loading', 'Loading' ) + '</h1></div>' );
+         var div = _.html( '<div><h1 class=loading>' + _.l( 'gui.loading', 'Loading' ) + '</h1></div>' );
          _( '#act_view_pnl_content')[0].appendChild( div );
          // Load and fill div
          cat.load_data( id, function act_view_show_load () {
-            if ( --loadCount === 0 )
-               action.show_entries( div, cat, idList );
+            action.show_entry( div, cat, id );
          } );
       } );
 
@@ -211,12 +216,10 @@ od.action.view = {
       od.gui.update_title( title );
    },
 
-   "show_entries" : function act_view_show_entries ( div, cat, idList ) {
+   "show_entry" : function act_view_show_entry ( div, cat, id ) {
       var action = od.action.view;
-      var content = idList.map( function act_view_show_entries_each( id ) {
-         var data = '<div class="detail" id="' + id + '">' + cat.data[ id ] + '</div>';
-         return data.replace( /(<p class=publishedIn>.*)<\/p>/, "$1<a class='cat' href='?list.name."+cat.name+"'>" + cat.getTitle() + "</a></p>" );
-      } ).join( '' );
+      var data = '<div class="detail" id="' + id + '">' + cat.data[ id ] + '</div>';
+      var content = data.replace( /(<p class=publishedIn>.*)<\/p>/, "$1<a class='cat' href='?list.name."+cat.name+"'>" + cat.getTitle() + "</a></p>" );
       div.innerHTML = od.gui.highlight( content );
       // Find title
       var h1 = content ? content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ ) : null;
