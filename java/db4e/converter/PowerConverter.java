@@ -24,8 +24,8 @@ public class PowerConverter extends LeveledConverter {
       super.initialise();
    }
 
-   private final Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]+</b>(?:, <b>[\\w ]+</b>)*)" ).matcher( "" );
-   private final Matcher regxLevel = Pattern.compile( "<span class=level>([^<]+) (Racial )?(Attack|Utility|Feature|Pact Boon|Cantrip)( \\d+)?" ).matcher( "" );
+   private final Matcher regxLevel     = Pattern.compile( "<span class=level>([^<]+?) (Racial )?+(Attack|Utility|Feature|Pact Boon|Cantrip){1}+( \\d++)?" ).matcher( "" );
+   private final Matcher regxKeywords  = Pattern.compile( "✦     (<b>[\\w ]++</b>(?:\\s*+(?:[;,]|or){1}+\\s*+<b>[\\w ]++</b>)*+)" ).matcher( "" );
 
    @Override protected void convertEntry () {
       Object[] fields = entry.getFields();
@@ -44,13 +44,13 @@ public class PowerConverter extends LeveledConverter {
       }
 
       // Set frequency part of power type, a new column
-      if ( entry.getContent().startsWith( "<h1 class=dailypower>" ) )
+      if ( data().startsWith( "<h1 class=dailypower>" ) ) {
          meta( TYPE, "Daily" );
-      else if ( entry.getContent().startsWith( "<h1 class=encounterpower>" ) )
+      } else if ( data().startsWith( "<h1 class=encounterpower>" ) ) {
          meta( TYPE, "Enc." );
-      else if ( entry.getContent().startsWith( "<h1 class=atwillpower>" ) )
+      } else if ( data().startsWith( "<h1 class=atwillpower>" ) ) {
          meta( TYPE, "At-Will" );
-      else
+      } else
          warn( "Power with unknown frequency" );
 
       // Set type part of power type column
@@ -71,7 +71,7 @@ public class PowerConverter extends LeveledConverter {
          if ( find( regxKeywords ) ) {
             Set<String> keywords = new HashSet<>(8); // Some power have multiple keyword lines.
             do {
-               keywords.addAll( Arrays.asList( regxKeywords.group( 1 ).replaceAll( "</?b>", "" ).split( ", " ) ) );
+               keywords.addAll( Arrays.asList( regxKeywords.group( 1 ).replaceAll( "\\s*+([;,]|or)\\s*+", "," ).replaceAll( "</?b>", "" ).split( "," ) ) );
             } while ( regxKeywords.find() );
             meta( KEYWORDS, String.join( ", ", keywords.toArray( new String[ keywords.size() ] ) ) );
          } else {
