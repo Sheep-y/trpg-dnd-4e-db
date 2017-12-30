@@ -101,7 +101,9 @@ _.l.set( 'action.list', {
 
    'lbl_showing' : '%2 項結果',
    'lbl_filter' : '從 %2 項結果中過濾出 %1 項',
-   'lbl_page' : '%1 頁 %2/%3',
+   'lbl_page' : '%1，頁 %2/%3',
+   'btn_show_page' : '顯示本頁',
+   'btn_show_all' : '顯示全部',
    'clear_search' : "<a href='#' onclick='od.action.list.clear_search();'>清除搜尋</a>",
    'clear_filter' : "<a href='#' onclick='od.action.list.clear_filter();'>清除過濾</a>",
    'switch_to_full_text' : "<a href='#' onclick='od.action.list.search(\"full\");'>切換至全文搜索</a>",
