@@ -51,6 +51,7 @@
 <script><?coco-start js(minify) ?>   'use strict';(function action_view_init(){
 od.action.view = {
 
+   "last_entry_content" : null, // For easy access to entry content during debug; does not have normal use
    "last_popup_event" : null,
    "last_popup_range" : null,
    'lookup_radius' : 20,
@@ -221,7 +222,8 @@ od.action.view = {
 
    "show_entry" : function act_view_show_entry ( div, cat, id, set_title ) {
       var action = od.action.view;
-      var data = '<div class="detail" id="' + id + '">' + cat.data[ id ] + '</div>';
+      var data = action.last_entry_content = cat.data[ id ];
+      data = '<div class="detail" id="' + id + '">' + data + '</div>';
       var content = data.replace( /(<p class=publishedIn>.*)<\/p>/, "$1<a class='cat' href='?list.name."+cat.name+"'>" + cat.getTitle() + "</a></p>" );
       div.innerHTML = od.gui.highlight( content );
       if ( set_title ) {

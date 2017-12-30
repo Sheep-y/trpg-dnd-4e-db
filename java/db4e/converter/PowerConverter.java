@@ -25,8 +25,9 @@ public class PowerConverter extends LeveledConverter {
       super.initialise();
    }
 
-   private final Matcher regxLevel = Pattern.compile( "<span class=level>([^<]+?) (Racial )?+(Attack|Utility|Feature|Pact Boon|Cantrip){1}+( \\d++)?" ).matcher( "" );
-   private final Matcher regxKeywords = Pattern.compile( "✦     (<b>[\\w ]++</b>(?:, <b>[\\w ]++</b>)*+)" ).matcher( "" );
+   private final Matcher regxLevel     = Pattern.compile( "<span class=level>([^<]+?) (Racial )?+(Attack|Utility|Feature|Pact Boon|Cantrip){1}+( \\d++)?" ).matcher( "" );
+   private final Matcher regxKeywords  = Pattern.compile( "✦     (<b>[\\w ]++</b>(?:\\s*+(?:[;,]|or){1}+\\s*+<b>[\\w ]++</b>)*+)" ).matcher( "" );
+   private final Matcher regxAction    = Pattern.compile( "\\b(?:Action|Interrupt){1}+</b>" ).matcher( "" );
    private final Matcher regxRangeType = Pattern.compile( "<b>(Melee(?:(?: touch)?+ or Ranged)?+|Ranged|Close|Area|Personal|Special){1}+( burst| blast)?+</b>(?!:)" ).matcher( "" );
 
    @Override protected void convertEntry () {
@@ -94,7 +95,7 @@ public class PowerConverter extends LeveledConverter {
       if ( find( "✦" ) ) {
          if ( find( regxKeywords ) ) {
             do {
-               keywords.addAll( Arrays.asList( regxKeywords.group( 1 ).replaceAll( "</?b>", "" ).split( ", " ) ) );
+               keywords.addAll( Arrays.asList( regxKeywords.group( 1 ).replaceAll( "\\s*+([;,]|or)\\s*+", "," ).replaceAll( "</?b>", "" ).split( "," ) ) );
             } while ( regxKeywords.find() );
          } else {
             // Deathly Glare, Hamadryad Aspects, and Flock Tactics have bullet star in body but not keywords.
