@@ -137,7 +137,7 @@ public class ItemConverter extends LeveledConverter {
 
       if ( meta( COST ).contains( ".00 gp" ) ) {
          meta( COST, meta( COST ).replace( ".00 ", " " ) );
-         fix( "consistency" );
+         fix( "formatting" );
       }
       if ( meta( LEVEL ).isEmpty() ) {
          meta( RARITY, "Mundane" );
@@ -421,7 +421,7 @@ public class ItemConverter extends LeveledConverter {
                        + "the group does not regain the use of the power until the person who used it takes an extended rest.</p>"
                        + "<br>Update (4/12/2010)<br> In the Keywords entry, add \"(Special)\" after \"Daily.\" In addition, add the Special entry to the power. "
                        + "These changes limit the potential for this power to shut down multiple encounters.<br><br>" );
-            fix( "missing content" );
+            fix( "content" );
             break;
 
          case "item439": // Xenda-Dran's Array
@@ -445,7 +445,7 @@ public class ItemConverter extends LeveledConverter {
          case "implement509":  // Anarusi Codex
             swap( "0 gp", "5,000 gp" );
             meta( COST, "5,000 gp" );
-            fix( "missing content" );
+            fix( "content" );
             break;
 
          case "item588":  // Bahamut's Golden Canary
@@ -474,19 +474,19 @@ public class ItemConverter extends LeveledConverter {
          case "item1701": // Kord's Relentlessness
             swap( " or 30:</i> Gain a +2 item bonus to death</p>",
                   " or 20</i>: +4 item bonus to the damage roll<br>    <i>Level 25 or 30:</i> +6 item bonus to the damage roll</p>" );
-            fix( "missing content" );
+            fix( "content" );
             break;
 
          case "item1895": // Mrtok, Ogre Chief (Gauntlets of Ogre Power)
             swap( " 0 gp", " 1,000 gp" );
             meta( COST, "1,000 gp" );
-            fix( "consistency" );
+            fix( "content" );
             break;
 
          case "implement2002": // Orium Implement
             swap( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand" );
             swap( "<p class='mistat indent'><b>Requirement:</b> Orb, Rod, Staff, Wand</p>", "" );
-            fix( "missing content" );
+            fix( "content" );
             break;
 
          case "weapon2495": // Shivli, White Wyrmling (Frost Weapon)
@@ -496,7 +496,7 @@ public class ItemConverter extends LeveledConverter {
             swap( ">+5<td class=mic3>0 gp<", ">+5<td class=mic3>425,000 gp<" );
             swap( ">+6<td class=mic3>0 gp<", ">+6<td class=mic3>2,125,000 gp<" );
             meta( COST, "3,400+ gp" );
-            fix( "consistency" );
+            fix( "content" );
             break;
 
          case "item2511": // Silver Hands of Power
@@ -510,7 +510,7 @@ public class ItemConverter extends LeveledConverter {
          case "item2971": // Vecna's Boon of Diabolical Choice
             swap( "Level 0 Uncommon", "Level 24 Uncommon" );
             meta( LEVEL, "24" );
-            fix( "missing content" );
+            fix( "content" );
             // fall through
          case "item1806": // Mark of the Star
          case "item2469": // Shelter of Fate
@@ -531,7 +531,7 @@ public class ItemConverter extends LeveledConverter {
             swap( "<b>Wondrous Item</b>", "<b>Minor Artifact:</b> Wondrous Item" );
             meta( RARITY, "Artifact" );
             meta( COST, "" );
-            fix( "missing content" );
+            fix( "content" );
             break;
 
          case "weapon3415": // The Fifth Sword of Tyr

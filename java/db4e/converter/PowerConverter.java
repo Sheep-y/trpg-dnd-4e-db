@@ -170,7 +170,7 @@ public class PowerConverter extends LeveledConverter {
 
          case "power4713": // Lurk Unseen
             swap( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<" );
-            fix( "missing content" );
+            fix( "content" );
             break;
 
          case "power6595": // Bane's Tactics
@@ -190,7 +190,7 @@ public class PowerConverter extends LeveledConverter {
 
          case "power13769": // Command Undead
             swapFirst( "Close</b> 5", "Close</b> burst 5" );
-            fix( "missing content" );
+            fix( "content" );
             break;
 
          case "power15829": // Hamadryad Aspects

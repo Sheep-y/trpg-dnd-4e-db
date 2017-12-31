@@ -48,7 +48,7 @@ public class CreatureConverter extends LeveledConverter {
       if ( sizes.isEmpty() ) {
          sizes.add( "medium" );
          swap( "<span class=type>", "<span class=type>Medium " );
-         fix( "missing content" );
+         fix( "content" );
       }
       meta( SIZE, String.join( ", ", sizes.stream().map( Utils::ucfirst ).toArray( String[]::new ) ) );
       meta( TYPE, String.join( ", ", keywords.stream().map( Utils::ucfirst ).toArray( String[]::new ) ) );

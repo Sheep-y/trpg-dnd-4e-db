@@ -58,7 +58,7 @@ public class ClassConverter extends Converter {
             break;
          case "class893": // Hybrid Vampire
             swap( "per Day</b>: 2<", "per Day</b>: As a hybrid vampire, you gain two healing surges regardless of the class that you have combined with vampire to create your character.<" );
-            fix( "missing content" );
+            fix( "content" );
             // Fall-through
          case "class892": // Hybrid Blackguard
          case "class894": // Hybrid Sentinel

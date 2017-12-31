@@ -19,7 +19,7 @@ public class GlossaryConverter extends Converter {
          if ( ! find( "IMPROVISING WITH" ) ) {
             data( regxFlavor.reset( data() ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" ) );
             test( TEXT, "<h3>IMPROVISING WITH " );
-            fix( "missing content" );
+            fix( "content" );
          }
       }
       switch ( entry.getId() ) {
