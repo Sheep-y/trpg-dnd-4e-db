@@ -43,7 +43,7 @@ This downloader will create new data columns for easier data filter:
 * Race: Origin (and keywords).
 * Background: Benefit (Replace Associated Skills).
 * Theme: Prerequisites.
-* Power: Type (Frequency + Type) and Keyword.
+* Power: Type (Frequency + Type) and Keywords (Range + Keywords).
 * Feat: Prerequisite.
 * Item: Split into 4 categories (Item, Weapon, Implement, and Armor). Add Type column.
 * Companion: Size and Type.
@@ -57,17 +57,17 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 Let's face it, the official compendium has errors.
 This downloader fixes over 1840 entries during export:
 
-* 219 entries with bold and font size issues. (Deluge, Dark Toxin etc.)
-* 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous)
+* 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous etc.)
 * 151 entries missing power frequency. (Bending Branch, Dantrag's Bracers, energy weapons, dragon orbs, lights etc.)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 38 entries with line breaks, indent, and other formatting issues. (Mirror of Deception, Silver Hands of Power, Spike Wire etc.)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
-* 30 entries with wrong title colour (Shield of Prator, Shadowstep, Imprison etc. )
+* 30 entries with wrong title colour (Shield of Prator, Shadowstep, Imprison etc.)
 * 27 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
 * 14 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 2 new entries (Artifact and Item Set.)
+* 219 entries with bold and font size issues. (Deluge, Dark Toxin etc.)
 * 276 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 94 entries with missing listing data not caused by above issues. (Subrace abilities, Heroic feat tier etc.)
 * 724 entries with wrong/inconsistent listing data not caused by above issues. (Multi-source classes, theme powers etc.)
