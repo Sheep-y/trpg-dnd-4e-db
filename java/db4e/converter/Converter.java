@@ -106,7 +106,7 @@ public class Converter extends Convert {
                default:
                   log.log( Level.WARNING, "Cannot fix unknown power frequency {1} of {0}", new Object[]{ entry, regxPowerFrequency.group( 1 ) } );
             }
-            fix( "formatting" );
+            fix( "title colour" );
             return;
          }
       }

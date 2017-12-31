@@ -154,7 +154,7 @@ public class PowerConverter extends LeveledConverter {
 
       if ( find( regxRangeFix ) ) {
          swapFirst( regxRangeFix.group(), "<b>" + regxRangeFix.group( 1 ) + "</b> " + regxRangeFix.group( 2 ) );
-         fix( "formatting" );
+         fix( "styling" );
       }
 
       switch ( entry.getId() ) {

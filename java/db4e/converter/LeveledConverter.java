@@ -111,7 +111,7 @@ class LeveledConverter extends Converter {
       case  "Poison":
          if ( find( "<p>Published in" ) ) {
             swap( "<p>Published in", "<p class=publishedIn>Published in" );
-            fix( "formatting" );
+            fix( "styling" );
          }
 
          // Convert from item to poison
