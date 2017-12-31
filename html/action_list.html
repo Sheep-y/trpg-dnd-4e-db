@@ -660,9 +660,7 @@ od.action.list = {
       action.show_list( table );
       table.addEventListener( 'click', action.table_click );
       table.addEventListener( 'mousedown', action.table_mousedown );
-      table.addEventListener( 'keypress', function act_list_table_keypressed ( evt ) {
-         if ( evt.keyCode === 13 ) action.table_click( evt ); // Trigger a click when pressing Enter
-      });
+      table.addEventListener( 'input', action.table_click );
       _.show( '#act_list_pnl_list' )[0].appendChild( table );
    },
 
