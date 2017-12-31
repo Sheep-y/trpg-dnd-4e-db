@@ -1,6 +1,6 @@
 # 4e Compendium Downloader #
 
-## Version 3.6 ##
+## Version 3.6.1 ##
 
 [![3 min. intro video](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/Frontpage.jpg)](https://youtu.be/aNDze9Ok5fE)
 
@@ -31,7 +31,7 @@ This is a fan project and does not come with copyrighted data.
 
 The downloader is tested with Sun Java 8 and 9.
 If you use [OpenJDK](http://openjdk.java.net/), you also need [OpenJFX](http://openjdk.java.net/projects/openjfx/). <br/>
-The viewer is tested on Chrome 62, Edge 15, Firefox 57, IE 11, Android Chrome 62, and Android Firefox 57. <br/>
+The viewer is tested on Chrome 63, Edge 15, Firefox 57, IE 11, Android Chrome 63, Android Firefox 57, and Android UC Browser 11.5. <br/>
 Mac and iOS cannot be supported.  Walled garden is walled.
 
 ## Differences from Official Compendium ##

@@ -17,7 +17,7 @@ public class GlossaryConverter extends Converter {
    @Override protected void correctEntry () {
       if ( entry.getId().startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
          if ( ! find( "IMPROVISING WITH" ) ) {
-            entry.setContent( regxFlavor.reset( data() ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" ) );
+            data( regxFlavor.reset( data() ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" ) );
             test( TEXT, "<h3>IMPROVISING WITH " );
             fix( "missing content" );
          }
@@ -26,7 +26,7 @@ public class GlossaryConverter extends Converter {
          case "glossary381": // Concordance, change to Artifact
             entry.setName( "Artifact" );
             swap( "<h1 class=player>Concordance</h1><p class=flavor>", "<h3>Concordance</h3><p>" );
-            entry.setContent( "<h1 class=player>Artifact</h1>"
+            data( "<h1 class=player>Artifact</h1>"
                     + "<p class=flavor>Artifacts have a level but no price - they can't be " +
 "bought or crafted, and their temporary nature ensures that they don't have a long-term impact on a character's " +
 "total wealth. As with normal magic items, an artifact's level measures the potency of its properties and " +

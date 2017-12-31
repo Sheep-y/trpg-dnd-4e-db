@@ -220,7 +220,7 @@ od.action.view = {
       div.innerHTML = od.gui.highlight( content );
       // Find title
       var h1 = content ? content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ ) : null;
-      action.set_title( h1 ? h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>/g, '' ) : idList.join(', ') );
+      action.set_title( h1 ? h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>|\[Attack Technique\]/g, '' ).trim() : idList.join(', ') );
    },
 
    "update_nav_button" : function act_view_update_nav_button () {

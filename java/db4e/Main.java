@@ -33,8 +33,8 @@ public class Main {
    }
 
    static String TITLE = "Compendium downloader";
-   static String VERSION = "3.6";
-   static String UPDATE_TIME = "2017-12-16"; // Any release beyond this time is an update
+   static String VERSION = "3.6.1";
+   static String UPDATE_TIME = "2018-01-01"; // Any release beyond this time is an update
 
    // Global log ang preference
    public static final Logger log = Logger.getLogger( Main.class.getName() );

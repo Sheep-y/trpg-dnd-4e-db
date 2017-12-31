@@ -69,7 +69,7 @@
       <div id="js_enable_pointer" style="">☟</div><!-- Points to 'Allow' button on IE. Rough position, not accurate, but enough. -->
    </noscript>
    <?coco file( "action_list.html", "action_view.html", "action_about.html" ) coco trim(xml) ?>
-   <script async crossorigin src="4e_database_files/res/script.js?<?coco var( time.last_modified ) ?>" onload="script_loaded()" onerror="script_error(error)"></script>
+   <script async src="4e_database_files/res/script.js?<?coco var( time.last_modified ) ?>" onload="script_loaded()" onerror="script_error()"></script>
 </body></html><?coco-output "../res/4e_database.html" ?><?coco-end?><?coco-start?>
 <?coco file( "images.css", "style_data.css") css(minify) ?>
 <?coco-output "../res/style.css" ?><?coco-end?><?coco-start?>'use strict';

@@ -108,7 +108,7 @@ public class ItemConverter extends LeveledConverter {
          String type = regxType.group( 2 ).trim();
          // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
          if ( type.split( ", " ).length >= 5 ) {
-            entry.setContent( regxType.replaceFirst( "<b>$1</b>: Any" ) );
+            data( regxType.replaceFirst( "<b>$1</b>: Any" ) );
             test( TEXT, "</b>: Any" );
             meta( TYPE, "Any" );
             fix( "consistency" );
@@ -374,13 +374,13 @@ public class ItemConverter extends LeveledConverter {
 
    @Override protected void correctEntry () {
       if ( ! find( regxPublished ) ) {
-         entry.setContent( data() + "<p class=publishedIn>Published in " + meta( SOURCE )  + ".</p>" );
+         data( data() + "<p class=publishedIn>Published in " + meta( SOURCE )  + ".</p>" );
          test( TEXT, "<p class=publishedIn>Published in" );
          fix( "missing published" );
       }
 
       if ( find( ", which is reproduced below." ) ) {
-         entry.setContent( regxWhichIsReproduced.reset( data() ).replaceFirst( "" ) );
+         data( regxWhichIsReproduced.reset( data() ).replaceFirst( "" ) );
          test( TEXT, Pattern.compile( ".*(?!, which is reproduced below\\.)" ) );
          fix( "consistency" );
       }
@@ -516,7 +516,7 @@ public class ItemConverter extends LeveledConverter {
          case "item2469": // Shelter of Fate
          case "item2533": // Slaying Stone of Kiris Dahn
          case "item2995": // Vision of the Vizier
-            swapFirst( " +0 gp", "" );
+            swapFirst( " 0 gp", "" );
             meta( COST, "" );
             fix( "consistency" );
             break;
@@ -588,7 +588,7 @@ public class ItemConverter extends LeveledConverter {
             // Add "At-Will" to the ~150 items missing a power frequency.
             // I checked each one and the exceptions are above.
             if ( find( regxPowerFrequency ) ) {
-               entry.setContent( regxPowerFrequency.replaceAll( "✦ At-Will (" ) );
+               data( regxPowerFrequency.replaceAll( "✦ At-Will (" ) );
                test( TEXT, "✦ At-Will (" );
                fix( "missing power frequency" );
             }
