@@ -28,7 +28,7 @@ public class PowerConverter extends LeveledConverter {
    private final Matcher regxLevel     = Pattern.compile( "<span class=level>([^<]+?) (Racial )?+(Attack|Utility|Feature|Pact Boon|Cantrip){1}+( \\d++)?" ).matcher( "" );
    private final Matcher regxKeywords  = Pattern.compile( "✦     (<b>[\\w ]++</b>(?:\\s*+(?:[;,]|or){1}+\\s*+<b>[\\w ]++</b>)*+)" ).matcher( "" );
    private final Matcher regxAction    = Pattern.compile( "\\b(?:Action|Interrupt){1}+</b>" ).matcher( "" );
-   private final Matcher regxRangeType = Pattern.compile( "<b>(Melee(?:(?: touch)?+ or Ranged)?+|Ranged|Close|Area|Personal|Special){1}+( burst| blast)?+</b>(?!:)" ).matcher( "" );
+   private final Matcher regxRangeType = Pattern.compile( "<b>(Melee(?:(?: touch)?+ or Ranged)?+|Ranged|Close|Area|Personal|Special){1}+</b>\\s*+(burst|blast|wall|special|touch|\\d+ square)?+(?!:)" ).matcher( "" );
 
    @Override protected void convertEntry () {
       Object[] fields = entry.getFields();
@@ -74,6 +74,7 @@ public class PowerConverter extends LeveledConverter {
       if ( find( regxRangeType ) ) {
          do {
             String range = regxRangeType.group( 1 );
+            String area = regxRangeType.group( 2 );
             switch ( range ) {
                case "Melee touch or Ranged":
                   keywords.add( "Melee" );
@@ -82,12 +83,17 @@ public class PowerConverter extends LeveledConverter {
                   keywords.add( "Melee" );
                   keywords.add( "Ranged" );
                   break;
+               case "Special":
+                  break;
+               case "Close":
+               case "Area":
+                  if ( area == null )
+                     warn( range + " without area type" );
                default:
                   keywords.add( range );
             }
-            range = regxRangeType.group( 2 );
-            if ( range != null )
-               keywords.add( range );
+            if ( area != null && ! area.endsWith( "square" ) )
+               keywords.add( area );
          } while( regxRangeType.find() );
       } else {
          warn( "Rangeless power" );
@@ -135,6 +141,8 @@ public class PowerConverter extends LeveledConverter {
       return result;
    }
 
+   private final Matcher regxRangeFix = Pattern.compile( "<b>(Close|Area){1}+\\s*+(burst|blast){1}+</b>(?!:)" ).matcher( "" );
+
    @Override protected void correctEntry () {
       if ( entry.getName().endsWith( " [Attack Technique]" ) ) {
          entry.setName( entry.getName().substring( 0, entry.getName().length() - 19 ) );
@@ -144,10 +152,20 @@ public class PowerConverter extends LeveledConverter {
       if ( meta( ACTION ).startsWith( "Immediate " ) )
          meta( ACTION, meta( ACTION ).replace( "Immediate ", "Imm. " ) );
 
+      if ( find( regxRangeFix ) ) {
+         swapFirst( regxRangeFix.group(), "<b>" + regxRangeFix.group( 1 ) + "</b> " + regxRangeFix.group( 2 ) );
+         fix( "formatting" );
+      }
+
       switch ( entry.getId() ) {
          case "power3660": // Indomitable Resolve
             swapFirst( "<br>", "" ); // <br> in flavor text
             fix( "formatting" );
+            break;
+
+         case "power4155": // Iron-Hide Infusion
+            swap( "Burst 5", "burst 5" );
+            fix( "typo" );
             break;
 
          case "power4713": // Lurk Unseen
@@ -168,6 +186,11 @@ public class PowerConverter extends LeveledConverter {
          case "power9348": // Bending Branch
             swap( "<p class=powerstat>   ✦", "<p class=powerstat><b>Encounter</b>   ✦" );
             fix( "missing power frequency" );
+            break;
+
+         case "power13769": // Command Undead
+            swapFirst( "Close</b> 5", "Close</b> burst 5" );
+            fix( "missing content" );
             break;
 
          case "power15829": // Hamadryad Aspects

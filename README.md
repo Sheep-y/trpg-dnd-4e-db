@@ -15,17 +15,19 @@ This is a fan project and does not come with copyrighted data.
 
 ## How To Download Data ##
 
+[Video guide](https://youtu.be/aNDze9Ok5fE) available.
+
 1. You need an active [Dungeons & Dragons Insider subscription](http://ddi.wizards.com/) to fetch data.
    1. A new subscription can be purchased from [digitalriver](http://gc.digitalriver.com/store/dndi/html/pbPage.wizards).
 2. [Download](http://www.java.com/) and install Java (version 8 or above).
 3. [Download](https://github.com/Sheep-y/trpg-dnd-4e-db/releases/) the downloader exe (Windows) or downloader jar (Linux/Mac).
-4. Open a folder for the downloader, put it in, and run it.
-   1. Jar version: If double clicking the jar file does not work, open console and run "java -jar 4e_compendium_downloader.jar". This should launch the program.
+4. Create a folder for the downloader, put it in, and run it.
+   1. Jar version: If double clicking the jar file does not work, open console/terminal and run "java -jar 4e_compendium_downloader.jar". This should launch the program.
 5. In the downloader, fill in DDI username and password, then click "Download".
    1. Download can be stopped and resumed any time.
-   2. See [in-program help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/res/downloader_about.html) for steps and troubleshoots.
+   2. See [in-program help](http://htmlpreview.github.io/?https://github.com/Sheep-y/trpg-dnd-4e-db/blob/master/res/downloader_about.html) for details and troubleshoots.
 6. Once all data is downloaded, you can export the data to an HTML file, which can be opened in browsers.
-7. There is a [video guide](https://youtu.be/aNDze9Ok5fE) for the above steps.
+   1. The HTML file works totally offline, and can be copied to your preferred mobile devices.
 
 ### Compatibility ###
 
@@ -53,16 +55,16 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 1690 entries during export:
+This downloader fixes over 1840 entries during export:
 
+* 269 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, Spike Wire, Imprison, etc.)
 * 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous)
 * 151 entries missing power frequency. (Bending Branch, Dantrag's Bracers, many energy weapons, dragon orbs, lights etc.)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
-* 68 entries with formatting issues. (Mirror of Deception, Silver Hands of Power, Spike Wire, Imprison, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
-* 24 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
-* 13 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
+* 25 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
+* 14 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 2 new entries (Artifact and Item Set.)
 * 293 entries with other inconsistent content. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 94 entries with missing listing data not caused by above issues. (Subrace abilities, Heroic feat tier etc.)
