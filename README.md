@@ -1,6 +1,6 @@
 # 4e Compendium Downloader #
 
-## Version 3.6.1 development branch ##
+## Version 3.6.2 development branch ##
 
 [![3 min. intro video](https://raw.githubusercontent.com/Sheep-y/trpg-dnd-4e-db/master/res/img/Frontpage.jpg)](https://youtu.be/aNDze9Ok5fE)
 
