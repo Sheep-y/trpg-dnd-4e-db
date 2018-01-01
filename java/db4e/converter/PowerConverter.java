@@ -152,8 +152,8 @@ public class PowerConverter extends LeveledConverter {
       if ( meta( ACTION ).startsWith( "Immediate " ) )
          meta( ACTION, meta( ACTION ).replace( "Immediate ", "Imm. " ) );
 
-      while ( find( regxRangeFix ) ) {
-         swap( regxRangeFix.group(), "<b>" + regxRangeFix.group( 1 ) + "</b> " + regxRangeFix.group( 2 ) );
+      if ( find( regxRangeFix ) ) {
+         swapAll( regxRangeFix.group(), "<b>" + regxRangeFix.group( 1 ) + "</b> " + regxRangeFix.group( 2 ) );
          fix( "styling" );
       }
 

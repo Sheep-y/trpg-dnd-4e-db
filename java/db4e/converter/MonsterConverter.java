@@ -45,7 +45,7 @@ public class MonsterConverter extends CreatureConverter {
 
          default:
             if ( find( "basic melee attack") ) {
-               swap( "basic melee attack", "melee basic attack" );
+               swapAll( "basic melee attack", "melee basic attack" );
                fix( "fix basic attack" );
             }
       }

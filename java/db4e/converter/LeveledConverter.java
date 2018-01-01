@@ -135,8 +135,8 @@ class LeveledConverter extends Converter {
             case "poison03561": // Aboleth Slime Concentrate
             case "poison03563": // Grell Bile
             case "poison03566": // Mind Flayer Tentacle Extract
-               swap( "(Consumable, ", "(" );
-               swap( " ✦ (", " ✦ Consumable (" );
+               swapAll( "(Consumable, ", "(" );
+               swapAll( " ✦ (", " ✦ Consumable (" );
                fix( "missing power frequency" );
          }
          break;

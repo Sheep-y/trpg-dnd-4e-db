@@ -445,8 +445,20 @@ public class Converter extends Convert {
       return list;
    }
 
+   /** Replace first substring. */
+   protected final void swap ( String from, String to ) {
+      StringBuilder content = new StringBuilder( data().length() + Math.max( 0, to.length() - from.length() ) ).append( data() );
+      int pos = content.indexOf( from );
+      if ( pos >= 0 ) {
+         content.replace( pos, pos + from.length(), to );
+         data( content.toString() );
+         test( TEXT, to );
+      } else
+         log.log( Level.WARNING, "Cannot swap content of {0}: {1}", new Object[]{ entry, from } );
+   }
+
    /** Simple substring replace. */
-   protected final void swap ( CharSequence from, CharSequence to ) {
+   protected final void swapAll ( String from, String to ) {
       if ( data().contains( from ) ) {
          data( data().replace( from, to ) );
          test( TEXT, to );

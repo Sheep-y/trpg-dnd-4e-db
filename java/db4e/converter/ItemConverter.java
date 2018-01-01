@@ -100,7 +100,7 @@ public class ItemConverter extends LeveledConverter {
                setWondrousType( entry );
          }
       }
-      setCost( entry );
+      setCost();
    }
 
    private void setArmorType ( Entry entry ) {
@@ -348,7 +348,7 @@ public class ItemConverter extends LeveledConverter {
     * Parse cost and level table to output multiple meta
     * @param entry
     */
-   private void setCost ( Entry entry ) {
+   private void setCost () {
       if ( ! meta( LEVEL ).endsWith( "+" ) ) {
          if ( ! Main.debug.get() ) return;
          if ( TYPE > 0 && meta( TYPE-1 ).equals( "Item Set" ) ) return;
@@ -403,7 +403,7 @@ public class ItemConverter extends LeveledConverter {
             break;
 
          case "armor105": // Shield of Prator
-            swap( " class=magicitem>", " class=mihead>" );
+            swapAll( " class=magicitem>", " class=mihead>" );
             fix( "title colour" );
             break;
 

@@ -30,17 +30,16 @@ public class CreatureConverter extends LeveledConverter {
    protected boolean findSizeAndTypes () {
       if ( ! find( regxType ) ) return false;
 
-      do {
-         String termText = regxType.group( 1 ).trim().toLowerCase().replaceAll( "[/,()]+", " " );
-         if ( ! termText.isEmpty() ) // type and keywords
-            keywords.addAll( Arrays.asList( termText.split( "\\s+" ) ) );
-         String race = regxType.group( 2 ); // race, e.g. drow, human,
-         if ( race != null ) {
-            race = race.substring( 1 ).trim();
-            if ( ! race.trim().contains( " " ) ) // Exclude rare races like "red dragon", "fang titan drake", "dark one", "mind flayer" etc.
-               keywords.add( race );
-         }
-      } while ( regxType.find() );
+      String termText = regxType.group( 1 ).trim().toLowerCase().replaceAll( "[/,()]+", " " );
+      if ( ! termText.isEmpty() ) // type and keywords
+         keywords.addAll( Arrays.asList( termText.split( "\\s+" ) ) );
+      String race = regxType.group( 2 ); // race, e.g. drow, human,
+      if ( race != null ) {
+         race = race.substring( 1 ).trim();
+         if ( ! race.trim().contains( " " ) ) // Exclude rare races like "red dragon", "fang titan drake", "dark one", "mind flayer" etc.
+            keywords.add( race );
+      }
+
       sizes.addAll( keywords );
       sizes.retainAll( AllSizes );
       keywords.removeAll( AllSizes );
