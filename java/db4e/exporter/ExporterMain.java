@@ -6,6 +6,7 @@
 package db4e.exporter;
 
 import SevenZip.Compression.LZMA.Encoder;
+import db4e.Main;
 import db4e.controller.ProgressState;
 import db4e.converter.Convert;
 import db4e.data.Category;
@@ -44,6 +45,7 @@ public class ExporterMain extends Exporter {
    private static final int FILE_PER_CATEGORY = 20;
 
    private String root;
+   private final boolean multiline = Main.debug.get();
 
    @Override public synchronized void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
       super.setState( target, stopChecker, state );
@@ -112,6 +114,7 @@ public class ExporterMain extends Exporter {
                str( buffer, field.toString() ).append( ',' );
          }
          backspace( buffer ).append( "]," );
+         if ( multiline ) buffer.append( '\n' );
       }
       try ( OutputStreamWriter writer = openStream( catPath + "/_listing.js" ) ) {
          writeData( writer, "od.reader.jsonp_data_listing(20130703," + listCol, backspace( buffer ).append( ']' ), ")" );
@@ -128,6 +131,7 @@ public class ExporterMain extends Exporter {
          buffer.ensureCapacity( buffer.length() + entry.getId().length() + fulltext.length() + 12 );
          str( buffer, entry.getId() ).append( ':' );
          str( buffer, fulltext ).append( ',' );
+         if ( multiline ) buffer.append( '\n' );
       }
       try ( OutputStreamWriter writer = openStream( catPath + "/_index.js" ) ) {
          writeData( writer, "od.reader.jsonp_data_index(20130616," + textCat, backspace( buffer ).append( '}' ), ")" );
@@ -147,6 +151,7 @@ public class ExporterMain extends Exporter {
          data[grp].ensureCapacity( data[grp].length() + entry.getId().length() + entry.getContent().length() + 12 );
          str( data[ grp ], entry.getId() ).append( ':' );
          str( data[ grp ], entry.getContent() ).append( ',' );
+         if ( multiline ) data[ grp ].append( '\n' );
          ++exported;
 
          if ( stop.get() ) throw new InterruptedException();
