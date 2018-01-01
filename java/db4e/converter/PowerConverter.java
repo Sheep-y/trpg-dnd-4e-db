@@ -152,8 +152,8 @@ public class PowerConverter extends LeveledConverter {
       if ( meta( ACTION ).startsWith( "Immediate " ) )
          meta( ACTION, meta( ACTION ).replace( "Immediate ", "Imm. " ) );
 
-      if ( find( regxRangeFix ) ) {
-         swapFirst( regxRangeFix.group(), "<b>" + regxRangeFix.group( 1 ) + "</b> " + regxRangeFix.group( 2 ) );
+      while ( find( regxRangeFix ) ) {
+         swap( regxRangeFix.group(), "<b>" + regxRangeFix.group( 1 ) + "</b> " + regxRangeFix.group( 2 ) );
          fix( "styling" );
       }
 
@@ -189,7 +189,7 @@ public class PowerConverter extends LeveledConverter {
             break;
 
          case "power13769": // Command Undead
-            swapFirst( "Close</b> 5", "Close</b> burst 5" );
+            swap( "Close</b> 5", "Close</b> burst 5" );
             fix( "content" );
             break;
 

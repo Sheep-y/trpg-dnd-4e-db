@@ -100,9 +100,9 @@ public class Converter extends Convert {
             ! regxPowerFrequency.group( 1 ).toLowerCase().equals( regxPowerTitle.group( 1 ) ) ) { // Mismatch
             // Error if power, pp, or ed.  Style if disease, item, or monster
             switch ( regxPowerFrequency.group( 1 ) ) {
-               case "At": swapFirst( regxPowerTitle.group(), "<h1 class=atwillpower>" + regxPowerTitle.group( 2 ) ); break;
-               case "En": swapFirst( regxPowerTitle.group(), "<h1 class=encounterpower>" + regxPowerTitle.group( 2 ) ); break;
-               case "Da": swapFirst( regxPowerTitle.group(), "<h1 class=dailypower>" + regxPowerTitle.group( 2 ) ); break;
+               case "At": swap( regxPowerTitle.group(), "<h1 class=atwillpower>" + regxPowerTitle.group( 2 ) ); break;
+               case "En": swap( regxPowerTitle.group(), "<h1 class=encounterpower>" + regxPowerTitle.group( 2 ) ); break;
+               case "Da": swap( regxPowerTitle.group(), "<h1 class=dailypower>" + regxPowerTitle.group( 2 ) ); break;
                default:
                   log.log( Level.WARNING, "Cannot fix unknown power frequency {1} of {0}", new Object[]{ entry, regxPowerFrequency.group( 1 ) } );
             }
@@ -445,6 +445,7 @@ public class Converter extends Convert {
       return list;
    }
 
+   /** Simple substring replace. */
    protected final void swap ( CharSequence from, CharSequence to ) {
       if ( data().contains( from ) ) {
          data( data().replace( from, to ) );
@@ -453,6 +454,7 @@ public class Converter extends Convert {
          log.log( Level.WARNING, "Cannot swap content of {0}: {1}", new Object[]{ entry, from } );
    }
 
+   /** Regular expression replace. */
    protected final void swapFirst ( String from, String to ) {
       if ( data().contains( from ) ) {
          data( data().replaceFirst( from, to ) );

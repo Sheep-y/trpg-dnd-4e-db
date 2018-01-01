@@ -516,7 +516,7 @@ public class ItemConverter extends LeveledConverter {
          case "item2469": // Shelter of Fate
          case "item2533": // Slaying Stone of Kiris Dahn
          case "item2995": // Vision of the Vizier
-            swapFirst( " 0 gp", "" );
+            swap( " 0 gp", "" );
             meta( COST, "" );
             fix( "consistency" );
             break;
