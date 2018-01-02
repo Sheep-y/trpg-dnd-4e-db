@@ -57,6 +57,7 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 Let's face it, the official compendium has errors.
 This downloader fixes over 1840 entries during export:
 
+* 551 powers classified as "Theme Power" or "Multiclass" (actually Spellscarred), corrected.
 * 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous etc.)
 * 151 entries missing power frequency. (Bending Branch, Dantrag's Bracers, energy weapons, dragon orbs, lights etc.)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
@@ -70,7 +71,7 @@ This downloader fixes over 1840 entries during export:
 * 219 entries with bold and font size issues. (Deluge, Dark Toxin etc.)
 * 276 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 94 entries with missing listing data not caused by above issues. (Subrace abilities, Heroic feat tier etc.)
-* 724 entries with wrong/inconsistent listing data not caused by above issues. (Multi-source classes, theme powers etc.)
+* 173 entries with wrong listing data not caused by above issues. (Multi-source classes, traps mixing up role and type etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).

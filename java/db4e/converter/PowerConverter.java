@@ -43,7 +43,7 @@ public class PowerConverter extends LeveledConverter {
          metaAdd( CLASS, ", " + regxLevel.group( 1 ) );
       else if ( meta( CLASS ).equals( "Theme Power" ) ) {
          meta( CLASS, regxLevel.group( 1 ) );
-         fix( "wrong meta" );
+         fix( "wrong class" );
       }
 
       // Set frequency part of power type, a new column
@@ -205,19 +205,20 @@ public class PowerConverter extends LeveledConverter {
             swap( "<b>Aura</b> burst", "<b>Area</b> burst" );
             fix( "typo" );
             break;
-      }
 
-      if ( find( "Racial Power" ) ) {
-         if ( find( "<p class=powerstat><b>Attack</b>" ) )
-            swap( "Racial Power", "Racial Attack" );
-         else
-            swap( "Racial Power", "Racial Utility" );
-         fix( "consistency" );
-      }
+         default:
+            if ( find( "Racial Power" ) ) {
+               if ( find( "<p class=powerstat><b>Attack</b>" ) )
+                  swap( "Racial Power", "Racial Attack" );
+               else
+                  swap( "Racial Power", "Racial Utility" );
+               fix( "consistency" );
+            }
 
-      if ( meta( CLASS ).equals( "Multiclass" ) ) {
-         meta( CLASS, "Spellscarred" );
-         fix( "wrong meta" );
+            if ( meta( CLASS ).equals( "Multiclass" ) ) {
+               meta( CLASS, "Spellscarred" );
+               fix( "wrong class" );
+            }
       }
 
       stripFlavorBr();

@@ -450,8 +450,7 @@ public class Converter extends Convert {
       StringBuilder content = new StringBuilder( data().length() + Math.max( 0, to.length() - from.length() ) ).append( data() );
       int pos = content.indexOf( from );
       if ( pos >= 0 ) {
-         content.replace( pos, pos + from.length(), to );
-         data( content.toString() );
+         data( content.replace( pos, pos + from.length(), to ).toString() );
          test( TEXT, to );
       } else
          log.log( Level.WARNING, "Cannot swap content of {0}: {1}", new Object[]{ entry, from } );
