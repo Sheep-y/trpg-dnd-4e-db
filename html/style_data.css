@@ -205,7 +205,7 @@
    margin-top: 0.8ex;
    }
    /* Undo power keywords margin */
-   .detail .powerstat b {
+   .detail .powerstat:first-of-type b {
       margin: 0;
         }
    /* Undo left margin for other common b. */
