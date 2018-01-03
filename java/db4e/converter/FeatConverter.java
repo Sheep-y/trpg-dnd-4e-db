@@ -20,6 +20,7 @@ public class FeatConverter extends Converter {
       super.initialise();
    }
 
+   private final Matcher regxAction    = Pattern.compile( "\\b(Action|Interrupt){1}+</b>\\s*" ).matcher( "" );
    private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite</b>:\\s*+([^<>]++)<" ).matcher( "" );
    private final Matcher regxLevel = Pattern.compile( "(?:, )?+([12]?\\d)(?:st|nd|th){1}+ level(?:, )?+" ).matcher( "" );
 
@@ -81,6 +82,16 @@ public class FeatConverter extends Converter {
          case "feat1111": // Bane's Tactics
             swap( "basic melee attack", "melee basic attack" );
             fix( "fix basic attack" );
+            break;
+
+         case "feat1281": // Bravo Novice
+         case "feat1285": // Cutthroat Novice
+         case "feat1287": // Cutthroat Specialist
+         case "feat1293": // Poisoner Novice
+         case "feat1295": // Poisoner Specialist
+            find( regxAction );
+            swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Melee or Ranged</b>" );
+            fix( "missing range" );
             break;
 
          case "feat2254": // Traveler's Celerity

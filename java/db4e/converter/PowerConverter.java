@@ -27,7 +27,7 @@ public class PowerConverter extends LeveledConverter {
 
    private final Matcher regxLevel     = Pattern.compile( "<span class=level>([^<]+?) (Racial )?+(Attack|Utility|Feature|Pact Boon|Cantrip){1}+( \\d++)?" ).matcher( "" );
    private final Matcher regxKeywords  = Pattern.compile( "✦     (<b>[\\w ]++</b>(?:\\s*+(?:[;,]|or){1}+\\s*+<b>[\\w ]++</b>)*+)" ).matcher( "" );
-   private final Matcher regxAction    = Pattern.compile( "\\b(?:Action|Interrupt){1}+</b>" ).matcher( "" );
+   private final Matcher regxAction    = Pattern.compile( "\\b(Action|Interrupt){1}+</b>\\s*" ).matcher( "" );
    private final Matcher regxRangeType = Pattern.compile( "<b>(Melee(?:(?: touch)?+ or Ranged)?+|Ranged|Close|Area|Personal|Special){1}+</b>\\s*+(burst|blast|wall|special|touch|\\d+ square)?+(?!:)" ).matcher( "" );
 
    @Override protected void convertEntry () {
@@ -77,6 +77,7 @@ public class PowerConverter extends LeveledConverter {
             String area = regxRangeType.group( 2 );
             switch ( range ) {
                case "Melee touch or Ranged":
+                  swap( "Melee touch or Ranged", "Melee</b> touch or <b>Ranged" );
                   keywords.add( "Melee" );
                   // fallthrough
                case "Melee or Ranged":
@@ -84,6 +85,7 @@ public class PowerConverter extends LeveledConverter {
                   keywords.add( "Ranged" );
                   break;
                case "Special":
+                  // Skip special as range type
                   break;
                case "Close":
                case "Area":
@@ -204,6 +206,35 @@ public class PowerConverter extends LeveledConverter {
          case "power15868": // Terror of the Dark Moon
             swap( "<b>Aura</b> burst", "<b>Area</b> burst" );
             fix( "typo" );
+            break;
+
+         case "power4311" : // Darkspiral Aura
+         case "power6017" : // Lawbreaker's Doom
+         case "power7360" : // Bravo's Finish
+         case "power7429" : // Wizard's Fury
+         case "power7430" : // Learned Boost
+         case "power7432" : // Master's Surge
+         case "power9295" : // Agile Recovery
+         case "power12286": // Deadly Visions
+         case "power12451": // Undeniable Tenacity
+         case "power12452": // Contrivance of Speed
+         case "power12454": // Shadow Adept [teleport]
+         case "power12460": // Precision Gait
+         case "power13431": // Hidden Strike
+         case "power16695": // River Rat's Gambit
+            find( regxAction );
+            swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Personal</b>" );
+            fix( "missing range" );
+            break;
+
+         case "power7358": // Death's Messenger
+         case "power7361": // Sudden Retaliation
+         case "power7363": // Quick Kill
+         case "power7367": // Improvised Poison
+         case "power7369": // Progressive Toxin
+            find( regxAction );
+            swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Melee or Ranged</b>" );
+            fix( "missing range" );
             break;
 
          default:
