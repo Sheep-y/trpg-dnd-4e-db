@@ -73,6 +73,7 @@ This downloader fixes over 1840 entries during export:
 * 94 entries with missing listing data not caused by above issues. (Subrace abilities, Heroic feat tier etc.)
 * 173 entries with wrong listing data not caused by above issues. (Multi-source classes, traps mixing up role and type etc.)
 * In addition, over a hundred artifacts and item sets are manually classified.
+(Some entries has multiple fixes applied)
 
 If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 
