@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static sheepy.util.Utils.ucfirst;
 
 public class PowerConverter extends LeveledConverter {
 
@@ -68,34 +69,6 @@ public class PowerConverter extends LeveledConverter {
 
       // New column: keywords
       Set<String> keywords = new HashSet<>(8); // Some power have multiple keyword lines.
-      if ( find( regxRangeType ) ) {
-         do {
-            String range = regxRangeType.group( 1 );
-            String area = regxRangeType.group( 2 );
-            switch ( range ) {
-               case "Melee touch or Ranged":
-                  swap( "Melee touch or Ranged", "Melee</b> touch or <b>Ranged" );
-                  keywords.add( "Melee" );
-                  // fallthrough
-               case "Melee or Ranged":
-                  append( keywords, "Melee", "Ranged" );
-                  break;
-               case "Special":
-                  // Skip special as range type
-                  break;
-               case "Close":
-               case "Area":
-                  if ( area == null )
-                     warn( range + " without area type" );
-               default:
-                  keywords.add( range );
-            }
-            if ( area != null && ! area.endsWith( "square" ) )
-               keywords.add( area );
-         } while( regxRangeType.find() );
-      } else {
-         warn( "Rangeless power" );
-      }
       if ( find( "✦" ) ) {
          if ( find( regxKeywords ) ) {
             do {
@@ -105,6 +78,39 @@ public class PowerConverter extends LeveledConverter {
             // Deathly Glare, Hamadryad Aspects, and Flock Tactics have bullet star in body but not keywords.
             if ( ! entry.getId().equals( "power12521" ) && ! entry.getId().equals( "power15829" ) && ! entry.getId().equals( "power16541" ) )
                warn( "Power without keywords" );
+         }
+      }
+      if ( find( regxRangeType ) ) {
+         do {
+            String range = regxRangeType.group( 1 );
+            String area = regxRangeType.group( 2 );
+            switch ( range ) {
+               case "Melee touch or Ranged":
+                  swap( "Melee touch or Ranged", "Melee</b> touch<b> or Ranged" );
+                  fix( "styling" );
+                  // fallthrough
+               case "Melee or Ranged":
+                  append( keywords, "Melee", "Ranged" );
+                  break;
+               case "Close":
+               case "Area":
+                  if ( area == null )
+                     warn( range + " without area type" );
+               default:
+                  keywords.add( range );
+            }
+            if ( area != null && ! area.endsWith( "square" ) )
+               keywords.add( ucfirst( area ) );
+         } while( regxRangeType.find() );
+      } else {
+         switch ( entry.getId() ) {
+            case "power16338" : // Elemental Cascade
+               swap( "Melee 1 or Ranged 10", "Melee</b> 1<b> or Ranged</b> 10" );
+               append( keywords, "Melee", "Ranged" );
+               fix( "styling" );
+               break;
+            default :
+               warn( "Rangeless power" );
          }
       }
       if ( ! keywords.isEmpty() ) {
@@ -176,6 +182,19 @@ public class PowerConverter extends LeveledConverter {
             fix( "fix basic attack" );
             break;
 
+         case "power7358": // Death's Messenger
+         case "power7361": // Sudden Retaliation
+         case "power7363": // Quick Kill
+         case "power7367": // Improvised Poison
+         case "power7369": // Progressive Toxin
+            addRange( "<b>Melee or Ranged</b>" );
+            break;
+
+         case "power8278": // Dark Reaping
+         case "power10239": // Punitive Radiance
+            addRange( "<b>Special</b>" );
+            break;
+
          case "power9331": // Spot the Path
             swap( ": :", ":" );
             fix( "typo" );
@@ -184,6 +203,12 @@ public class PowerConverter extends LeveledConverter {
          case "power9348": // Bending Branch
             swap( "<p class=powerstat>   ✦", "<p class=powerstat><b>Encounter</b>   ✦" );
             fix( "missing power frequency" );
+            break;
+
+         case "power12455": // Vaporous Step
+            addRange( "<b>Close</b> burst 5" );
+            swap( "each ally within 5 squares of you", "each ally in the burst" );
+            fix( "consistency" );
             break;
 
          case "power13769": // Command Undead
@@ -218,19 +243,7 @@ public class PowerConverter extends LeveledConverter {
          case "power12460": // Precision Gait
          case "power13431": // Hidden Strike
          case "power16695": // River Rat's Gambit
-            locate( regxAction );
-            swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Personal</b>" );
-            fix( "missing range" );
-            break;
-
-         case "power7358": // Death's Messenger
-         case "power7361": // Sudden Retaliation
-         case "power7363": // Quick Kill
-         case "power7367": // Improvised Poison
-         case "power7369": // Progressive Toxin
-            locate( regxAction );
-            swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Melee or Ranged</b>" );
-            fix( "missing range" );
+            addRange( "<b>Personal</b>" );
             break;
 
          default:
@@ -272,5 +285,11 @@ public class PowerConverter extends LeveledConverter {
             fixPowerFrequency();
             break;
       }
+   }
+
+   private void addRange ( String range ) {
+      locate( regxAction );
+      swap( regxAction.group(), regxAction.group( 1 ) + "</b>      " + range );
+      fix( "content" );
    }
 }

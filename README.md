@@ -55,11 +55,11 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 1860 entries during export:
+This downloader fixes over 1880 entries during export:
 
 * 551 powers classified as "Theme Power" or "Multiclass" (actually Spellscarred), corrected.
-* 276 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
-* 219 entries with bold and font size issues. (Deluge, Dark Toxin etc.)
+* 277 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
+* 233 entries with bold and font size issues. (Deluge, Dark Toxin etc.)
 * 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous etc.)
 * 173 entries with wrong listing data not caused by other issues. (Multi-source classes, traps mixing up role and type etc.)
 * 151 entries missing power frequency. (Bending Branch, Dantrag's Bracers, energy weapons, dragon orbs, lights etc.)
@@ -69,8 +69,8 @@ This downloader fixes over 1860 entries during export:
 * 38 entries with line breaks, indent, and other formatting issues. (Tymora's Coin, Silver Hands of Power, Spider Cactus etc.)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 30 entries with wrong title colour (Shield of Prator, Shadowstep, Imprison etc.)
-* 27 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
-* 24 entries with missing power range. (Agile Recovery, Poisoner Specialist etc.)
+* 27 entries with missing power range. (Agile Recovery, Quick Kill, Poisoner Specialist, etc.)
+* 27 entries with other missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
 * 14 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 2 new entries (Artifact and Item Set.)
 * In addition, over a hundred artifacts and item sets are manually classified.
