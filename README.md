@@ -66,7 +66,7 @@ This downloader fixes over 1860 entries during export:
 * 94 entries with missing listing data not caused by other issues. (Subrace abilities, Heroic feat tier etc.)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
-* 38 entries with line breaks, indent, and other formatting issues. (Mirror of Deception, Silver Hands of Power, Spike Wire etc.)
+* 38 entries with line breaks, indent, and other formatting issues. (Tymora's Coin, Silver Hands of Power, Spider Cactus etc.)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 30 entries with wrong title colour (Shield of Prator, Shadowstep, Imprison etc.)
 * 27 entries with missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
@@ -74,9 +74,9 @@ This downloader fixes over 1860 entries during export:
 * 14 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
 * 2 new entries (Artifact and Item Set.)
 * In addition, over a hundred artifacts and item sets are manually classified.
-(Some entries has multiple fixes applied)
+(Some entries has multiple types of fix applied, e.g. Mirror of Deception has power frequency, formatting, and category fixed)
 
-If you find similar mistakes that aren't fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
+If you find similar mistakes that are not fixed, please [file an issue](https://github.com/Sheep-y/trpg-dnd-4e-db/issues/).
 
 ## Developer's Guide ##
 

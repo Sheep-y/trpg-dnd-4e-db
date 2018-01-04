@@ -445,7 +445,7 @@ public class Converter extends Convert {
       return list;
    }
 
-   /** Replace first substring. */
+   /** Replace first substring. Tested. */
    protected final void swap ( String from, String to ) {
       StringBuilder content = new StringBuilder( data().length() + Math.max( 0, to.length() - from.length() ) ).append( data() );
       int pos = content.indexOf( from );
@@ -456,7 +456,7 @@ public class Converter extends Convert {
          log.log( Level.WARNING, "Cannot swap content of {0}: {1}", new Object[]{ entry, from } );
    }
 
-   /** Simple substring replace. */
+   /** Simple substring replace. Tested. */
    protected final void swapAll ( String from, String to ) {
       if ( data().contains( from ) ) {
          data( data().replace( from, to ) );
@@ -465,7 +465,7 @@ public class Converter extends Convert {
          log.log( Level.WARNING, "Cannot swap content of {0}: {1}", new Object[]{ entry, from } );
    }
 
-   /** Regular expression replace. */
+   /** Regular expression replace. Tested. */
    protected final void swapFirst ( String from, String to ) {
       if ( data().contains( from ) ) {
          data( data().replaceFirst( from, to ) );
@@ -474,18 +474,22 @@ public class Converter extends Convert {
          log.log( Level.WARNING, "Cannot swapFirst content of {0}: {1}", new Object[]{ entry, from } );
    }
 
+   /** Get current entry's data. */
    protected final String data () {
       return entry.getContent();
    }
 
+   /** Replace current entry's data. No test.*/
    protected final void data ( String data ) {
       entry.setContent( data );
    }
 
+   /** Get a metadata column as String. */
    protected final String meta ( int index ) {
       return entry.getSimpleField( index );
    }
 
+   /** Set a metadata column. Tested. */
    protected final void meta ( int index, Object setTo ) {
       entry.setField( index, setTo );
       if ( setTo instanceof Object[] )
@@ -494,25 +498,36 @@ public class Converter extends Convert {
          test( index, Pattern.compile( setTo.toString(), Pattern.LITERAL ) );
    }
 
+   /** Set all metadata columns. No test. */
+   protected final void meta ( Object... setTo ) {
+      entry.setFields( setTo );
+   }
+
+   /** Append to a metadata columns. Tested. */
    protected final void metaAdd ( int index, Object append ) {
       entry.setField( index, entry.getSimpleField( index ) + append );
       test( index, append.toString() );
    }
 
-   protected final void meta ( Object... setTo ) {
-      entry.setFields( setTo );
+   /** Log a warning tailed with the entry's toString (id and name). */
+   protected final void warn ( String message ) {
+      log.log( Level.WARNING, message + ": {0}", entry );
    }
 
-   protected final void warn ( String issue ) {
-      log.log( Level.WARNING, issue + ": {0}", entry );
-   }
-
+   /** Return true if a substring is located in entry content. */
    protected final boolean find ( CharSequence substr ) {
       return data().contains( substr );
    }
 
+   /** Return true if entry content matches given Matcher. */
    protected final boolean find ( Matcher regx ) {
       return regx.reset( data() ).find();
+   }
+
+   /** Log a warning if entry content does not match given Matcher. */
+   protected final void locate ( Matcher regx ) {
+      if ( ! regx.reset( data() ).find() )
+         warn( "Cannot find \"" + regx.pattern().toString() + "\"" );
    }
 
    protected final String shortenAbility ( Object txt ) {

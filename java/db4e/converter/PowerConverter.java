@@ -35,10 +35,8 @@ public class PowerConverter extends LeveledConverter {
       meta( fields[0], fields[1], "", fields[2], "", fields[3] );
       super.convertEntry();
 
-      if ( ! find( regxLevel ) )
-         warn( "Power without type" );
-
       // Add skill name to skill power type
+      locate( regxLevel );
       if ( meta( CLASS ).equals( "Skill Power" ) )
          metaAdd( CLASS, ", " + regxLevel.group( 1 ) );
       else if ( meta( CLASS ).equals( "Theme Power" ) ) {
@@ -222,7 +220,7 @@ public class PowerConverter extends LeveledConverter {
          case "power12460": // Precision Gait
          case "power13431": // Hidden Strike
          case "power16695": // River Rat's Gambit
-            find( regxAction );
+            locate( regxAction );
             swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Personal</b>" );
             fix( "missing range" );
             break;
@@ -232,7 +230,7 @@ public class PowerConverter extends LeveledConverter {
          case "power7363": // Quick Kill
          case "power7367": // Improvised Poison
          case "power7369": // Progressive Toxin
-            find( regxAction );
+            locate( regxAction );
             swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Melee or Ranged</b>" );
             fix( "missing range" );
             break;

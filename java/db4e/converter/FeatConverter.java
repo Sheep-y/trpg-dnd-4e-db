@@ -89,7 +89,7 @@ public class FeatConverter extends Converter {
          case "feat1287": // Cutthroat Specialist
          case "feat1293": // Poisoner Novice
          case "feat1295": // Poisoner Specialist
-            find( regxAction );
+            locate( regxAction );
             swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Melee or Ranged</b>" );
             fix( "missing range" );
             break;

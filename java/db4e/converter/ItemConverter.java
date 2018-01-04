@@ -60,7 +60,7 @@ public class ItemConverter extends LeveledConverter {
       }
       super.convertEntry();
       if ( meta( RARITY ).equals( "Artifact" ) ) {
-         find( regxTier );
+         locate( regxTier );
          meta( LEVEL, regxTier.group() );
          return; // Artifacts already have its type set
       }
@@ -78,7 +78,7 @@ public class ItemConverter extends LeveledConverter {
          default:
             switch ( meta( CATEGORY ) ) {
             case "Alternative Reward" :
-               find( regxFirstStatBold );
+               locate( regxFirstStatBold );
                meta( TYPE, regxFirstStatBold.group( 1 ) );
                break;
             case "Armor" :
@@ -188,7 +188,7 @@ public class ItemConverter extends LeveledConverter {
          else
             meta( TYPE, String.join( ", ", grp ) );
          if ( ! meta( COST ).isEmpty() || entry.getName().endsWith( "secondary end" ) || entry.getName().equals( "Shuriken" ) ) {
-            find( regxWeaponDifficulty );
+            locate( regxWeaponDifficulty );
             meta( LEVEL, regxWeaponDifficulty.group() );
          }
          if ( meta( LEVEL ).isEmpty() )
@@ -210,7 +210,7 @@ public class ItemConverter extends LeveledConverter {
       }
       // Magical weapons
       if ( find( "<b>Weapon: </b>" ) ) {
-         find( regxWeaponType );
+         locate( regxWeaponType );
          String type = regxWeaponType.group( 1 );
          meta( TYPE, type.equals( "Dragonshard augment" ) ? "Dragonshard" : type );
          return;
@@ -335,10 +335,10 @@ public class ItemConverter extends LeveledConverter {
       else if ( find( "dim light" ) || find( "bright light of" ) )
          meta( TYPE, "Lighting" );
       if ( find( "Conjuration" ) && find( "mount" ) && ! entry.getName().startsWith( "Bag " ) )
-         if ( meta( 1 ).isEmpty() )
+         if ( meta( TYPE ).isEmpty() )
             meta( TYPE, "Mount" );
          else
-            meta( TYPE, meta( TYPE ) + ": Mount" );
+            metaAdd( TYPE, ": Mount" );
    }
 
    private final List<Object> multi_cost = new ArrayList<>();
@@ -356,10 +356,7 @@ public class ItemConverter extends LeveledConverter {
             warn( "Price table on non-multilevel item" );
          return;
       }
-      if ( ! find( regxPriceTable ) ) {
-         warn( "Price table not found on multilevel item" );
-         return;
-      }
+      locate( regxPriceTable );
       multi_cost.clear();
       multi_level.clear();
       multi_cost.add( meta( COST ) );
