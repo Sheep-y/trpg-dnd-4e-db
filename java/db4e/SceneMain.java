@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -325,11 +326,16 @@ public class SceneMain extends Scene {
       lblStatus.setText( msg );
    } ); }
 
-   public void setProgress ( Double progress ) { runFX( () -> {
-      if ( Math.round( progress * 100 ) % 10 == 0 )
+   private final AtomicInteger lastProgress = new AtomicInteger();
+
+   public void setProgress ( Double progress ) {
+      int div = (int) ( progress * 100 );
+      int last = lastProgress.getAndSet( div );
+      if ( last != div ) runFX( () -> {
          log.log( Level.FINE, "Progress: {0}.", progress );
-      prgProgress.setProgress( progress );
-   } ); }
+         prgProgress.setProgress( (double) div / 100 );
+      } );
+   }
 
    /////////////////////////////////////////////////////////////////////////////
    // Help & About
