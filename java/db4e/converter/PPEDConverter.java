@@ -3,8 +3,6 @@ package db4e.converter;
 import db4e.data.Category;
 import sheepy.util.Utils;
 
-/**
- */
 public class PPEDConverter extends Converter {
 
    private static final int PREREQUISITE = 0;

@@ -32,7 +32,7 @@ public class CreatureConverter extends LeveledConverter {
 
       String termText = regxType.group( 1 ).trim().toLowerCase().replaceAll( "[/,()]+", " " );
       if ( ! termText.isEmpty() ) // type and keywords
-         keywords.addAll( Arrays.asList( termText.split( "\\s+" ) ) );
+         append( keywords, termText.split( "\\s+" ) );
       String race = regxType.group( 2 ); // race, e.g. drow, human,
       if ( race != null ) {
          race = race.substring( 1 ).trim();
@@ -75,7 +75,7 @@ public class CreatureConverter extends LeveledConverter {
       }
    }
 
-   private static final int sizeSort ( String a, String b ) {
+   private static int sizeSort ( String a, String b ) {
       return sizeIndex( a ) - sizeIndex( b );
    }
 }

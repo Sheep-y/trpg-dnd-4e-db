@@ -608,24 +608,24 @@ public class ItemConverter extends LeveledConverter {
          case "Implement" :
             String name = entry.getName();
             if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 ); // Basic implements
-            return appendList( list, regxNote.reset( name ).replaceAll( "" ).trim() );
+            return append( list, regxNote.reset( name ).replaceAll( "" ).trim() );
          case "Item" :
             switch ( entry.getId() ) {
                case "item171": // Belt Pouch (empty)
-                  return appendList( list, "Belt Pouch", "Pouch" );
+                  return append( list, "Belt Pouch", "Pouch" );
             }
          case "Armor" :
             switch ( entry.getId() ) {
                case "armor1": // Cloth
-                  return appendList( list,  "Cloth Armor", "Cloth", "Clothing" );
+                  return append( list,  "Cloth Armor", "Cloth", "Clothing" );
                case "armor2": case "armor3": case "armor5": case "armor6": // Leather to Plate
-                  return appendList( list, entry.getName(), entry.getName().replace( " Armor", "" ) );
+                  return append( list, entry.getName(), entry.getName().replace( " Armor", "" ) );
                case "armor4": // Chainmail
-                  return appendList( list, entry.getName(), "Chain" );
+                  return append( list, entry.getName(), "Chain" );
                case "armor7": case "armor8": // Light/Heavy shield
-                  return appendList( list, entry.getName(), "Shields", "Shield" );
+                  return append( list, entry.getName(), "Shields", "Shield" );
                case "armor49": case "armor51": // Barding (Normal)
-                  return appendList( list, entry.getName(), "Barding", "Bardings" );
+                  return append( list, entry.getName(), "Barding", "Bardings" );
             }
       }
       return super.getLookupName( entry, list );

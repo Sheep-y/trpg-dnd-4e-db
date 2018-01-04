@@ -2,7 +2,6 @@ package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,7 +37,7 @@ public class DeityConverter extends Converter {
       if ( entry.getName().startsWith( "The " ) )
          list.add( entry.getName().substring( 4 ) );
       if ( ! meta( DOMAINS ).isEmpty() )
-         list.addAll( Arrays.asList( meta( DOMAINS ).split( ", " ) ) );
+         append( list, meta( DOMAINS ).split( ", " ) );
       return super.getLookupName( entry, list );
    }
 }

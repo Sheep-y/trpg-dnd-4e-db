@@ -6,10 +6,10 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -435,13 +435,15 @@ public class Converter extends Convert {
       for ( Runnable test : tests ) test.run();
    }
 
-   protected final Set<String> appendList ( Set<String> list, String name ) {
-      list.add( name );
+   /** Add item to a collection and return the collection. */
+   protected final <T, C extends Collection<T>> C append ( C list, T item ) {
+      list.add( item );
       return list;
    }
 
-   protected final Set<String> appendList ( Set<String> list, String ... name ) {
-      list.addAll( Arrays.asList( name ) );
+   /** Add items to a collection and return the collection. */
+   protected final <T, C extends Collection<T>> C append ( C list, T ... items ) {
+      list.addAll( Arrays.asList( items ) );
       return list;
    }
 

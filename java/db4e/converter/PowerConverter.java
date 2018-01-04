@@ -2,7 +2,6 @@ package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -79,8 +78,7 @@ public class PowerConverter extends LeveledConverter {
                   keywords.add( "Melee" );
                   // fallthrough
                case "Melee or Ranged":
-                  keywords.add( "Melee" );
-                  keywords.add( "Ranged" );
+                  append( keywords, "Melee", "Ranged" );
                   break;
                case "Special":
                   // Skip special as range type
@@ -101,7 +99,7 @@ public class PowerConverter extends LeveledConverter {
       if ( find( "✦" ) ) {
          if ( find( regxKeywords ) ) {
             do {
-               keywords.addAll( Arrays.asList( regxKeywords.group( 1 ).replaceAll( "\\s*+([;,]|or)\\s*+", "," ).replaceAll( "</?b>", "" ).split( "," ) ) );
+               append( keywords, regxKeywords.group( 1 ).replaceAll( "\\s*+([;,]|or)\\s*+", "," ).replaceAll( "</?b>", "" ).split( "," ) );
             } while ( regxKeywords.find() );
          } else {
             // Deathly Glare, Hamadryad Aspects, and Flock Tactics have bullet star in body but not keywords.

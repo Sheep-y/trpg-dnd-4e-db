@@ -141,7 +141,7 @@ public class BackgroundConverter extends Converter {
    }
 
    @Override protected Set<String> getLookupName ( Entry entry, Set<String> list ) {
-      return appendList( list, entry.getName().contains( " - " )
+      return append( list, entry.getName().contains( " - " )
          ? entry.getName().split( " - " )[1]
          : entry.getName() );
    }
