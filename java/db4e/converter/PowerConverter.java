@@ -103,15 +103,12 @@ public class PowerConverter extends LeveledConverter {
                keywords.add( ucfirst( area ) );
          } while( regxRangeType.find() );
       } else {
-         switch ( entry.getId() ) {
-            case "power16338" : // Elemental Cascade
-               swap( "Melee 1 or Ranged 10", "Melee</b> 1<b> or Ranged</b> 10" );
-               append( keywords, "Melee", "Ranged" );
-               fix( "styling" );
-               break;
-            default :
-               warn( "Rangeless power" );
-         }
+         if ( entry.getId().equals( "power16338" ) ) { // Elemental Cascade
+            swap( "Melee 1 or Ranged 10", "Melee</b> 1<b> or Ranged</b> 10" );
+            append( keywords, "Melee", "Ranged" );
+            fix( "styling" );
+         } else
+            warn( "Rangeless power" );
       }
       if ( ! keywords.isEmpty() ) {
          meta( KEYWORDS, String.join( ", ", keywords.toArray( new String[ keywords.size() ] ) ) );
@@ -192,6 +189,8 @@ public class PowerConverter extends LeveledConverter {
 
          case "power8278": // Dark Reaping
          case "power10239": // Punitive Radiance
+         case "power10418": // Familiar Harrier
+         case "power12471": // Protective Familiar
             addRange( "<b>Special</b>" );
             break;
 
@@ -203,6 +202,10 @@ public class PowerConverter extends LeveledConverter {
          case "power9348": // Bending Branch
             swap( "<p class=powerstat>   ✦", "<p class=powerstat><b>Encounter</b>   ✦" );
             fix( "missing power frequency" );
+            break;
+
+         case "power11757": // Unwavering Vigilance"
+            addRange( "<b>Ranged</b> sight" );
             break;
 
          case "power12455": // Vaporous Step
@@ -231,6 +234,7 @@ public class PowerConverter extends LeveledConverter {
 
          case "power4311" : // Darkspiral Aura
          case "power6017" : // Lawbreaker's Doom
+         case "power6969" : // Quickened Coercion
          case "power7360" : // Bravo's Finish
          case "power7429" : // Wizard's Fury
          case "power7430" : // Learned Boost
