@@ -2,11 +2,13 @@ package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static sheepy.util.Utils.ucfirst;
+import sheepy.util.Utils;
 
 public class PowerConverter extends LeveledConverter {
 
@@ -28,7 +30,10 @@ public class PowerConverter extends LeveledConverter {
    private final Matcher regxLevel     = Pattern.compile( "<span class=level>([^<]+?) (Racial )?+(Attack|Utility|Feature|Pact Boon|Cantrip){1}+( \\d++)?" ).matcher( "" );
    private final Matcher regxKeywords  = Pattern.compile( "✦     (<b>[\\w ]++</b>(?:\\s*+(?:[;,]|or){1}+\\s*+<b>[\\w ]++</b>)*+)" ).matcher( "" );
    private final Matcher regxAction    = Pattern.compile( "\\b(Action|Interrupt){1}+</b>\\s*" ).matcher( "" );
-   private final Matcher regxRangeType = Pattern.compile( "<b>(Melee(?:(?: touch)?+ or Ranged)?+|Ranged|Close|Area|Personal|Special){1}+</b>\\s*+(burst|blast|wall|special|touch|\\d+ square)?+(?!:)" ).matcher( "" );
+   private final Matcher regxRangeType = Pattern.compile( "<b>(Melee(?:(?: touch)?+ or Ranged)?+|Ranged|Close|Area|Personal|Special){1}+</b>(?!:)([^<]*+)" ).matcher( "" );
+   private final Set<String> RangeSubtype = new HashSet<>( Arrays.asList( "Ranged", "blast", "burst", "close", "sight", "wall" ) );
+
+   private final Set<String> keywords = new ConcurrentSkipListSet<>();
 
    @Override protected void convertEntry () {
       Object[] fields = entry.getFields();
@@ -68,7 +73,6 @@ public class PowerConverter extends LeveledConverter {
       }
 
       // New column: keywords
-      Set<String> keywords = new HashSet<>(8); // Some power have multiple keyword lines.
       if ( find( "✦" ) ) {
          if ( find( regxKeywords ) ) {
             do {
@@ -81,7 +85,7 @@ public class PowerConverter extends LeveledConverter {
          }
       }
       if ( find( regxRangeType ) ) {
-         do {
+         do { // Some power have multiple keyword lines.
             String range = regxRangeType.group( 1 );
             String area = regxRangeType.group( 2 );
             switch ( range ) {
@@ -99,8 +103,8 @@ public class PowerConverter extends LeveledConverter {
                default:
                   keywords.add( range );
             }
-            if ( area != null && ! area.endsWith( "square" ) )
-               keywords.add( ucfirst( area ) );
+            if ( area != null )
+               Arrays.stream( area.trim().split( "\\s+" ) ).filter( RangeSubtype::contains ).map( Utils::ucfirst ).forEach( keywords::add );
          } while( regxRangeType.find() );
       } else {
          if ( entry.getId().equals( "power16338" ) ) { // Elemental Cascade
@@ -112,6 +116,7 @@ public class PowerConverter extends LeveledConverter {
       }
       if ( ! keywords.isEmpty() ) {
          meta( KEYWORDS, String.join( ", ", keywords.toArray( new String[ keywords.size() ] ) ) );
+         keywords.clear();
       }
    }
 
