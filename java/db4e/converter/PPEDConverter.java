@@ -29,19 +29,16 @@ public class PPEDConverter extends Converter {
 
       switch ( entry.getId() ) {
          case "paragonpath153" : // Luckbringer of Tymora
-            swap( "weakening<br>their", "weakening their" );
-            fix( "formatting" );
+            swap( "weakening<br>their", "weakening their", "formatting" );
             break;
 
          case "paragonpath175": // Horizon Walker
-            swap( "weaopn", "weapon" );
-            fix( "typo" );
+            swap( "weaopn", "weapon", "typo" );
             break;
 
          case "epicdestiny698" : // Unyielding Sentinel
-            swap( "Defender role", "Any defender class" );
+            swap( "Defender role", "Any defender class", "consistency" );
             meta( PREREQUISITE, "Any defender class" );
-            fix( "consistency" );
             break;
       }
 

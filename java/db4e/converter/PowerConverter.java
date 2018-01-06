@@ -90,8 +90,7 @@ public class PowerConverter extends LeveledConverter {
             String area = regxRangeType.group( 2 );
             switch ( range ) {
                case "Melee touch or Ranged":
-                  swap( "Melee touch or Ranged", "Melee</b> touch<b> or Ranged" );
-                  fix( "styling" );
+                  swap( "Melee touch or Ranged", "Melee</b> touch<b> or Ranged", "styling" );
                   // fallthrough
                case "Melee or Ranged":
                   append( keywords, "Melee", "Ranged" );
@@ -108,9 +107,8 @@ public class PowerConverter extends LeveledConverter {
          } while( regxRangeType.find() );
       } else {
          if ( entry.getId().equals( "power16338" ) ) { // Elemental Cascade
-            swap( "Melee 1 or Ranged 10", "Melee</b> 1<b> or Ranged</b> 10" );
+            swap( "Melee 1 or Ranged 10", "Melee</b> 1<b> or Ranged</b> 10", "styling" );
             append( keywords, "Melee", "Ranged" );
-            fix( "styling" );
          } else
             warn( "Rangeless power" );
       }
@@ -170,28 +168,23 @@ public class PowerConverter extends LeveledConverter {
             break;
 
          case "power4155": // Iron-Hide Infusion
-            swap( "Burst 5", "burst 5" );
-            fix( "typo" );
+            swap( "Burst 5", "burst 5", "typo" );
             break;
 
          case "power4699": // Elemental Chaos Smite
-            swap( "weaopn", "weapon" );
-            fix( "typo" );
+            swap( "weaopn", "weapon", "typo" );
             break;
 
          case "power4713": // Lurk Unseen
-            swap( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<" );
-            fix( "content" );
+            swap( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<", "content" );
             break;
 
          case "power5767": // Marksman's Vision
-            swap( "weapoon", "weapon" );
-            fix( "typo" );
+            swap( "weapoon", "weapon", "typo" );
             break;
 
          case "power6595": // Bane's Tactics
-            swap( "basic melee attack", "melee basic attack" );
-            fix( "fix basic attack" );
+            swap( "basic melee attack", "melee basic attack", "fix basic attack" );
             break;
 
          case "power7358": // Death's Messenger
@@ -210,13 +203,11 @@ public class PowerConverter extends LeveledConverter {
             break;
 
          case "power9331": // Spot the Path
-            swap( ": :", ":" );
-            fix( "typo" );
+            swap( ": :", ":", "typo" );
             break;
 
          case "power9348": // Bending Branch
-            swap( "<p class=powerstat>   ✦", "<p class=powerstat><b>Encounter</b>   ✦" );
-            fix( "missing power frequency" );
+            swap( "<p class=powerstat>   ✦", "<p class=powerstat><b>Encounter</b>   ✦", "missing power frequency" );
             break;
 
          case "power11757": // Unwavering Vigilance"
@@ -225,26 +216,22 @@ public class PowerConverter extends LeveledConverter {
 
          case "power12455": // Vaporous Step
             addRange( "<b>Close</b> burst 5" );
-            swap( "each ally within 5 squares of you", "each ally in the burst" );
-            fix( "consistency" );
+            swap( "each ally within 5 squares of you", "each ally in the burst", "consistency" );
             break;
 
          case "power13769": // Command Undead
-            swap( "Close</b> 5", "Close</b> burst 5" );
-            fix( "content" );
+            swap( "Close</b> 5", "Close</b> burst 5", "content" );
             break;
 
          case "power15829": // Hamadryad Aspects
             swap( "</p><p class=powerstat>  <b>✦", "<br>  <b>✦" );
-            swap( "</p><p class=flavor>  <b>✦", "<br>  <b>✦" );
-            fix( "formatting" );
+            swap( "</p><p class=flavor>  <b>✦", "<br>  <b>✦", "formatting" );
             break;
 
          case "power16604": // Spectral Forest
          case "power14519": // Verdant Retaliation
          case "power15868": // Terror of the Dark Moon
-            swap( "<b>Aura</b> burst", "<b>Area</b> burst" );
-            fix( "typo" );
+            swap( "<b>Aura</b> burst", "<b>Area</b> burst", "typo" );
             break;
 
          case "power4311" : // Darkspiral Aura
@@ -268,10 +255,9 @@ public class PowerConverter extends LeveledConverter {
          default:
             if ( find( "Racial Power" ) ) {
                if ( find( "<p class=powerstat><b>Attack</b>" ) )
-                  swap( "Racial Power", "Racial Attack" );
+                  swap( "Racial Power", "Racial Attack", "consistency" );
                else
-                  swap( "Racial Power", "Racial Utility" );
-               fix( "consistency" );
+                  swap( "Racial Power", "Racial Utility", "consistency" );
             }
 
             if ( meta( CLASS ).equals( "Multiclass" ) ) {
@@ -308,7 +294,6 @@ public class PowerConverter extends LeveledConverter {
 
    private void addRange ( String range ) {
       locate( regxAction );
-      swap( regxAction.group(), regxAction.group( 1 ) + "</b>      " + range );
-      fix( "content" );
+      swap( regxAction.group(), regxAction.group( 1 ) + "</b>      " + range, "content" );
    }
 }

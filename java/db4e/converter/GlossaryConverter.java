@@ -25,7 +25,7 @@ public class GlossaryConverter extends Converter {
       switch ( entry.getId() ) {
          case "glossary381": // Concordance, change to Artifact
             entry.setName( "Artifact" );
-            swap( "<h1 class=player>Concordance</h1><p class=flavor>", "<h3>Concordance</h3><p>" );
+            swap( "<h1 class=player>Concordance</h1><p class=flavor>", "<h3>Concordance</h3><p>", "new entry" );
             data( "<h1 class=player>Artifact</h1>"
                     + "<p class=flavor>Artifacts have a level but no price - they can't be " +
 "bought or crafted, and their temporary nature ensures that they don't have a long-term impact on a character's " +
@@ -46,13 +46,11 @@ public class GlossaryConverter extends Converter {
 "the wielder acts against the artifact's wishes, its power diminishes. The artifact's mindset is measured by a " +
 "concordance score.</p>" + data() );
             test( TEXT, "Artifacts have a level but no price" );
-            fix( "new entry" );
             break;
 
          case "glossary664": // Reading a Weapon Entry
             entry.setName( "Weapons" );
-            swap( "Reading a Weapon Entry", "Weapons" );
-            fix( "consistency" );
+            swap( "Reading a Weapon Entry", "Weapons", "consistency" );
             break;
 
          case "glossary0453": // Item Set

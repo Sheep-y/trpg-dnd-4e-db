@@ -58,15 +58,15 @@ public class ClassConverter extends Converter {
             fix( "wrong meta" );
             break;
          case "class893": // Hybrid Vampire
-            swap( "per Day</b>: 2<", "per Day</b>: As a hybrid vampire, you gain two healing surges regardless of the class that you have combined with vampire to create your character.<" );
-            fix( "content" );
+            swap( "per Day</b>: 2<",
+                  "per Day</b>: As a hybrid vampire, you gain two healing surges regardless of the class that you have combined with vampire to create your character.<",
+                  "content" );
             // Fall-through
          case "class892": // Hybrid Blackguard
          case "class894": // Hybrid Sentinel
          case "class895": // Hybrid Cavalier
          case "class896": // Hybrid Binder
-            swap( "Dragon Magazine 402", "Dragon Magazine 400" );
-            fix( "typo" );
+            swap( "Dragon Magazine 402", "Dragon Magazine 400", "typo" );
             break;
       }
       switch ( entry.getId() ) {

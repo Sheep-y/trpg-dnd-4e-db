@@ -80,8 +80,7 @@ public class FeatConverter extends Converter {
    @Override protected void correctEntry () {
       switch ( entry.getId() ) {
          case "feat1111": // Bane's Tactics
-            swap( "basic melee attack", "melee basic attack" );
-            fix( "fix basic attack" );
+            swap( "basic melee attack", "melee basic attack", "fix basic attack" );
             break;
 
          case "feat1281": // Bravo Novice
@@ -90,18 +89,15 @@ public class FeatConverter extends Converter {
          case "feat1293": // Poisoner Novice
          case "feat1295": // Poisoner Specialist
             locate( regxAction );
-            swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Melee or Ranged</b>" );
-            fix( "content" );
+            swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Melee or Ranged</b>", "content" );
             break;
 
          case "feat2254": // Traveler's Celerity
-            swap( "11th-level, ", "11th level, " );
-            fix( "consistency" );
+            swap( "11th-level, ", "11th level, ", "consistency" );
             break;
 
          case "feat3667": // Powerful Lure
-            swap( "Level 11, ", "11th level, " );
-            fix( "consistency" );
+            swap( "Level 11, ", "11th level, ", "consistency" );
             break;
       }
       super.correctEntry();
