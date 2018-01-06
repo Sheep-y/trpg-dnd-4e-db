@@ -174,9 +174,19 @@ public class PowerConverter extends LeveledConverter {
             fix( "typo" );
             break;
 
+         case "power4699": // Elemental Chaos Smite
+            swap( "weaopn", "weapon" );
+            fix( "typo" );
+            break;
+
          case "power4713": // Lurk Unseen
             swap( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<" );
             fix( "content" );
+            break;
+
+         case "power5767": // Marksman's Vision
+            swap( "weapoon", "weapon" );
+            fix( "typo" );
             break;
 
          case "power6595": // Bane's Tactics

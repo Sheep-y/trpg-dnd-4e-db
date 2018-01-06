@@ -33,6 +33,11 @@ public class PPEDConverter extends Converter {
             fix( "formatting" );
             break;
 
+         case "paragonpath175": // Horizon Walker
+            swap( "weaopn", "weapon" );
+            fix( "typo" );
+            break;
+
          case "epicdestiny698" : // Unyielding Sentinel
             swap( "Defender role", "Any defender class" );
             meta( PREREQUISITE, "Any defender class" );
