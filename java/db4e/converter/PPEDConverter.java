@@ -36,6 +36,10 @@ public class PPEDConverter extends Converter {
             swap( "weaopn", "weapon", "typo" );
             break;
 
+         case "paragonpath648": // Animus Predator, Animus Strike
+            swap( "<b>Implement</b>, <b>Primal</b><br>", "<b>Implement</b>, <b>Primal</b>, <b>Spirit</b><br>", "content" );
+            break;
+
          case "epicdestiny698" : // Unyielding Sentinel
             swap( "Defender role", "Any defender class", "consistency" );
             meta( PREREQUISITE, "Any defender class" );
