@@ -37,7 +37,7 @@ public class MonsterConverter extends CreatureConverter {
             break;
 
          case "monster3717": // Blistered Soul
-            swap( "<span class=type> </span>", "<span class=type>Medium aberrant humanold</span>", "content" );
+            swap( "<span class=type> </span>", "<span class=type>Medium aberrant humanold</span>", "missing keyword" );
             // Fallthrough to fix basic attack
 
          default:

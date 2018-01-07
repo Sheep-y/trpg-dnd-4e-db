@@ -176,7 +176,7 @@ public class PowerConverter extends LeveledConverter {
             break;
 
          case "power4713": // Lurk Unseen
-            swap( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<", "content" );
+            swap( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<", "missing keyword" );
             break;
 
          case "power5767": // Marksman's Vision
@@ -212,11 +212,12 @@ public class PowerConverter extends LeveledConverter {
 
          case "power11757": // Unwavering Vigilance"
             addRange( "<b>Ranged</b> sight" );
+            swap( "sight  </p>", "sight</p>" ); // Trim additional spaces
             break;
 
          case "power12184": // Animus Strike
          case "power12880": // Cloudburst
-            swap( "Primal</b>", "Primal</b>, <b>Spirit</b>", "content" );
+            swap( "Primal</b>", "Primal</b>, <b>Spirit</b>", "missing keyword" );
             break;
 
          case "power12455": // Vaporous Step
@@ -225,7 +226,7 @@ public class PowerConverter extends LeveledConverter {
             break;
 
          case "power13769": // Command Undead
-            swap( "Close</b> 5", "Close</b> burst 5", "content" );
+            swap( "Close</b> 5", "Close</b> burst 5", "missing keyword" );
             break;
 
          case "power15829": // Hamadryad Aspects
@@ -299,6 +300,6 @@ public class PowerConverter extends LeveledConverter {
 
    private void addRange ( String range ) {
       locate( regxAction );
-      swap( regxAction.group(), regxAction.group( 1 ) + "</b>      " + range, "content" );
+      swap( regxAction.group(), regxAction.group( 1 ) + "</b>      " + range, "missing keyword" );
    }
 }

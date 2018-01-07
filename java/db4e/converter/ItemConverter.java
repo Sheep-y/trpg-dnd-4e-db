@@ -474,7 +474,7 @@ public class ItemConverter extends LeveledConverter {
             break;
 
          case "implement2002": // Orium Implement
-            swap( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand", "content" );
+            swap( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand", "consistency" );
             swap( "<p class='mistat indent'><b>Requirement:</b> Orb, Rod, Staff, Wand</p>", "" );
             break;
 

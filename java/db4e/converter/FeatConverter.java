@@ -89,7 +89,7 @@ public class FeatConverter extends Converter {
          case "feat1293": // Poisoner Novice
          case "feat1295": // Poisoner Specialist
             locate( regxAction );
-            swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Melee or Ranged</b>", "content" );
+            swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Melee or Ranged</b>", "missing keyword" );
             break;
 
          case "feat2254": // Traveler's Celerity

@@ -46,7 +46,7 @@ public class CreatureConverter extends LeveledConverter {
       keywords.removeAll( KeywordBlackList );
       if ( sizes.isEmpty() ) {
          sizes.add( "medium" );
-         swap( "<span class=type>", "<span class=type>Medium ", "content" );
+         swap( "<span class=type>", "<span class=type>Medium ", "missing keyword" );
       }
       meta( SIZE, String.join( ", ", sizes.stream().map( Utils::ucfirst ).toArray( String[]::new ) ) );
       meta( TYPE, String.join( ", ", keywords.stream().map( Utils::ucfirst ).toArray( String[]::new ) ) );

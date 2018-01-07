@@ -37,7 +37,7 @@ public class PPEDConverter extends Converter {
             break;
 
          case "paragonpath648": // Animus Predator, Animus Strike
-            swap( "<b>Implement</b>, <b>Primal</b><br>", "<b>Implement</b>, <b>Primal</b>, <b>Spirit</b><br>", "content" );
+            swap( "<b>Implement</b>, <b>Primal</b><br>", "<b>Implement</b>, <b>Primal</b>, <b>Spirit</b><br>", "missing keyword" );
             break;
 
          case "epicdestiny698" : // Unyielding Sentinel
