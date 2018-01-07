@@ -214,6 +214,11 @@ public class PowerConverter extends LeveledConverter {
             addRange( "<b>Ranged</b> sight" );
             break;
 
+         case "power12184": // Animus Strike
+         case "power12880": // Cloudburst
+            swap( "Primal</b>", "Primal</b>, <b>Sprit</b>", "content" );
+            break;
+
          case "power12455": // Vaporous Step
             addRange( "<b>Close</b> burst 5" );
             swap( "each ally within 5 squares of you", "each ally in the burst", "consistency" );
