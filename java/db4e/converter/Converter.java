@@ -319,8 +319,8 @@ public class Converter extends Convert {
    private final Matcher regxRitualFlav = Pattern.compile( "(<h1 class=player>.*?</h1>)(?:<p>)?+<i>.*?</i>(?:</p>|<br>)" ).matcher( "" );
    // Errata removal. monster217 has empty change, and many have empty action (Update/Added/Removed).
    private final Matcher regxErrata  = Pattern.compile( "<br>\\w*+ \\([123]?\\d/[123]?\\d/20[01]\\d\\)<br>[^<]*" ).matcher( "" );
-   private final Matcher regxHtmlTag = Pattern.compile( "</?\\w++[^>]*+>" ).matcher( "" );
    private final Matcher regxSpaces  = Pattern.compile( " ++" ).matcher( " " );
+   protected final Matcher regxHtmlTag = Pattern.compile( "</?\\w++[^>]*+>" ).matcher( "" );
 
    private Matcher regxCheckFulltext, regxCheckDate;
 

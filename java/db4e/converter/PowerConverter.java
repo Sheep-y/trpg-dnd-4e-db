@@ -28,7 +28,7 @@ public class PowerConverter extends LeveledConverter {
    }
 
    private final Matcher regxLevel     = Pattern.compile( "<span class=level>([^<]+?) (Racial )?+(Attack|Utility|Feature|Pact Boon|Cantrip){1}+( \\d++)?" ).matcher( "" );
-   private final Matcher regxKeywords  = Pattern.compile( "✦     (<b>[\\w ]++</b>(?:\\s*+(?:[;,]|or){1}+\\s*+<b>[\\w ]++</b>)*+)" ).matcher( "" );
+   private final Matcher regxKeywords  = Pattern.compile( "✦     <b>(.*?)<br>" ).matcher( "" );
    private final Matcher regxAction    = Pattern.compile( "\\b(Action|Interrupt){1}+</b>\\s*" ).matcher( "" );
    private final Matcher regxRangeType = Pattern.compile( "<b>(Melee(?:(?: touch)?+ or Ranged)?+|Ranged|Close|Area|Personal|Special){1}+</b>(?!:)([^<]*+)" ).matcher( "" );
    private final Set<String> RangeSubtype = new HashSet<>( Arrays.asList( "Ranged", "blast", "burst", "close", "sight", "wall" ) );
@@ -76,7 +76,7 @@ public class PowerConverter extends LeveledConverter {
       if ( find( "✦" ) ) {
          if ( find( regxKeywords ) ) {
             do {
-               append( keywords, regxKeywords.group( 1 ).replaceAll( "\\s*+([;,]|or)\\s*+", "," ).replaceAll( "</?b>", "" ).split( "," ) );
+               append( keywords, regxHtmlTag.reset( regxKeywords.group( 1 ) ).replaceAll( "" ).split( "\\s*+(?:[;,]|or)\\s++" ) );
             } while ( regxKeywords.find() );
          } else {
             // Deathly Glare, Hamadryad Aspects, and Flock Tactics have bullet star in body but not keywords.
@@ -216,7 +216,7 @@ public class PowerConverter extends LeveledConverter {
 
          case "power12184": // Animus Strike
          case "power12880": // Cloudburst
-            swap( "Primal</b>", "Primal</b>, <b>Sprit</b>", "content" );
+            swap( "Primal</b>", "Primal</b>, <b>Spirit</b>", "content" );
             break;
 
          case "power12455": // Vaporous Step
