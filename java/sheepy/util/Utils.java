@@ -49,9 +49,11 @@ public class Utils {
    }
 
    public static String ucfirst ( String text ) {
-      return Character.toUpperCase( text.charAt( 0 ) ) + text.substring(1);
+      if ( ! Character.isLowerCase( text.charAt( 0 ) ) ) return text;
+      char[] data = text.toCharArray();
+      data[0] = Character.toUpperCase( text.charAt( 0 ) );
+      return new String( data );
    }
-
 
    private static abstract class Escaper {
       abstract boolean needEscape ( final char chr );
