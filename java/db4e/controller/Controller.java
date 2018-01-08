@@ -324,7 +324,7 @@ public class Controller {
             } catch (SqlJetException ex) {
                synchronized ( this ) { entityLoadedFuture.completeExceptionally( ex ); }
             }
-         });
+         } );
       }
       state.update();
    }

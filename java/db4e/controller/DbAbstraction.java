@@ -18,9 +18,9 @@ import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import sheepy.util.JavaFX;
-import static sheepy.util.text.CSV.buildCsvLine;
-import static sheepy.util.text.CSV.parseCsvLine;
 import static sheepy.util.Utils.sync;
+import sheepy.util.text.CSV.CsvBuilder;
+import sheepy.util.text.CSV.CsvParser;
 
 /**
  * Database abstraction.
@@ -31,6 +31,8 @@ class DbAbstraction {
    private static final Logger log = Main.log;
 
    private volatile SqlJetDb db;
+   private static final CsvParser parser = new CsvParser();
+   private static final CsvBuilder builder = new CsvBuilder();
 
    void setDb ( SqlJetDb db, ObservableList<Category> categories, ProgressState state ) throws SqlJetException {
       this.db = db;
@@ -123,7 +125,7 @@ class DbAbstraction {
                Category category = new Category(
                   cursor.getString( "id" ),
                   cursor.getString( "name" ),
-                  parseCsvLine( cursor.getString( "fields" ) ) );
+                  parser.parseCsvLine( cursor.getString( "fields" ) ) );
                synchronized ( category ) {
                   category.total_entry.set( (int) cursor.getInteger( "count" ) );
                }
@@ -199,7 +201,7 @@ class DbAbstraction {
                if ( entry.getFields() == null || entry.getContent() == null ) {
                   ISqlJetCursor cursor = tblEntry.lookup( null, entry.getId() );
                   if ( cursor.eof() ) throw new IllegalStateException( "'" + entry.getName() + "' not in database" );
-                  String[] fields = parseCsvLine( cursor.getString( "fields" ) );
+                  String[] fields = parser.parseCsvLine( cursor.getString( "fields" ) );
                   if ( entry.getFields()  == null ) entry.setFields( Arrays.copyOf( fields, fields.length, Object[].class ) );
                   if ( entry.getContent() == null ) entry.setContent( cursor.getString( "data" ) );
                   cursor.close();
@@ -224,7 +226,7 @@ class DbAbstraction {
             log.log( Level.FINER, "Saving {0}", entry );
             ISqlJetCursor lookup = tblEntry.lookup( null, entry.getId() );
             // Table fields: id, name, category, fields, hasData, data
-            String fields = buildCsvLine( entry.getFields() ).toString();
+            String fields = builder.buildCsvLine( entry.getFields() ).toString();
             if ( lookup.eof() ) {
                tblEntry.insert( entry.getId(), entry.getName(), category.id, fields, 0, null );
             //} else { // Shouldn't need to update.
