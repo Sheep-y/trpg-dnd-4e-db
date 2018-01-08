@@ -29,7 +29,8 @@ public class PowerConverter extends LeveledConverter {
 
    private final Matcher regxLevel     = Pattern.compile( "<span class=level>([^<]+?) (Racial )?+(Attack|Utility|Feature|Pact Boon|Cantrip){1}+( \\d++)?" ).matcher( "" );
    private final Matcher regxKeywords  = Pattern.compile( "✦     <b>(.*?)<br>" ).matcher( "" );
-   private final Matcher regxKeywordsGain  = Pattern.compile( "(?<=<b>Keyword</b>: )Th(?:is|e) power gains the (\\w++) keyword\\." ).matcher(  "" );
+   private final Matcher regxKeywordGain  = Pattern.compile( "(?<=<b>Keyword</b>: )Th(?:is|e) power gains the (\\w++) keyword\\." ).matcher( "" );
+   private final Matcher regxKeywordSection  = Pattern.compile( "<b>Keyword</b>: ([^<]++)" ).matcher( "" );
    private final Matcher regxAction    = Pattern.compile( "\\b(Action|Interrupt){1}+</b>\\s*" ).matcher( "" );
    private final Matcher regxRangeType = Pattern.compile( "<b>(Melee(?:(?: touch)?+ or Ranged)?+|Ranged|Close|Area|Personal|Special){1}+</b>(?!:)([^<]*+)" ).matcher( "" );
    private final Set<String> RangeSubtype = new HashSet<>( Arrays.asList( "Ranged", "blast", "burst", "close", "sight", "wall" ) );
@@ -84,6 +85,10 @@ public class PowerConverter extends LeveledConverter {
             if ( ! entry.getId().equals( "power12521" ) && ! entry.getId().equals( "power15829" ) && ! entry.getId().equals( "power16541" ) )
                warn( "Power without keywords" );
          }
+      }
+      if ( find( "<b>Keyword</b>:" ) ) {
+         locate( regxKeywordSection );
+         append( keywords, regxKeywordSection.group( 1 ) ); // All power with multiple keyword sections has same keyword for both sections
       }
       if ( find( regxRangeType ) ) {
          do { // Some power have multiple keyword lines.
@@ -260,8 +265,8 @@ public class PowerConverter extends LeveledConverter {
             break;
 
          case "power11331": // Crystalline Bonds
-            locate( regxKeywordsGain );
-            swap( regxKeywordsGain.group(), Utils.ucfirst( regxKeywordsGain.group( 1 ) ) );
+            locate( regxKeywordGain );
+            swap( regxKeywordGain.group(), Utils.ucfirst( regxKeywordGain.group( 1 ) ) );
             // Fallthrough
          case "power10287": // Courageous Strike
          case "power10294": // Revelatory Strike
@@ -274,9 +279,9 @@ public class PowerConverter extends LeveledConverter {
          case "power11123": // Confusing Strike
          case "power11146": // Unnerving Disruption
          case "power11326": // Thunder Tether
-            locate( regxKeywordsGain );
-            String keyword = Utils.ucfirst( regxKeywordsGain.group( 1 ) );
-            swap( regxKeywordsGain.group(), keyword, "consistency" );
+            locate( regxKeywordGain );
+            String keyword = Utils.ucfirst( regxKeywordGain.group( 1 ) );
+            swap( regxKeywordGain.group(), keyword, "consistency" );
             test( TEXT, "<b>Keyword</b>: " + keyword );
             test( KEYWORDS, keyword );
             break;
