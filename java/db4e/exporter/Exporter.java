@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
-import static sheepy.util.Utils.escapeJsString;
+import static sheepy.util.Quote.escapeJsString;
 
 /**
  * Base exporter class that provides export interface and support functions.

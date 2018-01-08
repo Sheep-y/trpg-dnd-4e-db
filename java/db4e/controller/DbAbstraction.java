@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javafx.collections.ObservableList;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
@@ -20,6 +18,8 @@ import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import sheepy.util.JavaFX;
+import static sheepy.util.CSV.buildCsvLine;
+import static sheepy.util.CSV.parseCsvLine;
 import static sheepy.util.Utils.sync;
 
 /**
@@ -272,46 +272,5 @@ class DbAbstraction {
       } } finally {
          db.rollback();
       }
-   }
-
-   /////////////////////////////////////////////////////////////////////////////
-   // Utils
-   /////////////////////////////////////////////////////////////////////////////
-
-   private final String csvTokenPattern = "(?<=^|,)([^\"\\r\\n,]*+|\"(?:\"\"|[^\"]++)*\")(?:,|$)";
-   private final Matcher csvToken = Pattern.compile( csvTokenPattern ).matcher( "" );
-   private final List<String> csvBuffer = new ArrayList<>();
-
-   private synchronized String[] parseCsvLine ( CharSequence line ) {
-      csvToken.reset( line );
-      csvBuffer.clear();
-      int pos = 0;
-      while ( csvToken.find() ) {
-         if ( csvToken.start() != pos )
-            log.log( Level.WARNING, "CSV parse error: {0}", line );
-         String token = csvToken.group( 1 );
-         if ( token.length() >= 2 && token.charAt(0) == '"' && token.endsWith( "\"" ) )
-            token = token.substring( 1, token.length()-1 ).replaceAll( "\"\"", "\"" );
-         csvBuffer.add(token);
-         pos = csvToken.end();
-      }
-      if ( pos != line.length() )
-         log.log( Level.WARNING, "CSV parse error: {0}", line );
-      return csvBuffer.toArray( new String[ csvBuffer.size() ] );
-   }
-
-   private final Matcher csvQuotable = Pattern.compile( "[\r\n,\"]" ).matcher( "" );
-
-   private synchronized StringBuilder buildCsvLine ( Object[] line ) {
-      StringBuilder result = new StringBuilder(32);
-      for ( Object field : line ) {
-         String token = field.toString();
-         if ( csvQuotable.reset( token ).find() )
-            result.append( '"' ).append( token.replaceAll( "\"", "\"\"" ) ).append( "\"," );
-         else
-            result.append( token ).append( ',' );
-      }
-      result.setLength( result.length() - 1 );
-      return result;
    }
 }
