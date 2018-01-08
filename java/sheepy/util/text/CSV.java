@@ -1,4 +1,4 @@
-package sheepy.util;
+package sheepy.util.text;
 
 import java.util.ArrayList;
 import java.util.List;

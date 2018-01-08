@@ -1,4 +1,4 @@
-package sheepy.util;
+package sheepy.util.text;
 
 public class Quote {
 

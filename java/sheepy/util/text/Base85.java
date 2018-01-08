@@ -1,4 +1,4 @@
-package sheepy.util;
+package sheepy.util.text;
 
 import java.nio.ByteBuffer;
 import static java.nio.charset.StandardCharsets.US_ASCII;

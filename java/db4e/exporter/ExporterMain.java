@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import sheepy.util.Base85;
+import sheepy.util.text.Base85;
 import sheepy.util.Resource;
 
 /**

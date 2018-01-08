@@ -18,8 +18,8 @@ import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import sheepy.util.JavaFX;
-import static sheepy.util.CSV.buildCsvLine;
-import static sheepy.util.CSV.parseCsvLine;
+import static sheepy.util.text.CSV.buildCsvLine;
+import static sheepy.util.text.CSV.parseCsvLine;
 import static sheepy.util.Utils.sync;
 
 /**

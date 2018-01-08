@@ -93,7 +93,7 @@ public class JavaFX {
    // Builders
    /////////////////////////////////////////////////////////////////////////////
 
-   public static <T extends Control> T tooltip( T control, String tooltip ) {
+   public static <T extends Control> T tooltip ( T control, String tooltip ) {
       control.setTooltip( new Tooltip( tooltip ) );
       return control;
    }
