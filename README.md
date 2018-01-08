@@ -55,10 +55,10 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 1890 entries during export:
+This downloader fixes over 1900 entries during export:
 
 * 551 powers classified as "Theme Power" or "Multiclass" (actually Spellscarred), corrected.
-* 278 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
+* 290 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 233 entries with bold and font size issues. (Deluge, Dark Toxin etc.)
 * 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous etc.)
 * 173 entries with wrong listing data not caused by other issues. (Multi-source classes, traps mixing up role and type etc.)

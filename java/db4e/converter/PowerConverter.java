@@ -29,6 +29,7 @@ public class PowerConverter extends LeveledConverter {
 
    private final Matcher regxLevel     = Pattern.compile( "<span class=level>([^<]+?) (Racial )?+(Attack|Utility|Feature|Pact Boon|Cantrip){1}+( \\d++)?" ).matcher( "" );
    private final Matcher regxKeywords  = Pattern.compile( "✦     <b>(.*?)<br>" ).matcher( "" );
+   private final Matcher regxKeywordsGain  = Pattern.compile( "(?<=<b>Keyword</b>: )Th(?:is|e) power gains the (\\w++) keyword\\." ).matcher(  "" );
    private final Matcher regxAction    = Pattern.compile( "\\b(Action|Interrupt){1}+</b>\\s*" ).matcher( "" );
    private final Matcher regxRangeType = Pattern.compile( "<b>(Melee(?:(?: touch)?+ or Ranged)?+|Ranged|Close|Area|Personal|Special){1}+</b>(?!:)([^<]*+)" ).matcher( "" );
    private final Set<String> RangeSubtype = new HashSet<>( Arrays.asList( "Ranged", "blast", "burst", "close", "sight", "wall" ) );
@@ -256,6 +257,28 @@ public class PowerConverter extends LeveledConverter {
          case "power13431": // Hidden Strike
          case "power16695": // River Rat's Gambit
             addRange( "<b>Personal</b>" );
+            break;
+
+         case "power11331": // Crystalline Bonds
+            locate( regxKeywordsGain );
+            swap( regxKeywordsGain.group(), Utils.ucfirst( regxKeywordsGain.group( 1 ) ) );
+            // Fallthrough
+         case "power10287": // Courageous Strike
+         case "power10294": // Revelatory Strike
+         case "power10299": // Diamond Defense Assault
+         case "power10305": // Perception Shift
+         case "power10311": // Dismissive Strike
+         case "power10445": // Step of the Pursuer
+         case "power10446": // Battle Vortex
+         case "power11057": // Irruption of the Living Gate
+         case "power11123": // Confusing Strike
+         case "power11146": // Unnerving Disruption
+         case "power11326": // Thunder Tether
+            locate( regxKeywordsGain );
+            String keyword = Utils.ucfirst( regxKeywordsGain.group( 1 ) );
+            swap( regxKeywordsGain.group(), keyword, "consistency" );
+            test( TEXT, "<b>Keyword</b>: " + keyword );
+            test( KEYWORDS, keyword );
             break;
 
          default:
