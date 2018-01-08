@@ -18,7 +18,7 @@ import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
-import sheepy.util.ResourceUtils;
+import sheepy.util.Resource;
 import sheepy.util.Utils;
 
 /**
@@ -72,7 +72,7 @@ public class Main {
       ForkJoinPool.commonPool().execute( () -> { try {
          URL url = new URL( "https://api.github.com/repos/Sheep-y/trpg-dnd-4e-db/releases/latest" );
          log.log( Level.FINE, "Checking update from {0}", url );
-         String txt = ResourceUtils.getText( url.openStream() ), lastCreated = "0000";
+         String txt = Resource.getText( url.openStream() ), lastCreated = "0000";
          Matcher regxCreated = Pattern.compile( "\"created_at\"\\s*:\\s*\"([^\"]+)\"" ).matcher( txt );
          while ( regxCreated.find() )
             if ( regxCreated.group( 1 ).compareTo( lastCreated ) > 0 )

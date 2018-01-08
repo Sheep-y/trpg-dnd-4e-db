@@ -10,7 +10,7 @@ import java.io.Writer;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import sheepy.util.ResourceUtils;
+import sheepy.util.Resource;
 import sheepy.util.Utils;
 
 /**
@@ -34,7 +34,7 @@ public class ExporterRawHtml extends Exporter {
    }
 
    private void writeCatalog ( List<Category> categories ) throws IOException {
-      final String template = ResourceUtils.getText( "res/export_list.html" );
+      final String template = Resource.getText( "res/export_list.html" );
 
       final StringBuilder index_body = new StringBuilder();
       final String folder = new File( root ).getName() + "/";
@@ -82,7 +82,7 @@ public class ExporterRawHtml extends Exporter {
       if ( stop.get() ) throw new InterruptedException();
       log.log( Level.FINE, "Writing {0} in thread {1}", new Object[]{ category.id, Thread.currentThread() });
 
-      String template = ResourceUtils.getText( "res/export_entry.html" );
+      String template = Resource.getText( "res/export_entry.html" );
       String cat_id = category.id.toLowerCase();
       new File( root + cat_id ).mkdirs();
 

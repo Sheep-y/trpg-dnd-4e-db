@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 import java.util.regex.Matcher;
 
 public class Utils {
@@ -24,17 +23,8 @@ public class Utils {
    public static String stacktrace ( Throwable ex ) {
       if ( ex == null ) return "";
       StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw);
-      ex.printStackTrace( pw );
+      ex.printStackTrace( new PrintWriter( sw ) );
       return sw.toString();
-   }
-
-   public static TimerTask toTimer ( Runnable task ) {
-      return new TimerTask() {
-         @Override public void run() {
-            task.run();
-         }
-      };
    }
 
    public static List<String> matchAll ( Matcher m, String src ) {
@@ -59,13 +49,11 @@ public class Utils {
       abstract boolean needEscape ( final char chr );
       abstract void doEscape ( StringBuilder out, final char chr );
       abstract int escapeCharCount(); // Number of addition character per escape
-      abstract int capacityIncrement(); // How many char to expand the buffer
    }
 
    /* Logic for escaping HTML string */
    private static final Escaper HtmlEscaper = new Escaper() {
       @Override int escapeCharCount() { return 7; }
-      @Override int capacityIncrement() { return 256; }
       @Override boolean needEscape( final char c ) {
          switch ( c ) { case '\'':  case '"' :  case '&' :  case '<' :  case '>' :
             return true;
@@ -87,7 +75,6 @@ public class Utils {
    /* Logic for escaping JS string */
    private static final Escaper JsStrEscaper = new Escaper() {
       @Override int escapeCharCount() { return 1; }
-      @Override int capacityIncrement() { return 64; }
       @Override boolean needEscape( final char c ) {
          switch ( c ) { case '\b': case '\f': case '\n': case '\r': case '\\': case '\"': case '\u2028': case '\u2029':
             return true;
@@ -111,13 +98,11 @@ public class Utils {
 
    private static String escape ( CharSequence src, Escaper scheme ) {
       StringBuilder out = null;
-      int i = 0, last = 0, increment = 0, srclen = src.length();
-scan_loop:
+      int i = 0, last = 0, increment = 64, srclen = src.length();
       for ( ; i < srclen ; i++ ) {
          if ( scheme.needEscape( src.charAt( i ) ) ) {
-            increment = scheme.capacityIncrement();
             out = new StringBuilder( srclen + increment );
-            break scan_loop;
+            break;
          }
       }
       if ( out == null ) return src.toString(); // Quick return if no need to escape.
@@ -128,8 +113,10 @@ scan_loop:
          if ( scheme.needEscape( c ) ) {
             if ( last < i ) {
                int minLen = out.length() + escapeCharCount + ( srclen - i );
-               if ( out.capacity() < minLen )
+               if ( out.capacity() < minLen ) {
+                  increment *= 2;
                   out.ensureCapacity( out.length() + increment + ( srclen - i ) );
+               }
                out.append( src, last, i );
             }
             scheme.doEscape( out, c );

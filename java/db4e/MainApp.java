@@ -11,7 +11,7 @@ import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import sheepy.util.JavaFX;
-import sheepy.util.ResourceUtils;
+import sheepy.util.Resource;
 import sheepy.util.Utils;
 
 /**
@@ -38,7 +38,7 @@ public class MainApp extends Application {
       stage.setTitle( Main.TITLE );
       stage.setScene( sceneMain );
       try {
-         stage.getIcons().add( new Image( ResourceUtils.getStream( "res/icon.png" ) ) );
+         stage.getIcons().add( new Image( Resource.getStream( "res/icon.png" ) ) );
       } catch ( Exception err ) {
          log.warning( Utils.stacktrace( err ) );
       }

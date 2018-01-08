@@ -53,7 +53,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sheepy.util.JavaFX;
-import sheepy.util.ResourceUtils;
+import sheepy.util.Resource;
 import sheepy.util.Utils;
 import sheepy.util.ui.ConsoleWebView;
 
@@ -376,7 +376,7 @@ public class SceneMain extends Scene {
       } );
       new Thread( () -> {
          try {
-            final String txt = ResourceUtils.getText( doc );
+            final String txt = Resource.getText( doc );
             runFX( () -> {
                   web.getEngine().loadContent( txt );
             } );

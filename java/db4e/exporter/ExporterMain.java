@@ -34,7 +34,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.Base85;
-import sheepy.util.ResourceUtils;
+import sheepy.util.Resource;
 
 /**
  * Export viewer and data.
@@ -264,20 +264,20 @@ public class ExporterMain extends Exporter {
    }
 
    private void testViewerExists () throws IOException {
-      ResourceUtils.getText( "res/script.js" );
-      ResourceUtils.getText( "res/style.css" );
-      ResourceUtils.getText( "res/manifest.json" );
-      ResourceUtils.getText( "res/4e_database.html" );
+      Resource.getText( "res/script.js" );
+      Resource.getText( "res/style.css" );
+      Resource.getText( "res/manifest.json" );
+      Resource.getText( "res/4e_database.html" );
    }
 
    private void writeViewer ( String root, File target ) throws IOException {
       new File( root + "res" ).mkdir();
-      Files.copy( ResourceUtils.getStream( "res/script.js" ), new File( root + "res/script.js" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
-      Files.copy( ResourceUtils.getStream( "res/style.css" ), new File( root + "res/style.css" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
-      Files.copy( ResourceUtils.getStream( "res/viewer_category_icon.png" ), new File( root + "res/viewer_category_icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
-      Files.copy( ResourceUtils.getStream( "res/icon.png" ), new File( root + "res/icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
-      Files.copy( ResourceUtils.getStream( "res/manifest.json" ), new File( root + "res/manifest.json" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
-      String html = ResourceUtils.getText( "res/4e_database.html" );
+      Files.copy( Resource.getStream( "res/script.js" ), new File( root + "res/script.js" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      Files.copy( Resource.getStream( "res/style.css" ), new File( root + "res/style.css" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      Files.copy( Resource.getStream( "res/viewer_category_icon.png" ), new File( root + "res/viewer_category_icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      Files.copy( Resource.getStream( "res/icon.png" ), new File( root + "res/icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      Files.copy( Resource.getStream( "res/manifest.json" ), new File( root + "res/manifest.json" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      String html = Resource.getText( "res/4e_database.html" );
       if ( ! target.getName().startsWith( "4e_database." ) )
          html = html.replace( "4e_database_files", target.getName().split( "\\.", 2 )[0] + "_files" );
       Files.copy( new ByteArrayInputStream( html.getBytes( UTF_8 ) ), target.toPath(), StandardCopyOption.REPLACE_EXISTING );
