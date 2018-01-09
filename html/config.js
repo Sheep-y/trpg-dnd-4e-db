@@ -38,7 +38,7 @@ od.config = {
    },
 
    "is_mc_column" : function config_is_mc_column ( col ) {
-      return [ 'SourceBook', 'Origin', 'Keywords', 'DescriptionAttribute', 'RoleName', 'PowerSourceText', 'KeyAbilities', "Size", "CreatureType" ].indexOf( col ) >= 0;
+      return [ 'CreatureType', 'DescriptionAttribute', 'KeyAbilities', 'Keywords', 'Origin', 'PowerSourceText', 'RoleName', 'Size', 'SourceBook', 'Tier' ].indexOf( col ) >= 0;
    },
 
    "is_num_column" : function config_is_num_column ( col ) {

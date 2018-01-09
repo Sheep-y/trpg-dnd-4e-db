@@ -60,9 +60,17 @@ public class FeatConverter extends Converter {
             text = Utils.ucfirst( text );
             meta( PREREQUISITE, text );
          }
+      }
 
-      } else if ( find( "rerequi" ) ) {
-         warn( "Feat with unparsed prerequisites" );
+      // Add feat classification
+      if ( find( "[Multiclass" ) ) {
+         metaAdd( TIER, " [Multiclass]" );
+      } else if ( find( "Style]" ) ) {
+         metaAdd( TIER, " [Style]" );
+      } else if ( find( "Bloodline]" ) ) {
+         metaAdd( TIER, " [Bloodline]" );
+      } else if ( find( "[Dragonmark]" ) ) {
+         metaAdd( TIER, " [Dragonmark]" );
       }
    }
 
