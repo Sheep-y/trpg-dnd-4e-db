@@ -207,7 +207,10 @@
    /* Undo power keywords margin */
    .detail .powerstat b {
       margin: 0;
-        }
+      }
+      .detail .powerstat ~ .powerstat b { /* But keep margin for subsequence power sections */
+         margin: unset;
+         }
    /* Undo left margin for other common b. */
    .detail b:first-child ,
    .detail h1 + b ,

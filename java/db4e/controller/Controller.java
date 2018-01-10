@@ -324,7 +324,7 @@ public class Controller {
             } catch (SqlJetException ex) {
                synchronized ( this ) { entityLoadedFuture.completeExceptionally( ex ); }
             }
-         });
+         } );
       }
       state.update();
    }
@@ -669,6 +669,7 @@ public class Controller {
             tasks.add( future );
             threadPool.execute( () -> { try {
                log.log( Level.INFO, "Exporting category {0} in thread {1}.", new Object[]{ category.name, Thread.currentThread().getName() } );
+               final long startNs = System.nanoTime();
                synchronized ( category ) {
                   Convert converter = Convert.getConverter( category );
                   if ( fixData )
@@ -678,6 +679,7 @@ public class Controller {
                   if ( fixData ) // The converted data is no longer required.  Kill them to save memory
                      category.entries.clear();
                }
+               log.log( Level.INFO, "{1} exported in {0}ns", new Object[]{ System.nanoTime() - startNs, category.id } );
                future.complete( null );
             } catch ( Throwable e ) {
                future.completeExceptionally( e );

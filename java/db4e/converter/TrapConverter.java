@@ -10,6 +10,7 @@ public class TrapConverter extends LeveledConverter {
 
    public TrapConverter ( Category category ) {
       super( category );
+      compileFlavorBr();
    }
 
    @Override protected void correctEntry () {
@@ -22,23 +23,20 @@ public class TrapConverter extends LeveledConverter {
 
             case "trap417" : // Elemental Transformation Field
                meta( ROLE, "Elite" );
-               swap( "Level 18 Lurker", "Level 18 Elite Lurker" );
-               fix( "consistency" );
+               swap( "Level 18 Lurker", "Level 18 Elite Lurker", "consistency" );
                break;
 
             case "trap1019" : // Rubble Topple
-               swap( "Singe-Use", "Single-Use" );
+               swap( "Singe-Use", "Single-Use", "typo" );
                meta( TYPE, "Terrain" );
                meta( ROLE, "Single-Use" );
-               fix( "typo" );
                break;
 
             case "trap1101" : // Glyph of Warding
                entry.setName( "Glyph of Warding" );
                swap( "Elite Glyph of Warding", "Glyph of Warding" );
-               swap( "Level 7 Trap", "Level 7 Elite Trap" );
+               swap( "Level 7 Trap", "Level 7 Elite Trap", "consistency" );
                meta( ROLE, "Elite" );
-               fix( "consistency" );
                break;
          }
 
@@ -62,8 +60,7 @@ public class TrapConverter extends LeveledConverter {
             String from = entry.getName();
             String to = from.replace( " (Elite)", "" );
             entry.setName( to );
-            swap( from, to );
-            fix( "consistency" ); // All entries are already elite (correct meta), except trap417
+            swap( from, to, "consistency" ); // All entries are already elite (correct meta), except trap417
          }
 
       } else {

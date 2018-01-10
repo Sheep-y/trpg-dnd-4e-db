@@ -62,6 +62,9 @@
          #act_list_lbl_showing {
             padding: 0 7px;
             }
+         #act_list_lbl_page a:first-of-type {
+            margin-left: 1ex;
+            }
       #action_list input.txt_filter {
          color: red;
          flex-grow: 1;
@@ -218,6 +221,8 @@
    <div id="act_list_lbl_caption">
       <span id='act_list_lbl_showing'></span>
       <span id='act_list_lbl_page'></span>
+      <a id='act_list_btn_show_page' class='button i18n' href='' style='display: none'> action.list.btn_show_page </a>
+      <a id='act_list_btn_show_all'  class='button i18n' href='' style='display: none'> action.list.btn_show_all </a>
       <div id='act_list_pnl_list' contextmenu="menu_list" oncontextmenu="od.action.list.contextmenu(event);"></div>
    </div>
 
@@ -660,9 +665,7 @@ od.action.list = {
       action.show_list( table );
       table.addEventListener( 'click', action.table_click );
       table.addEventListener( 'mousedown', action.table_mousedown );
-      table.addEventListener( 'keypress', function act_list_table_keypressed ( evt ) {
-         if ( evt.keyCode === 13 ) action.table_click( evt ); // Trigger a click when pressing Enter
-      });
+      table.addEventListener( 'input', action.table_click );
       _.show( '#act_list_pnl_list' )[0].appendChild( table );
    },
 
@@ -680,7 +683,7 @@ od.action.list = {
          var conv, set = _.map(), colName = col[ i ];
          if ( od.config.is_mc_column( colName ) )
             conv = function ( prop ) {
-               prop.split( /\s*(?:,? or | and |[,;])\s*/g ).forEach( function( e ) { set[ e ] = true; } );
+               prop.split( /\s*(?:,? or | and |[,;\[\]])\s*/g ).forEach( function( e ) { set[ e ] = true; } );
             };
          else if ( od.config.is_num_column( colName ) )
             conv = function ( prop ) {
@@ -748,7 +751,7 @@ od.action.list = {
 
       // Filter data and update displayed result count
       data = action.filter_data( table, col, data );
-      var count = count = data.length;
+      var count = data.length;
 
       if ( ! count ) {
          gui.total_page = gui.page = 0;
@@ -771,6 +774,7 @@ od.action.list = {
             default: html += actions.slice( 0, -1 ).join( comma ) + _or + actions[ actions.length-1 ] + mark;
          }
          od.action.view.siblings = [];
+         action.update_paging();
 
       } else {
          if ( action.sort_field && data[0][ action.sort_field ] !== undefined ) {
@@ -808,9 +812,8 @@ od.action.list = {
             }
          }
          od.action.view.siblings = data.map( function( e ) { return e.ID });
+         action.update_paging( data, start, end );
       }
-
-      action.update_paging();
 
       body.insertAdjacentHTML( 'beforeend', html );
       table.appendChild( body );
@@ -821,13 +824,13 @@ od.action.list = {
          _.time( '[List] No data. Proposed ' + actions.length + ' quick actions.' );
    },
 
-   /** Update paging state */
-   'update_paging' : function act_list_update_paging () {
+   /** Update paging label and list button links */
+   'update_paging' : function act_list_update_paging ( data, start, end ) {
       var action = od.action.list, gui = od.gui;
-      var count = action.data.length;
+      var count = data.length;
       var catTitle = action.category ? action.category.getTitle() : _.l( 'action.list.a_all' );
       var title = _.l( 'action.list.lbl_page', '%1 %2/%3', catTitle, gui.total_page ? gui.page + 1 : 0, gui.total_page );
-      _('#act_list_h_title')[0].textContent = title;
+      _( '#act_list_h_title' )[0].textContent = title;
       od.gui.update_title( title );
 
       if ( count <= gui.row_per_page ) {
@@ -838,7 +841,15 @@ od.action.list = {
          _( '#act_list_lbl_page' )[0].textContent = title;
          _.show( '#act_list_lbl_page' );
       }
-   },
+
+      _.visible( '#act_list_btn_show_all', data );
+      _.visible( '#act_list_btn_show_page', data && gui.total_page > 1 )
+      if ( data ) {
+         if ( gui.total_page > 1 )
+            _( '#act_list_btn_show_page' )[0].href = '?view=' + data.slice( start, end ).map( function( e ) { return encodeURIComponent( e.ID ); } ).join( ',' );
+         _( '#act_list_btn_show_all' )[0].href = '?view=' + data.map( function( e ) { return encodeURIComponent( e.ID ); } ).join( ',' );
+      }
+   }
 };
 
 })();<?coco-end?></script>

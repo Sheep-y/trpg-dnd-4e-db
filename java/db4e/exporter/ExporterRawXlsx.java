@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import sheepy.util.ResourceUtils;
+import sheepy.util.Resource;
 
 /**
  *\ Export raw data as XLSX
@@ -36,7 +36,7 @@ public class ExporterRawXlsx extends Exporter {
       }
 
       target.getParentFile().mkdirs();
-      try ( InputStream reader = ResourceUtils.getStream( "res/xlsx.zip" ) ) {
+      try ( InputStream reader = Resource.getStream( "res/xlsx.zip" ) ) {
          Files.copy( reader, target.toPath(), StandardCopyOption.REPLACE_EXISTING );
       }
       synchronized ( this ) {

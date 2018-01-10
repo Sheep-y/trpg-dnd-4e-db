@@ -3,8 +3,6 @@ package db4e.converter;
 import db4e.data.Category;
 import sheepy.util.Utils;
 
-/**
- */
 public class PPEDConverter extends Converter {
 
    private static final int PREREQUISITE = 0;
@@ -31,14 +29,20 @@ public class PPEDConverter extends Converter {
 
       switch ( entry.getId() ) {
          case "paragonpath153" : // Luckbringer of Tymora
-            swap( "weakening<br>their", "weakening their" );
-            fix( "formatting" );
+            swap( "weakening<br>their", "weakening their", "formatting" );
+            break;
+
+         case "paragonpath175": // Horizon Walker
+            swap( "weaopn", "weapon", "typo" );
+            break;
+
+         case "paragonpath648": // Animus Predator, Animus Strike
+            swap( "<b>Implement</b>, <b>Primal</b><br>", "<b>Implement</b>, <b>Primal</b>, <b>Spirit</b><br>", "missing keyword" );
             break;
 
          case "epicdestiny698" : // Unyielding Sentinel
-            swap( "Defender role", "Any defender class" );
+            swap( "Defender role", "Any defender class", "consistency" );
             meta( PREREQUISITE, "Any defender class" );
-            fix( "consistency" );
             break;
       }
 

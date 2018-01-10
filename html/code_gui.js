@@ -78,13 +78,13 @@ od.gui = {
                   break;
             }
          },
-         'ontouchstart' : function window_touchstart ( evt ) {
+         'ontouchstart_passive' : function window_touchstart ( evt ) {
             if ( evt.touches.length !== 1 ) return;
             gui.last_touch_x = evt.touches[0].screenX;
             gui.last_touch_y = evt.touches[0].screenY;
             gui.last_touch_time = new Date().getTime();
          },
-         'ontouchend' : function window_touchend ( evt ) {
+         'ontouchend_passive' : function window_touchend ( evt ) {
             if ( evt.touches.length !== 0 ) return;
             var time_diff = new Date().getTime() - gui.last_touch_time;
             var y_diff = Math.abs( evt.changedTouches[0].screenY - gui.last_touch_y );
@@ -219,12 +219,11 @@ od.gui = {
    },
 
    update_title : function gui_update_title ( title ) {
-      if ( title )
-         _('title')[0].textContent = title;
-      else
-         _('title')[0].textContent = od.gui.action
+      if ( ! title )
+         title = od.gui.action
             ? _( "#action_" + od.gui.action.id + ' h1' )[0].textContent
             : _.l( 'gui.title', '4e Database' );
+      document.title = _('title')[0].textContent = title;
    },
 
    /**

@@ -6,10 +6,10 @@ import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -25,10 +25,8 @@ public class Converter extends Convert {
       super( category );
    }
 
-   private final Matcher regxTitleLevel = Pattern.compile( "(<h1[^>]*>)(<span[^>]*>.*?</span>)(.*?)(?=</h1>)" ).matcher( "" );
-   private final Matcher regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
-   private final Matcher regxCheckOpenClose = Pattern.compile( "<(/?)(p|span|b|i|a|h[1-6])\\b" ).matcher( "" );
-   private final Matcher regxCheckDate  = Pattern.compile( "\\(\\d+/\\d+/\\d+\\)" ).matcher( "" );
+   private final Matcher regxTitleLevel = Pattern.compile( "(<h1[^>]*+>)(<span[^>]*+>.*?</span>)(.*?)(?=</h1>)" ).matcher( "" );
+   private final Matcher regxCheckOpenClose = Pattern.compile( "<(/?+)(p|span|b|i|a|h[1-6]){1}+\\b" ).matcher( "" );
    private final Map<String, Entry> shortId = new HashMap<>();
    private final Map<String, AtomicInteger> openCloseCount = new HashMap<>();
 
@@ -102,13 +100,12 @@ public class Converter extends Convert {
             ! regxPowerFrequency.group( 1 ).toLowerCase().equals( regxPowerTitle.group( 1 ) ) ) { // Mismatch
             // Error if power, pp, or ed.  Style if disease, item, or monster
             switch ( regxPowerFrequency.group( 1 ) ) {
-               case "At": swapFirst( regxPowerTitle.group(), "<h1 class=atwillpower>" + regxPowerTitle.group( 2 ) ); break;
-               case "En": swapFirst( regxPowerTitle.group(), "<h1 class=encounterpower>" + regxPowerTitle.group( 2 ) ); break;
-               case "Da": swapFirst( regxPowerTitle.group(), "<h1 class=dailypower>" + regxPowerTitle.group( 2 ) ); break;
+               case "At": swap( regxPowerTitle.group(), "<h1 class=atwillpower>" + regxPowerTitle.group( 2 ), "title colour" ); break;
+               case "En": swap( regxPowerTitle.group(), "<h1 class=encounterpower>" + regxPowerTitle.group( 2 ), "title colour" ); break;
+               case "Da": swap( regxPowerTitle.group(), "<h1 class=dailypower>" + regxPowerTitle.group( 2 ), "title colour"); break;
                default:
                   log.log( Level.WARNING, "Cannot fix unknown power frequency {1} of {0}", new Object[]{ entry, regxPowerFrequency.group( 1 ) } );
             }
-            fix( "formatting" );
             return;
          }
       }
@@ -203,8 +200,8 @@ public class Converter extends Convert {
       books.put( "Web of the Spider Queen", "Web of the Spider Queen" );
    }
 
-   protected final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]+)</p>" ).matcher( "" );
-   private final Matcher regxBook = Pattern.compile( "([A-Z][^,.]*)(?:, page[^,.]+|\\.)" ).matcher( "" );
+   protected final Matcher regxPublished = Pattern.compile( "<p class=publishedIn>Published in ([^<>]++)</p>" ).matcher( "" );
+   private final Matcher regxBook = Pattern.compile( "([A-Z][^,.]*+)(?:, page[^,.]+|\\.)" ).matcher( "" );
 
    @Override protected void parseSourceBook () {
       if ( find( regxPublished ) ) {
@@ -252,14 +249,14 @@ public class Converter extends Convert {
    // Internal search link, e.g. http://ww2.wizards.com/dnd/insider/item.aspx?fid=21&amp;ftype=3 - may also be empty (monster.2508/Darkpact Stalker)
    //private final Matcher regxSearchLink = Pattern.compile( "<a target=\"_new\" href=\"http://ww2.wizards.com/dnd/insider/[^\"]+\">([^<]*)</a>" ).matcher( "" );
    // Combined link pattern
-   private final Matcher regxLinks = Pattern.compile( "<a(?: target=\"_new\")? href=\"(?:http://ww[w2].wizards.com/[^\"]*)?\"(?: target=\"_new\")?>([^<]*)</a>" ).matcher( "" );
+   private final Matcher regxLinks = Pattern.compile( "<a(?: target=\"_new\")?+ href=\"(?:http://ww[w2].wizards.com/[^\"]*+)?\"(?: target=\"_new\")?+>([^<]*+)</a>" ).matcher( "" );
 
-   private final Matcher regxAttr1 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\">" ).matcher( "" );
-   private final Matcher regxAttr2 = Pattern.compile( "<(\\w+) (\\w+)=\"(\\w+)\" (\\w+)=\"(\\w+)\">" ).matcher( "" );
-   private final Matcher regxAttr3 = Pattern.compile( "<(\\w+) (\\w+)=\"([^'\"/]+)\">" ).matcher( "" );
+   private final Matcher regxAttr1 = Pattern.compile( "<(\\w++) (\\w++)=\"(\\w++)\">" ).matcher( "" );
+   private final Matcher regxAttr2 = Pattern.compile( "<(\\w++) (\\w++)=\"(\\w++)\" (\\w++)=\"(\\w++)\">" ).matcher( "" );
+   private final Matcher regxAttr3 = Pattern.compile( "<(\\w++) (\\w++)=\"([^'\"/]++)\">" ).matcher( "" );
    private final Matcher regxOptionalClose = Pattern.compile( "</?tbody>|</(td|tr)>(?=</?(td|tr|tbody)|</table)" ).matcher( "" );
 
-   private final Matcher regxEmptyTag = Pattern.compile( "<(\\w+)[^>]*></\\1>" ).matcher( "" );
+   private final Matcher regxEmptyTag = Pattern.compile( "<(\\w++)[^>]*+></\\1>" ).matcher( "" );
 
    @Override protected String normaliseData ( String data ) {
       // Replace images with character. Every image really appears in the compendium.
@@ -317,13 +314,15 @@ public class Converter extends Convert {
       return data.trim();
    }
 
-   private final Matcher regxPowerFlav = Pattern.compile( "(<h1 class=\\w{5,9}power>.*?</h1>)<p class=flavor>.*?</p>" ).matcher( "" );
+   private final Matcher regxPowerFlav = Pattern.compile( "(<h1 class=(atwill|encounter|daily)power>.*?</h1>)<p class=flavor>.*?</p>" ).matcher( "" );
    private final Matcher regxItemFlav  = Pattern.compile( "(<h1 class=mihead>.*?</h1>)<p class=miflavor>.*?</p>" ).matcher( "" );
-   private final Matcher regxRitualFlav = Pattern.compile( "(<h1 class=player>.*?</h1>)(?:<p>)?<i>.*?</i>(?:</p>|<br>)" ).matcher( "" );
+   private final Matcher regxRitualFlav = Pattern.compile( "(<h1 class=player>.*?</h1>)(?:<p>)?+<i>.*?</i>(?:</p>|<br>)" ).matcher( "" );
    // Errata removal. monster217 has empty change, and many have empty action (Update/Added/Removed).
-   private final Matcher regxErrata  = Pattern.compile( "<br>\\w* \\([123]?\\d/[123]?\\d/20[01]\\d\\)<br>[^<]*" ).matcher( "" );
-   private final Matcher regxHtmlTag = Pattern.compile( "</?\\w+[^>]*>" ).matcher( "" );
-   private final Matcher regxSpaces  = Pattern.compile( " +" ).matcher( " " );
+   private final Matcher regxErrata  = Pattern.compile( "<br>\\w*+ \\([123]?\\d/[123]?\\d/20[01]\\d\\)<br>[^<]*" ).matcher( "" );
+   private final Matcher regxSpaces  = Pattern.compile( " ++" ).matcher( " " );
+   protected final Matcher regxHtmlTag = Pattern.compile( "</?\\w++[^>]*+>" ).matcher( "" );
+
+   private Matcher regxCheckFulltext, regxCheckDate;
 
    /**
     * Convert HTML data into full text data for full text search.
@@ -356,6 +355,10 @@ public class Converter extends Convert {
 
       // Validate
       if ( Main.debug.get() && Controller.fixData ) {
+         if ( regxCheckFulltext == null ) {
+            regxCheckFulltext = Pattern.compile( "<\\w|(?<=\\w)>|&[^D ]" ).matcher( "" );
+            regxCheckDate  = Pattern.compile( "\\(\\d+/\\d+/\\d+\\)" ).matcher( "" );
+         }
          if ( regxCheckFulltext.reset( data ).find() )
             warn( "Unremoved html tag in fulltext" );
          if ( regxCheckDate.reset( data ).find() )
@@ -431,17 +434,37 @@ public class Converter extends Convert {
       for ( Runnable test : tests ) test.run();
    }
 
-   protected final Set<String> appendList ( Set<String> list, String name ) {
-      list.add( name );
+   /** Add item to a collection and return the collection. */
+   protected final <T, C extends Collection<T>> C append ( C list, T item ) {
+      list.add( item );
       return list;
    }
 
-   protected final Set<String> appendList ( Set<String> list, String ... name ) {
-      list.addAll( Arrays.asList( name ) );
+   /** Add items to a collection and return the collection. */
+   protected final <T, C extends Collection<T>> C append ( C list, T ... items ) {
+      list.addAll( Arrays.asList( items ) );
       return list;
    }
 
-   protected final void swap ( CharSequence from, CharSequence to ) {
+   /** Replace first substring. Tested. */
+   protected final void swap ( String from, String to ) {
+      StringBuilder content = new StringBuilder( data().length() + Math.max( 0, to.length() - from.length() ) ).append( data() );
+      int pos = content.indexOf( from );
+      if ( pos >= 0 ) {
+         data( content.replace( pos, pos + from.length(), to ).toString() );
+         test( TEXT, to );
+      } else
+         log.log( Level.WARNING, "Cannot swap content of {0}: {1}", new Object[]{ entry, from } );
+   }
+
+   /** Replace first substring and log fix. Tested. */
+   protected final void swap ( String from, String to, String fix ) {
+      swap( from, to );
+      fix( fix );
+   }
+
+   /** Simple substring replace. Tested. */
+   protected final void swapAll ( String from, String to ) {
       if ( data().contains( from ) ) {
          data( data().replace( from, to ) );
          test( TEXT, to );
@@ -449,6 +472,7 @@ public class Converter extends Convert {
          log.log( Level.WARNING, "Cannot swap content of {0}: {1}", new Object[]{ entry, from } );
    }
 
+   /** Regular expression replace. Tested. */
    protected final void swapFirst ( String from, String to ) {
       if ( data().contains( from ) ) {
          data( data().replaceFirst( from, to ) );
@@ -457,18 +481,22 @@ public class Converter extends Convert {
          log.log( Level.WARNING, "Cannot swapFirst content of {0}: {1}", new Object[]{ entry, from } );
    }
 
+   /** Get current entry's data. */
    protected final String data () {
       return entry.getContent();
    }
 
+   /** Replace current entry's data. No test.*/
    protected final void data ( String data ) {
       entry.setContent( data );
    }
 
+   /** Get a metadata column as String. */
    protected final String meta ( int index ) {
       return entry.getSimpleField( index );
    }
 
+   /** Set a metadata column. Tested. */
    protected final void meta ( int index, Object setTo ) {
       entry.setField( index, setTo );
       if ( setTo instanceof Object[] )
@@ -477,25 +505,36 @@ public class Converter extends Convert {
          test( index, Pattern.compile( setTo.toString(), Pattern.LITERAL ) );
    }
 
+   /** Set all metadata columns. No test. */
+   protected final void meta ( Object... setTo ) {
+      entry.setFields( setTo );
+   }
+
+   /** Append to a metadata columns. Tested. */
    protected final void metaAdd ( int index, Object append ) {
       entry.setField( index, entry.getSimpleField( index ) + append );
       test( index, append.toString() );
    }
 
-   protected final void meta ( Object... setTo ) {
-      entry.setFields( setTo );
+   /** Log a warning tailed with the entry's toString (id and name). */
+   protected final void warn ( String message ) {
+      log.log( Level.WARNING, message + ": {0}", entry );
    }
 
-   protected final void warn ( String issue ) {
-      log.log( Level.WARNING, issue + ": {0}", entry );
-   }
-
+   /** Return true if a substring is located in entry content. */
    protected final boolean find ( CharSequence substr ) {
       return data().contains( substr );
    }
 
+   /** Return true if entry content matches given Matcher. */
    protected final boolean find ( Matcher regx ) {
       return regx.reset( data() ).find();
+   }
+
+   /** Log a warning if entry content does not match given Matcher. */
+   protected final void locate ( Matcher regx ) {
+      if ( ! regx.reset( data() ).find() )
+         warn( "Cannot find \"" + regx.pattern().toString() + "\"" );
    }
 
    protected final String shortenAbility ( Object txt ) {

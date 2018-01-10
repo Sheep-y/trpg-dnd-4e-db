@@ -20,8 +20,10 @@ public class FeatConverter extends Converter {
       super.initialise();
    }
 
-   private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite</b>:\\s*([^<>]+)<" ).matcher( "" );
-   private final Matcher regxLevel = Pattern.compile( "(?:, )?([12]?\\d)(?:st|nd|th) level(?:, )?" ).matcher( "" );
+   private final Matcher regxAction    = Pattern.compile( "\\b(Action|Interrupt){1}+</b>\\s*" ).matcher( "" );
+   private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite</b>:\\s*+([^<>]++)<" ).matcher( "" );
+   private final Matcher regxLevel = Pattern.compile( "(?:, )?+([12]?\\d)(?:st|nd|th){1}+ level(?:, )?+" ).matcher( "" );
+   private final Matcher regxAbilityScore = Pattern.compile( "(?i)(Strength|Constitution|Dexterity|Intelligence|Wisdom|Charisma){1}+( \\d++)" ).matcher( "" );
 
    @Override protected void convertEntry () {
       String oldTier = meta( 0 );
@@ -31,8 +33,14 @@ public class FeatConverter extends Converter {
       if ( find( regxPrerequisite ) ) {
          String text = regxPrerequisite.group( 1 ).trim();
          if ( text.contains( "-level" ) ) {
+            swap( "-level", " level" );
             text = text.replace( "-level", " level" );
             fix( "consistency" );
+         }
+         if ( text.charAt( text.length() - 1 ) == '.' ) {
+            String newText = text.substring( 0, text.length() - 1 );
+            swap( text, newText, "consistency" );
+            text = newText;
          }
          if ( regxLevel.reset( text ).find() ) {
             int level = Integer.parseInt( regxLevel.group( 1 ) );
@@ -44,7 +52,7 @@ public class FeatConverter extends Converter {
                warn( "Feat with multiple level" );
             if ( level == 11 || level == 21 )
                text = regxLevel.reset( text ).replaceFirst( "" );
-            if ( ! oldTier.isEmpty() && !oldTier.equals( meta( TIER ) ) )
+            if ( ! oldTier.isEmpty() && ! oldTier.equals( meta( TIER ) ) )
                fix( "wrong meta" );
             else if ( oldTier.isEmpty() && ! meta( TIER ).equals( "Heroic" ) )
                fix( "missing meta" );
@@ -55,13 +63,37 @@ public class FeatConverter extends Converter {
             text = Character.toLowerCase( text.charAt( 0 ) ) + text.substring( 1 );
             text = text.replace( " class feature", "" );
             text = text.replace( "you have a spellscar", "spellscar" );
-            text = text.replace( " have the ", " have " ).replace( " has the ", " has ");
-            text = Utils.ucfirst( text );
+            text = text.replace( " you must ", " must " );
+            if ( text.contains( " the ") ) {
+               if ( text.contains( " must worship" ) )
+                  text = text.replace( " of the ", " of " ).replace( " domain", "" ); // a deity of the XX domain >> a deity of XX
+               else
+                  text = text.replace( " have the ", " have " ).replace( " has the ", " has ").replace( " with the ", " with " );
+            }
+            text = text.replaceAll( "armor\\s*+(?!of)", "" ); // Turns "hide armor" into "hide", but leave "armor of faith/wrath" alone
+            regxAbilityScore.reset( text );
+            while ( regxAbilityScore.find() )
+               text = text.replace( regxAbilityScore.group(), regxAbilityScore.group( 1 ).substring( 0, 3 ) + regxAbilityScore.group( 2 ) );
+            text = Utils.ucfirst( shortenAbility( text ) );
+            switch ( entry.getId() ) {
+               case "feat2697": // Psionic Complement
+               case "feat2698": // Psionic Dabbler
+               case "feat2732": // Psionic Conventionalist
+                  text = text.replace( " class-specific multiclass feat", " multiclass feat" );
+            }
             meta( PREREQUISITE, text );
          }
+      }
 
-      } else if ( find( "rerequi" ) ) {
-         warn( "Feat with unparsed prerequisites" );
+      // Add feat classification
+      if ( find( "[Multiclass" ) ) {
+         metaAdd( TIER, " [Multiclass]" );
+      } else if ( find( "Style]" ) ) {
+         metaAdd( TIER, " [Style]" );
+      } else if ( find( "Bloodline]" ) ) {
+         metaAdd( TIER, " [Bloodline]" );
+      } else if ( find( "[Dragonmark]" ) ) {
+         metaAdd( TIER, " [Dragonmark]" );
       }
    }
 
@@ -79,18 +111,32 @@ public class FeatConverter extends Converter {
    @Override protected void correctEntry () {
       switch ( entry.getId() ) {
          case "feat1111": // Bane's Tactics
-            swap( "basic melee attack", "melee basic attack" );
-            fix( "fix basic attack" );
+            swap( "basic melee attack", "melee basic attack", "fix basic attack" );
+            break;
+
+         case "feat1281": // Bravo Novice
+         case "feat1285": // Cutthroat Novice
+         case "feat1287": // Cutthroat Specialist
+         case "feat1293": // Poisoner Novice
+         case "feat1295": // Poisoner Specialist
+            locate( regxAction );
+            swap( regxAction.group(), regxAction.group( 1 ) + "</b>      <b>Melee or Ranged</b>", "missing keyword" );
             break;
 
          case "feat2254": // Traveler's Celerity
-            swap( "11th-level, ", "11th level, " );
-            fix( "consistency" );
+            swap( "11th-level, ", "11th level, ", "consistency" );
+            break;
+
+         case "feat2326": // Arkhosian Fang Student
+            swap( "proficiency with the bastard sword, the broadsword, or the greatsword", "proficiency with bastard sword, broadsword, or greatsword", "consistency" );
+            break;
+
+         case "feat2698": // Psionic Dabbler
+            swap( "class specific", "class-specific", "consistency" );
             break;
 
          case "feat3667": // Powerful Lure
-            swap( "Level 11, ", "11th level, " );
-            fix( "consistency" );
+            swap( "Level 11, ", "11th level, ", "consistency" );
             break;
       }
       super.correctEntry();

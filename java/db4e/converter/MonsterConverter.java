@@ -28,24 +28,21 @@ public class MonsterConverter extends CreatureConverter {
    @Override protected void correctEntry () {
       switch ( entry.getId() ) {
          case "monster2248": // Cambion Stalwart
-            swap( "bit points", "hit points" );
-            fix( "typo" );
+            swap( "bit points", "hit points", "typo" );
             break;
 
          case "monster3222": // Veln
          case "monster3931": // Demon Furor
-            swap( "basic melee or basic ranged attack", "melee or ranged basic attack" );
-            fix( "fix basic attack" );
+            swap( "basic melee or basic ranged attack", "melee or ranged basic attack", "fix basic attack" );
             break;
 
          case "monster3717": // Blistered Soul
-            swap( "<span class=type> </span>", "<span class=type>Medium aberrant humanold</span>" );
-            fix( "missing content" );
+            swap( "<span class=type> </span>", "<span class=type>Medium aberrant humanold</span>", "missing keyword" );
             // Fallthrough to fix basic attack
 
          default:
             if ( find( "basic melee attack") ) {
-               swap( "basic melee attack", "melee basic attack" );
+               swapAll( "basic melee attack", "melee basic attack" );
                fix( "fix basic attack" );
             }
       }

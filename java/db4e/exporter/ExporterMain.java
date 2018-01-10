@@ -6,6 +6,7 @@
 package db4e.exporter;
 
 import SevenZip.Compression.LZMA.Encoder;
+import db4e.Main;
 import db4e.controller.ProgressState;
 import db4e.converter.Convert;
 import db4e.data.Category;
@@ -32,8 +33,8 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import sheepy.util.Ascii85;
-import sheepy.util.ResourceUtils;
+import sheepy.util.text.Base85;
+import sheepy.util.Resource;
 
 /**
  * Export viewer and data.
@@ -44,6 +45,7 @@ public class ExporterMain extends Exporter {
    private static final int FILE_PER_CATEGORY = 20;
 
    private String root;
+   private final boolean multiline = Main.debug.get();
 
    @Override public synchronized void setState ( File target, Consumer<String> stopChecker, ProgressState state ) {
       super.setState( target, stopChecker, state );
@@ -112,6 +114,7 @@ public class ExporterMain extends Exporter {
                str( buffer, field.toString() ).append( ',' );
          }
          backspace( buffer ).append( "]," );
+         if ( multiline ) buffer.append( '\n' );
       }
       try ( OutputStreamWriter writer = openStream( catPath + "/_listing.js" ) ) {
          writeData( writer, "od.reader.jsonp_data_listing(20130703," + listCol, backspace( buffer ).append( ']' ), ")" );
@@ -128,6 +131,7 @@ public class ExporterMain extends Exporter {
          buffer.ensureCapacity( buffer.length() + entry.getId().length() + fulltext.length() + 12 );
          str( buffer, entry.getId() ).append( ':' );
          str( buffer, fulltext ).append( ',' );
+         if ( multiline ) buffer.append( '\n' );
       }
       try ( OutputStreamWriter writer = openStream( catPath + "/_index.js" ) ) {
          writeData( writer, "od.reader.jsonp_data_index(20130616," + textCat, backspace( buffer ).append( '}' ), ")" );
@@ -147,6 +151,7 @@ public class ExporterMain extends Exporter {
          data[grp].ensureCapacity( data[grp].length() + entry.getId().length() + entry.getContent().length() + 12 );
          str( data[ grp ], entry.getId() ).append( ':' );
          str( data[ grp ], entry.getContent() ).append( ',' );
+         if ( multiline ) data[ grp ].append( '\n' );
          ++exported;
 
          if ( stop.get() ) throw new InterruptedException();
@@ -235,9 +240,10 @@ public class ExporterMain extends Exporter {
       final int total_size = prefix.length() + data.length() + postfix.length();
       if ( data.length() <= 0 ) log.log( Level.WARNING, "Zero bytes data {0}", prefix );
       if ( stop.get() ) throw new InterruptedException();
+      final String snippet = data.substring( 0, Math.min( data.length(), 20 ) );
       if ( compress.get() ) {
          byte[] zipped = lzma( data );
-         String compressed = Ascii85.encode( zipped );
+         String compressed = Base85.getRfc1942Encoder().encodeToString( zipped );
          if ( compressed.length() <= 0 ) log.log( Level.WARNING, "Zero bytes encoded {0}", prefix );
          final int zipped_size = prefix.length() + compressed.length() + 2 + postfix.length();
          if ( zipped_size < total_size * 0.96 ) { // Don't waste decompression time on low compression or negative compression
@@ -245,7 +251,7 @@ public class ExporterMain extends Exporter {
             writer.write( compressed );
             writer.write( '"' );
             writer.write( postfix );
-            log.log( Level.FINE, "Written {0} bytes ({1,number,percent}) compressed ({2})", new Object[]{ zipped_size, (float) zipped_size / total_size, prefix } );
+            log.log( Level.FINE, "Written {0} bytes ({1,number,percent}) compressed ({2})", new Object[]{ zipped_size, (float) zipped_size / total_size, snippet } );
             data.setLength( 0 );
             return;
          }
@@ -253,25 +259,25 @@ public class ExporterMain extends Exporter {
       writer.write( prefix );
       writer.write( data.toString() );
       writer.write( postfix );
-      log.log( Level.FINE, "Written {0} bytes uncompressed ({1})", new Object[]{ total_size, prefix } );
+      log.log( Level.FINE, "Written {0} bytes uncompressed ({1})", new Object[]{ total_size, snippet } );
       data.setLength( 0 );
    }
 
    private void testViewerExists () throws IOException {
-      ResourceUtils.getText( "res/script.js" );
-      ResourceUtils.getText( "res/style.css" );
-      ResourceUtils.getText( "res/manifest.json" );
-      ResourceUtils.getText( "res/4e_database.html" );
+      Resource.getText( "res/script.js" );
+      Resource.getText( "res/style.css" );
+      Resource.getText( "res/manifest.json" );
+      Resource.getText( "res/4e_database.html" );
    }
 
    private void writeViewer ( String root, File target ) throws IOException {
       new File( root + "res" ).mkdir();
-      Files.copy( ResourceUtils.getStream( "res/script.js" ), new File( root + "res/script.js" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
-      Files.copy( ResourceUtils.getStream( "res/style.css" ), new File( root + "res/style.css" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
-      Files.copy( ResourceUtils.getStream( "res/viewer_category_icon.png" ), new File( root + "res/viewer_category_icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
-      Files.copy( ResourceUtils.getStream( "res/icon.png" ), new File( root + "res/icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
-      Files.copy( ResourceUtils.getStream( "res/manifest.json" ), new File( root + "res/manifest.json" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
-      String html = ResourceUtils.getText( "res/4e_database.html" );
+      Files.copy( Resource.getStream( "res/script.js" ), new File( root + "res/script.js" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      Files.copy( Resource.getStream( "res/style.css" ), new File( root + "res/style.css" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      Files.copy( Resource.getStream( "res/viewer_category_icon.png" ), new File( root + "res/viewer_category_icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      Files.copy( Resource.getStream( "res/icon.png" ), new File( root + "res/icon.png" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      Files.copy( Resource.getStream( "res/manifest.json" ), new File( root + "res/manifest.json" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
+      String html = Resource.getText( "res/4e_database.html" );
       if ( ! target.getName().startsWith( "4e_database." ) )
          html = html.replace( "4e_database_files", target.getName().split( "\\.", 2 )[0] + "_files" );
       Files.copy( new ByteArrayInputStream( html.getBytes( UTF_8 ) ), target.toPath(), StandardCopyOption.REPLACE_EXISTING );

@@ -12,8 +12,6 @@ class LeveledConverter extends Converter {
 
    protected int LEVEL = -1;
 
-   private final Matcher regxFlavor = Pattern.compile( "(?<=</h1>)<p class=flavor>([^<]*|</?(?!p)[^>]+/?>)+</p>" ).matcher( "" );
-
    protected LeveledConverter ( Category category ) {
       super( category );
    }
@@ -112,22 +110,19 @@ class LeveledConverter extends Converter {
       switch ( category.id ) {
       case  "Poison":
          if ( find( "<p>Published in" ) ) {
-            swap( "<p>Published in", "<p class=publishedIn>Published in" );
-            fix( "formatting" );
+            swap( "<p>Published in", "<p class=publishedIn>Published in", "styling" );
          }
 
          // Convert from item to poison
          if ( entry.getFieldCount() == 5 ) {
             meta( meta( 1 ), "", meta( 4 ) );
             entry.setId( entry.getId().replace( "item", "poison0" ) );
-            swap( "<h1 class=mihead>", "<h1 class=poison>" );
-            fix( "recategorise" );
+            swap( "<h1 class=mihead>", "<h1 class=poison>", "recategorise" );
          }
 
          switch ( entry.getId() ) {
             case "poison19": // Granny's Grief
-               swap( ">Published in .<", ">Published in Dungeon Magazine 211.<" );
-               fix( "missing published" );
+               swap( ">Published in .<", ">Published in Dungeon Magazine 211.<", "missing published" );
                break;
             case "poison03562": // Gibbering Grind
             case "poison03564": // Umber Dust
@@ -137,8 +132,8 @@ class LeveledConverter extends Converter {
             case "poison03561": // Aboleth Slime Concentrate
             case "poison03563": // Grell Bile
             case "poison03566": // Mind Flayer Tentacle Extract
-               swap( "(Consumable, ", "(" );
-               swap( " ✦ (", " ✦ Consumable (" );
+               swapAll( "(Consumable, ", "(" );
+               swapAll( " ✦ (", " ✦ Consumable (" );
                fix( "missing power frequency" );
          }
          break;
@@ -146,12 +141,16 @@ class LeveledConverter extends Converter {
       case "Ritual":
          switch ( entry.getId() ) {
             case "ritual288": // Primal Grove
-               swap( " grp to ", " gp to " );
-               fix( "typo" );
+               swap( " grp to ", " gp to ", "typo" );
                break;
          }
       }
       super.correctEntry();
+   }
+
+   private Matcher regxFlavor;
+   protected void compileFlavorBr () {
+      regxFlavor = Pattern.compile( "(?<=</h1>)<p class=flavor>([^<]*|</?(?!p)[^>]+/?>)+</p>" ).matcher( "" );
    }
 
    /* Removes <br> from flavor text, called manually by Power and Trap.  Other tags has not been found.  Each entries that need to be fixed only has one flavor text. */
@@ -159,7 +158,6 @@ class LeveledConverter extends Converter {
       if ( ! find( regxFlavor ) ) return;
       String matched = regxFlavor.group();
       if ( ! matched.contains( "<br>" ) ) return;
-      swap( matched, matched.replaceAll( "<br>", " " ) );
-      fix( "formatting" );
+      swap( matched, matched.replaceAll( "<br>", " " ), "formatting" );
    }
 }

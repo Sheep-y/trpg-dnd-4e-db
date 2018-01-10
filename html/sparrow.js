@@ -1002,7 +1002,10 @@ _.attr = function _attr( ary, obj, value ) {
 
             default:
                if ( name.substr( 0, 2 ) === 'on' ) {
-                  e.addEventListener( name.substr( 2 ), val );
+                  if ( name.slice( name.length - 8 ) === '_passive' ) {
+                     e.addEventListener( name.substr( 2, name.length - 10 ), val, { passive: true } );
+                  } else
+                     e.addEventListener( name.substr( 2 ), val );
                } else if ( name.substr( 0, 5 ) === 'data-' ) {
                   e.dataset[ name.substr( 5 ) ] = val;
                } else if ( val !== undefined ) {

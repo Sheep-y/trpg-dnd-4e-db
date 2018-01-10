@@ -19,13 +19,13 @@ public class GlossaryConverter extends Converter {
          if ( ! find( "IMPROVISING WITH" ) ) {
             data( regxFlavor.reset( data() ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" ) );
             test( TEXT, "<h3>IMPROVISING WITH " );
-            fix( "missing content" );
+            fix( "content" );
          }
       }
       switch ( entry.getId() ) {
          case "glossary381": // Concordance, change to Artifact
             entry.setName( "Artifact" );
-            swap( "<h1 class=player>Concordance</h1><p class=flavor>", "<h3>Concordance</h3><p>" );
+            swap( "<h1 class=player>Concordance</h1><p class=flavor>", "<h3>Concordance</h3><p>", "new entry" );
             data( "<h1 class=player>Artifact</h1>"
                     + "<p class=flavor>Artifacts have a level but no price - they can't be " +
 "bought or crafted, and their temporary nature ensures that they don't have a long-term impact on a character's " +
@@ -46,13 +46,11 @@ public class GlossaryConverter extends Converter {
 "the wielder acts against the artifact's wishes, its power diminishes. The artifact's mindset is measured by a " +
 "concordance score.</p>" + data() );
             test( TEXT, "Artifacts have a level but no price" );
-            fix( "new entry" );
             break;
 
          case "glossary664": // Reading a Weapon Entry
             entry.setName( "Weapons" );
-            swap( "Reading a Weapon Entry", "Weapons" );
-            fix( "consistency" );
+            swap( "Reading a Weapon Entry", "Weapons", "consistency" );
             break;
 
          case "glossary0453": // Item Set
@@ -85,32 +83,32 @@ public class GlossaryConverter extends Converter {
    @Override protected Set<String> getLookupName ( Entry entry, Set<String> list ) {
       switch ( entry.getId() ) {
          case "skill27": // Athletics
-            return appendList( list, "Athletics", "Escape", "Climb", "Climbing", "Swim", "Swimming", "Jump", "Jumping", "Long Jump" );
+            return append( list, "Athletics", "Escape", "Climb", "Climbing", "Swim", "Swimming", "Jump", "Jumping", "Long Jump" );
          case "glossary86": // Teleportation
-            return appendList( list, "Teleport", "Teleportation" );
+            return append( list, "Teleport", "Teleportation" );
          case "glossary159": // Hit Points
-            return appendList( list, "HP", "Hit Point", "Bloodied" );
+            return append( list, "HP", "Hit Point", "Bloodied" );
          case "glossary163": // Sustained Durations
-            return appendList( list, "Sustained Durations", "Sustain", "Sustain Minor", "Sustain Move", "Sustain Standard", "Sustain No Action" );
+            return append( list, "Sustained Durations", "Sustain", "Sustain Minor", "Sustain Move", "Sustain Standard", "Sustain No Action" );
          case "glossary179": // Defense Scores
-            return appendList( list, "Defense Scores", "Defenses", "Defense", "Fortitude", "Reflex", "Will" );
+            return append( list, "Defense Scores", "Defenses", "Defense", "Fortitude", "Reflex", "Will" );
          case "glossary341": // Dying and Death
-            return appendList( list, "Dying", "Death", "Death Saving Throw", "Die", "Dies", "Kill", "Drop to 0 or" );
+            return append( list, "Dying", "Death", "Death Saving Throw", "Die", "Dies", "Kill", "Drop to 0 or" );
          case "glossary487": // Carrying, Lifting and Dragging
-            return appendList( list, "Carry", "Carrying", "Lift", "Lifting", "Drag", "Dragging", "Normal Load", "Heavy Load", "Maximum Drag Load" );
+            return append( list, "Carry", "Carrying", "Lift", "Lifting", "Drag", "Dragging", "Normal Load", "Heavy Load", "Maximum Drag Load" );
          case "glossary622": // Action Types
-            return appendList( list, "Action Type", "Standard Action", "Move Action", "Minor Action", "Immediate Reaction", "Immediate Action", "Immediate Interrupt", "Opportunity Action", "Free Action" );
+            return append( list, "Action Type", "Standard Action", "Move Action", "Minor Action", "Immediate Reaction", "Immediate Action", "Immediate Interrupt", "Opportunity Action", "Free Action" );
          case "glossary623": // Languages
-            return appendList( list, "Language", "Script" );
+            return append( list, "Language", "Script" );
          case "glossary670": // Magic Item Level and Rarity
-            return appendList( list, "Magic Item Level and Rarity", "Common", "Uncommon", "Rare" );
+            return append( list, "Magic Item Level and Rarity", "Common", "Uncommon", "Rare" );
          case "glossary69": case "glossary659" : case "glossary661" : case "glossary664" : // Implement, Armor, Shields, Weapon
             if ( entry.getId().equals( "glossary69" ) ) list.add( "Implements" );
-            appendList( list, "Proficiency", "Proficiencies" ); // Fall through to add singular lookup
+            append( list, "Proficiency", "Proficiencies" ); // Fall through to add singular lookup
       }
       String name = entry.getName();
       if ( name.endsWith( " speed" ) || name.endsWith( " Attack" ) )
-         return appendList( list, name, name.substring( 0, name.length() - 6 ) );
+         return append( list, name, name.substring( 0, name.length() - 6 ) );
       list.add( name );
       if ( name.startsWith( "Object" ) )
          list.add( "Object" );

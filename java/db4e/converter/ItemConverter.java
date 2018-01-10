@@ -43,12 +43,12 @@ public class ItemConverter extends LeveledConverter {
       return super.sortEntity( a, b );
    }
 
-   private final Matcher regxPowerFrequency = Pattern.compile( "✦\\s*\\(" ).matcher( "" );
-   private final Matcher regxWhichIsReproduced = Pattern.compile( " \\([^)]+\\), which is reproduced below(?=.)" ).matcher( "" );
-   private final Matcher regxTier = Pattern.compile( "\\b(?:Heroic|Paragon|Epic)\\b" ).matcher( "" );
-   private final Matcher regxType = Pattern.compile( "<b>(Type|Armor|Arms Slot|Category)(?:</b>: |: </b>)([A-Za-z, ]+)" ).matcher( "" );
-   private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]+)</b>" ).matcher( "" );
-   private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d+)(?:<td class=mic2>(?:\\+\\d)?)?<td class=mic3>([\\d,]+) gp" ).matcher( "" );
+   private final Matcher regxPowerFrequency = Pattern.compile( "✦\\s*+\\(" ).matcher( "" );
+   private final Matcher regxWhichIsReproduced = Pattern.compile( " \\([^)]++\\), which is reproduced below(?=.)" ).matcher( "" );
+   private final Matcher regxTier = Pattern.compile( "\\b(?:Heroic|Paragon|Epic){1}+\\b" ).matcher( "" );
+   private final Matcher regxType = Pattern.compile( "<b>(Type|Armor|Arms Slot|Category){1}+(?:</b>: |: </b>){1}+([A-Za-z, ]++)" ).matcher( "" );
+   private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]++)</b>" ).matcher( "" );
+   private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d++)(?:<td class=mic2>(?:\\+\\d)?+)?+<td class=mic3>([\\d,]++) gp" ).matcher( "" );
 
    @Override protected void convertEntry () {
       if ( ! isGeneric )
@@ -60,7 +60,7 @@ public class ItemConverter extends LeveledConverter {
       }
       super.convertEntry();
       if ( meta( RARITY ).equals( "Artifact" ) ) {
-         find( regxTier );
+         locate( regxTier );
          meta( LEVEL, regxTier.group() );
          return; // Artifacts already have its type set
       }
@@ -78,7 +78,7 @@ public class ItemConverter extends LeveledConverter {
          default:
             switch ( meta( CATEGORY ) ) {
             case "Alternative Reward" :
-               find( regxFirstStatBold );
+               locate( regxFirstStatBold );
                meta( TYPE, regxFirstStatBold.group( 1 ) );
                break;
             case "Armor" :
@@ -100,7 +100,7 @@ public class ItemConverter extends LeveledConverter {
                setWondrousType( entry );
          }
       }
-      setCost( entry );
+      setCost();
    }
 
    private void setArmorType ( Entry entry ) {
@@ -137,7 +137,7 @@ public class ItemConverter extends LeveledConverter {
 
       if ( meta( COST ).contains( ".00 gp" ) ) {
          meta( COST, meta( COST ).replace( ".00 ", " " ) );
-         fix( "consistency" );
+         fix( "formatting" );
       }
       if ( meta( LEVEL ).isEmpty() ) {
          meta( RARITY, "Mundane" );
@@ -188,7 +188,7 @@ public class ItemConverter extends LeveledConverter {
          else
             meta( TYPE, String.join( ", ", grp ) );
          if ( ! meta( COST ).isEmpty() || entry.getName().endsWith( "secondary end" ) || entry.getName().equals( "Shuriken" ) ) {
-            find( regxWeaponDifficulty );
+            locate( regxWeaponDifficulty );
             meta( LEVEL, regxWeaponDifficulty.group() );
          }
          if ( meta( LEVEL ).isEmpty() )
@@ -210,7 +210,7 @@ public class ItemConverter extends LeveledConverter {
       }
       // Magical weapons
       if ( find( "<b>Weapon: </b>" ) ) {
-         find( regxWeaponType );
+         locate( regxWeaponType );
          String type = regxWeaponType.group( 1 );
          meta( TYPE, type.equals( "Dragonshard augment" ) ? "Dragonshard" : type );
          return;
@@ -335,10 +335,10 @@ public class ItemConverter extends LeveledConverter {
       else if ( find( "dim light" ) || find( "bright light of" ) )
          meta( TYPE, "Lighting" );
       if ( find( "Conjuration" ) && find( "mount" ) && ! entry.getName().startsWith( "Bag " ) )
-         if ( meta( 1 ).isEmpty() )
+         if ( meta( TYPE ).isEmpty() )
             meta( TYPE, "Mount" );
          else
-            meta( TYPE, meta( TYPE ) + ": Mount" );
+            metaAdd( TYPE, ": Mount" );
    }
 
    private final List<Object> multi_cost = new ArrayList<>();
@@ -348,7 +348,7 @@ public class ItemConverter extends LeveledConverter {
     * Parse cost and level table to output multiple meta
     * @param entry
     */
-   private void setCost ( Entry entry ) {
+   private void setCost () {
       if ( ! meta( LEVEL ).endsWith( "+" ) ) {
          if ( ! Main.debug.get() ) return;
          if ( TYPE > 0 && meta( TYPE-1 ).equals( "Item Set" ) ) return;
@@ -356,10 +356,7 @@ public class ItemConverter extends LeveledConverter {
             warn( "Price table on non-multilevel item" );
          return;
       }
-      if ( ! find( regxPriceTable ) ) {
-         warn( "Price table not found on multilevel item" );
-         return;
-      }
+      locate( regxPriceTable );
       multi_cost.clear();
       multi_level.clear();
       multi_cost.add( meta( COST ) );
@@ -403,8 +400,8 @@ public class ItemConverter extends LeveledConverter {
             break;
 
          case "armor105": // Shield of Prator
-            swap( " class=magicitem>", " class=mihead>" );
-            fix( "formatting" );
+            swapAll( " class=magicitem>", " class=mihead>" );
+            fix( "title colour" );
             break;
 
          case "item434": // Rings of the Akarot
@@ -421,37 +418,32 @@ public class ItemConverter extends LeveledConverter {
                        + "the group does not regain the use of the power until the person who used it takes an extended rest.</p>"
                        + "<br>Update (4/12/2010)<br> In the Keywords entry, add \"(Special)\" after \"Daily.\" In addition, add the Special entry to the power. "
                        + "These changes limit the potential for this power to shut down multiple encounters.<br><br>" );
-            fix( "missing content" );
+            fix( "content" );
             break;
 
          case "item439": // Xenda-Dran's Array
-            swap( "> Tier</", "> Heroic Tier</" );
-            fix( "consistency" );
+            swap( "> Tier</", "> Heroic Tier</", "consistency" );
             break;
 
          case "item467": // Alchemical Failsafe
-            swap( "Power ✦ </h2>", "Power ✦ At-Will</h2>" );
-            fix( "missing power frequency" );
+            swap( "Power ✦ </h2>", "Power ✦ At-Will</h2>", "missing power frequency" );
             break;
 
          case "item508": // Anarch Sphere
          case "item1578": // Horreb Ritual Cube
          case "item2463": // Shard of Evil
-            swap( "0 gp", "Priceless" );
+            swap( "0 gp", "Priceless", "consistency" );
             meta( COST, "" );
-            fix( "consistency" );
             break;
 
          case "implement509":  // Anarusi Codex
-            swap( "0 gp", "5,000 gp" );
+            swap( "0 gp", "5,000 gp", "content" );
             meta( COST, "5,000 gp" );
-            fix( "missing content" );
             break;
 
          case "item588":  // Bahamut's Golden Canary
-            swap( "0 gp", "Priceless" );
+            swap( "0 gp", "Priceless", "consistency" );
             meta( COST, "" );
-            fix( "consistency" );
             // fall through
          case "item1632": // Instant Portal
             meta( CATEGORY, "Consumable" );
@@ -467,26 +459,23 @@ public class ItemConverter extends LeveledConverter {
          case "weapon1006": // Dancing Weapon
          case "armor1261": // Feral Armor
          case "weapon2451": // Shadowfell Blade
-            swap( "basic melee attack", "melee basic attack" );
-            fix( "fix basic attack" );
+            swap( "basic melee attack", "melee basic attack", "fix basic attack" );
             break;
 
          case "item1701": // Kord's Relentlessness
             swap( " or 30:</i> Gain a +2 item bonus to death</p>",
-                  " or 20</i>: +4 item bonus to the damage roll<br>    <i>Level 25 or 30:</i> +6 item bonus to the damage roll</p>" );
-            fix( "missing content" );
+                  " or 20</i>: +4 item bonus to the damage roll<br>    <i>Level 25 or 30:</i> +6 item bonus to the damage roll</p>",
+                  "content" );
             break;
 
          case "item1895": // Mrtok, Ogre Chief (Gauntlets of Ogre Power)
-            swap( " 0 gp", " 1,000 gp" );
+            swap( " 0 gp", " 1,000 gp", "content" );
             meta( COST, "1,000 gp" );
-            fix( "consistency" );
             break;
 
          case "implement2002": // Orium Implement
-            swap( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand" );
+            swap( "<b>Implement</b>", "<b>Implement: </b>Orb, Rod, Staff, Wand", "consistency" );
             swap( "<p class='mistat indent'><b>Requirement:</b> Orb, Rod, Staff, Wand</p>", "" );
-            fix( "missing content" );
             break;
 
          case "weapon2495": // Shivli, White Wyrmling (Frost Weapon)
@@ -494,49 +483,42 @@ public class ItemConverter extends LeveledConverter {
             swap( ">+3<td class=mic3>0 gp<", ">+3<td class=mic3>17,000 gp<" );
             swap( ">+4<td class=mic3>0 gp<", ">+4<td class=mic3>85,000 gp<" );
             swap( ">+5<td class=mic3>0 gp<", ">+5<td class=mic3>425,000 gp<" );
-            swap( ">+6<td class=mic3>0 gp<", ">+6<td class=mic3>2,125,000 gp<" );
+            swap( ">+6<td class=mic3>0 gp<", ">+6<td class=mic3>2,125,000 gp<", "content" );
             meta( COST, "3,400+ gp" );
-            fix( "consistency" );
             break;
 
          case "item2511": // Silver Hands of Power
             swap( "<h2 class=mihead>Power", "<h2 class=mihead>Lvl 14<br>Power" );
             swap( "<p class='mistat indent1'><i>Level 19:</i> ", "<h2 class=mihead>Lvl 19<br>Power ✦ Daily (Free Action)</h2>" );
             swap( "Trigger: You", "<p class='mistat indent1'><i>Trigger:</i> You" );
-            swap( ". Effect: ", "</p><p class='mistat indent1'><i>Effect:</i> " );
-            fix( "formatting" );
+            swap( ". Effect: ", "</p><p class='mistat indent1'><i>Effect:</i> ", "formatting" );
             break;
 
          case "item2971": // Vecna's Boon of Diabolical Choice
-            swap( "Level 0 Uncommon", "Level 24 Uncommon" );
+            swap( "Level 0 Uncommon", "Level 24 Uncommon", "content" );
             meta( LEVEL, "24" );
-            fix( "missing content" );
             // fall through
          case "item1806": // Mark of the Star
          case "item2469": // Shelter of Fate
          case "item2533": // Slaying Stone of Kiris Dahn
          case "item2995": // Vision of the Vizier
-            swapFirst( " 0 gp", "" );
+            swap( " 0 gp", "", "consistency" );
             meta( COST, "" );
-            fix( "consistency" );
             break;
 
          case "weapon3328": // Scepter of the Chosen Tyrant
-            swap( "basic ranged attack", "ranged basic attack" );
-            fix( "fix basic attack" );
+            swap( "basic ranged attack", "ranged basic attack", "fix basic attack" );
             break;
 
          case "item3331": // Sun's Sliver
             swap( ">Level <", ">Epic Tier<" );
-            swap( "<b>Wondrous Item</b>", "<b>Minor Artifact:</b> Wondrous Item" );
+            swap( "<b>Wondrous Item</b>", "<b>Minor Artifact:</b> Wondrous Item", "content" );
             meta( RARITY, "Artifact" );
             meta( COST, "" );
-            fix( "missing content" );
             break;
 
          case "weapon3415": // The Fifth Sword of Tyr
-            swap( "Power (Teleportation) ✦ Daily", "Power (Weapon) ✦ Daily" );
-            fix( "typo" );
+            swap( "Power (Teleportation) ✦ Daily", "Power (Weapon) ✦ Daily", "typo" );
             break;
 
          case "item3545" : // Mold King's Crown
@@ -544,10 +526,8 @@ public class ItemConverter extends LeveledConverter {
             break;
 
          case "item1864": // Mirror of Deception
-            swap( " ✦ (Standard", " ✦ At-Will (Standard" );
-            swap( "alter</p><p class='mistat indent'>sound", "alter sound" );
-            fix( "missing power frequency" );
-            fix( "formatting" );
+            swap( " ✦ (Standard", " ✦ At-Will (Standard", "missing power frequency" );
+            swap( "alter</p><p class='mistat indent'>sound", "alter sound", "formatting" );
             // fallthrough
 
          case "item475": // Alchemist's Workshop
@@ -611,24 +591,24 @@ public class ItemConverter extends LeveledConverter {
          case "Implement" :
             String name = entry.getName();
             if ( name.endsWith( " Implement" ) ) name = name.substring( 0, name.length()-10 ); // Basic implements
-            return appendList( list, regxNote.reset( name ).replaceAll( "" ).trim() );
+            return append( list, regxNote.reset( name ).replaceAll( "" ).trim() );
          case "Item" :
             switch ( entry.getId() ) {
                case "item171": // Belt Pouch (empty)
-                  return appendList( list, "Belt Pouch", "Pouch" );
+                  return append( list, "Belt Pouch", "Pouch" );
             }
          case "Armor" :
             switch ( entry.getId() ) {
                case "armor1": // Cloth
-                  return appendList( list,  "Cloth Armor", "Cloth", "Clothing" );
+                  return append( list,  "Cloth Armor", "Cloth", "Clothing" );
                case "armor2": case "armor3": case "armor5": case "armor6": // Leather to Plate
-                  return appendList( list, entry.getName(), entry.getName().replace( " Armor", "" ) );
+                  return append( list, entry.getName(), entry.getName().replace( " Armor", "" ) );
                case "armor4": // Chainmail
-                  return appendList( list, entry.getName(), "Chain" );
+                  return append( list, entry.getName(), "Chain" );
                case "armor7": case "armor8": // Light/Heavy shield
-                  return appendList( list, entry.getName(), "Shields", "Shield" );
+                  return append( list, entry.getName(), "Shields", "Shield" );
                case "armor49": case "armor51": // Barding (Normal)
-                  return appendList( list, entry.getName(), "Barding", "Bardings" );
+                  return append( list, entry.getName(), "Barding", "Bardings" );
             }
       }
       return super.getLookupName( entry, list );

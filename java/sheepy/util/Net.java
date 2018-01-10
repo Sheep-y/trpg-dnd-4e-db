@@ -154,7 +154,7 @@ public class Net {
    }
 
    /**
-    * A console that logs to System.out or System.err.
+    * A javascript console that logs to System.out or System.err.
     * log, debug, and info goes to System.out, warn and error goes to System.err.
     */
    public static class ConsoleSystem extends Console {
@@ -167,7 +167,7 @@ public class Net {
    }
 
    /**
-    * A console that logs to a Java logger
+    * A javascript console that logs to a Java logger
     */
    public static class ConsoleLogger extends Console {
       private final Logger log;

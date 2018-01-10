@@ -26,12 +26,12 @@ public class BackgroundConverter extends Converter {
 
    private final Matcher regxAssociate  = Pattern.compile( "<i>Associated (?:Skills?|Languages?): </i>([^<(.]+)" ).matcher( "" );
    private final Matcher regxBenefit  = Pattern.compile( "<i>Benefit: </i>([^<(.]+)" ).matcher( "" );
-   private final Matcher regxAnyLang  = Pattern.compile( "Any (one|language) (other than|except) " ).matcher( "" );
+   private final Matcher regxAnyLang  = Pattern.compile( "Any (one|language){1}+ (other than|except){1}+ " ).matcher( "" );
    private final String[] trims = { "list of", "list", "checks?", "bonus", "additional",
       "if you[^,]+, ", " rather than your own", "of your choice", ", allowing[^:]+:",
       "you gain a", "you are", "(?<!kill )your?",
       ", but you must keep the second result(, even if it is worse)?" };
-   private final Matcher regxTrim  = Pattern.compile( "(?:\\s|\\b)(?:" + String.join( "|", trims ) + ")\\b", Pattern.CASE_INSENSITIVE ).matcher( "" );
+   private final Matcher regxTrim  = Pattern.compile( "(?:\\s|\\b)(?:" + String.join( "|", trims ) + "){1}+\\b", Pattern.CASE_INSENSITIVE ).matcher( "" );
 
    @Override protected void convertEntry () {
       super.convertEntry();
@@ -141,7 +141,7 @@ public class BackgroundConverter extends Converter {
    }
 
    @Override protected Set<String> getLookupName ( Entry entry, Set<String> list ) {
-      return appendList( list, entry.getName().contains( " - " )
+      return append( list, entry.getName().contains( " - " )
          ? entry.getName().split( " - " )[1]
          : entry.getName() );
    }

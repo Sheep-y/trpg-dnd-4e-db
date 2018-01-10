@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class ResourceUtils {
+public class Resource {
 
    /**
     * Open a file in the file system or in the jar.
@@ -25,7 +25,7 @@ public class ResourceUtils {
          } else {
             file = file.replace( '\\', '/' );
             if ( ! file.startsWith( "/" ) ) file = '/' + file;
-            return ResourceUtils.class.getResourceAsStream( file );
+            return Resource.class.getResourceAsStream( file );
          }
       } catch ( FileNotFoundException ex ) {
          return null;

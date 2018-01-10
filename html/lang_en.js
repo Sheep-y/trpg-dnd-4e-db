@@ -66,7 +66,9 @@ _.l.set( 'action.list', {
 
    'lbl_showing' : '%1 result(s)',
    'lbl_filter'   : 'Filter left %1 result(s) out of %2',
-   'lbl_page' : '%1 Page %2/%3',
+   'lbl_page' : '%1, Page %2/%3',
+   'btn_show_page' : 'Show This Page',
+   'btn_show_all' : 'Show All',
    'clear_search' : "<a href='#' onclick='od.action.list.clear_search();'>Clear search</a>",
    'clear_filter' : "<a href='#' onclick='od.action.list.clear_filter();'>Clear filter</a>",
    'switch_to_full_text' : "<a href='#' onclick='od.action.list.search(\"full\");'>Switch to full search</a>",

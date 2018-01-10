@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -52,7 +53,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sheepy.util.JavaFX;
-import sheepy.util.ResourceUtils;
+import sheepy.util.Resource;
 import sheepy.util.Utils;
 import sheepy.util.ui.ConsoleWebView;
 
@@ -325,11 +326,16 @@ public class SceneMain extends Scene {
       lblStatus.setText( msg );
    } ); }
 
-   public void setProgress ( Double progress ) { runFX( () -> {
-      if ( Math.round( progress * 100 ) % 10 == 0 )
+   private final AtomicInteger lastProgress = new AtomicInteger();
+
+   public void setProgress ( Double progress ) {
+      int div = (int) ( progress * 100 );
+      int last = lastProgress.getAndSet( div );
+      if ( last != div ) runFX( () -> {
          log.log( Level.FINE, "Progress: {0}.", progress );
-      prgProgress.setProgress( progress );
-   } ); }
+         prgProgress.setProgress( (double) div / 100 );
+      } );
+   }
 
    /////////////////////////////////////////////////////////////////////////////
    // Help & About
@@ -370,7 +376,7 @@ public class SceneMain extends Scene {
       } );
       new Thread( () -> {
          try {
-            final String txt = ResourceUtils.getText( doc );
+            final String txt = Resource.getText( doc );
             runFX( () -> {
                   web.getEngine().loadContent( txt );
             } );
