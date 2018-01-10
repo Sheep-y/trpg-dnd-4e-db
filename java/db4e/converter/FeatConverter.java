@@ -23,6 +23,7 @@ public class FeatConverter extends Converter {
    private final Matcher regxAction    = Pattern.compile( "\\b(Action|Interrupt){1}+</b>\\s*" ).matcher( "" );
    private final Matcher regxPrerequisite = Pattern.compile( "<b>Prerequisite</b>:\\s*+([^<>]++)<" ).matcher( "" );
    private final Matcher regxLevel = Pattern.compile( "(?:, )?+([12]?\\d)(?:st|nd|th){1}+ level(?:, )?+" ).matcher( "" );
+   private final Matcher regxAbilityScore = Pattern.compile( "(?i)(Strength|Constitution|Dexterity|Intelligence|Wisdom|Charisma){1}+( \\d++)" ).matcher( "" );
 
    @Override protected void convertEntry () {
       String oldTier = meta( 0 );
@@ -32,8 +33,14 @@ public class FeatConverter extends Converter {
       if ( find( regxPrerequisite ) ) {
          String text = regxPrerequisite.group( 1 ).trim();
          if ( text.contains( "-level" ) ) {
+            swap( "-level", " level" );
             text = text.replace( "-level", " level" );
             fix( "consistency" );
+         }
+         if ( text.charAt( text.length() - 1 ) == '.' ) {
+            String newText = text.substring( 0, text.length() - 1 );
+            swap( text, newText, "consistency" );
+            text = newText;
          }
          if ( regxLevel.reset( text ).find() ) {
             int level = Integer.parseInt( regxLevel.group( 1 ) );
@@ -56,8 +63,24 @@ public class FeatConverter extends Converter {
             text = Character.toLowerCase( text.charAt( 0 ) ) + text.substring( 1 );
             text = text.replace( " class feature", "" );
             text = text.replace( "you have a spellscar", "spellscar" );
-            text = text.replace( " have the ", " have " ).replace( " has the ", " has ");
-            text = Utils.ucfirst( text );
+            text = text.replace( " you must ", " must " );
+            if ( text.contains( " the ") ) {
+               if ( text.contains( " must worship" ) )
+                  text = text.replace( " of the ", " of " ).replace( " domain", "" ); // a deity of the XX domain >> a deity of XX
+               else
+                  text = text.replace( " have the ", " have " ).replace( " has the ", " has ").replace( " with the ", " with " );
+            }
+            text = text.replaceAll( "armor\\s*+(?!of)", "" ); // Turns "hide armor" into "hide", but leave "armor of faith/wrath" alone
+            regxAbilityScore.reset( text );
+            while ( regxAbilityScore.find() )
+               text = text.replace( regxAbilityScore.group(), regxAbilityScore.group( 1 ).substring( 0, 3 ) + regxAbilityScore.group( 2 ) );
+            text = Utils.ucfirst( shortenAbility( text ) );
+            switch ( entry.getId() ) {
+               case "feat2697": // Psionic Complement
+               case "feat2698": // Psionic Dabbler
+               case "feat2732": // Psionic Conventionalist
+                  text = text.replace( " class-specific multiclass feat", " multiclass feat" );
+            }
             meta( PREREQUISITE, text );
          }
       }
@@ -102,6 +125,14 @@ public class FeatConverter extends Converter {
 
          case "feat2254": // Traveler's Celerity
             swap( "11th-level, ", "11th level, ", "consistency" );
+            break;
+
+         case "feat2326": // Arkhosian Fang Student
+            swap( "proficiency with the bastard sword, the broadsword, or the greatsword", "proficiency with bastard sword, broadsword, or greatsword", "consistency" );
+            break;
+
+         case "feat2698": // Psionic Dabbler
+            swap( "class specific", "class-specific", "consistency" );
             break;
 
          case "feat3667": // Powerful Lure
