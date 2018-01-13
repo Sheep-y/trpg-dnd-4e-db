@@ -5,6 +5,7 @@ import db4e.controller.Controller;
 import db4e.data.Category;
 import db4e.data.Entry;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -70,10 +71,10 @@ public class ItemConverter extends LeveledConverter {
             setImplementType( entry ); // Implements's original category may be "Equipment", "Weapon", or "Implement".
             break;
          case "Armor" :
-            setArmorType( entry ); // Armor's original category  may be "Armor" or "Arms"
+            setArmorType( entry ); // Armor's original category may be "Armor" or "Arms"
             break;
          case "Weapon" :
-            setWeaponType( entry ); // Weapon's original category  may be "Weapon" or "Equipment"
+            setWeaponType( entry ); // Weapon's original category may be "Weapon" or "Equipment"
             break;
          default:
             switch ( meta( CATEGORY ) ) {
@@ -174,15 +175,17 @@ public class ItemConverter extends LeveledConverter {
 
    private final Matcher regxWeaponDifficulty = Pattern.compile( "\\bSimple|Military|Superior\\b" ).matcher( "" );
    private final Matcher regxWeaponType = Pattern.compile( "<b>Weapon: </b>([A-Za-z, ]+)" ).matcher( "" );
-   private final Matcher regxWeaponGroup = Pattern.compile( "<br>([A-Za-z ]+?)(?= \\()" ).matcher( "" );
+   private final Matcher regxWeaponGroup = Pattern.compile( "<br>([\\w ]+?)(?= \\()" ).matcher( "" );
 
    private void setWeaponType ( Entry entry ) {
       // Ammunitions does not need processing
       if ( meta( TYPE ).equals( "Ammunition" ) ) return;
       // Mundane weapons with groups
       if ( find( "<b>Group</b>: " ) ) {
-         String region = data().substring( data().indexOf( "<b>Group</b>: " ) );
+         int prop = data().indexOf( "<b>Properties</b>:" ), group = data().indexOf( "<b>Group" );
+         String region = data().substring( prop > 0 ? prop : group );
          List<String> grp = Utils.matchAll( regxWeaponGroup, region, 1 );
+         grp.sort( Comparator.naturalOrder() );
          if ( grp.isEmpty() )
             warn( "Weapon group not found" );
          else
