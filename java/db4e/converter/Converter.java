@@ -4,6 +4,7 @@ import db4e.Main;
 import db4e.controller.Controller;
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,6 +16,11 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
+import sheepy.util.Utils;
+import sheepy.util.text.Base85;
 
 /**
  * Default entry handling goes here.
@@ -545,5 +551,29 @@ public class Converter extends Convert {
          .replace( "Intelligence", "Int" )
          .replace( "Wisdom", "Wis" )
          .replace( "Charisma", "Cha" );
+   }
+
+   public static String zip ( String data ) {
+      byte[] output = new byte[ data.length() ];
+      Deflater zip = new Deflater( 9, true );
+      zip.setInput( data.getBytes( StandardCharsets.UTF_8 ) );
+      zip.finish();
+      int len = zip.deflate( output );
+      zip.end();
+      return new String( Base85.getRfc1942Encoder().encode( output, 0, len ), StandardCharsets.US_ASCII );
+   }
+
+   public static String unzip ( String data ) {
+      Inflater zip = new Inflater( true );
+      byte[] buffer = new byte[8192];
+      try {
+         zip.setInput( Base85.getRfc1942Decoder().decode( data.getBytes( StandardCharsets.US_ASCII ) ) );
+         int len = zip.inflate( buffer );
+         zip.end();
+         return new String( buffer, 0, len, StandardCharsets.UTF_8 );
+      } catch ( DataFormatException ex ) {
+         ex.printStackTrace();
+         return Utils.stacktrace( ex );
+      }
    }
 }

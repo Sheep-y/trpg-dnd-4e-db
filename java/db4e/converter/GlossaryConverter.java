@@ -26,25 +26,8 @@ public class GlossaryConverter extends Converter {
          case "glossary381": // Concordance, change to Artifact
             entry.setName( "Artifact" );
             swap( "<h1 class=player>Concordance</h1><p class=flavor>", "<h3>Concordance</h3><p>", "new entry" );
-            data( "<h1 class=player>Artifact</h1>"
-                    + "<p class=flavor>Artifacts have a level but no price - they can't be " +
-"bought or crafted, and their temporary nature ensures that they don't have a long-term impact on a character's " +
-"total wealth. As with normal magic items, an artifact's level measures the potency of its properties and " +
-"powers, but artifacts break the usual magic item rules.<br><br>" +
-"An artifact can't be created, disenchanted, or destroyed by any of the normal means available for " +
-"other magic items. In fact, the characters' access to artifacts (and even their retention of recovered artifacts) " +
-"is entirely within DM's control. A character can quest after a particular artifact whose existence " +
-"is known or suspected, but even then the character acquires an artifact only if the DM says so.<br><br>" +
-"Artifact Behavior" +
-"Artifacts are sentient - although they're not necessarily communicative - and they have their own motivations. " +
-"In many ways, they function like nonplayer characters.<br><br>" +
-"An artifact cooperates with its owner as long as doing so fits with the artifact's goals and nature.<br><br>" +
-"Each artifact's description contains a list of its goals and roleplaying notes for its personality. Some artifacts " +
-"are malevolent and seek to corrupt their wielders, whereas others push the wielder to great acts of heroism.<br><br>" +
-"What's more, an artifact's powers change depending on its attitude or connection to its current owner.<br><br>" +
-"When its wielder performs actions in concert with its goals, an artifact becomes more powerful, but when " +
-"the wielder acts against the artifact's wishes, its power diminishes. The artifact's mindset is measured by a " +
-"concordance score.</p>" + data() );
+            data( unzip( "ZB$K<+cpsWD|6cx*f_|2yTBIdp@*CrAm=ePwuq%T%8;_Ef8RHxZFz$p1j{0aZ{El7W&A=RaVdYyi8ry=H>>f)p}u?`zr4Q8*Tqxfi|&hsM!pC!CAmnV<5DRr%@%{uC#s`t6gWRsItm?iIggdpC>Wor49~=Q@J-RE$~3F7ZIrn#CM3Dwr(l_DKWI=t=!U2H{Hcmf6sH-DkY;=hBOCsRJ)ux5Ct8J59S`(YXpMD5cQ)bk#OD|&0=0M-#8*D3>r5u$8@|x2RdU!!Pbev%r?a2{t4?6nRSd^CdA{p%G~xGFy_DqxBH5Cp9A1w0>d)JbzH1dw-4q&P0rbeZ{eyOclxn)kK*tU6ttm&j5fjd6>%uYdF$tYeqFA>_$_M&8lLJ1t(z|Nqi8ur)F5Ux`-<%~>$ycvTAV-Z*9M~p7FJkEDUhq4`LcYT!ZB6!=>FYOW8#JT&1Uq(6Crv*W&>~NT!N%E-3QJ<!rCCQUNX5UgxEJCO?^)OEnv|u?5}HD8!mZW(ksY}GT%tAC_H#9($JjOe`i%;2g^KR(-1hw`NM2Oilg~(LahiA#cF&n7yoL42+z||exSVVeAVH^T$uV$^7oU!6__rSEF0B)q6dTy}?M6-R@`}Em`}Wh4LsLJ+cSp&6U>|J!|7@wJ7OA>Uf+rbpu1jg-<iCSPycDIAFSmUz%)@w`l~d1sAJjY6UmV8AjR<P6IJZvSca9!RG!3J#gS4N8P>9oTbm)d2J-BVyz(+HuShoZHqmw)Y(;YzQ<$`K>;0G0vcTaCnvt_PVS=T6OXhXVU6foL-CUE*vI>YM@FFpJ0Q3F7q*ru^ecbY$NAA#MZCcoYs{UUH5@>#%tmOMBi2;fY()>xN8+6|}~(P-KL(O1J_<|LXW4`|YhZ~Z|IC^HrB&l5tisT*(~?Y1^uKXivX1@V*KcW?Bxq&_a|ZBlL+UE8x8R)4jBjb#*^-K_Cra6?Tox335K{&6!Fh9cEx^?IN7TdQ@fHn0zJ!5dQad4By5" )
+                  + data() );
             test( TEXT, "Artifacts have a level but no price" );
             break;
 
@@ -54,25 +37,8 @@ public class GlossaryConverter extends Converter {
             break;
 
          case "glossary0453": // Item Set
-            entry.setFields( new Object[]{ "Rules", "Rules Other", "Adventurer's Vault 2" } ).setContent(
-              "<h1 class=player>Item Set</h1>"
-               + "<p>A magic item set contains four or more items that a character or a party can collect. " +
-"Each set has at least one set benefit that is revealed when a minimum number of the set's items are used together. " +
-"Some set items also have individual properties or effects that depend on the number of other set items being used.<br><br>"
-               + "A character can benefit from only one individual item set and one group item set at a time. " +
-"If a character possesses items from multiple item sets, that character must choose which individual item set and which group item set benefits him or her at the end of each extended rest.<br><br>"
-               + "To qualify for an item set's benefits, a character must be wielding or wearing one or more items from the set. " +
-"A character that has a weapon or an implement that is part of an item set must be proficient with that weapon or implement to have it qualify as part of an item set. " +
-"A stowed item (for example, a magic cloak stuffed in a pack) doesn't count toward a set's benefits (though a sheathed weapon is considered to be worn). " +
-"Wondrous items are an exception and need only be carried in order for a character to gain an item set's benefits.<br><br>"
-               + "Each magic item in a set can stand alone. " +
-"No item needs to be used with another of its set to function.</p>"
-               + "<h3>GROUP ITEM SET</h3>"
-               + "<p>Some item sets are designed to be borne not by a single character, but by the members of an entire party. " +
-"When a party collects the items of a group item set, the set benefits are determined by the number of allies who possess items from the set. " +
-"Each character wearing or wielding an item from the set qualifies for the set benefits."
-               + "<br><br>Update (08/2012)<br>Insert a paragraph for multiple set and a sentence for proficiency requiremente.<br><br></p>"
-               + "<p class=publishedIn>Published in Adventurer's Vault 2, pages 92, 130.</p>" );
+            entry.setFields( new Object[]{ "Rules", "Rules Other", "Adventurer's Vault 2" } ).setContent( unzip(
+               "byZDo+b|6ME4;M@0=H=|8;}L)p%`-5R;=xIrfu35Dod^;C(XYfNq@vCIv@cYOC%p3A73`j8VZXse(NkADQtI%T6m(gxo+0mO}D*=7Hd<0k@t}j6y7B?E<)w|06swL1L<*u)L;UHqQQVgB0WavFr*_C=s4C|DpCdySTvfg!3Z2<31b59NMGjUs4{6tXCegJ6Iv?a(2(PVt#PL9TX21wOOc9iYUD*6fgnTbBS$1(6CZ{Qo_srGA8**`x%!@=yVC4U*`tLn_>Mv{6a_g|6@wkSDybt^GDNL)s_Z5EB5zK{)ml5-<Y6n{`voDw!qi?Be9H;#Q5#>tn7Kx+NKgmgcZ=6TaxyJtu&d7a?tF|SpAn6gXnUJXXK79lS3^&yxVDe-)B8wFvf<(U56*D<0npe{gvPYOoKS*EnNrd!AQ?ElC;rJ(2^7;z&$EX&E@P@AON!&%ocAKmnOA3RD%_l*8nUJE&2b09ppVSgxhj=}Q6U*Dr=cvU1SP!V;f?@WrmH1)lAvf<`dFZwQLt(%Qy95^FsT`0PWcweCdH+>WBfF=pp3~Mm@0jBDa6n_N+w}qSjobAeC2yR>y$4#UA5x%3QAAWUC65TTJ?aT<im4D;W9P8uNygN2$`R90?qyMmPb=k&=pdueQ;M9{PnKn*)R8uanpN2T{0Xh5^+T3plgmRFa$He^MMl%GhWWXLyZFd)49(oQO8(Vk+!RT#DOtMU9>#=41W6IhQNp;di4Sw4!U7unQ$RNGVqnEcZJ~3HrL&D)7)*p|Niyz2)pNpAMo_>%w~8eW~d%AZ;^IiQZ%)jY08-<wg=C`I0`^kBro3F?F#Z<k3^0wiHXE<_AC&?`P3|#=fUYl>l|z|YSciy#C+Jo)ui#$hzEdNmmQNKj&)Dwh1QDK9U4D5$EPc!+@B^kZ(2Al;55Bu;3#sbAVdF%ZXWGRS7IW#y!mo{d$Yd1l6N~7*@y=QunyQYnq#)I$&N$=j$Nf7J)c*xII_vS^~|Vj9?i9MzTNbf*XP!-_{*K!K2Fb~tow4$QGKAmQv8El6mC}xrRG+?^3(e6MwRjp" ) );
             test( TEXT, "A magic item set contains four or more items" );
             fix( "new entry" );
             break;
