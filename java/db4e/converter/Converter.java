@@ -560,14 +560,14 @@ public class Converter extends Convert {
       zip.finish();
       int len = zip.deflate( output );
       zip.end();
-      return new String( Base85.getRfc1942Encoder().encode( output, 0, len ), StandardCharsets.US_ASCII );
+      return Base85.getRfc1942Encoder().encodeToString( output, 0, len );
    }
 
    public static String unzip ( String data ) {
       Inflater zip = new Inflater( true );
       byte[] buffer = new byte[8192];
       try {
-         zip.setInput( Base85.getRfc1942Decoder().decode( data.getBytes( StandardCharsets.US_ASCII ) ) );
+         zip.setInput( Base85.getRfc1942Decoder().decodeToBytes( data ) );
          int len = zip.inflate( buffer );
          zip.end();
          return new String( buffer, 0, len, StandardCharsets.UTF_8 );

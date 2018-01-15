@@ -41,6 +41,16 @@ public class Base85 {
          return new String( encode( data ), US_ASCII );
       }
 
+      /** Encode part of binary data into Base85 string.
+        * @param data data to encode
+        * @param offset byte offset that data starts
+        * @param length number of data bytes
+        * @return encoded Base85 string
+        */
+      public final String encodeToString ( final byte[] data, final int offset, final int length ) {
+         return new String( encode( data, offset, length ), US_ASCII );
+      }
+
       /** Encode binary data into a new byte array.
         * @param data data to encode
         * @return encoded Base85 encoded data in ASCII charset
@@ -112,6 +122,14 @@ public class Base85 {
         */
       public final byte[] decode ( final byte[] data ) {
          return decode( data, 0, data.length );
+      }
+
+      /** Decode Base85 string into a new byte array.
+        * @param data data to decode
+        * @return decoded binary data
+        */
+      public final byte[] decodeToBytes ( final String data ) {
+         return decode( data.getBytes( US_ASCII ) );
       }
 
       /** Decode ASCII Base85 data into a new byte array.
