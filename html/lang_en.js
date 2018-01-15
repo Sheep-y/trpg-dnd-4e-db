@@ -28,7 +28,8 @@ _.l.set( 'data', {
       "PowerSourceText" : 'Power Source',
       "RoleName" : 'Role',
       'SourceBook': 'Source',
-      'TierName': 'Tier'
+      'TierName': 'Tier',
+      'WeaponType': 'Type'
    }
 });
 
