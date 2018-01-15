@@ -497,6 +497,7 @@ public class Controller {
          return entityLoaded.thenCompose( stage -> runTask( () -> {
             setPriority( Thread.MIN_PRIORITY );
             final long startNs = System.nanoTime();
+            state.reset();
             checkStop( "Writing catlog" );
             try ( Exporter exporter = new ExporterMain() ) {
                exporter.setState( target, this::checkStop, state );
