@@ -21,6 +21,10 @@ function iterElem ( obj ) {
    return isStr( obj ) ? findAll( obj ) : iter( obj );
 }
 
+function log () {
+   console.log.apply( console, arguments );
+}
+
 
 function addEvent ( element, event, handler, options ) {
    for ( const type of iter( event ) )
@@ -44,8 +48,18 @@ document.body.classList.remove( "noscript" );
       nav.className = "closed";
       nav.setAttribute( "aria-hidden", "true" );
    });
-   
+
 })();
 
+var myWorker = new SharedWorker( "res/workspace.js" );
 
-})( window )
+myWorker.onerror = ( e ) => log( e );
+
+myWorker.port.onmessage = ( e ) => {
+   log( 'Message received from worker: ' + e.data );
+}
+
+myWorker.port.postMessage([ "Foo" ]);
+
+
+})( window );

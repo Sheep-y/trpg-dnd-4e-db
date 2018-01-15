@@ -1,13 +1,13 @@
 * {
    margin: 0;
-   padding: 0; 
+   padding: 0;
    }
 
 html, body {
    min-width: 100%;
    min-height: 100%;
    }
-   
+
 /* Global styles */
 
 button {
@@ -18,7 +18,7 @@ button {
 
 
 /* Temporary states */
-   
+
 body.noscript > *:not(:last-child) { /* Last child is noscript.  This selector allow noscript to show on IE. */
    display: none; /* Hide all until shown by script */
    }
@@ -46,7 +46,7 @@ body.noscript > *:not(:last-child) { /* Last child is noscript.  This selector a
       #titlebar > #title {
          font-weight: bold;
          }
-         
+
 #menu {
    background-color: white;
    border-right: 1px solid black;
