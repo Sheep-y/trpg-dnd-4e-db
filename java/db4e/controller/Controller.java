@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -98,6 +99,8 @@ public class Controller {
    private Crawler crawler;
    private final Timer scheduler = new Timer();
    private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor( 2, 32, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+   private String userAgent = null;
+   private String defaultUserAgent;
 
    public Controller ( SceneMain main ) {
       gui = main;
@@ -107,10 +110,6 @@ public class Controller {
       } );
    }
 
-   /////////////////////////////////////////////////////////////////////////////
-   // Stop task
-   /////////////////////////////////////////////////////////////////////////////
-
    public void setThreadCount( int thread ) {
       if ( thread <= 0 )
          thread = Math.max( 2, Math.min( Runtime.getRuntime().availableProcessors(), 32 ) );
@@ -119,6 +118,21 @@ public class Controller {
       threadPool.setCorePoolSize( thread );
       log.log( Level.CONFIG, "Thread count set to {0} plus one controll thread", thread - 1 );
    }
+
+   public void setUserAgent( String agent ) {
+      if ( agent.isEmpty() ) agent = null;
+      if ( Objects.equals( userAgent, agent ) ) return;
+      userAgent = agent;
+      if ( engine != null ) {
+         agent = agent == null ? defaultUserAgent : agent;
+         log.log( Level.CONFIG, "Changing user agent to: {0}", agent );
+         engine.setUserAgent( agent );
+      }
+   }
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Stop task
+   /////////////////////////////////////////////////////////////////////////////
 
    public void stop () {
       synchronized ( this ) {
@@ -359,6 +373,8 @@ public class Controller {
       log.log( Level.INFO, "Initialise web crawler" );
       browser = gui.getWorker();
       engine = browser.getWebEngine();
+      defaultUserAgent = engine.getUserAgent();
+      setUserAgent( userAgent );
       crawler = new Crawler( engine );
    }
 
