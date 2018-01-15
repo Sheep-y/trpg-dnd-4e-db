@@ -11,7 +11,7 @@ public class Base85 {
    private static final long Power3 = 7225;   // 85^3
 
    /** This is a skeleton class for encoding data using the Base85 encoding scheme.
-     * Each Encoder instance can be safely shared by multiple threads.
+     * Encoder instances can be safely shared by multiple threads.
      */
    public static abstract class Encoder {
       /** Calculate byte length of encoded data.
@@ -93,8 +93,8 @@ public class Base85 {
       protected abstract int _encode ( byte[] in, int ri, int rlen, byte[] out, int wi );
    }
 
-   /** This is a skeleton class for encoding data using the Base85 encoding scheme.
-     * Each Decoder instance can be safely shared by multiple threads.
+   /** This is a skeleton class for decoding data in the Base85 encoding scheme.
+     * Decoder instances can be safely shared by multiple threads.
      */
    public static abstract class Decoder {
       /** Calculate byte length of decoded data.
@@ -167,6 +167,12 @@ public class Base85 {
       protected abstract int _decode ( byte[] in, int ri, int rlen, byte[] out, int wi );
    }
 
+   /** This class encodes data in the Base85 encoding scheme as described by IETF RFC 1924.
+     * This scheme does not use quotes, comma, or slash, and can usually be used in sql, json, csv etc. without escaping.
+     *
+     * Encoder instances can be safely shared by multiple threads.
+     * @see https://tools.ietf.org/html/rfc1924
+     */
    public static class Rfc1924Encoder extends Encoder {
       private static final byte[] EncodeMap = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~".getBytes( US_ASCII );
 
@@ -201,6 +207,10 @@ public class Base85 {
       }
    }
 
+   /** This class encodes data in the Base85 encoding scheme as described by IETF RFC 1924.
+     * Decoder instances can be safely shared by multiple threads.
+     * @see https://tools.ietf.org/html/rfc1924
+     */
    public static class Rfc1924Decoder extends Decoder {
       private static final byte[] DecodeMap = new byte[256];
       static {
@@ -252,9 +262,15 @@ public class Base85 {
       }
    }
 
-   private static Encoder RFC1924ENCODER = new Rfc1924Encoder();
-   private static Decoder RFC1924DECODER = new Rfc1924Decoder();
+   private static Encoder RFC1924ENCODER;
+   private static Decoder RFC1924DECODER;
 
-   public static Encoder getRfc1942Encoder() { return RFC1924ENCODER; }
-   public static Decoder getRfc1942Decoder() { return RFC1924DECODER; }
+   public static Encoder getRfc1942Encoder() {
+      if ( RFC1924ENCODER == null ) RFC1924ENCODER = new Rfc1924Encoder();
+      return RFC1924ENCODER; // No worry if multiple encoder is created in multiple threads. Same for all.
+   }
+   public static Decoder getRfc1942Decoder() {
+      if ( RFC1924DECODER == null ) RFC1924DECODER = new Rfc1924Decoder();
+      return RFC1924DECODER;
+   }
 }
