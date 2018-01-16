@@ -84,6 +84,7 @@ public abstract class Convert {
                         corrected( entry, "blacklist" );
                      }
                   }
+                  exported.entries.add( new Entry().setId( "glossary03" ).setName( "Ability Scores" ) );
                   exported.entries.add( new Entry().setId( "glossary0453" ).setName( "Item Set" ) );
                   break;
 
