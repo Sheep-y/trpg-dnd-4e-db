@@ -24,7 +24,7 @@ public class GlossaryConverter extends Converter {
       }
       switch ( entry.getId() ) {
          case "glossary03": // Ability Scores
-            entry.setFields( new Object[]{ "Rules", "Rules Other", null } ).setContent( unzip(
+            entry.setFields( "Rules", "Rules Other", null ).setContent( unzip(
                "wO3tl<2DfdEBkgXVEgI@O^YHm;O6ddL5m_t4!CDpT3duEQY9%T`uClsK5QlSIai=S081jdoSm6nGB?G7GNVHHy)vp{zg(@g(XpY&%y|ws?~BFqrdmGgXHscIbD+w*z0R2w{Zs2~M>&Vg>ndtz$!#d}tYVGT@2D!8pfhDi*_=wY5sz7+yvibb9iq;{Z}b>F+ifhSbn7g>#abdw=>tE@tk_KH&PFyyZ`o!%rLQ{VuAHWzw}_@gsir`&(N^0nVD$*z1qxkoQh}Zjqy1Go%OT9qZY`0A?MZp2;7X3VMD|F>aDJ3p&r7@PGSt)YI(CL=^PBgTQ2$Y7g|Irx>Yzn|d=v#y3%ii5%Qbt7g^Gx%g2;e3rc!T<C~?wIyS|yzs$D7riyz5(S}aJnE3ES+02OtqEU7(vwZ#_e8msd?z#_B{t+2{AR0@IVix+2PGH>nn+%F|<F(<^M3~3d{vGTnFYckXDp3PKnXy31Bp$5{W7?4|nimPQWB2Do011x)$EZct_Xc!c$+!OmbeJOO$WYf{0Q*`H}vXM5RBc*nX@u_gMNn934eHPtJep@WHS>71E`~vb|MpYZpz%bKVVPjG;DpU*hz&jL2we%q8vTi`!39#d4fG1d1u`nzpLt&?l6cT5<ke06O5lHyski5(FM#B-Av(am)Cw_4B2|2>;ITWp}K`oGwflUg`J+6gA1TAy67)P>_DQF%|oZxL>e>CE`0{=jV2&{~hTZpRER<(t(*W!Gnm@zydHF`w&nk@<&YIs+|R{~)SFex_@U`2}%XURfiT3)Y{tW=&u4Ulp~L4h4BrvZ81OWKtdDn*izMgv=IQ+Y{69V>vEwp0fumg3D-lZ<6I27@qoPV43(-)Y~`$QfIFw0Z4Q-CVTAX<@&|8n2CY!WM_lIl<%LiNoiiBvTD>!@%Ht4nuV9cbn3i!Z{nm&wXoMD<gTHEjF;Q6>`s2+W;VubAWTM-ZJmjN(yd@ygTCx4m1vU%Qu$^KT7!w+Yc$jQ&b-xBq!;{es`M}#?$F^^WsjEx|H%I;^EJ__Bl1x??t&vQEug;@SmXe&KOOc;B7F+Xr#SRti>SisXMk0_XZpe%G>tn!I2nX>X9Wzq0VXRQKD!+pK%FszG-!RV5~~5;gYVW6MnO_CkX#PbbS-b3(|fYYOia1&7lc?2SvMYL#=17EQMRP0j;HCbo;6;_rPW|%XP?fg}%zI7+h8=7R^Z6F60?aKh!9HXPJd2NQ;V<n`02Zru28ZJGHUz)8=ndy3gVadtb5q<PqB6^}cz0_LC-fIvkzD(w@0=GRnaN(%^R0_C|TB(dqz}L)Rfu896=|x*G8|ggnFCAEw@HaN!33u2flj;nt<jRqPm(zR&SVhqs(EuX2AQX)n2cNm<qZt5UCx4h83Tc6r}F%dPP~{SN~OpMiPp+zu=$IieTWv&AoB3GeWhZoy2S<l=4VFU$@7#H;Js)vvE6I=^)>V(y=C79hTy{!k+ooUUcXHrI984`2T@yZ$*T8kX" ) );
             test( TEXT, "Strength, Constitution, Dexterity, Intelligence, Wisdom, and Charisma" );
             fix( "new entry" );
@@ -44,7 +44,7 @@ public class GlossaryConverter extends Converter {
             break;
 
          case "glossary0453": // Item Set
-            entry.setFields( new Object[]{ "Rules", "Rules Other", null } ).setContent( unzip(
+            entry.setFields( "Rules", "Rules Other", null ).setContent( unzip(
                "byZDo+b|6ME4;M@0=H=|8;}L)p%`-5R;=xIrfu35Dod^;C(XYfNq@vCIv@cYOC%p3A73`j8VZXse(NkADQtI%T6m(gxo+0mO}D*=7Hd<0k@t}j6y7B?E<)w|06swL1L<*u)L;UHqQQVgB0WavFr*_C=s4C|DpCdySTvfg!3Z2<31b59NMGjUs4{6tXCegJ6Iv?a(2(PVt#PL9TX21wOOc9iYUD*6fgnTbBS$1(6CZ{Qo_srGA8**`x%!@=yVC4U*`tLn_>Mv{6a_g|6@wkSDybt^GDNL)s_Z5EB5zK{)ml5-<Y6n{`voDw!qi?Be9H;#Q5#>tn7Kx+NKgmgcZ=6TaxyJtu&d7a?tF|SpAn6gXnUJXXK79lS3^&yxVDe-)B8wFvf<(U56*D<0npe{gvPYOoKS*EnNrd!AQ?ElC;rJ(2^7;z&$EX&E@P@AON!&%ocAKmnOA3RD%_l*8nUJE&2b09ppVSgxhj=}Q6U*Dr=cvU1SP!V;f?@WrmH1)lAvf<`dFZwQLt(%Qy95^FsT`0PWcweCdH+>WBfF=pp3~Mm@0jBDa6n_N+w}qSjobAeC2yR>y$4#UA5x%3QAAWUC65TTJ?aT<im4D;W9P8uNygN2$`R90?qyMmPb=k&=pdueQ;M9{PnKn*)R8uanpN2T{0Xh5^+T3plgmRFa$He^MMl%GhWWXLyZFd)49(oQO8(Vk+!RT#DOtMU9>#=41W6IhQNp;di4Sw4!U7unQ$RNGVqnEcZJ~3HrL&D)7)*p|Niyz2)pNpAMo_>%w~8eW~d%AZ;^IiQZ%)jY08-<wg=C`I0`^kBro3F?F#Z<k3^0wiHXE<_AC&?`P3|#=fUYl>l|z|YSciy#C+Jo)ui#$hzEdNmmQNKj&)Dwh1QDK9U4D5$EPc!+@B^kZ(2Al;55Bu;3#sbAVdF%ZXWGRS7IW#y!mo{d$Yd1l6N~7*@y=QunyQYnq#)I$&N$=j$Nf7J)c*xII_vS^~|Vj9?i9MzTNbf*XP!-_{*K!K2Fb~tow4$QGKAmQv8El6mC}xrRG+?^3(e6MwRjp" ) );
             test( TEXT, "A magic item set contains four or more items" );
             fix( "new entry" );
