@@ -2,9 +2,11 @@ package db4e.converter;
 
 import db4e.data.Category;
 import db4e.data.Entry;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static sheepy.util.Utils.ucfirst;
 
 public class GlossaryConverter extends Converter {
 
@@ -13,6 +15,7 @@ public class GlossaryConverter extends Converter {
    }
 
    private final Matcher regxLowercaseTitle = Pattern.compile( "(<h1[^>]*+>)([a-z])" ).matcher( "" );
+   private final Matcher regxUppercaseTitle = Pattern.compile( "(<[hb][13r][^>]*+>)([A-Z]{2}+[A-Z (]++)" ).matcher( "" );
    private final Matcher regxFlavor = Pattern.compile( "<p class=flavor>(?!.*<p class=flavor>)" ).matcher( "" );
 
    @Override protected void correctEntry () {
@@ -53,6 +56,14 @@ public class GlossaryConverter extends Converter {
       }
       if ( find( regxLowercaseTitle ) )
          swap( regxLowercaseTitle.group(), regxLowercaseTitle.group(1) + regxLowercaseTitle.group(2).toUpperCase(), "formatting" );
+      else if ( entry.getId().startsWith( "skill" ) ) {
+         while ( find( regxUppercaseTitle ) ) {
+            String[] title = regxUppercaseTitle.group( 2 ).split( "(?<=[^A-Z])(?=[A-Z])" );
+            swap( regxUppercaseTitle.group(2),
+               String.join( "", Arrays.stream( title ).map( e -> ucfirst( e.toLowerCase() ) ).toArray( String[]::new ) ) );
+         }
+         fix( "formatting" );
+      }
       super.correctEntry();
    }
 
