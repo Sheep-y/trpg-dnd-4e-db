@@ -103,9 +103,4 @@ public class GlossaryConverter extends Converter {
             list.add( name.substring( 0, name.length() - 3 ) );
       return list;
    }
-
-   @Override protected int sortEntity ( Entry a, Entry b ) {
-      int diff = a.getSimpleField( 0 ).compareTo( b.getSimpleField( 0 ) );
-      return diff == 0 ? super.sortEntity( a, b ) : diff;
-   }
 }
