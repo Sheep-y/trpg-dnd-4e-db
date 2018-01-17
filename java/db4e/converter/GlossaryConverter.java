@@ -12,6 +12,7 @@ public class GlossaryConverter extends Converter {
       super( category );
    }
 
+   private final Matcher regxLowercaseTitle = Pattern.compile( "(<h1[^>]*+>)([a-z])" ).matcher( "" );
    private final Matcher regxFlavor = Pattern.compile( "<p class=flavor>(?!.*<p class=flavor>)" ).matcher( "" );
 
    @Override protected void correctEntry () {
@@ -50,6 +51,8 @@ public class GlossaryConverter extends Converter {
             fix( "new entry" );
             break;
       }
+      if ( find( regxLowercaseTitle ) )
+         swap( regxLowercaseTitle.group(), regxLowercaseTitle.group(1) + regxLowercaseTitle.group(2).toUpperCase(), "formatting" );
       super.correctEntry();
    }
 

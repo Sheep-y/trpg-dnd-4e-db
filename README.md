@@ -55,19 +55,19 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 1910 entries during export:
+This downloader fixes over 2030 entries during export:
 
 * 551 powers classified as "Theme Power" or "Multiclass" (actually Spellscarred), corrected.
 * 297 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 233 entries with bold and font size issues. (Deluge, Dark Toxin etc.)
 * 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous etc.)
 * 173 entries with wrong listing data not caused by other issues. (Multi-source classes, traps mixing up role and type etc.)
+* 156 entries with line breaks, indent, and other formatting issues. (Tymora's Coin, Silver Hands of Power, Spider Cactus etc.)
 * 151 entries missing power frequency. (Bending Branch, Dantrag's Bracers, energy weapons, dragon orbs, lights etc.)
 * 94 entries with missing listing data not caused by other issues. (Subrace abilities, Heroic feat tier etc.)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
 * 67 entries without "published" record. (Granny's Grief, Dreamheart, Deck of Many Things etc.)
 * 40 entries with missing rule keywords. (Quick Kill range, Cloudburst spirit keyword, Blistered Soul type etc.)
-* 38 entries with line breaks, indent, and other formatting issues. (Tymora's Coin, Silver Hands of Power, Spider Cactus etc.)
 * 35 entries that wrongly says "basic melee attack". (Bane's Tactics, Feral Armor, Dancing Weapon, Kobold Piker etc.)
 * 30 entries with wrong title colour (Shield of Prator, Shadowstep, Imprison etc.)
 * 20 entries with other missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
