@@ -53,6 +53,12 @@ public class ItemConverter extends LeveledConverter {
    private final Matcher regxFirstStatBold = Pattern.compile( "<p class=mistat><b>([^<]++)</b>" ).matcher( "" );
    private final Matcher regxPriceTable = Pattern.compile( "<td class=mic1>Lvl (\\d++)(?:<td class=mic2>(?:\\+\\d)?+)?+<td class=mic3>([\\d,]++) gp" ).matcher( "" );
 
+   @Override public void convert () throws InterruptedException {
+      super.convert();
+      if ( entry.getId().equals( "weapon147" ) ) // Don't count fix from duplicate of Arrow of Fate
+         corrections.clear();
+   }
+
    @Override protected void convertEntry () {
       if ( ! isGeneric )
          entry.setId( entry.getId().replace( "item", category.id.toLowerCase() ) );

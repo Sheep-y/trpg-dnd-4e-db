@@ -24,7 +24,6 @@ public class ExporterRawJson extends Exporter {
          writer = openStream( target.toPath() );
          writer.write( "{" );
       }
-      state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
    @Override protected void _export ( Category category ) throws IOException, InterruptedException {

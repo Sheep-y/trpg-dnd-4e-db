@@ -22,7 +22,7 @@ import static sheepy.util.Utils.sync;
 
 /**
  * Convert category and entry data for export.
- * This class contains high level skeleton code; Converter has fine implementations.
+ * This class contains high level code dealing with categories; Converter work on entry level.
  */
 public abstract class Convert {
 
@@ -409,8 +409,6 @@ public abstract class Convert {
             this.entry = entry;
             convertEntry();
             if ( ! corrections.isEmpty() ) {
-               if ( entry.getId().equals( "weapon147" ) ) // Duplicate of Arrow of Fate
-                  corrections.clear();
                for ( String fix : corrections )
                   corrected( entry, fix );
                if ( corrections.size() > 1 )

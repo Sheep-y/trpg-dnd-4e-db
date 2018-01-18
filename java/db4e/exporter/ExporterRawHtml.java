@@ -10,9 +10,8 @@ import java.io.Writer;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import static sheepy.util.text.Quote.escapeHTML;
 import sheepy.util.Resource;
-import sheepy.util.Utils;
+import static sheepy.util.text.Quote.escapeHTML;
 
 /**
  *\ Export raw data as HTML
@@ -31,7 +30,6 @@ public class ExporterRawHtml extends Exporter {
       new File( root ).mkdirs();
       checkStop( "Writing catlog" );
       writeCatalog( categories );
-      state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
    private void writeCatalog ( List<Category> categories ) throws IOException {

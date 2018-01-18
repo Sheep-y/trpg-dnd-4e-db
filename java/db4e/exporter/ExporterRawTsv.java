@@ -17,7 +17,6 @@ public class ExporterRawTsv extends Exporter {
    @Override protected void _preExport ( List<Category> categories ) throws IOException {
       log.log( Level.CONFIG, "Export raw TSV: {0}", target );
       target.getParentFile().mkdirs();
-      state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
    @Override protected void _export ( Category category ) throws IOException, InterruptedException {

@@ -61,7 +61,6 @@ public class ExporterRawSql extends Exporter {
          if ( id_quote_start == '`' || id_quote_start == '"' )
             writer.write( "SET NAMES 'UTF8';\n" );
       }
-      state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
    @Override protected void _export ( Category category ) throws IOException, InterruptedException {

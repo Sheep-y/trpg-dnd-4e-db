@@ -33,8 +33,8 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import sheepy.util.text.Base85;
 import sheepy.util.Resource;
+import sheepy.util.text.Base85;
 
 /**
  * Export viewer and data.
@@ -61,7 +61,7 @@ public class ExporterMain extends Exporter {
       }
       new File( root ).mkdirs();
       writeCatalog( categories );
-      state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
+      state.total *= 2;
    }
 
    @Override protected void _postExport ( List<Category> categories ) throws IOException, InterruptedException {

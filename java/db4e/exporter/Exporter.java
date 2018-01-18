@@ -40,6 +40,7 @@ public abstract class Exporter implements Closeable {
    }
 
    public synchronized final void preExport ( List<Category> categories ) throws IOException, InterruptedException {
+      state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum();
       _preExport( categories ); // Synchronized
    }
    public synchronized final void export ( Category category ) throws IOException, InterruptedException {

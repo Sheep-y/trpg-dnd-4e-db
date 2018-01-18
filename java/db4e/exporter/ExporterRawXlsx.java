@@ -69,8 +69,6 @@ public class ExporterRawXlsx extends Exporter {
       try ( Writer writer = openStream( fs.getPath( "xl/_rels/workbook.xml.rels" ) ) ) {
          writer.write( buffer.toString() );
       }
-
-      state.total = categories.stream().mapToInt( e -> e.entries.size() ).sum();
    }
 
    @Override protected void _export ( Category category ) throws IOException, InterruptedException {
