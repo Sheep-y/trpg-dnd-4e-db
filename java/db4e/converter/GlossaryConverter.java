@@ -22,7 +22,7 @@ public class GlossaryConverter extends Converter {
       if ( entry.getId().startsWith( "skill" ) ) { // Fix skills missing "improvising with" title
          if ( ! find( "IMPROVISING WITH" ) ) {
             data( regxFlavor.reset( data() ).replaceFirst( "<h3>IMPROVISING WITH "+entry.getName().toUpperCase()+"</h3><p class=flavor>" ) );
-            test( TEXT, "<h3>IMPROVISING WITH " );
+            test( TEXT, "<h3>Improvising With " );
             fix( "content" );
          }
       }
@@ -44,7 +44,7 @@ public class GlossaryConverter extends Converter {
          case "glossary361": // Weapons
             entry.setName( "Monster Weapons" );
             swap( "Weapons</h1>", "Monster Weapons</h1>" );
-            fix( "consistenty" );
+            fix( "consistency" );
             break;
 
          case "glossary381": // Concordance, change to Artifact

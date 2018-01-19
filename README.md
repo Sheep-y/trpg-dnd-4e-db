@@ -57,11 +57,11 @@ Let's face it, the official compendium has errors.
 This downloader fixes over 2040 entries during export:
 
 * 551 powers classified as "Theme Power" or "Multiclass" (actually Spellscarred), corrected.
-* 298 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
+* 299 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 233 entries with bold and font size issues. (Deluge, Dark Toxin etc.)
 * 191 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous etc.)
 * 173 entries with wrong listing data not caused by other issues. (Multi-source classes, traps mixing up role and type etc.)
-* 173 entries with line breaks, indent, and other formatting issues. (Tymora's Coin, Silver Hands of Power, Spider Cactus etc.)
+* 173 entries with line breaks, indent, and other formatting issues. (Silver Hands of Power, Spider Cactus etc.)
 * 151 entries missing power frequency. (Bending Branch, Dantrag's Bracers, energy weapons, dragon orbs, lights etc.)
 * 94 entries with missing listing data not caused by other issues. (Subrace abilities, Heroic feat tier etc.)
 * 88 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
