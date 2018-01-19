@@ -53,6 +53,18 @@ public class GlossaryConverter extends Converter {
             test( TEXT, "A magic item set contains four or more items" );
             fix( "new entry" );
             break;
+
+         case "glossary668": // Staff (Implement)
+            entry.setName( "Staff" );
+            fix( "consistency" );
+            // fallthrough
+         case "glossary665": // Holy Symbol
+         case "glossary666": // Orb
+         case "glossary667": // Rod
+            meta( 0, "Implement" );
+            meta( 1, "Implement Group" );
+            fix( "recategorise" );
+            break;
       }
       if ( find( regxLowercaseTitle ) )
          swap( regxLowercaseTitle.group(), regxLowercaseTitle.group(1) + regxLowercaseTitle.group(2).toUpperCase(), "formatting" );

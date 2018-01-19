@@ -9,7 +9,6 @@ Exported entries can be browsed and searched offline with exact phase search, wi
 
 本應用能從四代龍與地下城的[官方資料庫](http://www.wizards.com/dndinsider/compendium/database.aspx)提取、儲存、及匯出資料，以便進行離線的威力搜尋。<br/>
 下載器的說明只限英語。匯出資料後的搜尋介面可以在說明頁中切換成中文。
-注意 3.x 為最後一代有中文介面的數據庫。日後的版本只支援英文。
 
 This is a fan project and does not come with copyrighted data.
 
@@ -55,12 +54,12 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes over 2030 entries during export:
+This downloader fixes over 2040 entries during export:
 
 * 551 powers classified as "Theme Power" or "Multiclass" (actually Spellscarred), corrected.
-* 297 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
+* 298 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 233 entries with bold and font size issues. (Deluge, Dark Toxin etc.)
-* 187 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous etc.)
+* 191 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous etc.)
 * 173 entries with wrong listing data not caused by other issues. (Multi-source classes, traps mixing up role and type etc.)
 * 173 entries with line breaks, indent, and other formatting issues. (Tymora's Coin, Silver Hands of Power, Spider Cactus etc.)
 * 151 entries missing power frequency. (Bending Branch, Dantrag's Bracers, energy weapons, dragon orbs, lights etc.)
