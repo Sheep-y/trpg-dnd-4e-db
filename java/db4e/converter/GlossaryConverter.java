@@ -62,6 +62,13 @@ public class GlossaryConverter extends Converter {
             fix( "new entry" );
             break;
 
+         case "glossary0620": // Bloodline
+            entry.setName( "Bloodlines" ).setFields( "Rules", "Rules Other", null ).setContent( unzip(
+               "ZBtE;)G!SFE55->)vjj6jbRQ5B=&$b2RLx_q;3=8##Q2O>5ad^-{Y6y^kZgr*i)0(e((9&-TNIl#+*O&j1#59M;56$M9TXIzdP*v%L_DwngN+*ge4uE$AnHPWsnBMlI%*L0`#lLSc7^BsXPW`2sK3wI+b{cj)$7&8Y{KDOmI50-|rv#!u~@Ba2Ubk^Hq42GE?$2W9Zb=duSvXGj=^w1)+hdlzS1wHU{|22K9wfP;3{FYDw7`X1F=)rtMA7(}Fo-)Y3(<0q|l2j9v`MT)K#@HU+qtW6>z7Ge1^?B4lE6I!ip4y~!_?7P=Ngv@E-v)BgVcV{E6uL4(-_-(zhuI>`zyBsX+fF*?fC3z^+u@e{$$K1|QV1$|Y4H$LCPH`DcLh%HHkub5|m(0W~W;TqUr6o1lxAi%hW6E!PMU0jG)y?{;6o{JvoJKGhQ+a;S%*JEhoHicINl@TIm!ylLykJiaXQ6tq<yu00?F{qcp#Kf|&Hh0uun6_A6MytQtaA2EZUXcAdm{rgA3k@d@*;D-#56A6XS~z9{4GxYnQmUZ0%D4FrcJCf%4l0" ) );
+            test( TEXT, "to expand their racial identity" );
+            fix( "new entry" );
+            break;
+
          case "glossary664": // Reading a Weapon Entry
             entry.setName( "Weapons" );
             swap( "Reading a Weapon Entry", "Weapons", "consistency" );

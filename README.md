@@ -71,7 +71,7 @@ This downloader fixes over 2040 entries during export:
 * 30 entries with wrong title colour (Shield of Prator, Shadowstep, Imprison etc.)
 * 20 entries with other missing/wrong content. (Kord's Relentlessness, Rings of the Akarot, Hybrid Vampire Surge etc.)
 * 17 typos. (Cambion Stalwart "bit points", Primal Grove "grp", Rubble Topple "Singe", Essential hybrid sourcebook etc.)
-* 6 new glossary entries (Ability Scores, Artifact, Implements, Item Set, Totem, and Wand.)
+* 7 new glossary entries (Ability Scores, Artifact, Bloodlines, Implements, Item Set, Totem, and Wand.)
 * In addition, over a hundred artifacts and item sets are manually classified.
 (Some entries has multiple types of fix applied, e.g. Mirror of Deception has power frequency, formatting, and category fixed)
 

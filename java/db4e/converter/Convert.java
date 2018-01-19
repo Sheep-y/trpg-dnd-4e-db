@@ -84,7 +84,7 @@ public abstract class Convert {
                         corrected( entry, "blacklist" );
                      }
                   }
-                  for ( String s : "3,70,453,677,678".split( "," ) )
+                  for ( String s : "3,70,453,620,677,678".split( "," ) )
                      exported.entries.add( new Entry().setId( "glossary0" + s ).setName( "" ) );
                   break;
 
