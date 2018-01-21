@@ -43,7 +43,7 @@ public class GlossaryConverter extends Converter {
 
          case "glossary361": // Weapons
             entry.setName( "Monster Weapons" );
-            swap( "Weapons</h1>", "Monster Weapons</h1>" );
+            swap( ">Weapons<", ">Monster Weapons<" );
             fix( "consistency" );
             break;
 
@@ -111,6 +111,7 @@ public class GlossaryConverter extends Converter {
          }
          fix( "formatting" );
       }
+      swap( "</h1>", "<span class=level>" + meta( 0 ) + ", " + meta( 1 ) + "</span></h1>" );
       super.correctEntry();
    }
 
