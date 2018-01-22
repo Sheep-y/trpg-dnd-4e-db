@@ -130,9 +130,7 @@ public class ExporterRawXlsx extends Exporter {
       try ( Writer writer = openStream( fs.getPath( "xl/sharedStrings.xml" ) ) ) {
          writer.write( buffer.toString() );
       }
-
-      checkStop( "Packing to xlsx" );
-      state.set( state.total );
+      checkStop( "Packing xlsx" );
    }
 
    @Override public synchronized void close() throws IOException {

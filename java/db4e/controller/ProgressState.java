@@ -2,6 +2,7 @@ package db4e.controller;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import static javafx.scene.control.ProgressIndicator.INDETERMINATE_PROGRESS;
 
 public class ProgressState {
    private final AtomicInteger done = new AtomicInteger( 0 );
@@ -43,7 +44,9 @@ public class ProgressState {
 
    private double getProgress() {
       if ( total <= 0 ) return 0;
-      if ( done.get() >= total ) return 1;
-      return done.get() / (double) total;
+      int progress = done.get();
+      if ( progress < 0 ) return INDETERMINATE_PROGRESS;
+      else if ( progress >= total ) return 1;
+      return progress / (double) total;
    }
 }
