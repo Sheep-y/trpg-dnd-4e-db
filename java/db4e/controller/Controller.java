@@ -568,6 +568,8 @@ public class Controller {
          data = Convert.mapExportCategories( categories );
       } else
          data = sync( categories );
+      // Progress is half conversion, half writing
+      state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
       exporter.preExport( data );
       checkStop( dataMessage );
       exportEachCategory( data, exporter );
@@ -575,6 +577,7 @@ public class Controller {
       if ( fixData ) {
          Convert.afterConvert();
       }
+      state.set( state.total );
    }
 
    /////////////////////////////////////////////////////////////////////////////
@@ -692,7 +695,8 @@ public class Controller {
                   if ( fixData )
                      converter.convert();
                   converter.mapIndex();
-                  exporter.export( category );
+                  state.add( category.entries.size() ); // Assumes half the work is data conversion
+                  exporter.export( category ); // Each exporter will advance write progress its own way
                   if ( fixData ) // The converted data is no longer required.  Kill them to save memory
                      category.entries.clear();
                }

@@ -61,7 +61,7 @@ public class ExporterMain extends Exporter {
       }
       new File( root ).mkdirs();
       writeCatalog( categories );
-      state.total *= 2;
+      state.total *= 1.5;
    }
 
    @Override protected void _postExport ( List<Category> categories ) throws IOException, InterruptedException {
