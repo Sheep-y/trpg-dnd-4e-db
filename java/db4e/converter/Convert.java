@@ -78,10 +78,20 @@ public abstract class Convert {
                case "Glossary" :
                   for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
                      Entry entry = i.next();
-                     // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
-                     if ( entry.getId().equals( "glossary.aspx?id=679" ) || entry.getContent().contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
-                        i.remove();
-                        corrected( entry, "blacklist" );
+                     switch ( entry.getId() ) {
+                     case "glossary.aspx?id=679": // familiar, empty glossary
+                     case "glossary.aspx?id=71" : case "glossary.aspx?id=87" : // Lightning & Thunder monster keyword
+                     case "glossary.aspx?id=403": case "glossary.aspx?id=407": // Force & Healing monster keyword
+                     case "glossary.aspx?id=414": case "glossary.aspx?id=415": // Necrotic & Poison monster keyword
+                     case "glossary.aspx?id=416": case "glossary.aspx?id=417": // Psychic & Radiant monster keyword
+                           i.remove();
+                           corrected( entry, "blacklist" );
+                           break;
+                     default:
+                        if ( entry.getContent().contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
+                           i.remove(); // Empty glossaries such as "male" or "female".
+                           corrected( entry, "blacklist" );
+                        }
                      }
                   }
                   for ( String s : "3,70,453,620,677,678".split( "," ) )
