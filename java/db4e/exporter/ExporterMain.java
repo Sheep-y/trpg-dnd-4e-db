@@ -33,8 +33,8 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import sheepy.util.text.Base85;
 import sheepy.util.Resource;
+import sheepy.util.text.Base85;
 
 /**
  * Export viewer and data.
@@ -61,7 +61,7 @@ public class ExporterMain extends Exporter {
       }
       new File( root ).mkdirs();
       writeCatalog( categories );
-      state.total = categories.stream().mapToInt( e -> e.getExportCount() ).sum() * 2;
+      state.total *= 1.5;
    }
 
    @Override protected void _postExport ( List<Category> categories ) throws IOException, InterruptedException {
@@ -279,7 +279,7 @@ public class ExporterMain extends Exporter {
       Files.copy( Resource.getStream( "res/manifest.json" ), new File( root + "res/manifest.json" ).toPath(), StandardCopyOption.REPLACE_EXISTING );
       String html = Resource.getText( "res/4e_database.html" );
       if ( ! target.getName().startsWith( "4e_database." ) )
-         html = html.replace( "4e_database_files", target.getName().split( "\\.", 2 )[0] + "_files" );
+         html = html.replace( "4e_database_files", target.getName().replaceFirst( "(?i).x?html?$", "" ) + "_files" );
       Files.copy( new ByteArrayInputStream( html.getBytes( UTF_8 ) ), target.toPath(), StandardCopyOption.REPLACE_EXISTING );
    }
 }

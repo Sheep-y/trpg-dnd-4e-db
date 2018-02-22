@@ -97,6 +97,8 @@ public class SceneMain extends Scene {
            "Minimal interval, in millisecond, between each download action." );
    final TextField txtRetry  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "download.retry", DEF_RETRY_COUNT ) ) ) ),
            "Number of timeout retry.  Only apply to timeout errors." );
+   final TextField txtAgent  = JavaFX.tooltip( new TextField( prefs.get( "download.agent", "" ) ),
+           "Browser user agent to use to download data.  Leave empty for default." );
    final TextField txtThread  = JavaFX.tooltip( new TextField( Integer.toString( Math.max( 0, prefs.getInt( "export.thread", 0 ) ) ) ),
            "More thread exports faster but use more memory.  0 = Auto" );
    private final CheckBox chkFixAndEnhance = JavaFX.tooltip( new CheckBox( "Fix and enhance data" ),
@@ -115,6 +117,7 @@ public class SceneMain extends Scene {
            new HBox( 8, new Label( "Timeout in" ), txtTimeout, new Label( "seconds.") ),
            new HBox( 8, new Label( "Throttle" ), txtInterval, new Label( "milliseconds (minimal) per request.") ),
            new HBox( 8, new Label( "Retry" ), txtRetry, new Label( "times on timeout.") ),
+           new HBox( 8, new Label( "Agent String" ), txtAgent ),
            new HBox( 8, new Label( "Export in" ), txtThread, new Label( "threads (0 = Auto)") ),
            chkFixAndEnhance,
            chkCompress,
@@ -145,6 +148,7 @@ public class SceneMain extends Scene {
          Controller.TIMEOUT_MS = Integer.parseUnsignedInt( txtTimeout.getText() ) * 1000;
          Controller.INTERVAL_MS = Integer.parseUnsignedInt( txtInterval.getText() );
          Controller.RETRY_COUNT = Integer.parseUnsignedInt( txtRetry.getText() );
+         loader.setUserAgent( txtAgent.getText() );
          loader.setThreadCount( Integer.parseUnsignedInt( txtThread.getText() ) );
       } catch ( NumberFormatException ignored ) {}
       setRoot( pnlC );
@@ -175,6 +179,7 @@ public class SceneMain extends Scene {
          Controller.TIMEOUT_MS = i * 1000;
          log.log( Level.CONFIG, "Timeout changed to {0} ms", Controller.TIMEOUT_MS );
       } catch ( NumberFormatException ignored ) { } } );
+      txtTimeout.setPrefWidth( 80 );
 
       txtInterval.textProperty().addListener( (prop, old, now ) -> { try {
          int i = Integer.parseUnsignedInt( now );
@@ -183,6 +188,7 @@ public class SceneMain extends Scene {
          Controller.INTERVAL_MS = i;
          log.log( Level.CONFIG, "Interval changed to {0} ms", i );
       } catch ( NumberFormatException ignored ) { } } );
+      txtInterval.setPrefWidth( 80 );
 
       txtRetry.textProperty().addListener( (prop, old, now ) -> { try {
          int i = Integer.parseUnsignedInt( now );
@@ -191,6 +197,13 @@ public class SceneMain extends Scene {
          Controller.RETRY_COUNT = i;
          log.log( Level.CONFIG, "Retry count changed to {0}", i );
       } catch ( NumberFormatException ignored ) { } } );
+      txtRetry.setPrefWidth( 50 );
+
+      txtAgent.textProperty().addListener( (prop, old, now ) -> {
+         prefs.put( "download.agent", now );
+         loader.setUserAgent( now );
+      } );
+      txtAgent.setPrefWidth( 600 );
 
       txtThread.textProperty().addListener( (prop, old, now ) -> { try {
          int i = Integer.parseUnsignedInt( now );
@@ -198,6 +211,7 @@ public class SceneMain extends Scene {
          prefs.putInt( "export.thread", i );
          loader.setThreadCount( i );
       } catch ( NumberFormatException ignored ) { } } );
+      txtThread.setPrefWidth( 50 );
 
       setupCheckbox( chkFixAndEnhance, "export.fix", true, this::chkFix_change );
       setupCheckbox( chkDebug, "gui.debug", false, this::chkDebug_change );

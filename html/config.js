@@ -14,8 +14,7 @@ od.config = {
          function config_url ( category ) { return od.data_path + '/' + category.toLowerCase() + '/_listing.js'; },
       "index" :
          function config_url ( category ) {
-            return od.data_path + '/' + ( category ? category.toLowerCase() + '/_index.js'
-                                                               : 'index.js' ); },
+            return od.data_path + '/' + ( category ? category.toLowerCase() + '/_index.js' : 'index.js' ); },
       "data" :
          function config_url ( category, id ) {
             var matches = id.match( /(\d{1,2})$/ ) || [];
@@ -38,7 +37,7 @@ od.config = {
    },
 
    "is_mc_column" : function config_is_mc_column ( col ) {
-      return [ 'CreatureType', 'DescriptionAttribute', 'KeyAbilities', 'Keywords', 'Origin', 'PowerSourceText', 'RoleName', 'Size', 'SourceBook', 'Tier' ].indexOf( col ) >= 0;
+      return [ 'CreatureType', 'DescriptionAttribute', 'Domains', 'KeyAbilities', 'Keywords', 'Origin', 'PowerSourceText', 'RoleName', 'Size', 'SourceBook', 'Tier', 'WeaponType' ].indexOf( col ) >= 0;
    },
 
    "is_num_column" : function config_is_num_column ( col ) {

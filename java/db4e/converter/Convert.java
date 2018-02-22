@@ -22,7 +22,7 @@ import static sheepy.util.Utils.sync;
 
 /**
  * Convert category and entry data for export.
- * This class contains high level skeleton code; Converter has fine implementations.
+ * This class contains high level code dealing with categories; Converter work on entry level.
  */
 public abstract class Convert {
 
@@ -78,13 +78,24 @@ public abstract class Convert {
                case "Glossary" :
                   for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {
                      Entry entry = i.next();
-                     // Various empty glossaries. Such as "male" or "female".  glossary679 "familiar" does not even have published.
-                     if ( entry.getId().equals( "glossary.aspx?id=679" ) || entry.getContent().contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
-                        i.remove();
-                        corrected( entry, "blacklist" );
+                     switch ( entry.getId() ) {
+                     case "glossary.aspx?id=679": // familiar, empty glossary
+                     case "glossary.aspx?id=71" : case "glossary.aspx?id=87" : // Lightning & Thunder monster keyword
+                     case "glossary.aspx?id=403": case "glossary.aspx?id=407": // Force & Healing monster keyword
+                     case "glossary.aspx?id=414": case "glossary.aspx?id=415": // Necrotic & Poison monster keyword
+                     case "glossary.aspx?id=416": case "glossary.aspx?id=417": // Psychic & Radiant monster keyword
+                           i.remove();
+                           corrected( entry, "blacklist" );
+                           break;
+                     default:
+                        if ( entry.getContent().contains( "</h1><p class=\"flavor\"></p><p class=\"publishedIn\">" ) ) {
+                           i.remove(); // Empty glossaries such as "male" or "female".
+                           corrected( entry, "blacklist" );
+                        }
                      }
                   }
-                  exported.entries.add( new Entry().setId( "glossary0453" ).setName( "Item Set" ) );
+                  for ( String s : "3,70,453,620,677,678".split( "," ) )
+                     exported.entries.add( new Entry().setId( "glossary0" + s ).setName( "" ) );
                   break;
 
                case "Item" :
@@ -408,8 +419,6 @@ public abstract class Convert {
             this.entry = entry;
             convertEntry();
             if ( ! corrections.isEmpty() ) {
-               if ( entry.getId().equals( "weapon147" ) ) // Duplicate of Arrow of Fate
-                  corrections.clear();
                for ( String fix : corrections )
                   corrected( entry, fix );
                if ( corrections.size() > 1 )

@@ -63,7 +63,8 @@ _.l.set( 'data', {
       'SourceBook': '書目',
       'Tier' : '層級',
       'TierName' : '層級',
-      'Type' : '類型'
+      'Type' : '類型',
+      'WeaponType' : '類型'
    }
 });
 
