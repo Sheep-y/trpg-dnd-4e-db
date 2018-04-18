@@ -458,14 +458,20 @@ public abstract class Convert {
     * Apply common conversions to entry data.
     */
    protected void convertEntry () {
-      if ( entry.getName().contains( "’" ) )
-         entry.setName( entry.getName().replace( "’", "'" ) );
-      if ( entry.getId().contains( ".aspx" ) )
-         entry.setId( entry.getId().replace( ".aspx?id=", "" ).toLowerCase() );
-      if ( entry.getContent() != null )
-         entry.setContent( normaliseData( entry.getContent() ) );
-      correctEntry();
-      parseSourceBook();
+      try {
+         if ( entry.getName().contains( "’" ) )
+            entry.setName( entry.getName().replace( "’", "'" ) );
+         if ( entry.getId().contains( ".aspx" ) )
+            entry.setId( entry.getId().replace( ".aspx?id=", "" ).toLowerCase() );
+         if ( entry.getContent() != null )
+            entry.setContent( normaliseData( entry.getContent() ) );
+         correctEntry();
+         parseSourceBook();
+      } catch ( Exception err ) {
+         log.log( Level.SEVERE, "Cannot fix {0}: {1}", new Object[]{ entry, Utils.stacktrace( err ) } );
+         if ( entry.getName() == null )
+            entry.setName( entry.getId() );
+      }
       // Converter will do some checking if debug is on.
    }
 

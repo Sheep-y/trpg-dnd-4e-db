@@ -35,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.Resource;
 import sheepy.util.text.Base85;
+import sheepy.util.Utils;
 
 /**
  * Export viewer and data.
@@ -91,7 +92,8 @@ public class ExporterMain extends Exporter {
       int exported = 0;
       Matcher regxIdGroup = Pattern.compile( "\\d+$" ).matcher( "" );
 
-      StringBuilder buffer = new StringBuilder( 8192 );
+      StringBuilder buffer = new StringBuilder( 8192 ),
+                    buf = new StringBuilder( 8192 );
 
       // Listing
       str( buffer, cat_id ).append( ",[\"ID\",\"Name\"," );
@@ -100,22 +102,32 @@ public class ExporterMain extends Exporter {
       final String listCol = backspace( buffer ).append( "]," ).toString();
       buffer.setLength( 0 );
       buffer.append( '[' );
-      for ( Entry entry : category.entries ) {
-         str( buffer.append( '[' ), entry.getId() ).append( ',' );
-         str( buffer, entry.getName() ).append( ',' );
+      for ( Entry entry : category.entries ) { try {
+         str( buf.append( '[' ), entry.getId() ).append( ',' );
+         str( buf, entry.getName() ).append( ',' );
          for ( Object field : entry.getFields() ) {
-            if ( field.getClass().isArray() ) {
+            if ( field == null ) {
+               log.log( Level.WARNING, "A field of {1} is null", entry );
+            } else if ( field.getClass().isArray() ) {
                Object[] ary = (Object[]) field;
-               buffer.append( "[\"" ).append( ary[0] ).append( "\"," );
+               buf.append( "[\"" ).append( ary[0] ).append( "\"," );
                for ( int i = 1, len = ary.length ; i < len ; i++ )
-                  buffer.append( ary[i] ).append( ',' );
-               backspace( buffer ).append( "]," );
-            } else
-               str( buffer, field.toString() ).append( ',' );
+                  buf.append( ary[i] ).append( ',' );
+               backspace( buf ).append( ']' );
+            } else 
+               str( buf, field.toString() );
+            buf.append( ',' );
          }
-         backspace( buffer ).append( "]," );
+         backspace( buf ).append( "]," );
+
+         buffer.append( buf );
          if ( multiline ) buffer.append( '\n' );
-      }
+         if ( stop.get() ) throw new InterruptedException();
+      } catch ( Exception ex ) {
+         log.log( Level.SEVERE, "Error when exporting {0}: {1}", new Object[]{ entry, Utils.stacktrace( ex ) } );
+      } finally {
+         buf.setLength( 0 );
+      } }
       try ( OutputStreamWriter writer = openStream( catPath + "/_listing.js" ) ) {
          writeData( writer, "od.reader.jsonp_data_listing(20130703," + listCol, backspace( buffer ).append( ']' ), ")" );
       }
@@ -132,6 +144,7 @@ public class ExporterMain extends Exporter {
          str( buffer, entry.getId() ).append( ':' );
          str( buffer, fulltext ).append( ',' );
          if ( multiline ) buffer.append( '\n' );
+         if ( stop.get() ) throw new InterruptedException();
       }
       try ( OutputStreamWriter writer = openStream( catPath + "/_index.js" ) ) {
          writeData( writer, "od.reader.jsonp_data_index(20130616," + textCat, backspace( buffer ).append( '}' ), ")" );
