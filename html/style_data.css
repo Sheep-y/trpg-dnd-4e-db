@@ -258,12 +258,21 @@
    }
 
 .detail .ritualstats {
-   float: left;
+   display: block;
    margin-right: 1em;
    }
-   .detail .ritualstats ~ p {
+   .detail[id^=ritual] > p {
       clear: left;
       }
+   .detail .ritualstats + b {
+      margin-left: 0; /* Undo indent in single column mode */
+      }
+@media (min-width: 600px) {
+   .detail .ritualstats {
+      float: left; /* Two column stats on desktop, same as print */
+      min-width: 40%;
+      }
+   }
 
 .detail .ah1 ,
 .detail .ah2 {

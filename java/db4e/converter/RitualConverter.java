@@ -1,6 +1,11 @@
 package db4e.converter;
 
 import db4e.data.Category;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RitualConverter extends LeveledConverter {
 
@@ -8,7 +13,37 @@ public class RitualConverter extends LeveledConverter {
       super( category );
    }
 
+   private final Matcher regxRitualStats = Pattern.compile( "<p><span class=ritualstats>(.+?)</span>(.+?)</p>" ).matcher( "" );
+
    @Override protected void correctEntry () {
+      // Swap left and right stats; level and category should go first!
+      if ( find( regxRitualStats ) )
+         swap( regxRitualStats.group(), "<p><span class=ritualstats>" + regxRitualStats.group( 2 ) + "</span>" + regxRitualStats.group( 1 ) + "</p>" );
+      else
+         warn( "Ritual stats not found" );
+
+      /* // Rebuild stats as table; gave up because not better than plain list
+      if ( find( regxRitualStats ) ) {
+         // Rewrite ritual stat to table
+         StringBuilder buf = new StringBuilder( regxRitualStats.group().length() + 64 );
+         String[] left = regxRitualStats.group( 1 ).split( "<br>" ), right = regxRitualStats.group( 2 ).split( "<br>" );
+
+         buf.append( "<table class=ritualstats>" );
+         int i = 0;
+         for ( int len = Math.min( left.length, right.length ) ; i < len ; i++ )
+            buf.append( "<tr><td>" ).append( right[i] ).append( "<td>" ).append( left[i] );
+         if ( right.length > left.length )
+            left = right;
+         if ( i < left.length )
+            for ( ; i < left.length ; i++ )
+               buf.append( "<tr><td>" ).append( left[i] );
+         buf.append( "</table>" );
+
+         swap( regxRitualStats.group(), buf.toString() );
+         buf.setLength( 0 );
+      */
+
+//      <p><span class="ritualstats"><b>Component Cost</b>: Special<br><b>Market Price</b>: 50 gp<br><b>Key Skill</b>: Athletics (no check)</span><b>Level</b>: 1<br><b>Category</b>: Martial Practice<br><b>Time</b>: Special<br><b>Duration</b>: Permanent</p>
       switch ( entry.getId() ) {
          case "ritual288": // Primal Grove
             swap( " grp to ", " gp to ", "typo" );
