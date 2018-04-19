@@ -364,47 +364,50 @@ public abstract class Convert {
    }
 
    public static Converter getConverter ( Category category ) {
-      switch ( category.id ) {
-         case "Background":
-            return new BackgroundConverter( category );
-         case "Class":
-            return new ClassConverter( category );
-         case "Companion":
-            return new CompanionConverter( category ); // Sort by first field
-         case "Deity":
-            return new DeityConverter( category );
-         case "Disease":
-            return new DiseaseConverter( category );
-         case "EpicDestiny":
-         case "ParagonPath":
-            return new PPEDConverter( category );
-         case "Feat":
-            return new FeatConverter( category );
-         case "Glossary":
-            return new GlossaryConverter( category );
-         case "Item":
-         case "Armor":
-         case "Implement":
-         case "Weapon":
-            return new ItemConverter( category );
-         case "Monster":
-            return new MonsterConverter( category );
-         case "Poison":
-            return new PoisonConverter( category );
-         case "Power":
-            return new PowerConverter( category );
-         case "Race":
-            return new RaceConverter( category );
-         case "Ritual":
-            return new RitualConverter( category );
-         case "Theme":
-            return new ThemeConverter( category );
-         case "Trap":
-            return new TrapConverter( category );
-         default:
-            log.log( Level.WARNING, "Converter not found for category {0}", category.id );
-            return new Converter( category );
+      try {
+         switch ( category.id ) {
+            case "Background":
+               return new BackgroundConverter( category );
+            case "Class":
+               return new ClassConverter( category );
+            case "Companion":
+               return new CompanionConverter( category ); // Sort by first field
+            case "Deity":
+               return new DeityConverter( category );
+            case "Disease":
+               return new DiseaseConverter( category );
+            case "EpicDestiny":
+            case "ParagonPath":
+               return new PPEDConverter( category );
+            case "Feat":
+               return new FeatConverter( category );
+            case "Glossary":
+               return new GlossaryConverter( category );
+            case "Item":
+            case "Armor":
+            case "Implement":
+            case "Weapon":
+               return new ItemConverter( category );
+            case "Monster":
+               return new MonsterConverter( category );
+            case "Poison":
+               return new PoisonConverter( category );
+            case "Power":
+               return new PowerConverter( category );
+            case "Race":
+               return new RaceConverter( category );
+            case "Ritual":
+               return new RitualConverter( category );
+            case "Theme":
+               return new ThemeConverter( category );
+            case "Trap":
+               return new TrapConverter( category );
+         }
+      } catch ( Exception ex ) {
+         log.log( Level.SEVERE, "Error when initialising {0} converter: {1}", new Object[]{ category, Utils.stacktrace( ex ) } );
       }
+      log.log( Level.WARNING, "Fallback to default converter for category {0}", category.id );
+      return new Converter( category );
    }
 
    protected Convert ( Category category ) {
