@@ -389,18 +389,20 @@ public abstract class Convert {
             return new ItemConverter( category );
          case "Monster":
             return new MonsterConverter( category );
-         case "Ritual":
          case "Poison":
-            return new LeveledConverter( category );
+            return new PoisonConverter( category );
          case "Power":
             return new PowerConverter( category );
          case "Race":
             return new RaceConverter( category );
+         case "Ritual":
+            return new RitualConverter( category );
          case "Theme":
             return new ThemeConverter( category );
          case "Trap":
             return new TrapConverter( category );
          default:
+            log.log( Level.WARNING, "Converter not found for category {0}", category.id );
             return new Converter( category );
       }
    }

@@ -106,48 +106,6 @@ class LeveledConverter extends Converter {
       return lv != 0 ? lv : super.sortEntity( a, b );
    }
 
-   @Override protected void correctEntry () {
-      switch ( category.id ) {
-      case  "Poison":
-         if ( find( "<p>Published in" ) ) {
-            swap( "<p>Published in", "<p class=publishedIn>Published in", "styling" );
-         }
-
-         // Convert from item to poison
-         if ( entry.getFieldCount() == 5 ) {
-            meta( meta( 1 ), "", meta( 4 ) );
-            entry.setId( entry.getId().replace( "item", "poison0" ) );
-            swap( "<h1 class=mihead>", "<h1 class=poison>", "recategorise" );
-         }
-
-         switch ( entry.getId() ) {
-            case "poison19": // Granny's Grief
-               swap( ">Published in .<", ">Published in Dungeon Magazine 211.<", "missing published" );
-               break;
-            case "poison03562": // Gibbering Grind
-            case "poison03564": // Umber Dust
-            case "poison03565": // Heart of Mimic Powder
-               swap( " (Consumable)", "" );
-               // fallthrough
-            case "poison03561": // Aboleth Slime Concentrate
-            case "poison03563": // Grell Bile
-            case "poison03566": // Mind Flayer Tentacle Extract
-               swapAll( "(Consumable, ", "(" );
-               swapAll( " ✦ (", " ✦ Consumable (" );
-               fix( "missing power frequency" );
-         }
-         break;
-
-      case "Ritual":
-         switch ( entry.getId() ) {
-            case "ritual288": // Primal Grove
-               swap( " grp to ", " gp to ", "typo" );
-               break;
-         }
-      }
-      super.correctEntry();
-   }
-
    private Matcher regxFlavor;
    protected void compileFlavorBr () {
       regxFlavor = Pattern.compile( "(?<=</h1>)<p class=flavor>([^<]*|</?(?!p)[^>]+/?>)+</p>" ).matcher( "" );
