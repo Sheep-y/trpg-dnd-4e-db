@@ -196,6 +196,20 @@
    padding-top: 0;
    width: calc( 100% + 20px );
    }
+@media (max-width: 600px) {
+   /* Single column Monsters stats */
+   .detail .bodytable ,
+   .detail .bodytable tr ,
+   .detail .bodytable td {
+      display: block;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      }
+      .detail .bodytable td {
+         padding: .5ex 0;
+         }
+}
 
 /* Some b title - mostly in creature stats - is inline and need left margin */
 .detail b {
