@@ -73,7 +73,9 @@ public abstract class Convert {
          String exportTarget = source.id.equals( "Terrain" ) ? "Trap" : source.id; // Moves terrain into trap.
          Category exported = map.get( exportTarget );
          synchronized( exported ) {
-            source.entries.stream().forEach( e -> exported.entries.add( e.clone() ) );
+            source.entries.stream().forEach( e -> { synchronized ( e ) {
+               exported.entries.add( e.clone() );
+            } } );
             switch ( source.id ) {
                case "Glossary" :
                   for ( Iterator<Entry> i = exported.entries.iterator() ; i.hasNext() ; ) {

@@ -24,9 +24,11 @@ public class Category {
    public Map<String, List<String>> index; // Lookup name to entry id
 
    public Category( String id, String name, String[] fields ) {
-      this.id = id;
-      this.name = name;
-      this.fields = fields;
+      synchronized( this ) {
+         this.id = id;
+         this.name = name;
+         this.fields = fields;
+      }
    }
 
    public String getName() { return name; }

@@ -5,12 +5,16 @@ public class EntryDownloaded extends Entry {
    private boolean hasContent; // Indicate whether this entry has content in database.
 
    public EntryDownloaded ( String id, String name ) {
-      setId( id ).setName( name );
+      synchronized ( this ) {
+         setId( id ).setName( name );
+      }
    }
 
    public EntryDownloaded ( String id, String name, Object[] fields ) {
       this( id, name );
-      setFields( fields );
+      synchronized ( this ) {
+         setFields( fields );
+      }
    }
 
    @Override public boolean hasContent() { return hasContent;
