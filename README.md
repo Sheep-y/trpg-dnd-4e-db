@@ -14,7 +14,7 @@ This is a fan project and does not come with copyrighted data.
 
 ## How To Download Data ##
 
-[Video guide](https://youtu.be/aNDze9Ok5fE) available.
+[Video guide](https://youtu.be/aNDze9Ok5fE&t=0m39s) available.
 
 1. You need an active [Dungeons & Dragons Insider subscription](http://ddi.wizards.com/) to fetch data.
    1. A new subscription can be purchased from [digitalriver](http://gc.digitalriver.com/store/dndi/html/pbPage.wizards).
@@ -55,14 +55,14 @@ Many existing columns are also enhanced or corrected, such as multi-source class
 ### Fixed errors ###
 
 Let's face it, the official compendium has errors.
-This downloader fixes 2060 entries during export:
+This downloader can fixes 2060 entries during export:
 
 * 551 powers classified as "Theme Power" or "Multiclass" (actually Spellscarred), corrected.
 * 299 entries with inconsistency in wordings. (Winged Armor type, Xenda-Dran Array tier, Racial power without type etc.)
 * 233 entries with bold and font size issues. (Deluge, Dark Toxin etc.)
 * 191 entries moved to correct category. (Superior implements, Lair items, Assassin's poisons, Consumable wondrous etc.)
 * 173 entries with wrong listing data not caused by other issues. (Multi-source classes, traps mixing up role and type etc.)
-* 173 entries with line breaks, indent, and other formatting issues. (Silver Hands of Power, Spider Cactus etc.)
+* 165 entries with line breaks, indent, and other formatting issues. (Silver Hands of Power, Spider Cactus etc.)
 * 151 entries missing power frequency. (Bending Branch, Dantrag's Bracers, energy weapons, dragon orbs, lights etc.)
 * 96 empty entries or non-resources, removed. (male, female, fang titan drake, Fastpaw background, etc.)
 * 94 entries with missing listing data not caused by other issues. (Subrace abilities, Heroic feat tier etc.)

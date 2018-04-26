@@ -288,7 +288,8 @@ public class Converter extends Convert {
       }
       // Convert spaces and breaks
       data = data.replace( "&nbsp;", "\u00A0" )
-                 .replace( "<br/>", "<br>" ).replace( "<br />", "<br>" );
+                 .replace( "<br/>", "<br>" ).replace( "<br />", "<br>" )
+                 .replaceAll( "[\\s|\u00A0]+<br>", "<br>" );
       data = regxSpaces.reset( data ).replaceAll( " " )
       // Convert ’ to ' so that people can actually search for it
                  .replace( "’", "'" )
@@ -299,7 +300,7 @@ public class Converter extends Convert {
       data = regxAttr2.reset( data ).replaceAll( "<$1 $2=$3 $4=$5>" );
       // Convert attribute="value value" to attribute='value value', for less quote escaping
       data = regxAttr3.reset( data ).replaceAll( "<$1 $2='$3'>" );
-      // Remove redundent </td> and </tr>
+      // Remove optional </td> and </tr>
       data = regxOptionalClose.reset( data ).replaceAll( "" );
       // Remove empty tags (but not some empty cells which has a space)
       while ( regxEmptyTag.reset( data ).find() )

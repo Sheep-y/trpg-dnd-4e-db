@@ -169,7 +169,7 @@ public class PowerConverter extends LeveledConverter {
 
       switch ( entry.getId() ) {
          case "power2094" : // Misty Step
-            swap( "<b>At-Will</b>  <br>", "<b>At-Will</b>   ✦     <b>Teleportation</b><br>", "missing keyword" );
+            swap( "<b>At-Will</b><br>", "<b>At-Will</b>   ✦     <b>Teleportation</b><br>", "missing keyword" );
             break;
 
          case "power3339" : // Three Beacons of Twilight

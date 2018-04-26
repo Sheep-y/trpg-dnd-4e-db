@@ -189,7 +189,7 @@ public class ItemConverter extends LeveledConverter {
       // Ammunitions does not need processing
       if ( meta( TYPE ).equals( "Ammunition" ) ) return;
       // Mundane weapons with groups
-      if ( find( "<b>Group</b>: " ) ) {
+      if ( find( "<b>Group</b>:" ) ) {
          int prop = data().indexOf( "<b>Properties</b>:" ), group = data().indexOf( "<b>Group" );
          String region = data().substring( prop > 0 ? prop : group );
          List<String> grp = Utils.matchAll( regxWeaponGroup, region, 1 );
