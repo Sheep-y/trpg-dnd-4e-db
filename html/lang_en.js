@@ -14,22 +14,23 @@ _.l.set( 'data', {
       'trap'        : 'Trap / Terrain'
    },
    'field' : {
-      "_CatName" : "Category",
-      "_TypeName" : "Type",
-      "ActionType" : 'Action',
+      '_CatName' : 'Category',
+      '_TypeName' : 'Type',
+      'ActionType' : 'Action',
       'ClassName': 'Class',
-      "CombatRole" : 'Role',
-      "ComponentCost" : 'Component',
+      'CombatRole' : 'Role',
+      'ComponentCost' : 'Component',
       'CreatureType' : 'Type',
-      "DescriptionAttribute" : 'Attribute',
-      "GroupRole" : 'Group',
-      "KeyAbilities" : 'Abilities',
-      "KeySkillDescription" : 'Key Skill',
-      "PowerSourceText" : 'Power Source',
-      "RoleName" : 'Role',
+      'DescriptionAttribute' : 'Attribute',
+      'GroupRole' : 'Group',
+      'ItemType' : 'Type',
+      'KeyAbilities' : 'Abilities',
+      'KeySkillDescription' : 'Key Skill',
+      'PowerSourceText' : 'Power Source',
+      'RitualType' : 'Type',
+      'RoleName' : 'Role',
       'SourceBook': 'Source',
-      'TierName': 'Tier',
-      'WeaponType': 'Type'
+      'TierName': 'Tier'
    }
 });
 

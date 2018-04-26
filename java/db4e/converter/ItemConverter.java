@@ -29,8 +29,8 @@ public class ItemConverter extends LeveledConverter {
    @Override public void initialise () {
       if ( isGeneric )
          category.fields = new String[]{ "Category", "Type" ,"Level", "Cost", "Rarity", "SourceBook" };
-      else if ( category.id.equals( "Weapon" ) )
-         category.fields[0] = "WeaponType";
+      else if ( category.id.equals( "Implement" ) || category.id.equals( "Weapon" ) )
+         category.fields[0] = "ItemType";
       super.initialise();
       TYPE = LEVEL - 1;
       COST = LEVEL + 1;

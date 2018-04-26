@@ -52,19 +52,20 @@ _.l.set( 'data', {
       'Keywords' : '關鍵詞',
       'Level' : '等級',
       'Name' : '名稱',
+      'ItemType' : '類型',
       'Origin' : '始源',
       'PowerSourceText' : '力量源',
       'Prerequisite' : '前提要求',
       'Price' : '價格',
       'Rarity' : '稀有度',
+      'RitualType' : '類型',
       'RoleName' : '岡位',
       'Size' : '體型',
       'Skills' : '技能',
       'SourceBook': '書目',
       'Tier' : '層級',
       'TierName' : '層級',
-      'Type' : '類型',
-      'WeaponType' : '類型'
+      'Type' : '類型'
    }
 });
 
@@ -100,7 +101,7 @@ _.l.set( 'action.list', {
    'a_all' : "全類別",
    'lbl_count' : '%1',
 
-   'lbl_showing' : '%2 項結果',
+   'lbl_showing' : '%1 項結果',
    'lbl_filter' : '從 %2 項結果中過濾出 %1 項',
    'lbl_page' : '%1，頁 %2/%3',
    'btn_show_page' : '顯示本頁',

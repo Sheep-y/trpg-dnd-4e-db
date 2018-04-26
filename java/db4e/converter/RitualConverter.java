@@ -12,7 +12,7 @@ public class RitualConverter extends LeveledConverter {
    }
 
    @Override protected void initialise () {
-      category.fields = new String[]{ "Type", "Level", "ComponentCost", "Price", "KeySkillDescription", "SourceBook" };
+      category.fields = new String[]{ "RitualType", "Level", "ComponentCost", "Price", "KeySkillDescription", "SourceBook" };
       super.initialise();
    }
 

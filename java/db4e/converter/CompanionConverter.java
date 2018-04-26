@@ -12,7 +12,7 @@ public class CompanionConverter extends CreatureConverter {
    }
 
    @Override protected void initialise () {
-      category.fields = new String[]{ "Type", "Size", "CreatureType", "SourceBook" };
+      category.fields = new String[]{ "Type", "Size", "Keywords", "SourceBook" };
       super.initialise();
    }
 
