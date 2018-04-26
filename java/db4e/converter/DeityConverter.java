@@ -22,7 +22,7 @@ public class DeityConverter extends Converter {
    private final Matcher regxDomain = Pattern.compile( "<b>Domain: </b>([^<]+)" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( "", meta( 0 ), meta( 1 ) );
+      meta( "", meta( 0 ), "" );
       super.convertEntry();
       if ( find( regxDomain ) )
          meta( DOMAINS, regxDomain.group( 1 ) );

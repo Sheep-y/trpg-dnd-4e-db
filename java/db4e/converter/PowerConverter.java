@@ -39,7 +39,7 @@ public class PowerConverter extends LeveledConverter {
 
    @Override protected void convertEntry () {
       Object[] fields = entry.getFields();
-      meta( fields[0], fields[1], "", fields[2], "", fields[3] );
+      meta( fields[0], fields[1], "", fields[2], "", "" );
       super.convertEntry();
 
       // Add skill name to skill power type

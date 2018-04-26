@@ -22,7 +22,7 @@ public class RaceConverter extends Converter {
    private final Matcher regxAbility  = Pattern.compile( "<b>Ability scores</b>: ([^<]+)" ).matcher( "" );
 
    @Override protected void convertEntry () {
-      meta( null, null, meta( 1 ), meta( 2 ) );
+      meta( null, null, meta( 1 ), "" );
       super.convertEntry();
       // Origin column
       switch ( entry.getId() ) {

@@ -65,7 +65,7 @@ public class ItemConverter extends LeveledConverter {
       if ( isGeneric && ! meta( RARITY ).equals( "Artifact" ) ) {
          // Artifact fields are already set by Convert.moveArtifact and makeArtifact
          Object[] fields = entry.getFields();
-         meta( fields[0], "", fields[1], fields[2], fields[3], fields[4] );
+         meta( fields[0], "", fields[1], fields[2], fields[3], "" );
       }
       super.convertEntry();
       if ( meta( RARITY ).equals( "Artifact" ) ) {

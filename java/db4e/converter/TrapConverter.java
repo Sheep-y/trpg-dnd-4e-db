@@ -65,7 +65,7 @@ public class TrapConverter extends LeveledConverter {
 
       } else {
          // Terrain; change meta to fit into Trap
-         meta( "Terrain", meta( 0 ), "", meta( 1 ) );
+         meta( "Terrain", meta( 0 ), "", "" );
       }
       super.correctEntry();
    }

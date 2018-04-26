@@ -27,7 +27,7 @@ public class FeatConverter extends Converter {
 
    @Override protected void convertEntry () {
       String oldTier = meta( 0 );
-      meta( "Heroic","", meta( 1 ) );
+      meta( "Heroic", "", "" );
       super.convertEntry();
 
       if ( find( regxPrerequisite ) ) {

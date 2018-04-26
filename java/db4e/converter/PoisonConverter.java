@@ -15,7 +15,7 @@ public class PoisonConverter extends LeveledConverter  {
 
       // Convert from item to poison
       if ( entry.getFieldCount() == 5 ) {
-         meta( meta( 1 ), "", meta( 4 ) );
+         meta( meta( 1 ), "", "" );
          entry.setId( entry.getId().replace( "item", "poison0" ) );
          swap( "<h1 class=mihead>", "<h1 class=poison>", "recategorise" );
       }

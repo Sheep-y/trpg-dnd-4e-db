@@ -18,7 +18,7 @@ public class CompanionConverter extends CreatureConverter {
 
    @Override protected void convertEntry () {
       Object[] fields = entry.getFields();
-      meta( fields[0], "", "", fields[1] );
+      meta( fields[0], "", "", "" );
       super.convertEntry();
    }
 

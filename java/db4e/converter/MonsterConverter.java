@@ -21,7 +21,7 @@ public class MonsterConverter extends CreatureConverter {
 
    @Override protected void convertEntry () {
       Object[] fields = entry.getFields();
-      meta( fields[0], fields[1], fields[2], "", "", fields[3] );
+      meta( fields[0], fields[1], fields[2], "", "", "" );
       super.convertEntry();
    }
 
