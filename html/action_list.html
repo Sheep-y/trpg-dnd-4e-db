@@ -827,7 +827,7 @@ od.action.list = {
    /** Update paging label and list button links */
    'update_paging' : function act_list_update_paging ( data, start, end ) {
       var action = od.action.list, gui = od.gui;
-      var count = data.length;
+      var count = data ? data.length : 0;
       var catTitle = action.category ? action.category.getTitle() : _.l( 'action.list.a_all' );
       var title = _.l( 'action.list.lbl_page', '%1 %2/%3', catTitle, gui.total_page ? gui.page + 1 : 0, gui.total_page );
       _( '#act_list_h_title' )[0].textContent = title;
