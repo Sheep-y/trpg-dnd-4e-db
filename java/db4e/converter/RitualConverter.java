@@ -49,10 +49,8 @@ public class RitualConverter extends LeveledConverter {
       meta( TYPE, cat + type );
 
       // Swap left and right stats; level and category should go first!
-      if ( find( regxRitualStats ) )
-         swap( regxRitualStats.group(), "<p><span class=ritualstats>" + regxRitualStats.group( 2 ) + "</span>" + regxRitualStats.group( 1 ) + "</p>" );
-      else
-         warn( "Ritual stats not found" );
+      locate( regxRitualStats );
+      data( regxRitualStats.replaceFirst( "<p><span class=ritualstats>$2</span>$1</p>" ) );
 
       /* // Rebuild stats as table; gave up because not better than plain list
       if ( find( regxRitualStats ) ) {

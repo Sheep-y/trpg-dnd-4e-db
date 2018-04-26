@@ -36,6 +36,10 @@
       .detail h1 + br, .detail h2 + br, .detail h3 + br {
          display: none; /* Hide gap below title in race */
          }
+      .detail h1 a {
+         color: black;
+         }
+
    .detail p, .detail div, .detail table {
       padding-top: 0.5ex;
       padding-bottom: 0.5ex;

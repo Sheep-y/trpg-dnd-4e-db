@@ -224,12 +224,16 @@ od.action.view = {
       var action = od.action.view;
       var data = action.last_entry_content = cat.data[ id ];
       data = '<div class="detail" id="' + id + '">' + data + '</div>';
-      var content = data.replace( /(<p class=publishedIn>.*)<\/p>/, "$1<a class='cat' href='?list.name."+cat.name+"'>" + cat.getTitle() + "</a></p>" );
-      div.innerHTML = od.gui.highlight( content );
+      data = data.replace( /(<p class=publishedIn>.*)<\/p>/, "$1<a class='cat' href='?list.name."+cat.name+"'>" + cat.getTitle() + "</a></p>" );
+      var title = data.match( /(<h1[^>]*>)(.+?)</ );
+      if ( title )
+         data = data.replace( title[0], title[1] + "<a href=\"?view=" + _.escHtml( id ) + "\">" + title[2] + "</a><" );
       if ( set_title ) {
-         var h1 = content ? content.match( /<h1[^>]*>(.+?)<\/h1\s*>/ ) : null;
-         action.set_title( h1 ? h1[1].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>|\[Attack Technique\]/g, '' ).trim() : id );
+         var h1 = data.match( /(<h1[^>]*>)(.+?)<\/h1\s*>/ );
+         h1 = h1 ? h1[2].replace( /<(\w+)[^>]*>.*<\/\1>|<br\/?>|\[Attack Technique\]/g, '' ).trim() : id;
+         action.set_title( h1 );
       }
+      div.innerHTML = od.gui.highlight( data );
    },
 
    "update_nav_button" : function act_view_update_nav_button () {
