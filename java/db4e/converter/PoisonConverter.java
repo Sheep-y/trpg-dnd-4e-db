@@ -4,6 +4,8 @@ import db4e.data.Category;
 
 public class PoisonConverter extends LeveledConverter  {
 
+   private static final int COST = 1;
+
    public PoisonConverter ( Category category ) {
       super( category );
    }
@@ -18,6 +20,11 @@ public class PoisonConverter extends LeveledConverter  {
          meta( meta( 1 ), "", "" );
          entry.setId( entry.getId().replace( "item", "poison0" ) );
          swap( "<h1 class=mihead>", "<h1 class=poison>", "recategorise" );
+      }
+
+      if ( ! meta( COST ).isEmpty() ) {
+         meta( COST, meta( COST ).replace( " GP", " gp" ) );
+         fix( "consistency" );
       }
 
       switch ( entry.getId() ) {
