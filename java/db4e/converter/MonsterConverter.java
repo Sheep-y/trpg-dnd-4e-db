@@ -6,6 +6,8 @@ import java.util.Set;
 
 public class MonsterConverter extends CreatureConverter {
 
+   private static final int ROLE = 1;
+
    public MonsterConverter(Category category) {
       super( category );
       SIZE = 3;
@@ -48,6 +50,8 @@ public class MonsterConverter extends CreatureConverter {
       }
       if ( ! findSizeAndTypes() )
          warn( "Creature type not found" );
+      if ( meta( ROLE ).startsWith( "No " ) )
+         meta( ROLE, "None" + meta( ROLE ).substring( 7 ) );
       super.correctEntry();
    }
 

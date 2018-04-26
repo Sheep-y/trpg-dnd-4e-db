@@ -54,10 +54,8 @@ public class BackgroundConverter extends Converter {
          fix( "missing meta" );
       }
 
-      if ( find( regxAnyLang ) ) {
-         data( regxAnyLang.replaceFirst( "Any language except " ) );
-         fix( "consistency" );
-      }
+      if ( find( regxAnyLang ) )
+         swap( regxAnyLang.group(), "Any language except ", "consistency" );
 
       if ( find( regxAssociate ) ) { // Skill or language
          String associate = regxAssociate.group( 1 );

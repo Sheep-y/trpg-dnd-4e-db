@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RitualConverter extends LeveledConverter {
+
    private static final int TYPE = 0;
 
    public RitualConverter ( Category category ) {
@@ -50,7 +51,7 @@ public class RitualConverter extends LeveledConverter {
 
       // Swap left and right stats; level and category should go first!
       locate( regxRitualStats );
-      data( regxRitualStats.replaceFirst( "<p><span class=ritualstats>$2</span>$1</p>" ) );
+      swap( regxRitualStats.group(), "<p><span class=ritualstats>" + regxRitualStats.group( 2 ) + "</span>" + regxRitualStats.group( 1 ) + "</p>" );
 
       /* // Rebuild stats as table; gave up because not better than plain list
       if ( find( regxRitualStats ) ) {

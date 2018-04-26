@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import sheepy.util.Utils;
+import static sheepy.util.Utils.ucfirst;
 
 public class ItemConverter extends LeveledConverter {
 
@@ -117,11 +118,8 @@ public class ItemConverter extends LeveledConverter {
          String type = regxType.group( 2 ).trim();
          // Detect "Chain, cloth, hide, leather, plate or scale" and other variants
          if ( type.split( ", " ).length >= 5 ) {
-            data( regxType.replaceFirst( "<b>$1</b>: Any" ) );
-            test( TEXT, "</b>: Any" );
+            swap( regxType.group(), "<b>" + regxType.group(1) + "</b>: Any", "consistency" );
             meta( TYPE, "Any" );
-            fix( "consistency" );
-
          } else if ( type.endsWith( "Shields" ) ) {
             meta( TYPE, type.replace( "Shields", "Shield" ) );
             fix( "consistency" );
@@ -163,8 +161,8 @@ public class ItemConverter extends LeveledConverter {
 
       // Superior implements
       } else if ( meta( TYPE ).equals( "Weapon" ) ) {
-         meta( TYPE, Utils.ucfirst( entry.getName().replaceFirst( "^\\w+ ", "" ) ) );
-         if ( meta( TYPE ).equals( "Symbol" ) ) meta( TYPE, "Holy Symbol" );
+         String type = ucfirst( entry.getName().replaceFirst( "^\\w+ ", "" ) );
+         meta( TYPE, type.equals( "Symbol" ) ? "Holy Symbol" : type );
          meta( LEVEL, "Superior" );
          meta( RARITY, "Mundane" );
          fix( "recategorise" );
@@ -388,9 +386,9 @@ public class ItemConverter extends LeveledConverter {
       }
 
       if ( find( ", which is reproduced below." ) ) {
-         data( regxWhichIsReproduced.reset( data() ).replaceFirst( "" ) );
+         locate( regxWhichIsReproduced );
+         swap( regxWhichIsReproduced.group(), "", "consistency" );
          test( TEXT, Pattern.compile( ".*(?!, which is reproduced below\\.)" ) );
-         fix( "consistency" );
       }
 
       if ( find( "this item cannot be purchased or created with the Enchant Magic Item ritual." ) ) {
