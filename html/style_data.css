@@ -36,7 +36,8 @@
       .detail h1 + br, .detail h2 + br, .detail h3 + br {
          display: none; /* Hide gap below title in race */
          }
-      .detail h1 a {
+      .detail h1 a,
+      .detail h1 a:visited {
          color: black;
          }
 
