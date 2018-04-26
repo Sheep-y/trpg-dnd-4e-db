@@ -189,6 +189,10 @@ public class PowerConverter extends LeveledConverter {
             swap( "weapoon", "weapon", "typo" );
             break;
 
+         case "power5826": // Summon Bonded Protector
+            swap( ", <b>Teleportation</b>", "", "missing keyword" ); // Actually *removing* keyword
+            break;
+
          case "power6595": // Bane's Tactics
             swap( "basic melee attack", "melee basic attack", "fix basic attack" );
             break;
@@ -219,6 +223,10 @@ public class PowerConverter extends LeveledConverter {
          case "power11757": // Unwavering Vigilance"
             addRange( "<b>Ranged</b> sight" );
             swap( "sight  </p>", "sight</p>" ); // Trim additional spaces
+            break;
+
+         case "power11853": // Summon Djinn Stormcaller
+            swap( ", gain", ", you gain", "typo" );
             break;
 
          case "power12184": // Animus Strike
