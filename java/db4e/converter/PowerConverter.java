@@ -168,6 +168,24 @@ public class PowerConverter extends LeveledConverter {
       }
 
       switch ( entry.getId() ) {
+         case "power2094" : // Misty Step
+            swap( "<b>At-Will</b>  <br>", "<b>At-Will</b>   ✦     <b>Teleportation</b><br>", "missing keyword" );
+            break;
+
+         case "power3339" : // Three Beacons of Twilight
+         case "power4805" : // Lightning Strider
+         case "power9285" : // Just Punishment
+         case "power9393" : // Zealous Fury
+         case "power10233": // Protective Recall
+         case "power10270": // Soulfire Mantle
+         case "power10431": // Theft of Alacrity
+         case "power10433": // Dimensional Echoes
+         case "power12447": // Enforced Peace
+         case "power13113": // Lightning Strikes Twice
+         case "power13121": // Unstable Nexus
+            addKeyword( "Teleportation" );
+            break;
+
          case "power3660": // Indomitable Resolve
             swapFirst( "<br>", "" ); // <br> in flavor text
             fix( "formatting" );
@@ -227,11 +245,12 @@ public class PowerConverter extends LeveledConverter {
 
          case "power11853": // Summon Djinn Stormcaller
             swap( ", gain", ", you gain", "typo" );
+            addKeyword( "Teleportation" );
             break;
 
          case "power12184": // Animus Strike
          case "power12880": // Cloudburst
-            swap( "Primal</b>", "Primal</b>, <b>Spirit</b>", "missing keyword" );
+            addKeyword( "Spirit" );
             break;
 
          case "power12455": // Vaporous Step
@@ -254,6 +273,9 @@ public class PowerConverter extends LeveledConverter {
             swap( "<b>Aura</b> burst", "<b>Area</b> burst", "typo" );
             break;
 
+         case "power12454": // Shadow Adept
+            addKeyword( "Teleportation" );
+            // fallthrough
          case "power4311" : // Darkspiral Aura
          case "power6017" : // Lawbreaker's Doom
          case "power6969" : // Quickened Coercion
@@ -265,7 +287,6 @@ public class PowerConverter extends LeveledConverter {
          case "power12286": // Deadly Visions
          case "power12451": // Undeniable Tenacity
          case "power12452": // Contrivance of Speed
-         case "power12454": // Shadow Adept [teleport]
          case "power12460": // Precision Gait
          case "power13431": // Hidden Strike
          case "power16695": // River Rat's Gambit
@@ -337,5 +358,12 @@ public class PowerConverter extends LeveledConverter {
    private void addRange ( String range ) {
       locate( regxAction );
       swap( regxAction.group(), regxAction.group( 1 ) + "</b>      " + range, "missing keyword" );
+   }
+
+   private void addKeyword ( String keyword ) {
+      if ( find( regxKeywords ) )
+         swap( regxKeywords.group( 1 ), regxKeywords.group( 1 ) + ", <b>" + keyword + "</b>", "missing keyword" );
+      else
+         warn( "Cannot add keyword without keyword section" );
    }
 }
