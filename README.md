@@ -44,6 +44,7 @@ This downloader will create new data columns for easier data filter:
 * Theme: Prerequisites.
 * Power: Type (Frequency + Type) and Keywords (Range + Keywords).
 * Feat: Prerequisite.
+* Ritual: Category (and type).
 * Item: Split into 4 categories (Item, Weapon, Implement, and Armor). Add Type column.
 * Companion: Size and Type.
 * Monster: Size and Type.

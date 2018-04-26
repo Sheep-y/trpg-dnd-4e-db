@@ -5,12 +5,25 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RitualConverter extends LeveledConverter {
+   private static final int TYPE = 0;
 
    public RitualConverter ( Category category ) {
       super( category );
    }
 
+   @Override protected void initialise () {
+      category.fields = new String[]{ "Type", "Level", "ComponentCost", "Price", "KeySkillDescription", "SourceBook" };
+      super.initialise();
+   }
+
+   private final Matcher regxCategory = Pattern.compile( "<b>Category</b>: ([^<]+)" ).matcher( "" );
    private final Matcher regxRitualStats = Pattern.compile( "<p><span class=ritualstats>(.+?)</span>(.+?)</p>" ).matcher( "" );
+
+   @Override protected void convertEntry () {
+      Object[] fields = entry.getFields();
+      meta( "", fields[0], fields[1], fields[2], fields[3], "" );
+      super.convertEntry();
+   }
 
    @Override protected void correctEntry () {
       switch ( entry.getId() ) {
@@ -18,6 +31,22 @@ public class RitualConverter extends LeveledConverter {
             swap( " grp to ", " gp to ", "typo" );
             break;
       }
+
+      locate( regxCategory );
+      String type = regxCategory.group( 1 ).trim(), cat = "Ritual";
+      switch ( type ) {
+         case "Martial Practice":
+            cat = "Martial Practice";
+            // fallthrough
+         case "Other":
+            type = "";
+            break;
+         default:
+            type = ", " + type;
+      }
+      if ( find( "Alchemical Item" ) )
+         cat = "Alchemic";
+      meta( TYPE, cat + type );
 
       // Swap left and right stats; level and category should go first!
       if ( find( regxRitualStats ) )
