@@ -479,6 +479,12 @@ public class Converter extends Convert {
          log.log( Level.WARNING, "Cannot swap content of {0}: {1}", new Object[]{ entry, from } );
    }
 
+   /** Simple substring replace and log fix. Tested. */
+   protected final void swapAll ( String from, String to, String fix ) {
+      swapAll( from, to );
+      fix( fix );
+   }
+
    /** Regular expression replace. Tested. */
    protected final void swapFirst ( String from, String to ) {
       if ( data().contains( from ) ) {

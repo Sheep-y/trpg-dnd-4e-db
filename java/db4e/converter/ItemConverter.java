@@ -409,8 +409,7 @@ public class ItemConverter extends LeveledConverter {
             break;
 
          case "armor105": // Shield of Prator
-            swapAll( " class=magicitem>", " class=mihead>" );
-            fix( "title colour" );
+            swapAll( " class=magicitem>", " class=mihead>", "title colour" );
             break;
 
          case "item434": // Rings of the Akarot

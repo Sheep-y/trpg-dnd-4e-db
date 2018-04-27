@@ -162,14 +162,16 @@ public class PowerConverter extends LeveledConverter {
       if ( meta( ACTION ).startsWith( "Immediate " ) )
          meta( ACTION, meta( ACTION ).replace( "Immediate ", "Imm. " ) );
 
-      if ( find( regxRangeFix ) ) {
-         swapAll( regxRangeFix.group(), "<b>" + regxRangeFix.group( 1 ) + "</b> " + regxRangeFix.group( 2 ) );
-         fix( "styling" );
-      }
+      if ( find( regxRangeFix ) )
+         swapAll( regxRangeFix.group(), "<b>" + regxRangeFix.group( 1 ) + "</b> " + regxRangeFix.group( 2 ), "styling" );
 
       switch ( entry.getId() ) {
          case "power2094" : // Misty Step
             swap( "<b>At-Will</b><br>", "<b>At-Will</b>   ✦     <b>Teleportation</b><br>", "missing keyword" );
+            break;
+
+         case "power2827" : // Prismatic Wall
+            swapAll( "Poison</b><br>", "Poison</b>, <b>Teleportation</b><br>", "missing keyword" );
             break;
 
          case "power3339" : // Three Beacons of Twilight
@@ -208,6 +210,10 @@ public class PowerConverter extends LeveledConverter {
             swap( "weapoon", "weapon", "typo" );
             break;
 
+         case "power5816": // Staffstrike Shock"
+            swap( "Defense</b>:", "Defense (Teleportation)</b>:", "missing keyword" );
+            break;
+
          case "power5826": // Summon Bonded Protector
             swap( ", <b>Teleportation</b>", "", "missing keyword" ); // Actually *removing* keyword
             break;
@@ -222,6 +228,11 @@ public class PowerConverter extends LeveledConverter {
          case "power7367": // Improvised Poison
          case "power7369": // Progressive Toxin
             addRange( "<b>Melee or Ranged</b>" );
+            break;
+
+         case "power7682": // Dimensional Shifter
+            swap( "Action</b>:", "Action (Teleportation)</b>:", "missing keyword" );
+            swap( "Attack</b>:", "Attack (Teleportation)</b>:" );
             break;
 
          case "power8278": // Dark Reaping
@@ -260,6 +271,10 @@ public class PowerConverter extends LeveledConverter {
             swap( "Weapon</b><br><b>Move", "Teleportation</b>, <b>Weapon</b><br><b>Move", "missing keyword" );
             break;
 
+         case "power11306": // Vestige of the Unknown Arcanist
+            swap( "Boon</b>:", "Boon (Teleportation)</b>:", "missing keyword" );
+            break;
+
          case "power11757": // Unwavering Vigilance"
             addRange( "<b>Ranged</b> sight" );
             swap( "sight  </p>", "sight</p>" ); // Trim additional spaces
@@ -279,9 +294,17 @@ public class PowerConverter extends LeveledConverter {
             addRange( "<b>Close</b> burst 5" );
             swap( "each ally within 5 squares of you", "each ally in the burst", "consistency" );
             break;
-            
+
+         case "power12572": // Murderous Shadow
+            swap( "Action</b>: The shadow", "Action (Teleportation)</b>: The shadow", "missing keyword" );
+            break;
+
          case "power12588": // Siberys Mark of Finding
             swap( "<b>Daily</b><br>", "<b>Daily</b>   ✦     <b>Teleportation</b><br>", "missing keyword" );
+            break;
+
+         case "power13421": // Call Forth the Seven Keys
+            appendKeyword( "Teleportation" );
             break;
 
          case "power13769": // Command Undead

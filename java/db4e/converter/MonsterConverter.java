@@ -43,10 +43,8 @@ public class MonsterConverter extends CreatureConverter {
             // Fallthrough to fix basic attack
 
          default:
-            if ( find( "basic melee attack") ) {
-               swapAll( "basic melee attack", "melee basic attack" );
-               fix( "fix basic attack" );
-            }
+            if ( find( "basic melee attack") )
+               swapAll( "basic melee attack", "melee basic attack", "fix basic attack" );
       }
       if ( ! findSizeAndTypes() )
          warn( "Creature type not found" );

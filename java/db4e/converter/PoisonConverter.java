@@ -40,8 +40,7 @@ public class PoisonConverter extends LeveledConverter  {
          case "poison03563": // Grell Bile
          case "poison03566": // Mind Flayer Tentacle Extract
             swapAll( "(Consumable, ", "(" );
-            swapAll( " ✦ (", " ✦ Consumable (" );
-            fix( "missing power frequency" );
+            swapAll( " ✦ (", " ✦ Consumable (", "missing power frequency" );
       }
       super.correctEntry();
    }
