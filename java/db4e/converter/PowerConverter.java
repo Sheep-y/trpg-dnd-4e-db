@@ -173,17 +173,9 @@ public class PowerConverter extends LeveledConverter {
             break;
 
          case "power3339" : // Three Beacons of Twilight
-         case "power4805" : // Lightning Strider
-         case "power9285" : // Just Punishment
-         case "power9393" : // Zealous Fury
-         case "power10233": // Protective Recall
-         case "power10270": // Soulfire Mantle
-         case "power10431": // Theft of Alacrity
-         case "power10433": // Dimensional Echoes
-         case "power12447": // Enforced Peace
-         case "power13113": // Lightning Strikes Twice
+         case "power12591": // Siberys Mark of Hospitality
          case "power13121": // Unstable Nexus
-            addKeyword( "Teleportation" );
+            swap( ", <b>Zone", ", <b>Teleportation</b>, <b>Zone", "missing keyword" );
             break;
 
          case "power3660": // Indomitable Resolve
@@ -201,6 +193,14 @@ public class PowerConverter extends LeveledConverter {
 
          case "power4713": // Lurk Unseen
             swap( ">Wildcat Stalker 12<", ">Wildcat Stalker Utility 12<", "missing keyword" );
+            break;
+
+         case "power4805" : // Lightning Strider
+         case "power9285" : // Just Punishment
+         case "power10433": // Dimensional Echoes
+         case "power12447": // Enforced Peace
+         case "power13113": // Lightning Strikes Twice
+            swap( ", <b>Weapon", ", <b>Teleportation</b>, <b>Weapon", "missing keyword" );
             break;
 
          case "power5767": // Marksman's Vision
@@ -238,6 +238,13 @@ public class PowerConverter extends LeveledConverter {
             swap( "<p class=powerstat>   ✦", "<p class=powerstat><b>Encounter</b>   ✦", "missing power frequency" );
             break;
 
+         case "power9393" : // Zealous Fury
+         case "power10233": // Protective Recall
+         case "power10270": // Soulfire Mantle
+         case "power10431": // Theft of Alacrity
+            appendKeyword( "Teleportation" );
+            break;
+
          case "power11757": // Unwavering Vigilance"
             addRange( "<b>Ranged</b> sight" );
             swap( "sight  </p>", "sight</p>" ); // Trim additional spaces
@@ -245,17 +252,21 @@ public class PowerConverter extends LeveledConverter {
 
          case "power11853": // Summon Djinn Stormcaller
             swap( ", gain", ", you gain", "typo" );
-            addKeyword( "Teleportation" );
+            swap( "Summoning</b>, ", "Summoning</b>, <b>Teleportation</b>, ", "missing keyword" );
             break;
 
          case "power12184": // Animus Strike
          case "power12880": // Cloudburst
-            addKeyword( "Spirit" );
+            appendKeyword( "Spirit" );
             break;
 
          case "power12455": // Vaporous Step
             addRange( "<b>Close</b> burst 5" );
             swap( "each ally within 5 squares of you", "each ally in the burst", "consistency" );
+            break;
+            
+         case "power12588": // Siberys Mark of Finding
+            swap( "<b>Daily</b><br>", "<b>Daily</b>   ✦     <b>Teleportation</b><br>", "missing keyword" );
             break;
 
          case "power13769": // Command Undead
@@ -274,7 +285,7 @@ public class PowerConverter extends LeveledConverter {
             break;
 
          case "power12454": // Shadow Adept
-            addKeyword( "Teleportation" );
+            appendKeyword( "Teleportation" );
             // fallthrough
          case "power4311" : // Darkspiral Aura
          case "power6017" : // Lawbreaker's Doom
@@ -360,7 +371,7 @@ public class PowerConverter extends LeveledConverter {
       swap( regxAction.group(), regxAction.group( 1 ) + "</b>      " + range, "missing keyword" );
    }
 
-   private void addKeyword ( String keyword ) {
+   private void appendKeyword ( String keyword ) {
       if ( find( regxKeywords ) )
          swap( regxKeywords.group( 1 ), regxKeywords.group( 1 ) + ", <b>" + keyword + "</b>", "missing keyword" );
       else
