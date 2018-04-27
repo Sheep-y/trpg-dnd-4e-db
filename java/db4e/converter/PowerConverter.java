@@ -199,6 +199,7 @@ public class PowerConverter extends LeveledConverter {
          case "power9285" : // Just Punishment
          case "power10433": // Dimensional Echoes
          case "power12447": // Enforced Peace
+         case "power12462": // Form of the All-Spirit
          case "power13113": // Lightning Strikes Twice
             swap( ", <b>Weapon", ", <b>Teleportation</b>, <b>Weapon", "missing keyword" );
             break;
@@ -243,6 +244,20 @@ public class PowerConverter extends LeveledConverter {
          case "power10270": // Soulfire Mantle
          case "power10431": // Theft of Alacrity
             appendKeyword( "Teleportation" );
+            break;
+
+         case "power10197": // Warweaver's Tether
+            swap( "Force</b><br>", "Force</b>, <b>Teleportation</b><br>", "missing keyword" );
+            break;
+
+         case "power10216": // Planestorm Anchor
+            swap( "Attack</h1><p class=powerstat><b>Daily</b> ✦     <b>Arcane</b>, <b>Lightning</b>",
+                  "Attack</h1><p class=powerstat><b>Daily</b> ✦     <b>Arcane</b>, <b>Lightning</b>, <b>Teleportation</b>",
+                  "missing keyword" );
+            break;
+
+         case "power10235": // Living Gate
+            swap( "Weapon</b><br><b>Move", "Teleportation</b>, <b>Weapon</b><br><b>Move", "missing keyword" );
             break;
 
          case "power11757": // Unwavering Vigilance"
